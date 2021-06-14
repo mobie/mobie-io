@@ -46,7 +46,7 @@ public class OMEZarrS3Reader extends S3Reader
 		//showAll();
 		//readI2KGif();
 		//showIDR0();
-		showIDR1();
+//		showIDR1();
 	}
 
 	public static void showIDR0() throws IOException
