@@ -1,4 +1,4 @@
-package de.embl.cba.bdv.ome.zarr;
+package de.embl.cba.bdv.ome.zarr.zarr;
 
 import ij.IJ;
 

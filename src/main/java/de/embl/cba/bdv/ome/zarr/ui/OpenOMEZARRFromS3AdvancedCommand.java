@@ -1,4 +1,4 @@
-package de.embl.cba.bdv.ome.zarr.zarr.ui;
+package de.embl.cba.bdv.ome.zarr.ui;
 
 import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrS3Reader;
 import net.imagej.ImageJ;

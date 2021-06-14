@@ -27,9 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package de.embl.cba.bdv.ome.zarr.zarr;
+package de.embl.cba.bdv.ome.zarr.loaders;
 
 import com.amazonaws.services.s3.AmazonS3;
+import de.embl.cba.bdv.ome.zarr.zarr.N5S3ZarrReader;
 import de.embl.cba.tables.S3Utils;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 
@@ -46,7 +47,7 @@ public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader
 
 	static class  N5S3ZarrReaderCreator
 	{
-		public N5S3ZarrReader create( String serviceEndpoint, String signingRegion, String bucketName, String key ) throws IOException
+		public N5S3ZarrReader create(String serviceEndpoint, String signingRegion, String bucketName, String key ) throws IOException
 		{
 			final AmazonS3 s3 = S3Utils.getS3Client( serviceEndpoint, signingRegion, bucketName );
 			return new N5S3ZarrReader( s3, serviceEndpoint, bucketName, key );

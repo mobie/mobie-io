@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package de.embl.cba.bdv.ome.zarr.zarr;
+package de.embl.cba.bdv.ome.zarr.loaders;
 
 import bdv.AbstractViewerSetupImgLoader;
 import bdv.ViewerImgLoader;
@@ -37,6 +37,7 @@ import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
 import com.amazonaws.SdkClientException;
+import de.embl.cba.bdv.ome.zarr.zarr.N5S3ZarrReader;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
@@ -236,7 +237,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		if ( multiscales == null )
 		{
 			String location = "";
-			if ( n5 instanceof N5S3ZarrReader )
+			if ( n5 instanceof N5S3ZarrReader)
 			{
 				final N5S3ZarrReader s3ZarrReader = ( N5S3ZarrReader ) n5;
 				location += "service endpoint: " + s3ZarrReader.getServiceEndpoint();
