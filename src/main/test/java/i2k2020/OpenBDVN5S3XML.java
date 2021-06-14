@@ -9,7 +9,7 @@ public class OpenBDVN5S3XML
 {
 	public static void main( String[] args ) throws SpimDataException
 	{
-		SpimData spimData = new XmlIoSpimData().load( "src/test/resources/prospr-myosin-n5.xml" );
+		SpimData spimData = new XmlIoSpimData().load( "src/main/test/resources/prospr-myosin-n5.xml" );
 		BdvFunctions.show( spimData );
 	}
 }

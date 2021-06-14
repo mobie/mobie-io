@@ -1,4 +1,4 @@
-import de.embl.cba.mobie.n5.zarr.*
+import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrS3Reader
 import bdv.util.BdvFunctions
 
 //N5OMEZarrImageLoader.debugLogging = true;

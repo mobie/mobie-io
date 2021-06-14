@@ -20,8 +20,8 @@
  *
  */
 
-import de.embl.cba.mobie.n5.zarr.*;
-import de.embl.cba.mobie.n5.source.Sources;
+
+import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrS3Reader
 import bdv.util.*;
 
 N5OMEZarrImageLoader.logChunkLoading = true;
