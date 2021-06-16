@@ -21,10 +21,12 @@ public class OMEZarrS3Reader extends S3Reader
 	{
 		super(serviceEndpoint, signingRegion, bucketName);
 	}
+
+	//TODO: get real dimensionSeparator from the metadata
 	public SpimData readKey( String key ) throws IOException
 	{
-		N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
-		N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader( serviceEndpoint, signingRegion, bucketName, key );
+		N5OMEZarrImageLoader.logChunkLoading = true;
+		N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader( serviceEndpoint, signingRegion, bucketName, key);
 		SpimData spimData = new SpimData( null, Cast.unchecked( imageLoader.getSequenceDescription() ), imageLoader.getViewRegistrations() );
 		return spimData;
 	}
@@ -46,7 +48,7 @@ public class OMEZarrS3Reader extends S3Reader
 		//showAll();
 		//readI2KGif();
 		//showIDR0();
-//		showIDR1();
+		showIDR1();
 	}
 
 	public static void showIDR0() throws IOException

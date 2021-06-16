@@ -50,7 +50,7 @@ public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader
 		public N5S3ZarrReader create(String serviceEndpoint, String signingRegion, String bucketName, String key ) throws IOException
 		{
 			final AmazonS3 s3 = S3Utils.getS3Client( serviceEndpoint, signingRegion, bucketName );
-			return new N5S3ZarrReader( s3, serviceEndpoint, bucketName, key );
+			return new N5S3ZarrReader( s3, serviceEndpoint, bucketName, key, "." );
 		}
 	}
 

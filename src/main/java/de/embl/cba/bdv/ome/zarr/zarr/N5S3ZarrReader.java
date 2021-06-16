@@ -53,19 +53,27 @@ import java.util.HashMap;
  */
 public class N5S3ZarrReader extends N5AmazonS3Reader
 {
+	private static final String V3_SEPARATOR = "/";
+	private static final String D5_SEPARATOR = ".";
+
 	private static final String zarrayFile = N5ZarrReader.zarrayFile;
 	private static final String zattrsFile = N5ZarrReader.zattrsFile;
 	private static final String zgroupFile = N5ZarrReader.zgroupFile;
 
 	final protected boolean mapN5DatasetAttributes;
-	final protected String dimensionSeparator;
+
+	protected String dimensionSeparator;
 	private final String serviceEndpoint;
 
-	public N5S3ZarrReader( AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath ) throws IOException
+	public void setDimensionSeparator(String dimensionSeparator) {
+		this.dimensionSeparator = dimensionSeparator;
+	}
+
+	public N5S3ZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator ) throws IOException
 	{
 		super(s3, bucketName, containerPath, initGsonBuilder(new GsonBuilder()));
 		this.serviceEndpoint = serviceEndpoint; // for debugging
-		dimensionSeparator = ".";
+		this.dimensionSeparator = dimensionSeparator;
 		mapN5DatasetAttributes = true;
 	}
 
@@ -167,6 +175,8 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 			attributes = new HashMap<>();
 		}
 
+		JsonElement dimSep = attributes.get("dimension_separator");
+		this.dimensionSeparator = dimSep == null ?  D5_SEPARATOR : V3_SEPARATOR;
 		return new ZArrayAttributes(
 				attributes.get( "zarr_format" ).getAsInt(),
 				gson.fromJson(attributes.get("shape"), long[].class),

@@ -28,6 +28,7 @@ public class OMEZarrReader
 
     public static SpimData openFile(String filePath) throws IOException
     {
+        setLogChunkLoading(true);
         N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
         OMEZarrReader omeZarrReader = new OMEZarrReader(filePath);
         return omeZarrReader.readFile();
@@ -42,5 +43,9 @@ public class OMEZarrReader
                 new File(this.filePath),
                 Cast.unchecked( imageLoader.getSequenceDescription() ),
                 imageLoader.getViewRegistrations());
+    }
+
+    private boolean isV3OMEZarr(){
+        return true;
     }
 }
