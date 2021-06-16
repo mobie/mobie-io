@@ -174,7 +174,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 			System.out.println(path.toString() + " does not exist.");
 			attributes = new HashMap<>();
 		}
-
 		JsonElement dimSep = attributes.get("dimension_separator");
 		this.dimensionSeparator = dimSep == null ?  D5_SEPARATOR : V3_SEPARATOR;
 		return new ZArrayAttributes(

@@ -251,7 +251,7 @@ public class N5ZarrReader extends N5FSReader
 								gson));
 			}
 		} else System.out.println(path.toString() + " does not exist.");
-
+		System.out.println(attributes.keySet());
 		JsonElement dimSep = attributes.get("dimension_separator");
 		this.dimensionSeparator = dimSep == null ?  D5_SEPARATOR : V3_SEPARATOR;
 

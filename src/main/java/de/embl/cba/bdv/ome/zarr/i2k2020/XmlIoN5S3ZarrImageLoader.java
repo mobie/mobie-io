@@ -77,7 +77,7 @@ public class XmlIoN5S3ZarrImageLoader implements XmlIoBasicImgLoader< N5S3OMEZar
 		final String key = XmlHelpers.getText( elem, KEY );
 		try
 		{
-			return new N5S3OMEZarrImageLoader( serviceEndpoint, signingRegion, bucketName, key, sequenceDescription);
+			return new N5S3OMEZarrImageLoader( serviceEndpoint, signingRegion, bucketName, key, "/", sequenceDescription);
 		}
 		catch ( IOException e )
 		{

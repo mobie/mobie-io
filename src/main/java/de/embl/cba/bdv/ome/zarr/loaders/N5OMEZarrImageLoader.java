@@ -62,7 +62,10 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.type.volatiles.*;
 import net.imglib2.util.Cast;
 import net.imglib2.view.Views;
-import org.janelia.saalfeldlab.n5.*;
+import org.janelia.saalfeldlab.n5.DataBlock;
+import org.janelia.saalfeldlab.n5.DataType;
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.imglib2.N5CellLoader;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,6 +82,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 	protected AbstractSequenceDescription< ?, ?, ? > seq;
 	protected ViewRegistrations viewRegistrations;
 	public static boolean logChunkLoading = false;
+	private static boolean is5D = false;
 
 	/**
 	 * Maps setup id to {@link SetupImgLoader}.
@@ -132,7 +136,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 			for ( int setupId = 0; setupId < numSetups; setupId++ )
 			{
 				ViewSetup viewSetup = createViewSetup( setupId );
-				int setupTimepoints = ( int ) setupToAttributes.get( setupId ).getDimensions()[ T ];
+				int setupTimepoints = 1;
+				is5D = false;
+				if (setupToAttributes.get( setupId ).getNumDimensions() > 4) {
+					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[T];
+					is5D = true;
+				}
 				sequenceTimepoints = setupTimepoints > sequenceTimepoints ?  setupTimepoints : sequenceTimepoints;
 				viewSetups.add( viewSetup );
 				viewRegistrationList.addAll( createViewRegistrations( setupId, setupTimepoints ) );
@@ -166,8 +175,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		int setupId = -1;
 		Multiscale multiscale = getMultiscale( "" ); // returns multiscales[ 0 ]
 		DatasetAttributes attributes = getDatasetAttributes( multiscale.datasets[ 0 ].path );
-		long nC = attributes.getDimensions()[ C ];
-
+		long nC = 1;
+		if (attributes.getNumDimensions() > 4) {
+			nC = attributes.getDimensions()[C];
+		}
 		for ( int c = 0; c < nC; c++ )
 		{
 			// each channel is one setup
@@ -237,9 +248,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		if ( multiscales == null )
 		{
 			String location = "";
-			if ( n5 instanceof N5S3ZarrReader)
+			if ( n5 instanceof N5S3ZarrReader )
 			{
 				final N5S3ZarrReader s3ZarrReader = ( N5S3ZarrReader ) n5;
+				s3ZarrReader.setDimensionSeparator("/");
 				location += "service endpoint: " + s3ZarrReader.getServiceEndpoint();
 				location += "; bucket: " + s3ZarrReader.getBucketName();
 				location += "; container path: " + s3ZarrReader.getContainerPath();
@@ -482,8 +494,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
 			try
 			{
-				for ( int level = 0; level < mipmapResolutions.length; level++ )
-					mipmapResolutions[ level ] = multiscale.scales[ level ];
+				System.arraycopy(multiscale.scales, 0, mipmapResolutions, 0, mipmapResolutions.length);
 			}
 			catch ( Exception e )
 			{
@@ -576,7 +587,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				}
 
 				// ome.zarr is 5D but BDV expects 3D
+				System.out.println(Arrays.toString(attributes.getDimensions()));
 				final long[] dimensions = Arrays.stream( attributes.getDimensions() ).limit( 3 ).toArray();
+				System.out.println(Arrays.toString(dimensions));
 				final int[] cellDimensions = Arrays.stream( attributes.getBlockSize() ).limit( 3 ).toArray();
 				final CellGrid grid = new CellGrid( dimensions, cellDimensions );
 
@@ -680,11 +693,17 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
 		private long[] getCellDims( long[] gridPosition )
 		{
-			long[] cellMin = new long[ 5 ];
-			int[] cellDims = new int[ 5 ];
-			cellGrid.getCellDimensions( gridPosition, cellMin, cellDims );
+			long[] cellMin = new long[ 3 ];
+			int[] cellDims = new int[ 3 ];
+
+			if (is5D) {
+			cellMin = new long[ 5 ];
+			cellDims = new int[ 5 ];
 			cellDims[ 3 ] = 1; // channel
 			cellDims[ 4 ] = 1; // timepoint
+			}
+
+			cellGrid.getCellDimensions( gridPosition, cellMin, cellDims );
 			return Arrays.stream( cellDims ).mapToLong( i -> i ).toArray(); // casting to long for creating ArrayImgs.*
 		}
 	}
@@ -709,24 +728,29 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		}
 
 		@Override
-		public A loadArray( final long[] gridPosition3D ) throws IOException
+		public A loadArray( final long[] gridPosition ) throws IOException
 		{
 			DataBlock< ? > block = null;
+			long[] usedGridPosition = gridPosition;
 
+			if (is5D) {
 			long[] gridPosition5D = new long[ 5 ];
-			for ( int d = 0; d < 3; d++ ) gridPosition5D[ d ] = gridPosition3D[ d ];
+			System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
 			gridPosition5D[ 3 ] = channel;
 			gridPosition5D[ 4 ] = timepoint;
+				usedGridPosition = gridPosition5D;
+			}
+
 
 			long start = 0;
 			if ( logChunkLoading )
 			{
 				start = System.currentTimeMillis();
-				System.out.println( pathName + " " + Arrays.toString( gridPosition5D ) + " ..." );
+				System.out.println( pathName + " " + Arrays.toString( usedGridPosition ) + " ..." );
 			}
 
 			try {
-				block = n5.readBlock( pathName, attributes, gridPosition5D );
+				block = n5.readBlock( pathName, attributes, usedGridPosition );
 			}
 			catch ( SdkClientException e )
 			{
@@ -736,18 +760,18 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 			if ( logChunkLoading )
 			{
 				if ( block != null )
-					System.out.println( pathName + " " + Arrays.toString( gridPosition5D ) + " fetched " + block.getNumElements() + " voxels in " + ( System.currentTimeMillis() - start ) + " ms." );
+					System.out.println( pathName + " " + Arrays.toString( usedGridPosition ) + " fetched " + block.getNumElements() + " voxels in " + ( System.currentTimeMillis() - start ) + " ms." );
 				else
-					System.out.println( pathName + " " + Arrays.toString( gridPosition5D ) + " is missing, returning zeros." );
+					System.out.println( pathName + " " + Arrays.toString( usedGridPosition ) + " is missing, returning zeros." );
 			}
 
 			if ( block == null )
 			{
-				return arrayCreator.createEmptyArray( gridPosition3D );
+				return arrayCreator.createEmptyArray( usedGridPosition );
 			}
 			else
 			{
-				return arrayCreator.createArray( block, gridPosition3D );
+				return arrayCreator.createArray( block, usedGridPosition );
 			}
 		}
 	}

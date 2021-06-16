@@ -26,7 +26,7 @@ public class OMEZarrS3Reader extends S3Reader
 	public SpimData readKey( String key ) throws IOException
 	{
 		N5OMEZarrImageLoader.logChunkLoading = true;
-		N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader( serviceEndpoint, signingRegion, bucketName, key);
+		N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader( serviceEndpoint, signingRegion, bucketName, key, ".");
 		SpimData spimData = new SpimData( null, Cast.unchecked( imageLoader.getSequenceDescription() ), imageLoader.getViewRegistrations() );
 		return spimData;
 	}
