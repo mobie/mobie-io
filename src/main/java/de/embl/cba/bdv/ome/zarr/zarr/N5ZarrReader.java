@@ -26,7 +26,9 @@
 package de.embl.cba.bdv.ome.zarr.zarr;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
@@ -63,6 +65,8 @@ public class N5ZarrReader extends N5FSReader
 	protected static final String zarrayFile = ".zarray";
 	protected static final String zattrsFile = ".zattrs";
 	protected static final String zgroupFile = ".zgroup";
+
+	HashMap<String, Integer> axesMap = new HashMap<>();
 
 	static private GsonBuilder initGsonBuilder(final GsonBuilder gsonBuilder) {
 
@@ -251,6 +255,7 @@ public class N5ZarrReader extends N5FSReader
 								gson));
 			}
 		} else System.out.println(path.toString() + " does not exist.");
+
 		System.out.println(attributes.keySet());
 		JsonElement dimSep = attributes.get("dimension_separator");
 		this.dimensionSeparator = dimSep == null ?  D5_SEPARATOR : V3_SEPARATOR;
@@ -319,6 +324,10 @@ public class N5ZarrReader extends N5FSReader
 			}
 		}
 
+		System.out.println("ZARRRRR" + attributes.keySet());
+
+		getDimensions(attributes);
+
 		if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
 			final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
@@ -329,6 +338,29 @@ public class N5ZarrReader extends N5FSReader
 		}
 
 		return attributes;
+	}
+
+	private void getDimensions(HashMap<String, JsonElement> attributes) {
+		JsonElement arrayDimensions = attributes.get("_ARRAY_DIMENSIONS");
+		JsonElement multiscales = attributes.get("multiscales");
+		if (arrayDimensions != null) {
+			System.out.println(arrayDimensions.getAsJsonArray());
+		}
+		if (multiscales != null) {
+			JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
+			setAxes(axes);
+		}
+	}
+
+	public void setAxes(JsonElement axesJson) {
+		for (int i=0; i < axesJson.getAsJsonArray().size(); i++) {
+			String elem = axesJson.getAsJsonArray().get(i).getAsString();
+			axesMap.put(elem, i);
+			}
+	}
+
+	public HashMap<String, Integer> getAxes() {
+		return axesMap;
 	}
 
 	/**

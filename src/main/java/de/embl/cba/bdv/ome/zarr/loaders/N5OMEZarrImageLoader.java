@@ -97,6 +97,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 	private Map< Integer, DatasetAttributes > setupToAttributes = new HashMap<>(  );
 	private Map< Integer, Integer > setupToChannel = new HashMap<>( );
 	private int sequenceTimepoints = 0;
+	private HashMap<String, Integer> axesMap = new HashMap<>();
 
 
 	/**
@@ -110,6 +111,13 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 	{
 		this.n5 = n5Reader;
 		this.seq = sequenceDescription; // TODO: it is better to fetch from within Zarr
+	}
+
+	public N5OMEZarrImageLoader( N5Reader n5Reader, HashMap<String, Integer> axesMap)
+	{
+		this.n5 = n5Reader;
+		this.axesMap = axesMap;
+		fetchSequenceDescriptionAndViewRegistrations();
 	}
 
 	/**
@@ -586,11 +594,11 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 					System.out.println( "Preparing image " + pathName + " of data type " + attributes.getDataType() );
 				}
 
+				//////TODO: get the dimensions
 				// ome.zarr is 5D but BDV expects 3D
-				System.out.println(Arrays.toString(attributes.getDimensions()));
-				final long[] dimensions = Arrays.stream( attributes.getDimensions() ).limit( 3 ).toArray();
-				System.out.println(Arrays.toString(dimensions));
-				final int[] cellDimensions = Arrays.stream( attributes.getBlockSize() ).limit( 3 ).toArray();
+				long[] dimensions = getDimensions(attributes);
+//				final int[] cellDimensions = Arrays.stream( attributes.getBlockSize() ).limit( 3 ).toArray();
+				final int[] cellDimensions = getBlockSize(attributes);
 				final CellGrid grid = new CellGrid( dimensions, cellDimensions );
 
 				final int priority = numMipmapLevels() - 1 - level;
@@ -611,6 +619,45 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		}
 	}
 
+	private long[] getDimensions(DatasetAttributes attributes) {
+		long[] dimensions = new long[axesMap.size()];
+		if (axesMap.containsKey("x")) {
+			dimensions[axesMap.get("x")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("x")];
+		}
+		if(axesMap.containsKey("y")) {
+			dimensions[axesMap.get("y")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("y")];
+		}
+		if (axesMap.containsKey("z")) {
+			dimensions[axesMap.get("z")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("z")];
+		}
+		if (axesMap.containsKey("c")) {
+			dimensions[axesMap.get("c")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("c")];
+		}
+		if (axesMap.containsKey("t")) {
+			dimensions[axesMap.get("x")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("t")];
+		}
+		return dimensions;
+	}
+
+	private int[] getBlockSize(DatasetAttributes attributes) {
+		int[] dimensions = new int[axesMap.size()];
+		if (axesMap.containsKey("x")) {
+			dimensions[axesMap.get("x")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("x")];
+		}
+		if(axesMap.containsKey("y")) {
+			dimensions[axesMap.get("y")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("y")];
+		}
+		if (axesMap.containsKey("z")) {
+			dimensions[axesMap.get("z")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("z")];
+		}
+		if (axesMap.containsKey("c")) {
+			dimensions[axesMap.get("c")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("c")];
+		}
+		if (axesMap.containsKey("t")) {
+			dimensions[axesMap.get("x")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("t")];
+		}
+		return dimensions;
+	}
 	private static class ArrayCreator< A, T extends NativeType< T > >
 	{
 		private final CellGrid cellGrid;
