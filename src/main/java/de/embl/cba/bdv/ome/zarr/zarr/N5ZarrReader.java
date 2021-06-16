@@ -324,8 +324,6 @@ public class N5ZarrReader extends N5FSReader
 			}
 		}
 
-		System.out.println("ZARRRRR" + attributes.keySet());
-
 		getDimensions(attributes);
 
 		if (mapN5DatasetAttributes && datasetExists(pathName)) {
@@ -345,10 +343,10 @@ public class N5ZarrReader extends N5FSReader
 		JsonElement multiscales = attributes.get("multiscales");
 		if (arrayDimensions != null) {
 			System.out.println(arrayDimensions.getAsJsonArray());
-		}
-		if (multiscales != null) {
-			JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
-			setAxes(axes);
+			if (multiscales != null) {
+				JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
+				setAxes(axes);
+			}
 		}
 	}
 

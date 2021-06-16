@@ -146,7 +146,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				ViewSetup viewSetup = createViewSetup( setupId );
 				int setupTimepoints = 1;
 				is5D = false;
-				if (setupToAttributes.get( setupId ).getNumDimensions() > 4) {
+				if (!axesMap.isEmpty() && axesMap.containsKey("t")) {
+					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[axesMap.get("t")];
+					is5D = true;
+				} else if (setupToAttributes.get(setupId).getNumDimensions() > 4) {
 					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[T];
 					is5D = true;
 				}
@@ -184,7 +187,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		Multiscale multiscale = getMultiscale( "" ); // returns multiscales[ 0 ]
 		DatasetAttributes attributes = getDatasetAttributes( multiscale.datasets[ 0 ].path );
 		long nC = 1;
-		if (attributes.getNumDimensions() > 4) {
+		if (!axesMap.isEmpty() && axesMap.containsKey("c")) {
+			nC = attributes.getDimensions()[axesMap.get("c")];
+		} else if (attributes.getNumDimensions() > 4) {
 			nC = attributes.getDimensions()[C];
 		}
 		for ( int c = 0; c < nC; c++ )
@@ -599,6 +604,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				long[] dimensions = getDimensions(attributes);
 //				final int[] cellDimensions = Arrays.stream( attributes.getBlockSize() ).limit( 3 ).toArray();
 				final int[] cellDimensions = getBlockSize(attributes);
+				System.out.println(Arrays.toString(dimensions));
+				System.out.println(Arrays.toString(cellDimensions));
 				final CellGrid grid = new CellGrid( dimensions, cellDimensions );
 
 				final int priority = numMipmapLevels() - 1 - level;
@@ -621,42 +628,50 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
 	private long[] getDimensions(DatasetAttributes attributes) {
 		long[] dimensions = new long[axesMap.size()];
-		if (axesMap.containsKey("x")) {
-			dimensions[axesMap.get("x")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("x")];
-		}
-		if(axesMap.containsKey("y")) {
-			dimensions[axesMap.get("y")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("y")];
-		}
-		if (axesMap.containsKey("z")) {
-			dimensions[axesMap.get("z")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("z")];
-		}
-		if (axesMap.containsKey("c")) {
-			dimensions[axesMap.get("c")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("c")];
-		}
-		if (axesMap.containsKey("t")) {
-			dimensions[axesMap.get("x")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("t")];
+		if (!axesMap.isEmpty()) {
+			if (axesMap.containsKey("x")) {
+				dimensions[axesMap.get("x")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("x")];
+			}
+			if (axesMap.containsKey("y")) {
+				dimensions[axesMap.get("y")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("y")];
+			}
+			if (axesMap.containsKey("z")) {
+				dimensions[axesMap.get("z")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("z")];
+			}
+			if (axesMap.containsKey("c")) {
+				dimensions[axesMap.get("c")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("c")];
+			}
+			if (axesMap.containsKey("t")) {
+				dimensions[axesMap.get("t")] = Arrays.stream(attributes.getDimensions()).toArray()[axesMap.get("t")];
+			}
+		} else {
+			dimensions = Arrays.stream( attributes.getDimensions() ).limit( 3 ).toArray();
 		}
 		return dimensions;
 	}
 
 	private int[] getBlockSize(DatasetAttributes attributes) {
 		int[] dimensions = new int[axesMap.size()];
-		if (axesMap.containsKey("x")) {
-			dimensions[axesMap.get("x")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("x")];
+		if (!axesMap.isEmpty()) {
+			if (axesMap.containsKey("x")) {
+				dimensions[axesMap.get("x")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("x")];
+			}
+			if (axesMap.containsKey("y")) {
+				dimensions[axesMap.get("y")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("y")];
+			}
+			if (axesMap.containsKey("z")) {
+				dimensions[axesMap.get("z")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("z")];
+			}
+			if (axesMap.containsKey("c")) {
+				dimensions[axesMap.get("c")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("c")];
+			}
+			if (axesMap.containsKey("t")) {
+				dimensions[axesMap.get("t")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("t")];
+			}
+		} else {
+			dimensions = Arrays.stream( attributes.getBlockSize() ).limit( 3 ).toArray();
 		}
-		if(axesMap.containsKey("y")) {
-			dimensions[axesMap.get("y")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("y")];
-		}
-		if (axesMap.containsKey("z")) {
-			dimensions[axesMap.get("z")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("z")];
-		}
-		if (axesMap.containsKey("c")) {
-			dimensions[axesMap.get("c")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("c")];
-		}
-		if (axesMap.containsKey("t")) {
-			dimensions[axesMap.get("x")] = Arrays.stream(attributes.getBlockSize()).toArray()[axesMap.get("t")];
-		}
-		return dimensions;
+			return dimensions;
 	}
 	private static class ArrayCreator< A, T extends NativeType< T > >
 	{

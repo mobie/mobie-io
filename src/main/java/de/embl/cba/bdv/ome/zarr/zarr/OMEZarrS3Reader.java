@@ -12,6 +12,7 @@ import net.imglib2.util.Cast;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 

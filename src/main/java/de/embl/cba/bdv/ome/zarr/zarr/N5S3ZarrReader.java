@@ -233,7 +233,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 		if (attributes == null) {
 			attributes = new HashMap<>();
 		}
-
+		System.out.println(attributes.keySet());
 		if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
 			final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
