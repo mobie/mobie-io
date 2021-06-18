@@ -310,10 +310,11 @@ public class N5ZarrReader extends N5FSReader
 	public HashMap< String, JsonElement> getAttributes( final String pathName) throws IOException {
 
 		final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zattrsFile);
+		System.out.println(path);
 		final HashMap< String, JsonElement> attributes = new HashMap<>();
 
 		if ( Files.exists(path)) {
-
+			System.out.println("YES");
 			try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
 				attributes.putAll(
 						GsonAttributesParser.readAttributes(
@@ -341,24 +342,25 @@ public class N5ZarrReader extends N5FSReader
 	private void getDimensions(HashMap<String, JsonElement> attributes) {
 		JsonElement arrayDimensions = attributes.get("_ARRAY_DIMENSIONS");
 		JsonElement multiscales = attributes.get("multiscales");
-		if (arrayDimensions != null) {
-			System.out.println(arrayDimensions.getAsJsonArray());
+			System.out.println("NOT NULL");
 			if (multiscales != null) {
+				System.out.println(multiscales.getAsJsonArray());
 				JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
 				setAxes(axes);
+			}
+	}
+
+	public void setAxes(JsonElement axesJson) {
+		if (axesJson != null) {
+			for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
+				String elem = axesJson.getAsJsonArray().get(i).getAsString();
+				this.axesMap.put(elem, i);
 			}
 		}
 	}
 
-	public void setAxes(JsonElement axesJson) {
-		for (int i=0; i < axesJson.getAsJsonArray().size(); i++) {
-			String elem = axesJson.getAsJsonArray().get(i).getAsString();
-			axesMap.put(elem, i);
-			}
-	}
-
 	public HashMap<String, Integer> getAxes() {
-		return axesMap;
+		return this.axesMap;
 	}
 
 	/**
@@ -382,6 +384,7 @@ public class N5ZarrReader extends N5FSReader
 		final ByteArrayDataBlock byteBlock = dType.createByteBlock(blockSize, gridPosition);
 
 		final BlockReader reader = datasetAttributes.getCompression().getReader();
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////
 		reader.read(byteBlock, in);
 
 		switch (dType.getDataType()) {
