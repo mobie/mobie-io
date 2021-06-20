@@ -18,16 +18,16 @@ import java.util.stream.Collectors;
 
 public class OMEZarrS3Reader extends S3Reader
 {
+private static HashMap<String, Integer> axesMap;
 	public OMEZarrS3Reader( String serviceEndpoint, String signingRegion, String bucketName )
 	{
 		super(serviceEndpoint, signingRegion, bucketName);
 	}
 
-	//TODO: get real dimensionSeparator from the metadata
 	public SpimData readKey( String key ) throws IOException
 	{
 		N5OMEZarrImageLoader.logChunkLoading = true;
-		N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader( serviceEndpoint, signingRegion, bucketName, key, ".");
+		N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader( serviceEndpoint, signingRegion, bucketName, key, ".", axesMap);
 		SpimData spimData = new SpimData( null, Cast.unchecked( imageLoader.getSequenceDescription() ), imageLoader.getViewRegistrations() );
 		return spimData;
 	}

@@ -64,6 +64,15 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 
 	protected String dimensionSeparator;
 	private final String serviceEndpoint;
+	private HashMap<String, Integer> axesMap = new HashMap<>();
+
+	public HashMap<String, Integer> getAxesMap() {
+		return axesMap;
+	}
+
+	public void setAxesMap(HashMap<String, Integer> axesMap) {
+		this.axesMap = axesMap;
+	}
 
 	public void setDimensionSeparator(String dimensionSeparator) {
 		this.dimensionSeparator = dimensionSeparator;
@@ -233,7 +242,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 		if (attributes == null) {
 			attributes = new HashMap<>();
 		}
-		System.out.println(attributes.keySet());
+		getDimensions(attributes);
 		if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
 			final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
@@ -244,6 +253,26 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 		}
 
 		return attributes;
+	}
+
+	private void getDimensions(HashMap<String, JsonElement> attributes) {
+		JsonElement arrayDimensions = attributes.get("_ARRAY_DIMENSIONS");
+		JsonElement multiscales = attributes.get("multiscales");
+		System.out.println("NOT NULL");
+		if (multiscales != null) {
+			System.out.println(multiscales.getAsJsonArray());
+			JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
+			setAxes(axes);
+		}
+	}
+
+	public void setAxes(JsonElement axesJson) {
+		if (axesJson != null) {
+			for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
+				String elem = axesJson.getAsJsonArray().get(i).getAsString();
+				this.axesMap.put(elem, i);
+			}
+		}
 	}
 
 	/**

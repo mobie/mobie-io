@@ -100,7 +100,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 	private Map< Integer, DatasetAttributes > setupToAttributes = new HashMap<>(  );
 	private Map< Integer, Integer > setupToChannel = new HashMap<>( );
 	private int sequenceTimepoints = 0;
-	public HashMap<String, Integer> axesMap = new HashMap<>();
+	private HashMap<String, Integer> axesMap = new HashMap<>();
 
 
 	/**
@@ -724,10 +724,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		public A createArray( DataBlock< ? > dataBlock, long[] gridPosition )
 		{
 			long[] cellDims = getCellDims( gridPosition );
-			int n = (int)( cellDims[ 0 ] * cellDims[ 1 ] );
-			if (cellDims.length != 2){
-				n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
-			}
+			int	n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
 			switch ( dataType )
 			{
 				case UINT8:
@@ -766,10 +763,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		public A createEmptyArray( long[] gridPosition )
 		{
 			long[] cellDims = getCellDims( gridPosition );
-			int n = (int)( cellDims[ 0 ] * cellDims[ 1 ] );
-			if (cellDims.length != 2){
-				n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
-			}
+			int	n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
 			switch ( dataType )
 			{
 				case UINT8:
@@ -798,8 +792,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 			long[] cellMin = new long[ 3 ];
 			int[] cellDims = new int[ 3 ];
 //			if (is2D) {
-//				cellDims = new int[2];
-//////				cellDims[2] = 1;
+//				cellMin = new long[ 2 ];
+//				cellDims = new int[ 2 ];
+////				cellDims = new int[2];
+////				cellMin = new long[2];
+////				cellDims[2] = 1;
+////				cellDims[3] = 1;
 //			}
 			if(is4DC && !is4DT) {
 				cellMin = new long[ 4 ];
@@ -858,7 +856,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 			long[] usedGridPosition = gridPosition;
 
 			if (is2D) {
-				long[] gridPosition5D = new long[ 3 ];
+				long[] gridPosition5D = new long[ 2 ];
 				System.arraycopy(gridPosition, 0, gridPosition5D, 0, 2);
 				usedGridPosition = gridPosition5D;
 			}
@@ -907,13 +905,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 			try {
 				System.out.println(pathName);
 				System.out.println(attributes);
-				if (!is2D) {
 					System.out.println("gridPosition" + Arrays.toString(usedGridPosition));
 					block = n5.readBlock(pathName, attributes, usedGridPosition);
-				} else {
-					System.out.println("gridPosition" + Arrays.toString(usedGridPosition));
-					block = n5.readBlock(pathName, attributes, Arrays.stream(usedGridPosition).limit(2).toArray());
-				}
 			}
 			catch ( SdkClientException e )
 			{
