@@ -100,7 +100,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 	private Map< Integer, DatasetAttributes > setupToAttributes = new HashMap<>(  );
 	private Map< Integer, Integer > setupToChannel = new HashMap<>( );
 	private int sequenceTimepoints = 0;
-	private HashMap<String, Integer> axesMap = new HashMap<>();
+	public HashMap<String, Integer> axesMap = new HashMap<>();
 
 
 	/**
@@ -149,9 +149,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				ViewSetup viewSetup = createViewSetup( setupId );
 				int setupTimepoints = 1;
 				is5D = false;
-				is4DT = false;
-				is4DC = false;
-				if (setupToAttributes.get(setupId).getNumDimensions() > 4 && !axesMap.isEmpty() && axesMap.containsKey("t")) {
+				if (setupToAttributes.get(setupId).getNumDimensions() > 4 && axesMap.containsKey("t")) {
 					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[T];
 					is5D = true;
 				} else if (setupToAttributes.get(setupId).getNumDimensions() > 4) {
@@ -159,7 +157,11 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 					is5D = true;
 				}
 
-				if (setupToAttributes.get(setupId).getNumDimensions() == 4 && !axesMap.isEmpty() && axesMap.containsKey("t")) {
+				if (setupToAttributes.get(setupId).getNumDimensions() == 4 && axesMap.containsKey("t") && !axesMap.containsKey("c")) {
+					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[3];
+					is4DT = true;
+				}
+				if (setupToAttributes.get(setupId).getNumDimensions() == 4 && axesMap.containsKey("t") && axesMap.containsKey("c")) {
 					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[3];
 					is4DT = true;
 				}
@@ -204,14 +206,19 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		DatasetAttributes attributes = getDatasetAttributes( multiscale.datasets[ 0 ].path );
 		long nC = 1;
 		System.out.println(axesMap);
-		if (attributes.getNumDimensions() > 4 && !axesMap.isEmpty() && axesMap.containsKey("c")) {
+		if (attributes.getNumDimensions() > 4 && axesMap.containsKey("c")) {
 			nC = attributes.getDimensions()[C];
 		} else if (attributes.getNumDimensions() > 4) {
 			nC = attributes.getDimensions()[C];
 		}
 //		is4DC = false;
-		if (attributes.getNumDimensions() == 4 && !axesMap.isEmpty() && axesMap.containsKey("c")) {
+		if (attributes.getNumDimensions() == 4 && axesMap.containsKey("c") && !axesMap.containsKey("t")) {
 			nC = attributes.getDimensions()[3];
+			is4DC = true;
+//			is4DT = false;
+		}
+		if (attributes.getNumDimensions() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t")) {
+			nC = attributes.getDimensions()[2];
 			is4DC = true;
 //			is4DT = false;
 		}
@@ -663,6 +670,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 	}
 
 	private long[] getDimensions(DatasetAttributes attributes) {
+		System.out.println(Arrays.toString(attributes.getDimensions()));
 		if (!axesMap.isEmpty()) {
 			if (axesMap.size() == 2) {
 				long[] tmp = new long[3];
@@ -670,6 +678,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				tmp[1] = Arrays.stream(attributes.getDimensions()).toArray()[1];
 				tmp[2] = 1;
 				is2D = true;
+				return tmp;
+			} if (axesMap.size() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t")) {
+				long[] tmp = new long[3];
+				tmp[0] = Arrays.stream(attributes.getDimensions()).toArray()[0];
+				tmp[1] = Arrays.stream(attributes.getDimensions()).toArray()[1];
+				tmp[2] = 1;
 				return tmp;
 			}
 		}
@@ -679,6 +693,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 	private int[] getBlockSize(DatasetAttributes attributes) {
 		if (!axesMap.isEmpty()) {
 		 if (axesMap.size() == 2) {
+				int[] tmp = new int[3];
+				tmp[0] = Arrays.stream(attributes.getBlockSize()).toArray()[0];
+				tmp[1] = Arrays.stream(attributes.getBlockSize()).toArray()[1];
+				tmp[2] = 1;
+				return tmp;
+			}if (axesMap.size() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t")) {
 				int[] tmp = new int[3];
 				tmp[0] = Arrays.stream(attributes.getBlockSize()).toArray()[0];
 				tmp[1] = Arrays.stream(attributes.getBlockSize()).toArray()[1];
@@ -704,8 +724,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		public A createArray( DataBlock< ? > dataBlock, long[] gridPosition )
 		{
 			long[] cellDims = getCellDims( gridPosition );
-			int n = (int) ( cellDims[ 0 ] * cellDims[ 1 ] * cellDims[ 2 ] );
-
+			int n = (int)( cellDims[ 0 ] * cellDims[ 1 ] );
+			if (cellDims.length != 2){
+				n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
+			}
 			switch ( dataType )
 			{
 				case UINT8:
@@ -744,7 +766,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		public A createEmptyArray( long[] gridPosition )
 		{
 			long[] cellDims = getCellDims( gridPosition );
-			int n = (int) ( cellDims[ 0 ]* cellDims[ 1 ] * cellDims[ 2 ] );
+			int n = (int)( cellDims[ 0 ] * cellDims[ 1 ] );
+			if (cellDims.length != 2){
+				n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
+			}
 			switch ( dataType )
 			{
 				case UINT8:
@@ -772,11 +797,24 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		{
 			long[] cellMin = new long[ 3 ];
 			int[] cellDims = new int[ 3 ];
-			if (is2D) {
-				cellDims[2] = 1;
+//			if (is2D) {
+//				cellDims = new int[2];
+//////				cellDims[2] = 1;
+//			}
+			if(is4DC && !is4DT) {
+				cellMin = new long[ 4 ];
+				cellDims = new int[ 4 ];
+				cellDims[ 3 ] = 1; // channel
+//				cellDims[ 4 ] = 0; // timepoint
+			}
+			if (is4DT && !is4DC) {
+				cellMin = new long[ 4 ];
+				cellDims = new int[ 4 ];
+				cellDims[ 3 ] = 1; // channel
+//				cellDims[ 4 ] = 1; // timepoint
 			}
 
-			if (is5D) {
+			if (is5D || (is4DT && is4DC)) {
 			cellMin = new long[ 5 ];
 			cellDims = new int[ 5 ];
 			cellDims[ 3 ] = 1; // channel
@@ -813,7 +851,21 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 			DataBlock< ? > block = null;
 			long[] usedGridPosition = gridPosition;
 
-			if (is5D) {
+			if (is2D) {
+				long[] gridPosition5D = new long[ 3 ];
+				System.arraycopy(gridPosition, 0, gridPosition5D, 0, 2);
+				usedGridPosition = gridPosition5D;
+			}
+
+			if(is4DC && is4DT) {
+				long[] gridPosition5D = new long[ 4 ];
+				System.arraycopy(gridPosition, 0, gridPosition5D, 0, 2);
+				gridPosition5D[ 2 ] = channel;
+				gridPosition5D[ 3 ] = timepoint;
+				usedGridPosition = gridPosition5D;
+			}
+
+			if (is5D ) {
 			long[] gridPosition5D = new long[ 5 ];
 			System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
 			gridPosition5D[ 3 ] = channel;
@@ -821,21 +873,19 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				usedGridPosition = gridPosition5D;
 			}
 
-			if (is4DC) {
-				System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCC");
-				long[] gridPosition5D = new long[ 5 ];
+			if (is4DC && !is4DT) {
+				long[] gridPosition5D = new long[ 4 ];
 				System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
-				gridPosition5D[ 3 ] = 1;
-				gridPosition5D[ 4 ] = 1;
+				gridPosition5D[3] = channel;
+//				gridPosition5D[ 4 ] = 0;
 				usedGridPosition = gridPosition5D;
 			}
-
-			if (is4DT) {
-				System.out.println("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
-			long[] gridPosition5D = new long[ 5 ];
+//
+			if (is4DT && !is4DC) {
+			long[] gridPosition5D = new long[ 4 ];
 			System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
-			gridPosition5D[ 3 ] = 0;
-			gridPosition5D[ 4 ] = timepoint;
+//			gridPosition5D[ 3 ] = channel;
+			gridPosition5D[ 3 ] = timepoint;
 			usedGridPosition = gridPosition5D;
 		}
 
@@ -851,8 +901,13 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 			try {
 				System.out.println(pathName);
 				System.out.println(attributes);
-				System.out.println(Arrays.toString(usedGridPosition));
-				block = n5.readBlock( pathName, attributes, usedGridPosition );
+				if (!is2D) {
+					System.out.println("gridPosition" + Arrays.toString(usedGridPosition));
+					block = n5.readBlock(pathName, attributes, usedGridPosition);
+				} else {
+					System.out.println("gridPosition" + Arrays.toString(usedGridPosition));
+					block = n5.readBlock(pathName, attributes, Arrays.stream(usedGridPosition).limit(2).toArray());
+				}
 			}
 			catch ( SdkClientException e )
 			{
