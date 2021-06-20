@@ -813,8 +813,14 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				cellDims[ 3 ] = 1; // channel
 //				cellDims[ 4 ] = 1; // timepoint
 			}
+			if (is4DT && is4DC) {
+				cellMin = new long[ 4 ];
+				cellDims = new int[ 4 ];
+				cellDims[ 2 ] = 1; // channel
+				cellDims[ 3 ] = 1; // timepoint
+			}
 
-			if (is5D || (is4DT && is4DC)) {
+			if (is5D ) {
 			cellMin = new long[ 5 ];
 			cellDims = new int[ 5 ];
 			cellDims[ 3 ] = 1; // channel
