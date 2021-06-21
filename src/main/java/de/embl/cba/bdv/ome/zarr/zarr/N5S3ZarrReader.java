@@ -42,9 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 
 /**
@@ -53,19 +51,40 @@ import java.util.HashMap;
  */
 public class N5S3ZarrReader extends N5AmazonS3Reader
 {
-	private static final String zarrayFile = N5ZarrReader.zarrayFile;
-	private static final String zattrsFile = N5ZarrReader.zattrsFile;
-	private static final String zgroupFile = N5ZarrReader.zgroupFile;
+	private static final String V3_SEPARATOR = "/";
+	private static final String D5_SEPARATOR = ".";
+
+	private static final String zarrayFile = N5OmeZarrReader.zarrayFile;
+	private static final String zattrsFile = N5OmeZarrReader.zattrsFile;
+	private static final String zgroupFile = N5OmeZarrReader.zgroupFile;
+	private static final List<String> OME_ZARR_AXES = new ArrayList<>(Arrays.asList("[\"y\",\"x\"]",
+			"[\"c\",\"y\",\"x\"]",
+			"[\"t\",\"y\",\"x\"]",
+			"[\"z\",\"y\",\"x\"]",
+			"[\"t\",\"z\",\"y\",\"x\"]",
+			"[\"c\",\"z\",\"y\",\"x\"]",
+			"[\"t\",\"c\",\"y\",\"x\"]",
+			"[\"t\",\"c\",\"z\",\"y\",\"x\"]"));
 
 	final protected boolean mapN5DatasetAttributes;
-	final protected String dimensionSeparator;
-	private final String serviceEndpoint;
 
-	public N5S3ZarrReader( AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath ) throws IOException
+	protected String dimensionSeparator;
+	private final String serviceEndpoint;
+	private final HashMap<String, Integer> axesMap = new HashMap<>();
+
+	public HashMap<String, Integer> getAxesMap() {
+		return axesMap;
+	}
+
+	public void setDimensionSeparator(String dimensionSeparator) {
+		this.dimensionSeparator = dimensionSeparator;
+	}
+
+	public N5S3ZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator ) throws IOException
 	{
 		super(s3, bucketName, containerPath, initGsonBuilder(new GsonBuilder()));
 		this.serviceEndpoint = serviceEndpoint; // for debugging
-		dimensionSeparator = ".";
+		this.dimensionSeparator = dimensionSeparator;
 		mapN5DatasetAttributes = true;
 	}
 
@@ -163,10 +182,12 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 		HashMap< String, JsonElement> attributes = readJson(path);
 
 		if (attributes == null) {
-			System.out.println(path.toString() + " does not exist.");
+			System.out.println(path + " does not exist.");
 			attributes = new HashMap<>();
 		}
 
+		JsonElement dimSep = attributes.get("dimension_separator");
+		this.dimensionSeparator = dimSep == null ?  D5_SEPARATOR : V3_SEPARATOR;
 		return new ZArrayAttributes(
 				attributes.get( "zarr_format" ).getAsInt(),
 				gson.fromJson(attributes.get("shape"), long[].class),
@@ -222,7 +243,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 		if (attributes == null) {
 			attributes = new HashMap<>();
 		}
-
+		getDimensions(attributes);
 		if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
 			final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
@@ -233,6 +254,28 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 		}
 
 		return attributes;
+	}
+
+	private void getDimensions(HashMap<String, JsonElement> attributes) {
+		JsonElement multiscales = attributes.get("multiscales");
+		if (multiscales != null) {
+			JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
+			setAxes(axes);
+		}
+	}
+	private boolean axesValid(JsonElement axesJson) {
+		String axes = axesJson.getAsJsonArray().toString();
+		System.out.println("Validation");
+		return OME_ZARR_AXES.contains(axes);
+	}
+
+	public void setAxes(JsonElement axesJson) {
+		if (axesJson != null && axesValid(axesJson)) {
+			for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
+				String elem = axesJson.getAsJsonArray().get(i).getAsString();
+				this.axesMap.put(elem, i);
+			}
+		}
 	}
 
 	/**
@@ -304,10 +347,10 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 
 		final String dataBlockKey =
 				objectFile(pathName,
-					getZarrDataBlockPath(
-						gridPosition,
-						dimensionSeparator,
-						zarrDatasetAttributes.isRowMajor()).toString());
+						getZarrDataBlockPath(
+							gridPosition,
+							dimensionSeparator,
+							zarrDatasetAttributes.isRowMajor()));
 
 		// Currently exists() appends "/"
 		//		if (!exists(dataBlockKey))

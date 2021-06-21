@@ -43,9 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.Stream;
 
 
@@ -53,12 +51,27 @@ import java.util.stream.Stream;
  * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
  *
  */
-public class N5ZarrReader extends N5FSReader
+public class N5OmeZarrReader extends N5FSReader
 {
+	private static final String V3_SEPARATOR = "/";
+	private static final String D5_SEPARATOR = ".";
+
+	protected static Version VERSION = new Version(2, 0, 0);
 
 	protected static final String zarrayFile = ".zarray";
 	protected static final String zattrsFile = ".zattrs";
 	protected static final String zgroupFile = ".zgroup";
+
+	private static final List<String> OME_ZARR_AXES = new ArrayList<>(Arrays.asList("[\"y\",\"x\"]",
+			"[\"c\",\"y\",\"x\"]",
+			"[\"t\",\"y\",\"x\"]",
+			"[\"z\",\"y\",\"x\"]",
+			"[\"t\",\"z\",\"y\",\"x\"]",
+			"[\"c\",\"z\",\"y\",\"x\"]",
+			"[\"t\",\"c\",\"y\",\"x\"]",
+			"[\"t\",\"c\",\"z\",\"y\",\"x\"]"));
+
+	HashMap<String, Integer> axesMap = new HashMap<>();
 
 	static private GsonBuilder initGsonBuilder(final GsonBuilder gsonBuilder) {
 
@@ -70,10 +83,10 @@ public class N5ZarrReader extends N5FSReader
 	}
 
 	final protected boolean mapN5DatasetAttributes;
-	final protected String dimensionSeparator;
+	protected String dimensionSeparator;
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path with a custom
+	 * Opens an {@link N5OmeZarrReader} at a given base path with a custom
 	 * {@link GsonBuilder} to support custom attributes.
 	 *
 	 * @param basePath Zarr base path
@@ -87,7 +100,7 @@ public class N5ZarrReader extends N5FSReader
 	 * 			attribute keys for other purposes.
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
+	public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
 	{
 
 		super(basePath, initGsonBuilder(gsonBuilder));
@@ -96,7 +109,7 @@ public class N5ZarrReader extends N5FSReader
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path with a custom
+	 * Opens an {@link N5OmeZarrReader} at a given base path with a custom
 	 * {@link GsonBuilder} to support custom attributes.
 	 *
 	 * @param basePath Zarr base path
@@ -104,14 +117,14 @@ public class N5ZarrReader extends N5FSReader
 	 * @param dimensionSeparator
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator) throws IOException
+	public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator) throws IOException
 	{
 
 		this(basePath, gsonBuilder, dimensionSeparator, true);
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path.
+	 * Opens an {@link N5OmeZarrReader} at a given base path.
 	 *
 	 * @param basePath Zarr base path
 	 * @param dimensionSeparator
@@ -124,14 +137,14 @@ public class N5ZarrReader extends N5FSReader
 	 *
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
+	public N5OmeZarrReader(final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
 	{
 
 		this(basePath, new GsonBuilder(), dimensionSeparator, mapN5DatasetAttributes);
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path.
+	 * Opens an {@link N5OmeZarrReader} at a given base path.
 	 *
 	 * @param basePath Zarr base path
 	 * @param mapN5DatasetAttributes
@@ -143,14 +156,14 @@ public class N5ZarrReader extends N5FSReader
 	 *
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final boolean mapN5DatasetAttributes) throws IOException
+	public N5OmeZarrReader(final String basePath, final boolean mapN5DatasetAttributes) throws IOException
 	{
 
-		this(basePath, new GsonBuilder(), ".", mapN5DatasetAttributes);
+		this(basePath, new GsonBuilder(), "/", mapN5DatasetAttributes);
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path with a custom
+	 * Opens an {@link N5OmeZarrReader} at a given base path with a custom
 	 * {@link GsonBuilder} to support custom attributes.
 	 *
 	 * Zarray metadata will be virtually mapped to N5 dataset attributes.
@@ -159,21 +172,21 @@ public class N5ZarrReader extends N5FSReader
 	 * @param gsonBuilder
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final GsonBuilder gsonBuilder) throws IOException
+	public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder) throws IOException
 	{
 
-		this(basePath, gsonBuilder, ".");
+		this(basePath, gsonBuilder, "/");
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path.
+	 * Opens an {@link N5OmeZarrReader} at a given base path.
 	 *
 	 * Zarray metadata will be virtually mapped to N5 dataset attributes.
 	 *
 	 * @param basePath Zarr base path
 	 * @throws IOException
 	 */
-	public N5ZarrReader(final String basePath) throws IOException
+	public N5OmeZarrReader(final String basePath) throws IOException
 	{
 
 		this(basePath, new GsonBuilder());
@@ -248,6 +261,10 @@ public class N5ZarrReader extends N5FSReader
 			}
 		} else System.out.println(path.toString() + " does not exist.");
 
+		System.out.println(attributes.keySet());
+		JsonElement dimSep = attributes.get("dimension_separator");
+		this.dimensionSeparator = dimSep == null ?  D5_SEPARATOR : V3_SEPARATOR;
+
 		return new ZArrayAttributes(
 				attributes.get("zarr_format").getAsInt(),
 				gson.fromJson(attributes.get("shape"), long[].class),
@@ -301,7 +318,6 @@ public class N5ZarrReader extends N5FSReader
 		final HashMap< String, JsonElement> attributes = new HashMap<>();
 
 		if ( Files.exists(path)) {
-
 			try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
 				attributes.putAll(
 						GsonAttributesParser.readAttributes(
@@ -311,6 +327,8 @@ public class N5ZarrReader extends N5FSReader
 								gson));
 			}
 		}
+
+		getDimensions(attributes);
 
 		if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
@@ -322,6 +340,32 @@ public class N5ZarrReader extends N5FSReader
 		}
 
 		return attributes;
+	}
+
+	private void getDimensions(HashMap<String, JsonElement> attributes) {
+		JsonElement multiscales = attributes.get("multiscales");
+			if (multiscales != null) {
+				JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
+				setAxes(axes);
+			}
+	}
+
+	private boolean axesValid(JsonElement axesJson) {
+		String axes = axesJson.getAsJsonArray().toString();
+		return OME_ZARR_AXES.contains(axes);
+	}
+
+	public void setAxes(JsonElement axesJson) {
+		if (axesJson != null && axesValid(axesJson)) {
+			for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
+				String elem = axesJson.getAsJsonArray().get(i).getAsString();
+				this.axesMap.put(elem, i);
+			}
+		}
+	}
+
+	public HashMap<String, Integer> getAxes() {
+		return this.axesMap;
 	}
 
 	/**
@@ -345,6 +389,7 @@ public class N5ZarrReader extends N5FSReader
 		final ByteArrayDataBlock byteBlock = dType.createByteBlock(blockSize, gridPosition);
 
 		final BlockReader reader = datasetAttributes.getCompression().getReader();
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////
 		reader.read(byteBlock, in);
 
 		switch (dType.getDataType()) {
@@ -454,6 +499,7 @@ public class N5ZarrReader extends N5FSReader
 						gridPosition,
 						dimensionSeparator,
 						zarrDatasetAttributes.isRowMajor()).toString());
+		System.out.println("readBlock path" + path);
 		if (!Files.exists(path))
 			return null;
 
@@ -512,7 +558,7 @@ public class N5ZarrReader extends N5FSReader
 				pathStringBuilder.append(gridPosition[i]);
 			}
 		}
-
+		System.out.println("Path" + Paths.get(pathStringBuilder.toString()));
 		return Paths.get(pathStringBuilder.toString());
 	}
 }

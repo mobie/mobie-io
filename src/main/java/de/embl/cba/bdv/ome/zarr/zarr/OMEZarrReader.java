@@ -8,6 +8,7 @@ import net.imglib2.util.Cast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class OMEZarrReader
 {
@@ -28,6 +29,7 @@ public class OMEZarrReader
 
     public static SpimData openFile(String filePath) throws IOException
     {
+        setLogChunkLoading(true);
         N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
         OMEZarrReader omeZarrReader = new OMEZarrReader(filePath);
         return omeZarrReader.readFile();
@@ -36,11 +38,16 @@ public class OMEZarrReader
     private SpimData readFile() throws IOException
     {
         N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
-        N5ZarrReader reader = new N5ZarrReader(this.filePath, new GsonBuilder());
-        N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader);
+        N5OmeZarrReader reader = new N5OmeZarrReader(this.filePath, new GsonBuilder());
+        HashMap<String, Integer> axesMap = reader.getAxes();
+        N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader, axesMap);
         return new SpimData(
                 new File(this.filePath),
                 Cast.unchecked( imageLoader.getSequenceDescription() ),
                 imageLoader.getViewRegistrations());
+    }
+
+    private boolean isV3OMEZarr(){
+        return true;
     }
 }
