@@ -126,6 +126,11 @@
 			<version>${bigdataviewer-playground.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.janelia.saalfeldlab</groupId>
+			<artifactId>n5-zarr</artifactId>
+			<version>0.0.3-beta</version>
+		</dependency>
+		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2</artifactId>
 			<version>${imglib2.version}</version>
