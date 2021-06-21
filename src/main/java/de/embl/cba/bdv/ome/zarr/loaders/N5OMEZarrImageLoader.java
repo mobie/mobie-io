@@ -725,7 +725,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         @Override
         public A loadArray(final long[] gridPosition) throws IOException {
             DataBlock<?> block = null;
-            long[] usedGridPosition = gridPosition;
+            long[] usedGridPosition = gridPosition; // TODO: always identical to gridPosition5D?!
 
             if (is2D) {
                 long[] gridPosition5D = new long[3];
