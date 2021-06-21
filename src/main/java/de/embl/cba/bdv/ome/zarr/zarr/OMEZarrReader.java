@@ -38,7 +38,7 @@ public class OMEZarrReader
     private SpimData readFile() throws IOException
     {
         N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
-        N5ZarrReader reader = new N5ZarrReader(this.filePath, new GsonBuilder());
+        N5OmeZarrReader reader = new N5OmeZarrReader(this.filePath, new GsonBuilder());
         HashMap<String, Integer> axesMap = reader.getAxes();
         N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader, axesMap);
         return new SpimData(

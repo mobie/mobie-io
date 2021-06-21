@@ -56,9 +56,9 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 	private static final String V3_SEPARATOR = "/";
 	private static final String D5_SEPARATOR = ".";
 
-	private static final String zarrayFile = N5ZarrReader.zarrayFile;
-	private static final String zattrsFile = N5ZarrReader.zattrsFile;
-	private static final String zgroupFile = N5ZarrReader.zgroupFile;
+	private static final String zarrayFile = N5OmeZarrReader.zarrayFile;
+	private static final String zattrsFile = N5OmeZarrReader.zattrsFile;
+	private static final String zgroupFile = N5OmeZarrReader.zgroupFile;
 
 	final protected boolean mapN5DatasetAttributes;
 

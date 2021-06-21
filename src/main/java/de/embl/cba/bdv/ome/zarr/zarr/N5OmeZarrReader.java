@@ -53,7 +53,7 @@ import java.util.stream.Stream;
  * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
  *
  */
-public class N5ZarrReader extends N5FSReader
+public class N5OmeZarrReader extends N5FSReader
 {
 	private static final String V3_SEPARATOR = "/";
 	private static final String D5_SEPARATOR = ".";
@@ -79,7 +79,7 @@ public class N5ZarrReader extends N5FSReader
 	protected String dimensionSeparator;
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path with a custom
+	 * Opens an {@link N5OmeZarrReader} at a given base path with a custom
 	 * {@link GsonBuilder} to support custom attributes.
 	 *
 	 * @param basePath Zarr base path
@@ -93,7 +93,7 @@ public class N5ZarrReader extends N5FSReader
 	 * 			attribute keys for other purposes.
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
+	public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
 	{
 
 		super(basePath, initGsonBuilder(gsonBuilder));
@@ -102,7 +102,7 @@ public class N5ZarrReader extends N5FSReader
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path with a custom
+	 * Opens an {@link N5OmeZarrReader} at a given base path with a custom
 	 * {@link GsonBuilder} to support custom attributes.
 	 *
 	 * @param basePath Zarr base path
@@ -110,14 +110,14 @@ public class N5ZarrReader extends N5FSReader
 	 * @param dimensionSeparator
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator) throws IOException
+	public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator) throws IOException
 	{
 
 		this(basePath, gsonBuilder, dimensionSeparator, true);
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path.
+	 * Opens an {@link N5OmeZarrReader} at a given base path.
 	 *
 	 * @param basePath Zarr base path
 	 * @param dimensionSeparator
@@ -130,14 +130,14 @@ public class N5ZarrReader extends N5FSReader
 	 *
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
+	public N5OmeZarrReader(final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
 	{
 
 		this(basePath, new GsonBuilder(), dimensionSeparator, mapN5DatasetAttributes);
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path.
+	 * Opens an {@link N5OmeZarrReader} at a given base path.
 	 *
 	 * @param basePath Zarr base path
 	 * @param mapN5DatasetAttributes
@@ -149,14 +149,14 @@ public class N5ZarrReader extends N5FSReader
 	 *
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final boolean mapN5DatasetAttributes) throws IOException
+	public N5OmeZarrReader(final String basePath, final boolean mapN5DatasetAttributes) throws IOException
 	{
 
 		this(basePath, new GsonBuilder(), "/", mapN5DatasetAttributes);
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path with a custom
+	 * Opens an {@link N5OmeZarrReader} at a given base path with a custom
 	 * {@link GsonBuilder} to support custom attributes.
 	 *
 	 * Zarray metadata will be virtually mapped to N5 dataset attributes.
@@ -165,21 +165,21 @@ public class N5ZarrReader extends N5FSReader
 	 * @param gsonBuilder
 	 * @throws IOException
 	 */
-	public N5ZarrReader( final String basePath, final GsonBuilder gsonBuilder) throws IOException
+	public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder) throws IOException
 	{
 
 		this(basePath, gsonBuilder, "/");
 	}
 
 	/**
-	 * Opens an {@link N5ZarrReader} at a given base path.
+	 * Opens an {@link N5OmeZarrReader} at a given base path.
 	 *
 	 * Zarray metadata will be virtually mapped to N5 dataset attributes.
 	 *
 	 * @param basePath Zarr base path
 	 * @throws IOException
 	 */
-	public N5ZarrReader(final String basePath) throws IOException
+	public N5OmeZarrReader(final String basePath) throws IOException
 	{
 
 		this(basePath, new GsonBuilder());
