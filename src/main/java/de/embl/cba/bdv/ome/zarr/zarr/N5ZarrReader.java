@@ -310,11 +310,9 @@ public class N5ZarrReader extends N5FSReader
 	public HashMap< String, JsonElement> getAttributes( final String pathName) throws IOException {
 
 		final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zattrsFile);
-		System.out.println(path);
 		final HashMap< String, JsonElement> attributes = new HashMap<>();
 
 		if ( Files.exists(path)) {
-			System.out.println("YES");
 			try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
 				attributes.putAll(
 						GsonAttributesParser.readAttributes(
@@ -340,11 +338,8 @@ public class N5ZarrReader extends N5FSReader
 	}
 
 	private void getDimensions(HashMap<String, JsonElement> attributes) {
-		JsonElement arrayDimensions = attributes.get("_ARRAY_DIMENSIONS");
 		JsonElement multiscales = attributes.get("multiscales");
-			System.out.println("NOT NULL");
 			if (multiscales != null) {
-				System.out.println(multiscales.getAsJsonArray());
 				JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
 				setAxes(axes);
 			}

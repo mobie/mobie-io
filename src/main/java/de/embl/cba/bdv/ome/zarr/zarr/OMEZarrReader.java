@@ -39,9 +39,7 @@ public class OMEZarrReader
     {
         N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
         N5ZarrReader reader = new N5ZarrReader(this.filePath, new GsonBuilder());
-//        reader.getAttributes(this.filePath);
         HashMap<String, Integer> axesMap = reader.getAxes();
-        System.out.println("Axes" + axesMap);
         N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader, axesMap);
         return new SpimData(
                 new File(this.filePath),

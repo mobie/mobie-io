@@ -95,10 +95,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 	private volatile boolean isOpen = false;
 	private FetcherThreads fetchers;
 	private VolatileGlobalCellCache cache;
-	private Map< Integer, String > setupToPathname = new HashMap<>(  );
-	private Map< Integer, Multiscale > setupToMultiscale = new HashMap<>(  );
-	private Map< Integer, DatasetAttributes > setupToAttributes = new HashMap<>(  );
-	private Map< Integer, Integer > setupToChannel = new HashMap<>( );
+	private final Map< Integer, String > setupToPathname = new HashMap<>(  );
+	private final Map< Integer, Multiscale > setupToMultiscale = new HashMap<>(  );
+	private final Map< Integer, DatasetAttributes > setupToAttributes = new HashMap<>(  );
+	private final Map< Integer, Integer > setupToChannel = new HashMap<>( );
 	private int sequenceTimepoints = 0;
 	private HashMap<String, Integer> axesMap = new HashMap<>();
 
@@ -149,28 +149,18 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				ViewSetup viewSetup = createViewSetup( setupId );
 				int setupTimepoints = 1;
 				is5D = false;
-				if (setupToAttributes.get(setupId).getNumDimensions() > 4 && axesMap.containsKey("t")) {
-					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[T];
-					is5D = true;
-				} else if (setupToAttributes.get(setupId).getNumDimensions() > 4) {
+
+				if (setupToAttributes.get(setupId).getNumDimensions() > 4) {
 					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[T];
 					is5D = true;
 				}
 
-				if (setupToAttributes.get(setupId).getNumDimensions() == 4 && axesMap.containsKey("t") && !axesMap.containsKey("c")) {
+				if (setupToAttributes.get(setupId).getNumDimensions() == 4 && axesMap.containsKey("t")) {
 					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[3];
 					is4DT = true;
 				}
-				if (setupToAttributes.get(setupId).getNumDimensions() == 4 && axesMap.containsKey("t") && axesMap.containsKey("c")) {
-					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[3];
-					is4DT = true;
-				}
-//				else if (setupToAttributes.get(setupId).getNumDimensions() == 4) {
-//					setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[0];
-//					is4DT = true;
-//				}
 
-				sequenceTimepoints = setupTimepoints > sequenceTimepoints ?  setupTimepoints : sequenceTimepoints;
+				sequenceTimepoints = Math.max(setupTimepoints, sequenceTimepoints);
 				viewSetups.add( viewSetup );
 				viewRegistrationList.addAll( createViewRegistrations( setupId, setupTimepoints ) );
 			}
@@ -205,27 +195,17 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		Multiscale multiscale = getMultiscale( "" ); // returns multiscales[ 0 ]
 		DatasetAttributes attributes = getDatasetAttributes( multiscale.datasets[ 0 ].path );
 		long nC = 1;
-		System.out.println(axesMap);
-		if (attributes.getNumDimensions() > 4 && axesMap.containsKey("c")) {
-			nC = attributes.getDimensions()[C];
-		} else if (attributes.getNumDimensions() > 4) {
+		if (attributes.getNumDimensions() > 4 ) {
 			nC = attributes.getDimensions()[C];
 		}
-//		is4DC = false;
 		if (attributes.getNumDimensions() == 4 && axesMap.containsKey("c") && !axesMap.containsKey("t")) {
-			nC = attributes.getDimensions()[3];
+			nC = attributes.getDimensions()[C];
 			is4DC = true;
-//			is4DT = false;
 		}
 		if (attributes.getNumDimensions() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t")) {
 			nC = attributes.getDimensions()[2];
 			is4DC = true;
-//			is4DT = false;
 		}
-//		else if (attributes.getNumDimensions() == 4) {
-//			nC = attributes.getDimensions()[3];
-//			is4DC = true;
-//		}
 
 		for ( int c = 0; c < nC; c++ )
 		{
@@ -393,7 +373,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		}
 		catch ( Exception e )
 		{
-			// no scale given
+			System.out.println("No scale given" + e);
 		}
 
 		ArrayList< ViewRegistration > viewRegistrations = new ArrayList<>();
@@ -420,10 +400,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		Angle angle = new Angle( 0 );
 		Illumination illumination = new Illumination( 0 );
 		String name = readName( multiscale, setupId );
-		ViewSetup viewSetup = new ViewSetup( setupId, name, dimensions, voxelDimensions, tile, channel, angle, illumination );
 		//if ( setupToPathname.get( setupId ).contains( "labels" ))
 		//	viewSetup.setAttribute( new ImageType( ImageType.Type.IntensityImage ) );
-		return viewSetup;
+		return new ViewSetup( setupId, name, dimensions, voxelDimensions, tile, channel, angle, illumination );
 	}
 
 	private String readName( Multiscale multiscale, int setupId )
@@ -643,9 +622,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				{
 					System.out.println( "Preparing image " + pathName + " of data type " + attributes.getDataType() );
 				}
-				// ome.zarr is 5D but BDV expects 3D
 				long[] dimensions = getDimensions(attributes);
-//				final int[] cellDimensions = Arrays.stream( attributes.getBlockSize() ).limit( 3 ).toArray();
 				final int[] cellDimensions = getBlockSize(attributes);
 				System.out.println("dim" + Arrays.toString(dimensions));
 				System.out.println("cell" + Arrays.toString(cellDimensions));
@@ -670,44 +647,39 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 	}
 
 	private long[] getDimensions(DatasetAttributes attributes) {
-		System.out.println(Arrays.toString(attributes.getDimensions()));
 		if (!axesMap.isEmpty()) {
-			if (axesMap.size() == 2) {
-				long[] tmp = new long[3];
-				tmp[0] = Arrays.stream(attributes.getDimensions()).toArray()[0];
-				tmp[1] = Arrays.stream(attributes.getDimensions()).toArray()[1];
-				tmp[2] = 1;
-				is2D = true;
-				return tmp;
-			} if (axesMap.size() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t")) {
-				long[] tmp = new long[3];
-				tmp[0] = Arrays.stream(attributes.getDimensions()).toArray()[0];
-				tmp[1] = Arrays.stream(attributes.getDimensions()).toArray()[1];
-				tmp[2] = 1;
-				return tmp;
+			if ((axesMap.size() == 2) ||(axesMap.size() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t"))) {
+				return fillDimensions(attributes);
 			}
 		}
 		return Arrays.stream( attributes.getDimensions() ).limit( 3 ).toArray();
 	}
 
+	private long[] fillDimensions(DatasetAttributes attributes) {
+		long[] tmp = new long[3];
+		tmp[0] = Arrays.stream(attributes.getDimensions()).toArray()[0];
+		tmp[1] = Arrays.stream(attributes.getDimensions()).toArray()[1];
+		tmp[2] = 1;
+		return tmp;
+	}
+
 	private int[] getBlockSize(DatasetAttributes attributes) {
 		if (!axesMap.isEmpty()) {
-		 if (axesMap.size() == 2) {
-				int[] tmp = new int[3];
-				tmp[0] = Arrays.stream(attributes.getBlockSize()).toArray()[0];
-				tmp[1] = Arrays.stream(attributes.getBlockSize()).toArray()[1];
-				tmp[2] = 1;
-				return tmp;
-			}if (axesMap.size() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t")) {
-				int[] tmp = new int[3];
-				tmp[0] = Arrays.stream(attributes.getBlockSize()).toArray()[0];
-				tmp[1] = Arrays.stream(attributes.getBlockSize()).toArray()[1];
-				tmp[2] = 1;
-				return tmp;
+		 if ((axesMap.size() == 2) || (axesMap.size() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t"))) {
+				return fillBlockSize(attributes);
 			}
 		}
 			return Arrays.stream( attributes.getBlockSize() ).limit( 3 ).toArray();
 	}
+
+	private int[] fillBlockSize(DatasetAttributes attributes) {
+		int[] tmp = new int[3];
+		tmp[0] = Arrays.stream(attributes.getBlockSize()).toArray()[0];
+		tmp[1] = Arrays.stream(attributes.getBlockSize()).toArray()[1];
+		tmp[2] = 1;
+		return tmp;
+	}
+
 	private static class ArrayCreator< A, T extends NativeType< T > >
 	{
 		private final CellGrid cellGrid;
@@ -791,25 +763,15 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 		{
 			long[] cellMin = new long[ 3 ];
 			int[] cellDims = new int[ 3 ];
-//			if (is2D) {
-//				cellMin = new long[ 2 ];
-//				cellDims = new int[ 2 ];
-////				cellDims = new int[2];
-////				cellMin = new long[2];
-////				cellDims[2] = 1;
-////				cellDims[3] = 1;
-//			}
 			if(is4DC && !is4DT) {
 				cellMin = new long[ 4 ];
 				cellDims = new int[ 4 ];
 				cellDims[ 3 ] = 1; // channel
-//				cellDims[ 4 ] = 0; // timepoint
 			}
 			if (is4DT && !is4DC) {
 				cellMin = new long[ 4 ];
 				cellDims = new int[ 4 ];
 				cellDims[ 3 ] = 1; // channel
-//				cellDims[ 4 ] = 1; // timepoint
 			}
 			if (is4DT && is4DC) {
 				cellMin = new long[ 4 ];
@@ -856,8 +818,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 			long[] usedGridPosition = gridPosition;
 
 			if (is2D) {
-				long[] gridPosition5D = new long[ 2 ];
-				System.arraycopy(gridPosition, 0, gridPosition5D, 0, 2);
+				long[] gridPosition5D = new long[ 3 ];
+				System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
 				usedGridPosition = gridPosition5D;
 			}
 
@@ -881,14 +843,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 				long[] gridPosition5D = new long[ 4 ];
 				System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
 				gridPosition5D[3] = channel;
-//				gridPosition5D[ 4 ] = 0;
 				usedGridPosition = gridPosition5D;
 			}
-//
+
 			if (is4DT && !is4DC) {
 			long[] gridPosition5D = new long[ 4 ];
 			System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
-//			gridPosition5D[ 3 ] = channel;
 			gridPosition5D[ 3 ] = timepoint;
 			usedGridPosition = gridPosition5D;
 		}
@@ -903,8 +863,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 			}
 
 			try {
-				System.out.println(pathName);
-				System.out.println(attributes);
 					System.out.println("gridPosition" + Arrays.toString(usedGridPosition));
 					block = n5.readBlock(pathName, attributes, usedGridPosition);
 			}

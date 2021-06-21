@@ -184,7 +184,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 			attributes = new HashMap<>();
 		}
 
-		System.out.println(attributes.keySet());
 		JsonElement dimSep = attributes.get("dimension_separator");
 		this.dimensionSeparator = dimSep == null ?  D5_SEPARATOR : V3_SEPARATOR;
 		return new ZArrayAttributes(
@@ -258,9 +257,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 	private void getDimensions(HashMap<String, JsonElement> attributes) {
 		JsonElement arrayDimensions = attributes.get("_ARRAY_DIMENSIONS");
 		JsonElement multiscales = attributes.get("multiscales");
-		System.out.println("NOT NULL");
 		if (multiscales != null) {
-			System.out.println(multiscales.getAsJsonArray());
 			JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
 			setAxes(axes);
 		}

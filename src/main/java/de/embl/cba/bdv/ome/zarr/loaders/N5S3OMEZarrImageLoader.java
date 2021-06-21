@@ -37,8 +37,6 @@ import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import java.io.IOException;
 import java.util.HashMap;
 
-// TODO: avoid code duplication!
-//  this is essentially identical to N5S3ImageLoader
 public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader
 {
 	private final String serviceEndpoint;
@@ -62,15 +60,6 @@ public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader
 	public N5S3OMEZarrImageLoader( String serviceEndpoint, String signingRegion, String bucketName, String key, String dimensionSeparator, AbstractSequenceDescription< ?, ?, ? > sequenceDescription ) throws IOException
 	{
 		super(  new N5S3ZarrReaderCreator().create( serviceEndpoint, signingRegion, bucketName, key, dimensionSeparator ), sequenceDescription);
-		this.serviceEndpoint = serviceEndpoint;
-		this.signingRegion = signingRegion;
-		this.bucketName = bucketName;
-		this.key = key;
-	}
-
-	public N5S3OMEZarrImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key, String dimensionSeparator) throws IOException
-	{
-		super(new N5S3ZarrReaderCreator().create( serviceEndpoint, signingRegion, bucketName, key, dimensionSeparator));
 		this.serviceEndpoint = serviceEndpoint;
 		this.signingRegion = signingRegion;
 		this.bucketName = bucketName;

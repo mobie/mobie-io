@@ -38,7 +38,6 @@ public class OMEZarrViewer
 	public BdvOptions getBdvOptions( List< ViewSetup > viewSetups )
 	{
 		boolean is2D = is2D( viewSetups );
-		System.out.println(is2D);
 		BdvOptions bdvOptions = new BdvOptions();
 
 		if ( is2D ) {
