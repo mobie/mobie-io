@@ -43,10 +43,10 @@ public class OpenOMEZARRFromS3Command implements Command {
 //            openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/tyx.ome.zarr");
 //        openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/czyx.ome.zarr");
 //        openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/tzyx.ome.zarr");
-        openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/tcyx.ome.zarr");
+        // openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/tcyx.ome.zarr");
 
 //err
-//		openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/yx.ome.zarr");
+		openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/yx.ome.zarr");
 //            openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/flat_yx.ome.zarr");
 
 
