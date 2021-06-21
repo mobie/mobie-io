@@ -64,14 +64,10 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 
 	protected String dimensionSeparator;
 	private final String serviceEndpoint;
-	private HashMap<String, Integer> axesMap = new HashMap<>();
+	private final HashMap<String, Integer> axesMap = new HashMap<>();
 
 	public HashMap<String, Integer> getAxesMap() {
 		return axesMap;
-	}
-
-	public void setAxesMap(HashMap<String, Integer> axesMap) {
-		this.axesMap = axesMap;
 	}
 
 	public void setDimensionSeparator(String dimensionSeparator) {
@@ -180,7 +176,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 		HashMap< String, JsonElement> attributes = readJson(path);
 
 		if (attributes == null) {
-			System.out.println(path.toString() + " does not exist.");
+			System.out.println(path + " does not exist.");
 			attributes = new HashMap<>();
 		}
 
@@ -255,7 +251,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 	}
 
 	private void getDimensions(HashMap<String, JsonElement> attributes) {
-		JsonElement arrayDimensions = attributes.get("_ARRAY_DIMENSIONS");
 		JsonElement multiscales = attributes.get("multiscales");
 		if (multiscales != null) {
 			JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
@@ -341,10 +336,10 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 
 		final String dataBlockKey =
 				objectFile(pathName,
-					getZarrDataBlockPath(
-						gridPosition,
-						dimensionSeparator,
-						zarrDatasetAttributes.isRowMajor()).toString());
+						getZarrDataBlockPath(
+							gridPosition,
+							dimensionSeparator,
+							zarrDatasetAttributes.isRowMajor()));
 
 		// Currently exists() appends "/"
 		//		if (!exists(dataBlockKey))
