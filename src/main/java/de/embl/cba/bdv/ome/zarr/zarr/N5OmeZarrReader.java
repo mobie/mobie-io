@@ -43,9 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.Stream;
 
 
@@ -63,6 +61,15 @@ public class N5OmeZarrReader extends N5FSReader
 	protected static final String zarrayFile = ".zarray";
 	protected static final String zattrsFile = ".zattrs";
 	protected static final String zgroupFile = ".zgroup";
+
+	private static final List<String> OME_ZARR_AXES = new ArrayList<>(Arrays.asList("[\"y\",\"x\"]",
+			"[\"c\",\"y\",\"x\"]",
+			"[\"t\",\"y\",\"x\"]",
+			"[\"z\",\"y\",\"x\"]",
+			"[\"t\",\"z\",\"y\",\"x\"]",
+			"[\"c\",\"z\",\"y\",\"x\"]",
+			"[\"t\",\"c\",\"y\",\"x\"]",
+			"[\"t\",\"c\",\"z\",\"y\",\"x\"]"));
 
 	HashMap<String, Integer> axesMap = new HashMap<>();
 
@@ -343,8 +350,13 @@ public class N5OmeZarrReader extends N5FSReader
 			}
 	}
 
+	private boolean axesValid(JsonElement axesJson) {
+		String axes = axesJson.getAsJsonArray().toString();
+		return OME_ZARR_AXES.contains(axes);
+	}
+
 	public void setAxes(JsonElement axesJson) {
-		if (axesJson != null) {
+		if (axesJson != null && axesValid(axesJson)) {
 			for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
 				String elem = axesJson.getAsJsonArray().get(i).getAsString();
 				this.axesMap.put(elem, i);

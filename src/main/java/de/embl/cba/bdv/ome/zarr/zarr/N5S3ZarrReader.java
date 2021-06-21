@@ -42,9 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 
 /**
@@ -59,6 +57,14 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 	private static final String zarrayFile = N5OmeZarrReader.zarrayFile;
 	private static final String zattrsFile = N5OmeZarrReader.zattrsFile;
 	private static final String zgroupFile = N5OmeZarrReader.zgroupFile;
+	private static final List<String> OME_ZARR_AXES = new ArrayList<>(Arrays.asList("[\"y\",\"x\"]",
+			"[\"c\",\"y\",\"x\"]",
+			"[\"t\",\"y\",\"x\"]",
+			"[\"z\",\"y\",\"x\"]",
+			"[\"t\",\"z\",\"y\",\"x\"]",
+			"[\"c\",\"z\",\"y\",\"x\"]",
+			"[\"t\",\"c\",\"y\",\"x\"]",
+			"[\"t\",\"c\",\"z\",\"y\",\"x\"]"));
 
 	final protected boolean mapN5DatasetAttributes;
 
@@ -257,9 +263,14 @@ public class N5S3ZarrReader extends N5AmazonS3Reader
 			setAxes(axes);
 		}
 	}
+	private boolean axesValid(JsonElement axesJson) {
+		String axes = axesJson.getAsJsonArray().toString();
+		System.out.println("Validation");
+		return OME_ZARR_AXES.contains(axes);
+	}
 
 	public void setAxes(JsonElement axesJson) {
-		if (axesJson != null) {
+		if (axesJson != null && axesValid(axesJson)) {
 			for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
 				String elem = axesJson.getAsJsonArray().get(i).getAsString();
 				this.axesMap.put(elem, i);
