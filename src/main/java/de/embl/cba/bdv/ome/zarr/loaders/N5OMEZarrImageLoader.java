@@ -763,7 +763,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
         private long[] toDataBlockIndices( long[] gridPosition )
         {
-            long[] dataBlockIndices = null;
+            long[] dataBlockIndices = gridPosition;
 
             if (is2D) {
                 dataBlockIndices = new long[2];
