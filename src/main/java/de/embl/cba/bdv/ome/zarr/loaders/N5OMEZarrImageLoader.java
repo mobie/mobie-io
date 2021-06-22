@@ -617,6 +617,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         public A createArray(DataBlock<?> dataBlock, long[] gridPosition) {
             long[] cellDims = getCellDims(gridPosition);
             int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
+
+            if ( is2D )
+                cellDims = Arrays.stream( cellDims ).limit( 2 ).toArray();
+
             switch (dataType) {
                 case UINT8:
                 case INT8:
@@ -695,7 +699,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 cellDims[2] = 1; // channel
                 cellDims[3] = 1; // timepoint
             }
-
             if (is5D) {
                 cellMin = new long[5];
                 cellDims = new int[5];
