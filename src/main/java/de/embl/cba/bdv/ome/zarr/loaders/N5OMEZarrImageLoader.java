@@ -185,6 +185,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             nC = attributes.getDimensions()[2];
             is4DC = true;
         }
+        if (attributes.getNumDimensions() == 2 && axesMap.containsKey("y") && axesMap.containsKey("x")) {
+            is2D = true;
+        }
 
         for (int c = 0; c < nC; c++) {
             // each channel is one setup
@@ -614,6 +617,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         public A createArray(DataBlock<?> dataBlock, long[] gridPosition) {
             long[] cellDims = getCellDims(gridPosition);
             int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
+
+            if ( is2D )
+                cellDims = Arrays.stream( cellDims ).limit( 2 ).toArray();
+
             switch (dataType) {
                 case UINT8:
                 case INT8:
@@ -692,7 +699,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 cellDims[2] = 1; // channel
                 cellDims[3] = 1; // timepoint
             }
-
             if (is5D) {
                 cellMin = new long[5];
                 cellDims = new int[5];
@@ -725,70 +731,75 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         @Override
         public A loadArray(final long[] gridPosition) throws IOException {
             DataBlock<?> block = null;
-            long[] usedGridPosition = gridPosition;
 
-            if (is2D) {
-                long[] gridPosition5D = new long[3];
-                System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
-                usedGridPosition = gridPosition5D;
-            }
-
-            if (is4DC && is4DT) {
-                long[] gridPosition5D = new long[4];
-                System.arraycopy(gridPosition, 0, gridPosition5D, 0, 2);
-                gridPosition5D[2] = channel;
-                gridPosition5D[3] = timepoint;
-                usedGridPosition = gridPosition5D;
-            }
-
-            if (is5D) {
-                long[] gridPosition5D = new long[5];
-                System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
-                gridPosition5D[3] = channel;
-                gridPosition5D[4] = timepoint;
-                usedGridPosition = gridPosition5D;
-            }
-
-            if (is4DC && !is4DT) {
-                long[] gridPosition5D = new long[4];
-                System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
-                gridPosition5D[3] = channel;
-                usedGridPosition = gridPosition5D;
-            }
-
-            if (is4DT && !is4DC) {
-                long[] gridPosition5D = new long[4];
-                System.arraycopy(gridPosition, 0, gridPosition5D, 0, 3);
-                gridPosition5D[3] = timepoint;
-                usedGridPosition = gridPosition5D;
-            }
-
+            long[] dataBlockIndices = toDataBlockIndices( gridPosition );
 
             long start = 0;
             if (logChunkLoading) {
                 start = System.currentTimeMillis();
-                System.out.println(pathName + " " + Arrays.toString(usedGridPosition) + " ...");
+                System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + " ...");
             }
 
             try {
-                System.out.println("gridPosition" + Arrays.toString(usedGridPosition));
-                block = n5.readBlock(pathName, attributes, usedGridPosition);
+                System.out.println("dataBlockIndices" + Arrays.toString(dataBlockIndices));
+                block = n5.readBlock(pathName, attributes, dataBlockIndices);
             } catch (SdkClientException e) {
                 System.err.println(e); // this happens sometimes, not sure yet why...
             }
 
             if (logChunkLoading) {
                 if (block != null)
-                    System.out.println(pathName + " " + Arrays.toString(usedGridPosition) + " fetched " + block.getNumElements() + " voxels in " + (System.currentTimeMillis() - start) + " ms.");
+                    System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + " fetched " + block.getNumElements() + " voxels in " + (System.currentTimeMillis() - start) + " ms.");
                 else
-                    System.out.println(pathName + " " + Arrays.toString(usedGridPosition) + " is missing, returning zeros.");
+                    System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + " is missing, returning zeros.");
             }
 
             if (block == null) {
-                return arrayCreator.createEmptyArray(usedGridPosition);
+                return arrayCreator.createEmptyArray( gridPosition );
             } else {
-                return arrayCreator.createArray(block, usedGridPosition);
+                return arrayCreator.createArray(block, gridPosition);
             }
+        }
+
+        private long[] toDataBlockIndices( long[] gridPosition )
+        {
+            long[] dataBlockIndices = gridPosition;
+
+            if (is2D) {
+                dataBlockIndices = new long[2];
+                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 2);
+            }
+
+            if (is4DC && is4DT) {
+                dataBlockIndices = new long[4];
+                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 2);
+                dataBlockIndices[2] = channel;
+                dataBlockIndices[3] = timepoint;
+            }
+
+            if (is5D) {
+                dataBlockIndices = new long[5];
+                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 3);
+                dataBlockIndices[3] = channel;
+                dataBlockIndices[4] = timepoint;
+            }
+
+            if (is4DC && !is4DT) {
+                dataBlockIndices = new long[4];
+                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 3);
+                dataBlockIndices[3] = channel;
+            }
+
+            if (is4DT && !is4DC) {
+                dataBlockIndices = new long[4];
+                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 3);
+                dataBlockIndices[3] = timepoint;
+            }
+
+            if ( dataBlockIndices == null )
+                throw new RuntimeException("Could not determine the data block to be loaded.");
+
+            return dataBlockIndices;
         }
     }
 
