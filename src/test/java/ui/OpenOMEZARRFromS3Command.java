@@ -1,9 +1,8 @@
-package de.embl.cba.bdv.ome.zarr.ui;
+package ui;
 
 import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrS3Reader;
 import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrViewer;
 import mpicbg.spim.data.SpimData;
-import net.imagej.ImageJ;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
