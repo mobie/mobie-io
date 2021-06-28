@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2019, Stephan Saalfeld
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -43,7 +43,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.stream.Stream;
 
 
@@ -51,360 +53,338 @@ import java.util.stream.Stream;
  * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
  *
  */
-public class N5OmeZarrReader extends N5FSReader
-{
-	private static final String V3_SEPARATOR = "/";
-	private static final String D5_SEPARATOR = ".";
+public class N5OmeZarrReader extends N5FSReader {
+    private static final String DEFAULT_SEPARATOR = ".";
 
-	protected static Version VERSION = new Version(2, 0, 0);
+    protected static Version VERSION = new Version(2, 0, 0);
 
-	protected static final String zarrayFile = ".zarray";
-	protected static final String zattrsFile = ".zattrs";
-	protected static final String zgroupFile = ".zgroup";
+    protected static final String zarrayFile = ".zarray";
+    protected static final String zattrsFile = ".zattrs";
+    protected static final String zgroupFile = ".zgroup";
 
-	private static final List<String> OME_ZARR_AXES = new ArrayList<>(Arrays.asList("[\"y\",\"x\"]",
-			"[\"c\",\"y\",\"x\"]",
-			"[\"t\",\"y\",\"x\"]",
-			"[\"z\",\"y\",\"x\"]",
-			"[\"t\",\"z\",\"y\",\"x\"]",
-			"[\"c\",\"z\",\"y\",\"x\"]",
-			"[\"t\",\"c\",\"y\",\"x\"]",
-			"[\"t\",\"c\",\"z\",\"y\",\"x\"]"));
+    HashMap<String, Integer> axesMap = new HashMap<>();
 
-	HashMap<String, Integer> axesMap = new HashMap<>();
+    static private GsonBuilder initGsonBuilder(final GsonBuilder gsonBuilder) {
 
-	static private GsonBuilder initGsonBuilder(final GsonBuilder gsonBuilder) {
+        gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
+        gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
+        gsonBuilder.serializeNulls();
 
-		gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
-		gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
-		gsonBuilder.serializeNulls();
+        return gsonBuilder;
+    }
 
-		return gsonBuilder;
-	}
+    final protected boolean mapN5DatasetAttributes;
+    protected String dimensionSeparator;
 
-	final protected boolean mapN5DatasetAttributes;
-	protected String dimensionSeparator;
+    /**
+     * Opens an {@link N5OmeZarrReader} at a given base path with a custom
+     * {@link GsonBuilder} to support custom attributes.
+     *
+     * @param basePath Zarr base path
+     * @param gsonBuilder
+     * @param dimensionSeparator
+     * @param mapN5DatasetAttributes
+     * 			Virtually create N5 dataset attributes (dimensions, blockSize,
+     * 			compression, dataType) for datasets such that N5 code that
+     * 			reads or modifies these attributes directly works as expected.
+     * 			This can lead to name clashes if a zarr container uses these
+     * 			attribute keys for other purposes.
+     * @throws IOException
+     */
+    public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
 
-	/**
-	 * Opens an {@link N5OmeZarrReader} at a given base path with a custom
-	 * {@link GsonBuilder} to support custom attributes.
-	 *
-	 * @param basePath Zarr base path
-	 * @param gsonBuilder
-	 * @param dimensionSeparator
-	 * @param mapN5DatasetAttributes
-	 * 			Virtually create N5 dataset attributes (dimensions, blockSize,
-	 * 			compression, dataType) for datasets such that N5 code that
-	 * 			reads or modifies these attributes directly works as expected.
-	 * 			This can lead to name clashes if a zarr container uses these
-	 * 			attribute keys for other purposes.
-	 * @throws IOException
-	 */
-	public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
-	{
+        super(basePath, initGsonBuilder(gsonBuilder));
+        this.dimensionSeparator = dimensionSeparator;
+        this.mapN5DatasetAttributes = mapN5DatasetAttributes;
+    }
 
-		super(basePath, initGsonBuilder(gsonBuilder));
-		this.dimensionSeparator = dimensionSeparator;
-		this.mapN5DatasetAttributes = mapN5DatasetAttributes;
-	}
+    /**
+     * Opens an {@link N5OmeZarrReader} at a given base path with a custom
+     * {@link GsonBuilder} to support custom attributes.
+     *
+     * @param basePath Zarr base path
+     * @param gsonBuilder
+     * @param dimensionSeparator
+     * @throws IOException
+     */
+    public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator) throws IOException {
 
-	/**
-	 * Opens an {@link N5OmeZarrReader} at a given base path with a custom
-	 * {@link GsonBuilder} to support custom attributes.
-	 *
-	 * @param basePath Zarr base path
-	 * @param gsonBuilder
-	 * @param dimensionSeparator
-	 * @throws IOException
-	 */
-	public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator) throws IOException
-	{
+        this(basePath, gsonBuilder, dimensionSeparator, true);
+    }
 
-		this(basePath, gsonBuilder, dimensionSeparator, true);
-	}
+    /**
+     * Opens an {@link N5OmeZarrReader} at a given base path.
+     *
+     * @param basePath Zarr base path
+     * @param dimensionSeparator
+     * @param mapN5DatasetAttributes
+     * 			Virtually create N5 dataset attributes (dimensions, blockSize,
+     * 			compression, dataType) for datasets such that N5 code that
+     * 			reads or modifies these attributes directly works as expected.
+     * 			This can lead to name collisions if a zarr container uses these
+     * 			attribute keys for other purposes.
+     *
+     * @throws IOException
+     */
+    public N5OmeZarrReader(final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
 
-	/**
-	 * Opens an {@link N5OmeZarrReader} at a given base path.
-	 *
-	 * @param basePath Zarr base path
-	 * @param dimensionSeparator
-	 * @param mapN5DatasetAttributes
-	 * 			Virtually create N5 dataset attributes (dimensions, blockSize,
-	 * 			compression, dataType) for datasets such that N5 code that
-	 * 			reads or modifies these attributes directly works as expected.
-	 * 			This can lead to name collisions if a zarr container uses these
-	 * 			attribute keys for other purposes.
-	 *
-	 * @throws IOException
-	 */
-	public N5OmeZarrReader(final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
-	{
+        this(basePath, new GsonBuilder(), dimensionSeparator, mapN5DatasetAttributes);
+    }
 
-		this(basePath, new GsonBuilder(), dimensionSeparator, mapN5DatasetAttributes);
-	}
+    /**
+     * Opens an {@link N5OmeZarrReader} at a given base path.
+     *
+     * @param basePath Zarr base path
+     * @param mapN5DatasetAttributes
+     * 			Virtually create N5 dataset attributes (dimensions, blockSize,
+     * 			compression, dataType) for datasets such that N5 code that
+     * 			reads or modifies these attributes directly works as expected.
+     * 			This can lead to name collisions if a zarr container uses these
+     * 			attribute keys for other purposes.
+     *
+     * @throws IOException
+     */
+    public N5OmeZarrReader(final String basePath, final boolean mapN5DatasetAttributes) throws IOException {
+        this(basePath, new GsonBuilder(), DEFAULT_SEPARATOR, mapN5DatasetAttributes);
+    }
 
-	/**
-	 * Opens an {@link N5OmeZarrReader} at a given base path.
-	 *
-	 * @param basePath Zarr base path
-	 * @param mapN5DatasetAttributes
-	 * 			Virtually create N5 dataset attributes (dimensions, blockSize,
-	 * 			compression, dataType) for datasets such that N5 code that
-	 * 			reads or modifies these attributes directly works as expected.
-	 * 			This can lead to name collisions if a zarr container uses these
-	 * 			attribute keys for other purposes.
-	 *
-	 * @throws IOException
-	 */
-	public N5OmeZarrReader(final String basePath, final boolean mapN5DatasetAttributes) throws IOException
-	{
+    /**
+     * Opens an {@link N5OmeZarrReader} at a given base path with a custom
+     * {@link GsonBuilder} to support custom attributes.
+     *
+     * Zarray metadata will be virtually mapped to N5 dataset attributes.
+     *
+     * @param basePath Zarr base path
+     * @param gsonBuilder
+     * @throws IOException
+     */
+    public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder) throws IOException {
+        this(basePath, gsonBuilder, DEFAULT_SEPARATOR);
+    }
 
-		this(basePath, new GsonBuilder(), "/", mapN5DatasetAttributes);
-	}
+    /**
+     * Opens an {@link N5OmeZarrReader} at a given base path.
+     *
+     * Zarray metadata will be virtually mapped to N5 dataset attributes.
+     *
+     * @param basePath Zarr base path
+     * @throws IOException
+     */
+    public N5OmeZarrReader(final String basePath) throws IOException {
 
-	/**
-	 * Opens an {@link N5OmeZarrReader} at a given base path with a custom
-	 * {@link GsonBuilder} to support custom attributes.
-	 *
-	 * Zarray metadata will be virtually mapped to N5 dataset attributes.
-	 *
-	 * @param basePath Zarr base path
-	 * @param gsonBuilder
-	 * @throws IOException
-	 */
-	public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder) throws IOException
-	{
+        this(basePath, new GsonBuilder());
+    }
 
-		this(basePath, gsonBuilder, "/");
-	}
+    @Override
+    public Version getVersion() throws IOException {
 
-	/**
-	 * Opens an {@link N5OmeZarrReader} at a given base path.
-	 *
-	 * Zarray metadata will be virtually mapped to N5 dataset attributes.
-	 *
-	 * @param basePath Zarr base path
-	 * @throws IOException
-	 */
-	public N5OmeZarrReader(final String basePath) throws IOException
-	{
+        final Path path;
+        if (groupExists("/")) {
+            path = Paths.get(basePath, zgroupFile);
+        } else if (datasetExists("/")) {
+            path = Paths.get(basePath, zarrayFile);
+        } else {
+            return VERSION;
+        }
 
-		this(basePath, new GsonBuilder());
-	}
+        if (Files.exists(path)) {
 
-	@Override
-	public Version getVersion() throws IOException
-	{
+            try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
+                final HashMap<String, JsonElement> attributes =
+                        GsonAttributesParser.readAttributes(
+                                Channels.newReader(
+                                        lockedFileChannel.getFileChannel(),
+                                        StandardCharsets.UTF_8.name()),
+                                gson);
+                final Integer zarr_format = GsonAttributesParser.parseAttribute(
+                        attributes,
+                        "zarr_format",
+                        Integer.class,
+                        gson);
 
-		final Path path;
-		if (groupExists("/")) {
-			path = Paths.get(basePath, zgroupFile);
-		} else if (datasetExists("/")) {
-			path = Paths.get(basePath, zarrayFile);
-		} else {
-			return VERSION;
-		}
+                if (zarr_format != null)
+                    return new Version(zarr_format, 0, 0);
+            }
+        }
+        return VERSION;
+    }
 
-		if ( Files.exists(path)) {
+    /**
+     *
+     * @return Zarr base path
+     */
+    @Override
+    public String getBasePath() {
 
-			try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
-				final HashMap< String, JsonElement> attributes =
-						GsonAttributesParser.readAttributes(
-								Channels.newReader(
-										lockedFileChannel.getFileChannel(),
-										StandardCharsets.UTF_8.name()),
-								gson);
-				final Integer zarr_format = GsonAttributesParser.parseAttribute(
-						attributes,
-						"zarr_format",
-						Integer.class,
-						gson);
+        return this.basePath;
+    }
 
-				if (zarr_format != null)
-					return new Version(zarr_format, 0, 0);
-			}
-		}
-		return VERSION;
-	}
+    public boolean groupExists(final String pathName) {
 
-	/**
-	 *
-	 * @return Zarr base path
-	 */
-	@Override
-	public String getBasePath() {
+        final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zgroupFile);
+        return Files.exists(path) && Files.isRegularFile(path);
+    }
 
-		return this.basePath;
-	}
+    public ZArrayAttributes getZArraryAttributes(final String pathName) throws IOException {
 
-	public boolean groupExists(final String pathName) {
+        final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
+        final HashMap<String, JsonElement> attributes = new HashMap<>();
 
-		final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zgroupFile);
-		return Files.exists(path) && Files.isRegularFile(path);
-	}
+        if (Files.exists(path)) {
 
-	public ZArrayAttributes getZArraryAttributes(final String pathName) throws IOException
-	{
+            try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
+                attributes.putAll(
+                        GsonAttributesParser.readAttributes(
+                                Channels.newReader(
+                                        lockedFileChannel.getFileChannel(),
+                                        StandardCharsets.UTF_8.name()),
+                                gson));
+            }
+        } else System.out.println(path + " does not exist.");
 
-		final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
-		final HashMap< String, JsonElement> attributes = new HashMap<>();
+        System.out.println(attributes.keySet());
+        JsonElement dimSep = attributes.get("dimension_separator");
+        this.dimensionSeparator = dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
 
-		if ( Files.exists(path)) {
+        return new ZArrayAttributes(
+                attributes.get("zarr_format").getAsInt(),
+                gson.fromJson(attributes.get("shape"), long[].class),
+                gson.fromJson(attributes.get("chunks"), int[].class),
+                gson.fromJson(attributes.get("dtype"), DType.class),
+                gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
+                attributes.get("fill_value").getAsString(),
+                attributes.get("order").getAsCharacter(),
+                gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
+    }
 
-			try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
-				attributes.putAll(
-						GsonAttributesParser.readAttributes(
-								Channels.newReader(
-										lockedFileChannel.getFileChannel(),
-										StandardCharsets.UTF_8.name()),
-								gson));
-			}
-		} else System.out.println(path.toString() + " does not exist.");
+    @Override
+    public DatasetAttributes getDatasetAttributes(final String pathName) throws IOException {
 
-		System.out.println(attributes.keySet());
-		JsonElement dimSep = attributes.get("dimension_separator");
-		this.dimensionSeparator = dimSep == null ?  D5_SEPARATOR : V3_SEPARATOR;
+        final ZArrayAttributes zArrayAttributes = getZArraryAttributes(pathName);
+        return zArrayAttributes == null ? null : zArrayAttributes.getDatasetAttributes();
+    }
 
-		return new ZArrayAttributes(
-				attributes.get("zarr_format").getAsInt(),
-				gson.fromJson(attributes.get("shape"), long[].class),
-				gson.fromJson(attributes.get("chunks"), int[].class),
-				gson.fromJson(attributes.get("dtype"), DType.class),
-				gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
-				attributes.get("fill_value").getAsString(),
-				attributes.get("order").getAsCharacter(),
-				gson.fromJson(attributes.get("filters"), TypeToken.getParameterized( Collection.class, Filter.class).getType()));
-	}
+    @Override
+    public boolean datasetExists(final String pathName) throws IOException {
 
-	@Override
-	public DatasetAttributes getDatasetAttributes( final String pathName) throws IOException {
-
-		final ZArrayAttributes zArrayAttributes = getZArraryAttributes(pathName);
-		return zArrayAttributes == null ? null : zArrayAttributes.getDatasetAttributes();
-	}
-
-	@Override
-	public boolean datasetExists(final String pathName) throws IOException {
-
-		final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
-		return Files.exists(path) && Files.isRegularFile(path) && getDatasetAttributes(pathName) != null;
-	}
+        final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
+        return Files.exists(path) && Files.isRegularFile(path) && getDatasetAttributes(pathName) != null;
+    }
 
 
-	/**
-	 * @returns false if the group or dataset does not exist but also if the
-	 * 		attempt to access
-	 */
-	@Override
-	public boolean exists(final String pathName) {
+    /**
+     * @returns false if the group or dataset does not exist but also if the
+     * 		attempt to access
+     */
+    @Override
+    public boolean exists(final String pathName) {
 
-		try {
-			return groupExists(pathName) || datasetExists(pathName);
-		} catch (final IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+        try {
+            return groupExists(pathName) || datasetExists(pathName);
+        } catch (final IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
-	/**
-	 * If {@link #mapN5DatasetAttributes} is set, dataset attributes will
-	 * override attributes with the same key.
-	 */
-	@Override
-	public HashMap< String, JsonElement> getAttributes( final String pathName) throws IOException {
+    /**
+     * If {@link #mapN5DatasetAttributes} is set, dataset attributes will
+     * override attributes with the same key.
+     */
+    @Override
+    public HashMap<String, JsonElement> getAttributes(final String pathName) throws IOException {
 
-		final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zattrsFile);
-		final HashMap< String, JsonElement> attributes = new HashMap<>();
+        final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zattrsFile);
+        final HashMap<String, JsonElement> attributes = new HashMap<>();
 
-		if ( Files.exists(path)) {
-			try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
-				attributes.putAll(
-						GsonAttributesParser.readAttributes(
-								Channels.newReader(
-										lockedFileChannel.getFileChannel(),
-										StandardCharsets.UTF_8.name()),
-								gson));
-			}
-		}
+        if (Files.exists(path)) {
+            try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
+                attributes.putAll(
+                        GsonAttributesParser.readAttributes(
+                                Channels.newReader(
+                                        lockedFileChannel.getFileChannel(),
+                                        StandardCharsets.UTF_8.name()),
+                                gson));
+            }
+        }
 
-		getDimensions(attributes);
+        getDimensions(attributes);
 
-		if (mapN5DatasetAttributes && datasetExists(pathName)) {
+        if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
-			final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
-			attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
-			attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
-			attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
-			attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
-		}
+            final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
+            attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
+            attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
+            attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
+            attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
+        }
 
-		return attributes;
-	}
+        return attributes;
+    }
 
-	private void getDimensions(HashMap<String, JsonElement> attributes) {
-		JsonElement multiscales = attributes.get("multiscales");
-			if (multiscales != null) {
-				JsonElement axes = multiscales.getAsJsonArray().getAsJsonArray().getAsJsonArray().get(0).getAsJsonObject().get("axes");
-				setAxes(axes);
-			}
-	}
+    private void getDimensions(HashMap<String, JsonElement> attributes) {
+        JsonElement multiscales = attributes.get("multiscales");
+        if (multiscales != null) {
+            JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
+            setAxes(axes);
+        }
+    }
 
-	private boolean axesValid(JsonElement axesJson) {
-		String axes = axesJson.getAsJsonArray().toString();
-		return OME_ZARR_AXES.contains(axes);
-	}
+    private boolean axesValid(JsonElement axesJson) {
+        return ZarrAxes.decode(axesJson.toString()) != null;
+    }
 
-	public void setAxes(JsonElement axesJson) {
-		if (axesJson != null && axesValid(axesJson)) {
-			for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
-				String elem = axesJson.getAsJsonArray().get(i).getAsString();
-				this.axesMap.put(elem, i);
-			}
-		}
-	}
+    public void setAxes(JsonElement axesJson) {
+        if (axesJson != null && axesValid(axesJson)) {
+            for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
+                String elem = axesJson.getAsJsonArray().get(i).getAsString();
+                this.axesMap.put(elem, i);
+            }
+        }
+    }
 
-	public HashMap<String, Integer> getAxes() {
-		return this.axesMap;
-	}
+    public HashMap<String, Integer> getAxes() {
+        return this.axesMap;
+    }
 
-	/**
-	 * Reads a {@link DataBlock} from an {@link InputStream}.
-	 *
-	 * @param in
-	 * @param datasetAttributes
-	 * @param gridPosition
-	 * @return
-	 * @throws IOException
-	 */
-	@SuppressWarnings("incomplete-switch")
-	public static DataBlock<?> readBlock(
-			final InputStream in,
-			final ZarrDatasetAttributes datasetAttributes,
-			final long... gridPosition) throws IOException {
+    /**
+     * Reads a {@link DataBlock} from an {@link InputStream}.
+     *
+     * @param in
+     * @param datasetAttributes
+     * @param gridPosition
+     * @return
+     * @throws IOException
+     */
+    @SuppressWarnings("incomplete-switch")
+    public static DataBlock<?> readBlock(
+            final InputStream in,
+            final ZarrDatasetAttributes datasetAttributes,
+            final long... gridPosition) throws IOException {
 
-		final int[] blockSize = datasetAttributes.getBlockSize();
-		final DType dType = datasetAttributes.getDType();
+        final int[] blockSize = datasetAttributes.getBlockSize();
+        final DType dType = datasetAttributes.getDType();
 
-		final ByteArrayDataBlock byteBlock = dType.createByteBlock(blockSize, gridPosition);
+        final ByteArrayDataBlock byteBlock = dType.createByteBlock(blockSize, gridPosition);
 
-		final BlockReader reader = datasetAttributes.getCompression().getReader();
-		/////////////////////////////////////////////////////////////////////////////////////////////////////////
-		reader.read(byteBlock, in);
+        final BlockReader reader = datasetAttributes.getCompression().getReader();
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        reader.read(byteBlock, in);
 
-		switch (dType.getDataType()) {
-		case UINT8:
-		case INT8:
-			return byteBlock;
-		}
+        switch (dType.getDataType()) {
+            case UINT8:
+            case INT8:
+                return byteBlock;
+        }
 
-		/* else translate into target type */
-		final DataBlock<?> dataBlock = dType.createDataBlock(blockSize, gridPosition);
-		final ByteBuffer byteBuffer = byteBlock.toByteBuffer();
-		byteBuffer.order(dType.getOrder());
-		dataBlock.readData(byteBuffer);
+        /* else translate into target type */
+        final DataBlock<?> dataBlock = dType.createDataBlock(blockSize, gridPosition);
+        final ByteBuffer byteBuffer = byteBlock.toByteBuffer();
+        byteBuffer.order(dType.getOrder());
+        dataBlock.readData(byteBuffer);
 
-		/* TODO I do not think that makes sense, F order should be opened transposed, the consumer can decide what to do with them? */
+        /* TODO I do not think that makes sense, F order should be opened transposed, the consumer can decide what to do with them? */
 //		if (!datasetAttributes.isRowMajor()) {
 //
 //			final long[] blockDimensions = new long[blockSize.length];
@@ -460,105 +440,105 @@ public class N5OmeZarrReader extends N5FSReader
 //			}
 //		}
 
-		return dataBlock;
-	}
+        return dataBlock;
+    }
 
-	protected static <T extends Type<T>> void copyTransposed(
-			final RandomAccessibleInterval<? extends T> src,
-			final RandomAccessibleInterval<? extends T> dst) {
+    protected static <T extends Type<T>> void copyTransposed(
+            final RandomAccessibleInterval<? extends T> src,
+            final RandomAccessibleInterval<? extends T> dst) {
 
-		/* transpose */
-		final int n = src.numDimensions();
-		final int[] lut = new int[n];
-		Arrays.setAll(lut, d -> n - 1 - d);
-		final IntervalView<? extends T> dstTransposed = Views.permuteCoordinates(dst, lut);
+        /* transpose */
+        final int n = src.numDimensions();
+        final int[] lut = new int[n];
+        Arrays.setAll(lut, d -> n - 1 - d);
+        final IntervalView<? extends T> dstTransposed = Views.permuteCoordinates(dst, lut);
 
-		/* copy */
-		final Cursor<? extends T> cSrc = Views.flatIterable(src).cursor();
-		final Cursor<? extends T> cDst = Views.flatIterable(dstTransposed).cursor();
-		while (cDst.hasNext())
-			cDst.next().set(cSrc.next());
-	}
+        /* copy */
+        final Cursor<? extends T> cSrc = Views.flatIterable(src).cursor();
+        final Cursor<? extends T> cDst = Views.flatIterable(dstTransposed).cursor();
+        while (cDst.hasNext())
+            cDst.next().set(cSrc.next());
+    }
 
-	@Override
-	public DataBlock<?> readBlock(
-			final String pathName,
-			final DatasetAttributes datasetAttributes,
-			final long... gridPosition) throws IOException {
+    @Override
+    public DataBlock<?> readBlock(
+            final String pathName,
+            final DatasetAttributes datasetAttributes,
+            final long... gridPosition) throws IOException {
 
-		final ZarrDatasetAttributes zarrDatasetAttributes;
-		if (datasetAttributes instanceof ZarrDatasetAttributes)
-			zarrDatasetAttributes = (ZarrDatasetAttributes)datasetAttributes;
-		else
-			zarrDatasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
+        final ZarrDatasetAttributes zarrDatasetAttributes;
+        if (datasetAttributes instanceof ZarrDatasetAttributes)
+            zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
+        else
+            zarrDatasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
 
-		final Path path = Paths.get(
-				basePath,
-				removeLeadingSlash(pathName),
-				getZarrDataBlockPath(
-						gridPosition,
-						dimensionSeparator,
-						zarrDatasetAttributes.isRowMajor()).toString());
-		System.out.println("readBlock path" + path);
-		if (!Files.exists(path))
-			return null;
+        Path path = Paths.get(
+                basePath,
+                removeLeadingSlash(pathName),
+                getZarrDataBlockPath(
+                        gridPosition,
+                        dimensionSeparator,
+                        zarrDatasetAttributes.isRowMajor()).toString());
+        System.out.println("readBlock path" + path);
+        if (!Files.exists(path)) {
+            return null;
+        }
 
-		try (final LockedFileChannel lockedChannel = LockedFileChannel.openForReading(path)) {
-			return readBlock( Channels.newInputStream(lockedChannel.getFileChannel()), zarrDatasetAttributes, gridPosition);
-		}
-	}
+        try (final LockedFileChannel lockedChannel = LockedFileChannel.openForReading(path)) {
+            return readBlock(Channels.newInputStream(lockedChannel.getFileChannel()), zarrDatasetAttributes, gridPosition);
+        }
+    }
 
-	@Override
-	public String[] list( final String pathName) throws IOException
-	{
+    @Override
+    public String[] list(final String pathName) throws IOException {
 
-		final Path path = Paths.get(basePath, removeLeadingSlash(pathName));
-		try (final Stream< Path > pathStream = Files.list(path)) {
+        final Path path = Paths.get(basePath, removeLeadingSlash(pathName));
+        try (final Stream<Path> pathStream = Files.list(path)) {
 
-			return pathStream
-					.filter(a -> Files.isDirectory(a))
-					.map(a -> path.relativize(a).toString())
-					.filter(a -> exists(pathName + "/" + a))
-					.toArray(n -> new String[n]);
-		}
-	}
+            return pathStream
+                    .filter(a -> Files.isDirectory(a))
+                    .map(a -> path.relativize(a).toString())
+                    .filter(a -> exists(pathName + "/" + a))
+                    .toArray(n -> new String[n]);
+        }
+    }
 
-	/**
-	 * Constructs the path for a data block in a dataset at a given grid position.
-	 *
-	 * The returned path is
-	 * <pre>
-	 * $datasetPathName/$gridPosition[n]$dimensionSeparator$gridPosition[n-1]$dimensionSeparator[...]$dimensionSeparator$gridPosition[0]
-	 * </pre>
-	 *
-	 * This is the file into which the data block will be stored.
-	 *
-	 * @param datasetPathName
-	 * @param gridPosition
-	 * @param dimensionSeparator
-	 *
-	 * @return
-	 */
-	protected static Path getZarrDataBlockPath(
-			final long[] gridPosition,
-			final String dimensionSeparator,
-			final boolean isRowMajor) {
+    /**
+     * Constructs the path for a data block in a dataset at a given grid position.
+     *
+     * The returned path is
+     * <pre>
+     * $datasetPathName/$gridPosition[n]$dimensionSeparator$gridPosition[n-1]$dimensionSeparator[...]$dimensionSeparator$gridPosition[0]
+     * </pre>
+     *
+     * This is the file into which the data block will be stored.
+     *
+     * @param datasetPathName
+     * @param gridPosition
+     * @param dimensionSeparator
+     *
+     * @return
+     */
+    protected static Path getZarrDataBlockPath(
+            final long[] gridPosition,
+            final String dimensionSeparator,
+            final boolean isRowMajor) {
 
-		final StringBuilder pathStringBuilder = new StringBuilder();
-		if (isRowMajor) {
-			pathStringBuilder.append(gridPosition[gridPosition.length - 1]);
-			for (int i = gridPosition.length - 2; i >= 0 ; --i) {
-				pathStringBuilder.append(dimensionSeparator);
-				pathStringBuilder.append(gridPosition[i]);
-			}
-		} else {
-			pathStringBuilder.append(gridPosition[0]);
-			for (int i = 1; i < gridPosition.length; ++i) {
-				pathStringBuilder.append(dimensionSeparator);
-				pathStringBuilder.append(gridPosition[i]);
-			}
-		}
-		System.out.println("Path" + Paths.get(pathStringBuilder.toString()));
-		return Paths.get(pathStringBuilder.toString());
-	}
+        final StringBuilder pathStringBuilder = new StringBuilder();
+        if (isRowMajor) {
+            pathStringBuilder.append(gridPosition[gridPosition.length - 1]);
+            for (int i = gridPosition.length - 2; i >= 0; --i) {
+                pathStringBuilder.append(dimensionSeparator);
+                pathStringBuilder.append(gridPosition[i]);
+            }
+        } else {
+            pathStringBuilder.append(gridPosition[0]);
+            for (int i = 1; i < gridPosition.length; ++i) {
+                pathStringBuilder.append(dimensionSeparator);
+                pathStringBuilder.append(gridPosition[i]);
+            }
+        }
+        System.out.println("Path" + Paths.get(pathStringBuilder.toString()));
+        return Paths.get(pathStringBuilder.toString());
+    }
 }

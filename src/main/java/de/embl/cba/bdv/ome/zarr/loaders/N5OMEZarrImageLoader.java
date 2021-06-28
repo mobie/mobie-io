@@ -549,8 +549,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 }
                 long[] dimensions = getDimensions(attributes);
                 final int[] cellDimensions = getBlockSize(attributes);
-                System.out.println("dim" + Arrays.toString(dimensions));
-                System.out.println("cell" + Arrays.toString(cellDimensions));
                 final CellGrid grid = new CellGrid(dimensions, cellDimensions);
 
                 final int priority = numMipmapLevels() - 1 - level;
@@ -618,8 +616,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             long[] cellDims = getCellDims(gridPosition);
             int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
 
-            if ( is2D )
-                cellDims = Arrays.stream( cellDims ).limit( 2 ).toArray();
+            if (is2D)
+                cellDims = Arrays.stream(cellDims).limit(2).toArray();
 
             switch (dataType) {
                 case UINT8:
@@ -732,7 +730,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         public A loadArray(final long[] gridPosition) throws IOException {
             DataBlock<?> block = null;
 
-            long[] dataBlockIndices = toDataBlockIndices( gridPosition );
+            long[] dataBlockIndices = toDataBlockIndices(gridPosition);
 
             long start = 0;
             if (logChunkLoading) {
@@ -755,48 +753,47 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             }
 
             if (block == null) {
-                return arrayCreator.createEmptyArray( gridPosition );
+                return arrayCreator.createEmptyArray(gridPosition);
             } else {
                 return arrayCreator.createArray(block, gridPosition);
             }
         }
 
-        private long[] toDataBlockIndices( long[] gridPosition )
-        {
+        private long[] toDataBlockIndices(long[] gridPosition) {
             long[] dataBlockIndices = gridPosition;
 
             if (is2D) {
                 dataBlockIndices = new long[2];
-                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 2);
+                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 2);
             }
 
             if (is4DC && is4DT) {
                 dataBlockIndices = new long[4];
-                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 2);
+                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 2);
                 dataBlockIndices[2] = channel;
                 dataBlockIndices[3] = timepoint;
             }
 
             if (is5D) {
                 dataBlockIndices = new long[5];
-                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 3);
+                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
                 dataBlockIndices[3] = channel;
                 dataBlockIndices[4] = timepoint;
             }
 
             if (is4DC && !is4DT) {
                 dataBlockIndices = new long[4];
-                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 3);
+                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
                 dataBlockIndices[3] = channel;
             }
 
             if (is4DT && !is4DC) {
                 dataBlockIndices = new long[4];
-                System.arraycopy( gridPosition, 0, dataBlockIndices, 0, 3);
+                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
                 dataBlockIndices[3] = timepoint;
             }
 
-            if ( dataBlockIndices == null )
+            if (dataBlockIndices == null)
                 throw new RuntimeException("Could not determine the data block to be loaded.");
 
             return dataBlockIndices;
