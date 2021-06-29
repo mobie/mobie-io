@@ -1,9 +1,8 @@
-package de.embl.cba.bdv.ome.zarr.ui;
+package ui;
 
 import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrS3Reader;
 import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrViewer;
 import mpicbg.spim.data.SpimData;
-import net.imagej.ImageJ;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -43,11 +42,11 @@ public class OpenOMEZARRFromS3Command implements Command {
 //            openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/tyx.ome.zarr");
 //        openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/czyx.ome.zarr");
 //        openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/tzyx.ome.zarr");
-        // openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/tcyx.ome.zarr");
+//         openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/tcyx.ome.zarr");
 
 //err
-		openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/yx.ome.zarr");
-//            openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/flat_yx.ome.zarr");
+//		openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/yx.ome.zarr");
+            openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/flat_yx.ome.zarr");
 
 
 
@@ -56,6 +55,6 @@ public class OpenOMEZARRFromS3Command implements Command {
 
 
 
-        //openAndShow( "https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/bbbb.zarr" );
+//        openAndShow( "https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr" );
     }
 }
