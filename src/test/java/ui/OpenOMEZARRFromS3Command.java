@@ -1,7 +1,7 @@
 package ui;
 
-import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrS3Reader;
-import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrViewer;
+import de.embl.cba.n5.ome.zarr.openers.OMEZarrS3Opener;
+import de.embl.cba.n5.ome.zarr.OMEZarrViewer;
 import mpicbg.spim.data.SpimData;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
@@ -25,7 +25,7 @@ public class OpenOMEZARRFromS3Command implements Command {
     }
 
     protected static void openAndShow(String s3URL) throws IOException {
-        SpimData spimData = OMEZarrS3Reader.readURL(s3URL);
+        SpimData spimData = OMEZarrS3Opener.readURL(s3URL);
         final OMEZarrViewer viewer = new OMEZarrViewer(spimData);
         viewer.show();
     }
