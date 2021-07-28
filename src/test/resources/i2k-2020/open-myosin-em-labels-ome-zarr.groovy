@@ -21,11 +21,11 @@
  */
 
 
-import de.embl.cba.bdv.ome.zarr.zarr.OMEZarrS3Reader
+import de.embl.cba.n5.ome.zarr.openers.OMEZarrS3Opener
 import bdv.util.*;
 
 N5OMEZarrImageLoader.logChunkLoading = true;
-reader = new OMEZarrS3Reader( "https://s3.embl.de", "us-west-2", "i2k-2020" );
+reader = new OMEZarrS3Opener( "https://s3.embl.de", "us-west-2", "i2k-2020" );
 myosin = reader.readKey( "prospr-myosin.ome.zarr" );
 myosinBdvSources = BdvFunctions.show( myosin );
 emAndLabels = reader.readKey( "em-raw.ome.zarr" );
