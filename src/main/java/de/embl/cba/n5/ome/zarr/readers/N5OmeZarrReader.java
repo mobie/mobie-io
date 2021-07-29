@@ -67,6 +67,7 @@ public class N5OmeZarrReader extends N5FSReader {
     protected static final String zarrayFile = ".zarray";
     protected static final String zattrsFile = ".zattrs";
     protected static final String zgroupFile = ".zgroup";
+    ZarrAxes zarrAxes;
 
     HashMap<String, Integer> axesMap = new HashMap<>();
 
@@ -331,26 +332,17 @@ public class N5OmeZarrReader extends N5FSReader {
     private void getDimensions(HashMap<String, JsonElement> attributes) {
         JsonElement multiscales = attributes.get("multiscales");
         if (multiscales != null) {
-            JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
-            setAxes(axes);
+            JsonElement elementAxes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
+            setAxes(elementAxes);
         }
-    }
-
-    private boolean axesValid(JsonElement axesJson) {
-        return ZarrAxes.decode(axesJson.toString()) != null;
     }
 
     public void setAxes(JsonElement axesJson) {
-        if (axesJson != null && axesValid(axesJson)) {
-            for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
-                String elem = axesJson.getAsJsonArray().get(i).getAsString();
-                this.axesMap.put(elem, i);
-            }
-        }
+        this.zarrAxes = ZarrAxes.decode(axesJson.toString());
     }
 
-    public HashMap<String, Integer> getAxes() {
-        return this.axesMap;
+    public ZarrAxes getAxes() {
+        return this.zarrAxes;
     }
 
     /**

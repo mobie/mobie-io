@@ -37,7 +37,9 @@ import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
 import com.amazonaws.SdkClientException;
+import de.embl.cba.n5.ome.zarr.readers.N5OmeZarrReader;
 import de.embl.cba.n5.ome.zarr.readers.N5S3ZarrReader;
+import de.embl.cba.n5.ome.zarr.util.ZarrAxes;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
@@ -81,10 +83,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     protected AbstractSequenceDescription<?, ?, ?> seq;
     protected ViewRegistrations viewRegistrations;
     public static boolean logChunkLoading = false;
-    private static boolean is5D = false;
-    private static boolean is4DC = false;
-    private static boolean is4DT = false;
-    private static boolean is2D = false;
 
     /**
      * Maps setup id to {@link SetupImgLoader}.
@@ -99,7 +97,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private final Map<Integer, DatasetAttributes> setupToAttributes = new HashMap<>();
     private final Map<Integer, Integer> setupToChannel = new HashMap<>();
     private int sequenceTimepoints = 0;
-    private HashMap<String, Integer> axesMap = new HashMap<>();
+    private ZarrAxes zarrAxes;
 
 
     /**
@@ -114,9 +112,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         this.seq = sequenceDescription; // TODO: it is better to fetch from within Zarr
     }
 
-    public N5OMEZarrImageLoader(N5Reader n5Reader, HashMap<String, Integer> axesMap) {
+    public N5OMEZarrImageLoader(N5Reader n5Reader) {
         this.n5 = n5Reader;
-        this.axesMap = axesMap;
         fetchSequenceDescriptionAndViewRegistrations();
     }
 
@@ -132,16 +129,13 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             for (int setupId = 0; setupId < numSetups; setupId++) {
                 ViewSetup viewSetup = createViewSetup(setupId);
                 int setupTimepoints = 1;
-                is5D = false;
 
                 if (setupToAttributes.get(setupId).getNumDimensions() > 4) {
                     setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[T];
-                    is5D = true;
                 }
 
-                if (setupToAttributes.get(setupId).getNumDimensions() == 4 && axesMap.containsKey("t")) {
+                if (setupToAttributes.get(setupId).getNumDimensions() == 4 && zarrAxes.is4DWithTimepoints()) {
                     setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[3];
-                    is4DT = true;
                 }
 
                 sequenceTimepoints = Math.max(setupTimepoints, sequenceTimepoints);
@@ -171,23 +165,28 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private void initSetups() throws IOException {
         int setupId = -1;
 
+
         Multiscale multiscale = getMultiscale(""); // returns multiscales[ 0 ]
         DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
+
+        zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
+                n5 instanceof N5S3ZarrReader ? ((N5S3ZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
+
         long nC = 1;
         if (attributes.getNumDimensions() > 4) {
             nC = attributes.getDimensions()[C];
         }
-        if (attributes.getNumDimensions() == 4 && axesMap.containsKey("c") && !axesMap.containsKey("t")) {
+        if (zarrAxes.is4DWithChannels()) {
             nC = attributes.getDimensions()[C];
-            is4DC = true;
+//            is4DC = true;
         }
-        if (attributes.getNumDimensions() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t")) {
+        if (zarrAxes.is4DWithTimepointsAndChannels()) {
             nC = attributes.getDimensions()[2];
-            is4DC = true;
+//            is4DC = true;
         }
-        if (attributes.getNumDimensions() == 2 && axesMap.containsKey("y") && axesMap.containsKey("x")) {
-            is2D = true;
-        }
+//        if (attributes.getNumDimensions() == 2 && axesMap.containsKey("y") && axesMap.containsKey("x")) {
+//            is2D = true;
+//        }
 
         for (int c = 0; c < nC; c++) {
             // each channel is one setup
@@ -568,8 +567,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     private long[] getDimensions(DatasetAttributes attributes) {
-        if (!axesMap.isEmpty()) {
-            if ((axesMap.size() == 2) || (axesMap.size() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t"))) {
+        if (zarrAxes != null) {
+            if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
                 return fillDimensions(attributes);
             }
         }
@@ -585,11 +584,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     private int[] getBlockSize(DatasetAttributes attributes) {
-        if (!axesMap.isEmpty()) {
-            if ((axesMap.size() == 2) || (axesMap.size() == 4 && axesMap.containsKey("c") && axesMap.containsKey("t"))) {
+            if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
                 return fillBlockSize(attributes);
             }
-        }
         return Arrays.stream(attributes.getBlockSize()).limit(3).toArray();
     }
 
@@ -601,7 +598,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return tmp;
     }
 
-    private static class ArrayCreator<A, T extends NativeType<T>> {
+    private class ArrayCreator<A, T extends NativeType<T>> {
         private final CellGrid cellGrid;
         private final DataType dataType;
         private final BiConsumer<ArrayImg<T, ?>, DataBlock<?>> copyFromBlock;
@@ -616,7 +613,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             long[] cellDims = getCellDims(gridPosition);
             int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
 
-            if (is2D)
+            if (zarrAxes.is2D())
                 cellDims = Arrays.stream(cellDims).limit(2).toArray();
 
             switch (dataType) {
@@ -681,23 +678,20 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         private long[] getCellDims(long[] gridPosition) {
             long[] cellMin = new long[3];
             int[] cellDims = new int[3];
-            if (is4DC && !is4DT) {
+
+            if (zarrAxes.is4DWithChannels() || zarrAxes.is4DWithTimepoints()) {
                 cellMin = new long[4];
                 cellDims = new int[4];
                 cellDims[3] = 1; // channel
             }
-            if (is4DT && !is4DC) {
-                cellMin = new long[4];
-                cellDims = new int[4];
-                cellDims[3] = 1; // channel
-            }
-            if (is4DT && is4DC) {
+
+            if (zarrAxes.is4DWithTimepointsAndChannels()) {
                 cellMin = new long[4];
                 cellDims = new int[4];
                 cellDims[2] = 1; // channel
                 cellDims[3] = 1; // timepoint
             }
-            if (is5D) {
+            if (zarrAxes.is5D()) {
                 cellMin = new long[5];
                 cellDims = new int[5];
                 cellDims[3] = 1; // channel
@@ -709,7 +703,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         }
     }
 
-    private static class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
+    private class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         private final N5Reader n5;
         private final String pathName;
         private final int channel;
@@ -739,6 +733,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             }
 
             try {
+                System.out.println("dataBlockIndices" + Arrays.toString(dataBlockIndices));
                 block = n5.readBlock(pathName, attributes, dataBlockIndices);
             } catch (SdkClientException e) {
                 System.err.println(e); // this happens sometimes, not sure yet why...
@@ -760,33 +755,34 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
         private long[] toDataBlockIndices(long[] gridPosition) {
             long[] dataBlockIndices = gridPosition;
+            System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
 
-            if (is2D) {
+            if (zarrAxes.is2D()) {
                 dataBlockIndices = new long[2];
                 System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 2);
             }
 
-            if (is4DC && is4DT) {
+            if (zarrAxes.is4DWithTimepointsAndChannels()) {
                 dataBlockIndices = new long[4];
                 System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 2);
                 dataBlockIndices[2] = channel;
                 dataBlockIndices[3] = timepoint;
             }
 
-            if (is5D) {
+            if (zarrAxes.is5D()) {
                 dataBlockIndices = new long[5];
                 System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
                 dataBlockIndices[3] = channel;
                 dataBlockIndices[4] = timepoint;
             }
 
-            if (is4DC && !is4DT) {
+            if (zarrAxes.is4DWithChannels()) {
                 dataBlockIndices = new long[4];
                 System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
                 dataBlockIndices[3] = channel;
             }
 
-            if (is4DT && !is4DC) {
+            if (zarrAxes.is4DWithTimepoints()) {
                 dataBlockIndices = new long[4];
                 System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
                 dataBlockIndices[3] = timepoint;
@@ -799,7 +795,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         }
     }
 
-    private static SimpleCacheArrayLoader<?> createCacheArrayLoader(final N5Reader n5, final String pathName, int channel, int timepointId, CellGrid grid) throws IOException {
+    private SimpleCacheArrayLoader<?> createCacheArrayLoader(final N5Reader n5, final String pathName, int channel, int timepointId, CellGrid grid) throws IOException {
         final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
         return new N5OMEZarrCacheArrayLoader<>(n5, pathName, channel, timepointId, attributes, grid);
     }

@@ -68,11 +68,12 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
 
     protected String dimensionSeparator;
     private final String serviceEndpoint;
-    private final HashMap<String, Integer> axesMap = new HashMap<>();
+    private ZarrAxes zarrAxes;
 
-    public HashMap<String, Integer> getAxesMap() {
-        return axesMap;
+    public ZarrAxes getAxes() {
+        return this.zarrAxes;
     }
+
 
     public void setDimensionSeparator(String dimensionSeparator) {
         this.dimensionSeparator = dimensionSeparator;
@@ -248,20 +249,13 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
             setAxes(axes);
         }
     }
-
-    private boolean axesValid(JsonElement axesJson) {
-        return ZarrAxes.decode(axesJson.toString()) != null;
-    }
-
     public void setAxes(JsonElement axesJson) {
-        if (axesJson != null && axesValid(axesJson)) {
-            for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
-                String elem = axesJson.getAsJsonArray().get(i).getAsString();
-                this.axesMap.put(elem, i);
-            }
+        if (axesJson != null) {
+            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
+        } else {
+            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
         }
     }
-
     /**
      * Reads a {@link DataBlock} from an {@link InputStream}.
      *
