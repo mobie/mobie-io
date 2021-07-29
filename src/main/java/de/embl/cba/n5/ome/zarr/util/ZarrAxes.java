@@ -22,7 +22,6 @@ public enum ZarrAxes {
 
     @JsonCreator
     public static ZarrAxes decode(final String axes) {
-        if (axes.isEmpty()) return NOT_SPECIFIED;
         return Stream.of(ZarrAxes.values()).filter(targetEnum ->
                 targetEnum.axes.equals(axes)).findFirst().orElse(NOT_SPECIFIED);
     }
@@ -36,7 +35,7 @@ public enum ZarrAxes {
     }
 
     public boolean is5D() {
-        return this.axes.equals(TZYX.axes);
+        return this.axes.equals(TCZYX.axes);
     }
 
     public boolean is4D() {

@@ -253,7 +253,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
         if (axesJson != null) {
             this.zarrAxes = ZarrAxes.decode(axesJson.toString());
         } else {
-            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
+            this.zarrAxes = ZarrAxes.TCZYX;
         }
     }
     /**

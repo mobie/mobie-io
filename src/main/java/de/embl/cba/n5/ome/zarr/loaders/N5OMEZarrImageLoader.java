@@ -170,7 +170,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
 
         zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
-                n5 instanceof N5S3ZarrReader ? ((N5S3ZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
+                n5 instanceof N5S3ZarrReader ? ((N5S3ZarrReader) n5).getAxes() : ZarrAxes.TCZYX;
 
         long nC = 1;
         if (attributes.getNumDimensions() > 4) {
@@ -178,15 +178,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         }
         if (zarrAxes.is4DWithChannels()) {
             nC = attributes.getDimensions()[C];
-//            is4DC = true;
         }
         if (zarrAxes.is4DWithTimepointsAndChannels()) {
             nC = attributes.getDimensions()[2];
-//            is4DC = true;
         }
-//        if (attributes.getNumDimensions() == 2 && axesMap.containsKey("y") && axesMap.containsKey("x")) {
-//            is2D = true;
-//        }
 
         for (int c = 0; c < nC; c++) {
             // each channel is one setup
@@ -755,7 +750,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
         private long[] toDataBlockIndices(long[] gridPosition) {
             long[] dataBlockIndices = gridPosition;
-            System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
 
             if (zarrAxes.is2D()) {
                 dataBlockIndices = new long[2];

@@ -69,8 +69,6 @@ public class N5OmeZarrReader extends N5FSReader {
     protected static final String zgroupFile = ".zgroup";
     ZarrAxes zarrAxes;
 
-    HashMap<String, Integer> axesMap = new HashMap<>();
-
     static private GsonBuilder initGsonBuilder(final GsonBuilder gsonBuilder) {
 
         gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
@@ -338,7 +336,11 @@ public class N5OmeZarrReader extends N5FSReader {
     }
 
     public void setAxes(JsonElement axesJson) {
-        this.zarrAxes = ZarrAxes.decode(axesJson.toString());
+        if (axesJson != null) {
+            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
+        } else {
+            this.zarrAxes = ZarrAxes.TCZYX;
+        }
     }
 
     public ZarrAxes getAxes() {

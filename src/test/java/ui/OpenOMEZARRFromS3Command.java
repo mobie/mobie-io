@@ -33,7 +33,7 @@ public class OpenOMEZARRFromS3Command implements Command {
     public static void main(String[] args) throws IOException {
 //		final ImageJ imageJ = new ImageJ();
 //		imageJ.ui().showUI();
-//		            openAndShow("https://s3.embl.de/i2k-2020/em-raw.ome.zarr");
+		            openAndShow("https://s3.embl.de/i2k-2020/em-raw.ome.zarr");
 //		            openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/zyx.ome.zarr");
 
 //		openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/tczyx.ome.zarr");
@@ -46,7 +46,7 @@ public class OpenOMEZARRFromS3Command implements Command {
 
 //err
 //		openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/yx.ome.zarr");
-            openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/flat_yx.ome.zarr");
+//            openAndShow("https://s3.embl.de/i2k-2020/ngff-example-data/v0.3/flat_yx.ome.zarr");
 
 
 
