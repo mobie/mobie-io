@@ -1,7 +1,7 @@
 package ui;
 
 import bdv.util.BdvFunctions;
-import de.embl.cba.n5.openorganelle.OpenOrganelleS3Reader;
+import de.embl.cba.n5.openorganelle.OpenOrganelleS3Opener;
 import mpicbg.spim.data.SpimData;
 
 import java.io.IOException;
@@ -13,11 +13,11 @@ public class OpenOrganelleHelaTest {
     }
 
     public static void showHela() throws IOException {
-        OpenOrganelleS3Reader reader = new OpenOrganelleS3Reader(
+        OpenOrganelleS3Opener reader = new OpenOrganelleS3Opener(
                 "https://janelia-cosem.s3.amazonaws.com",
                 "us-west-2",
                 "jrc_hela-2");
-        OpenOrganelleS3Reader.setLogChunkLoading(true);
+        OpenOrganelleS3Opener.setLogChunkLoading(true);
         SpimData image = reader.readKey("jrc_hela-2.n5/em/fibsem-uint16");
         BdvFunctions.show(image);
     }
