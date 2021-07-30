@@ -1,6 +1,5 @@
 package de.embl.cba.n5.openorganelle;
 
-import bdv.util.BdvFunctions;
 import de.embl.cba.n5.util.readers.S3Reader;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.util.Cast;
@@ -27,19 +26,5 @@ public class OpenOrganelleS3Reader extends S3Reader {
         final String key = Arrays.stream(split).skip(4).collect(Collectors.joining("/"));
         final OpenOrganelleS3Reader reader = new OpenOrganelleS3Reader(serviceEndpoint, signingRegion, bucketName);
         return reader.readKey(key);
-    }
-
-    public static void main(String[] args) throws IOException {
-        showHela();
-    }
-
-    public static void showHela() throws IOException {
-        OpenOrganelleS3Reader reader = new OpenOrganelleS3Reader(
-                "https://janelia-cosem.s3.amazonaws.com",
-                "us-west-2",
-                "jrc_hela-2");
-        OpenOrganelleS3Reader.setLogChunkLoading(true);
-        SpimData image = reader.readKey("jrc_hela-2.n5/em/fibsem-uint16");
-        BdvFunctions.show(image);
     }
 }

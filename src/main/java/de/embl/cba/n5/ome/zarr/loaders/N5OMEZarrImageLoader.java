@@ -77,28 +77,30 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 
 public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
-    private static final int C = 3;
-    private static final int T = 4;
+
+    public static boolean logChunkLoading = false;
+
     protected final N5Reader n5;
     protected AbstractSequenceDescription<?, ?, ?> seq;
     protected ViewRegistrations viewRegistrations;
-    public static boolean logChunkLoading = false;
+
+    private static final int C = 3;
+    private static final int T = 4;
 
     /**
      * Maps setup id to {@link SetupImgLoader}.
      */
     private final Map<Integer, SetupImgLoader> setupImgLoaders = new HashMap<>();
-
-    private volatile boolean isOpen = false;
-    private FetcherThreads fetchers;
-    private VolatileGlobalCellCache cache;
     private final Map<Integer, String> setupToPathname = new HashMap<>();
     private final Map<Integer, Multiscale> setupToMultiscale = new HashMap<>();
     private final Map<Integer, DatasetAttributes> setupToAttributes = new HashMap<>();
     private final Map<Integer, Integer> setupToChannel = new HashMap<>();
-    private int sequenceTimepoints = 0;
-    private ZarrAxes zarrAxes;
 
+    private volatile boolean isOpen = false;
+    private int sequenceTimepoints = 0;
+    private FetcherThreads fetchers;
+    private VolatileGlobalCellCache cache;
+    private ZarrAxes zarrAxes;
 
     /**
      * The sequenceDescription and viewRegistrations are known already, typically read from xml.

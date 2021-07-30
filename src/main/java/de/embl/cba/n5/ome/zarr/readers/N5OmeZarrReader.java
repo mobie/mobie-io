@@ -28,10 +28,7 @@ package de.embl.cba.n5.ome.zarr.readers;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import de.embl.cba.n5.ome.zarr.util.ZArrayAttributes;
-import de.embl.cba.n5.ome.zarr.util.ZarrAxes;
-import de.embl.cba.n5.ome.zarr.util.ZarrCompressor;
-import de.embl.cba.n5.ome.zarr.util.ZarrDatasetAttributes;
+import de.embl.cba.n5.ome.zarr.util.*;
 import de.embl.cba.n5.util.DType;
 import de.embl.cba.n5.util.Filter;
 import net.imglib2.Cursor;
@@ -52,6 +49,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 
@@ -59,27 +57,11 @@ import java.util.stream.Stream;
  * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
  *
  */
-public class N5OmeZarrReader extends N5FSReader {
-    private static final String DEFAULT_SEPARATOR = ".";
-
-    protected static Version VERSION = new Version(2, 0, 0);
-
-    protected static final String zarrayFile = ".zarray";
-    protected static final String zattrsFile = ".zattrs";
-    protected static final String zgroupFile = ".zgroup";
-    ZarrAxes zarrAxes;
-
-    static private GsonBuilder initGsonBuilder(final GsonBuilder gsonBuilder) {
-
-        gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
-        gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
-        gsonBuilder.serializeNulls();
-
-        return gsonBuilder;
-    }
-
-    final protected boolean mapN5DatasetAttributes;
+public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
+    protected final boolean mapN5DatasetAttributes;
     protected String dimensionSeparator;
+    final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
+    private ZarrAxes zarrAxes;
 
     /**
      * Opens an {@link N5OmeZarrReader} at a given base path with a custom
@@ -98,9 +80,10 @@ public class N5OmeZarrReader extends N5FSReader {
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
 
-        super(basePath, initGsonBuilder(gsonBuilder));
+        super(basePath, N5ZarrImageReader.initGsonBuilder(gsonBuilder));
         this.dimensionSeparator = dimensionSeparator;
         this.mapN5DatasetAttributes = mapN5DatasetAttributes;
+        this.n5ZarrImageReaderHelper = new N5ZarrImageReaderHelper(basePath, N5ZarrImageReader.initGsonBuilder(gsonBuilder));
     }
 
     /**
@@ -214,6 +197,7 @@ public class N5OmeZarrReader extends N5FSReader {
         return VERSION;
     }
 
+
     /**
      *
      * @return Zarr base path
@@ -228,6 +212,11 @@ public class N5OmeZarrReader extends N5FSReader {
 
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zgroupFile);
         return Files.exists(path) && Files.isRegularFile(path);
+    }
+
+    @Override
+    public String getZarrDataBlockString(long[] gridPosition, String dimensionSeparator, boolean isRowMajor) {
+        return N5ZarrImageReader.super.getZarrDataBlockString(gridPosition, dimensionSeparator, isRowMajor);
     }
 
     public ZArrayAttributes getZArraryAttributes(final String pathName) throws IOException {
@@ -327,12 +316,9 @@ public class N5OmeZarrReader extends N5FSReader {
         return attributes;
     }
 
-    private void getDimensions(HashMap<String, JsonElement> attributes) {
-        JsonElement multiscales = attributes.get("multiscales");
-        if (multiscales != null) {
-            JsonElement elementAxes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
-            setAxes(elementAxes);
-        }
+    @Override
+    public Map<String, Class<?>> listAttributes(String pathName) throws IOException {
+        return super.listAttributes(pathName);
     }
 
     public void setAxes(JsonElement axesJson) {
@@ -343,121 +329,15 @@ public class N5OmeZarrReader extends N5FSReader {
         }
     }
 
+    @Override
+    public boolean axesValid(JsonElement axesJson) {
+        return N5ZarrImageReader.super.axesValid(axesJson);
+    }
+
     public ZarrAxes getAxes() {
         return this.zarrAxes;
     }
 
-    /**
-     * Reads a {@link DataBlock} from an {@link InputStream}.
-     *
-     * @param in
-     * @param datasetAttributes
-     * @param gridPosition
-     * @return
-     * @throws IOException
-     */
-    @SuppressWarnings("incomplete-switch")
-    public static DataBlock<?> readBlock(
-            final InputStream in,
-            final ZarrDatasetAttributes datasetAttributes,
-            final long... gridPosition) throws IOException {
-
-        final int[] blockSize = datasetAttributes.getBlockSize();
-        final DType dType = datasetAttributes.getDType();
-
-        final ByteArrayDataBlock byteBlock = dType.createByteBlock(blockSize, gridPosition);
-
-        final BlockReader reader = datasetAttributes.getCompression().getReader();
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        reader.read(byteBlock, in);
-
-        switch (dType.getDataType()) {
-            case UINT8:
-            case INT8:
-                return byteBlock;
-        }
-
-        /* else translate into target type */
-        final DataBlock<?> dataBlock = dType.createDataBlock(blockSize, gridPosition);
-        final ByteBuffer byteBuffer = byteBlock.toByteBuffer();
-        byteBuffer.order(dType.getOrder());
-        dataBlock.readData(byteBuffer);
-
-        /* TODO I do not think that makes sense, F order should be opened transposed, the consumer can decide what to do with them? */
-//		if (!datasetAttributes.isRowMajor()) {
-//
-//			final long[] blockDimensions = new long[blockSize.length];
-//			Arrays.setAll(blockDimensions, d -> blockSize[d]);
-//
-//			switch (datasetAttributes.getDataType()) {
-//			case INT8:
-//			case UINT8: {
-//					final byte[] dataBlockData = (byte[])dataBlock.getData();
-//					final ArrayImg<ByteType, ByteArray> src = ArrayImgs.bytes(dataBlockData.clone(), blockDimensions);
-//					final ArrayImg<ByteType, ByteArray> dst = ArrayImgs.bytes(dataBlockData.clone(), blockDimensions);
-//					copyTransposed(src, dst);
-//				}
-//				break;
-//			case INT16:
-//			case UINT16: {
-//					final short[] dataBlockData = (short[])dataBlock.getData();
-//					final ArrayImg<ShortType, ShortArray> src = ArrayImgs.shorts(dataBlockData.clone(), blockDimensions);
-//					final ArrayImg<ShortType, ShortArray> dst = ArrayImgs.shorts(dataBlockData.clone(), blockDimensions);
-//					copyTransposed(src, dst);
-//				}
-//				break;
-//			case INT32:
-//			case UINT32: {
-//					final int[] dataBlockData = (int[])dataBlock.getData();
-//					final ArrayImg<IntType, IntArray> src = ArrayImgs.ints(dataBlockData.clone(), blockDimensions);
-//					final ArrayImg<IntType, IntArray> dst = ArrayImgs.ints(dataBlockData.clone(), blockDimensions);
-//					copyTransposed(src, dst);
-//				}
-//				break;
-//			case INT64:
-//			case UINT64: {
-//					final long[] dataBlockData = (long[])dataBlock.getData();
-//					final ArrayImg<LongType, LongArray> src = ArrayImgs.longs(dataBlockData.clone(), blockDimensions);
-//					final ArrayImg<LongType, LongArray> dst = ArrayImgs.longs(dataBlockData.clone(), blockDimensions);
-//					copyTransposed(src, dst);
-//				}
-//				break;
-//			case FLOAT32: {
-//					final float[] dataBlockData = (float[])dataBlock.getData();
-//					final ArrayImg<FloatType, FloatArray> src = ArrayImgs.floats(dataBlockData.clone(), blockDimensions);
-//					final ArrayImg<FloatType, FloatArray> dst = ArrayImgs.floats(dataBlockData.clone(), blockDimensions);
-//					copyTransposed(src, dst);
-//				}
-//				break;
-//			case FLOAT64: {
-//					final double[] dataBlockData = (double[])dataBlock.getData();
-//					final ArrayImg<DoubleType, DoubleArray> src = ArrayImgs.doubles(dataBlockData.clone(), blockDimensions);
-//					final ArrayImg<DoubleType, DoubleArray> dst = ArrayImgs.doubles(dataBlockData.clone(), blockDimensions);
-//					copyTransposed(src, dst);
-//				}
-//				break;
-//			}
-//		}
-
-        return dataBlock;
-    }
-
-    protected static <T extends Type<T>> void copyTransposed(
-            final RandomAccessibleInterval<? extends T> src,
-            final RandomAccessibleInterval<? extends T> dst) {
-
-        /* transpose */
-        final int n = src.numDimensions();
-        final int[] lut = new int[n];
-        Arrays.setAll(lut, d -> n - 1 - d);
-        final IntervalView<? extends T> dstTransposed = Views.permuteCoordinates(dst, lut);
-
-        /* copy */
-        final Cursor<? extends T> cSrc = Views.flatIterable(src).cursor();
-        final Cursor<? extends T> cDst = Views.flatIterable(dstTransposed).cursor();
-        while (cDst.hasNext())
-            cDst.next().set(cSrc.next());
-    }
 
     @Override
     public DataBlock<?> readBlock(

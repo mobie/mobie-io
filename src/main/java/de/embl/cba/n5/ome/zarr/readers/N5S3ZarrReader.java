@@ -30,10 +30,7 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import de.embl.cba.n5.ome.zarr.util.ZArrayAttributes;
-import de.embl.cba.n5.ome.zarr.util.ZarrAxes;
-import de.embl.cba.n5.ome.zarr.util.ZarrCompressor;
-import de.embl.cba.n5.ome.zarr.util.ZarrDatasetAttributes;
+import de.embl.cba.n5.ome.zarr.util.*;
 import de.embl.cba.n5.util.DType;
 import de.embl.cba.n5.util.Filter;
 import net.imglib2.Cursor;
@@ -57,12 +54,7 @@ import java.util.HashMap;
  * Attempt at a diamond inheritance solution for S3+Zarr.
  *
  */
-public class N5S3ZarrReader extends N5AmazonS3Reader {
-    private static final String DEFAULT_SEPARATOR = ".";
-
-    private static final String zarrayFile = N5OmeZarrReader.zarrayFile;
-    private static final String zattrsFile = N5OmeZarrReader.zattrsFile;
-    private static final String zgroupFile = N5OmeZarrReader.zgroupFile;
+public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReader {
 
     final protected boolean mapN5DatasetAttributes;
 
@@ -80,7 +72,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
     }
 
     public N5S3ZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
-        super(s3, bucketName, containerPath, initGsonBuilder(new GsonBuilder()));
+        super(s3, bucketName, containerPath, N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
         this.serviceEndpoint = serviceEndpoint; // for debugging
         this.dimensionSeparator = dimensionSeparator;
         mapN5DatasetAttributes = true;
@@ -127,16 +119,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
         return sb.toString();
     }
 
-    //
-    // Methods from N5ZarrReader which could be extracted
-    //
-    static private GsonBuilder initGsonBuilder(final GsonBuilder gsonBuilder) {
-        gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
-        gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
-        gsonBuilder.serializeNulls();
-
-        return gsonBuilder;
-    }
 
     @Override
     public Version getVersion() throws IOException {
@@ -165,6 +147,15 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
 
     public boolean groupExists(final String pathName) {
         return exists(objectFile(pathName, zgroupFile));
+    }
+
+    @Override
+    public void setAxes(JsonElement axesJson) {
+        if (axesJson != null) {
+            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
+        } else {
+            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
+        }
     }
 
     public ZArrayAttributes getZArraryAttributes(final String pathName) throws IOException {
@@ -242,73 +233,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
         return attributes;
     }
 
-    private void getDimensions(HashMap<String, JsonElement> attributes) {
-        JsonElement multiscales = attributes.get("multiscales");
-        if (multiscales != null) {
-            JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
-            setAxes(axes);
-        }
-    }
-    public void setAxes(JsonElement axesJson) {
-        if (axesJson != null) {
-            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
-        } else {
-            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
-        }
-    }
-    /**
-     * Reads a {@link DataBlock} from an {@link InputStream}.
-     *
-     * @param in
-     * @param datasetAttributes
-     * @param gridPosition
-     * @return
-     * @throws IOException
-     */
-    @SuppressWarnings("incomplete-switch")
-    public static DataBlock<?> readBlock(
-            final InputStream in,
-            final ZarrDatasetAttributes datasetAttributes,
-            final long... gridPosition) throws IOException {
-        final int[] blockSize = datasetAttributes.getBlockSize();
-        final DType dType = datasetAttributes.getDType();
-
-        final ByteArrayDataBlock byteBlock = dType.createByteBlock(blockSize, gridPosition);
-
-        final BlockReader reader = datasetAttributes.getCompression().getReader();
-        reader.read(byteBlock, in);
-
-        switch (dType.getDataType()) {
-            case UINT8:
-            case INT8:
-                return byteBlock;
-        }
-
-        /* else translate into target type */
-        final DataBlock<?> dataBlock = dType.createDataBlock(blockSize, gridPosition);
-        final ByteBuffer byteBuffer = byteBlock.toByteBuffer();
-        byteBuffer.order(dType.getOrder());
-        dataBlock.readData(byteBuffer);
-
-        return dataBlock;
-    }
-
-    protected static <T extends Type<T>> void copyTransposed(
-            final RandomAccessibleInterval<? extends T> src,
-            final RandomAccessibleInterval<? extends T> dst) {
-        /* transpose */
-        final int n = src.numDimensions();
-        final int[] lut = new int[n];
-        Arrays.setAll(lut, d -> n - 1 - d);
-        final IntervalView<? extends T> dstTransposed = Views.permuteCoordinates(dst, lut);
-
-        /* copy */
-        final Cursor<? extends T> cSrc = Views.flatIterable(src).cursor();
-        final Cursor<? extends T> cDst = Views.flatIterable(dstTransposed).cursor();
-        while (cDst.hasNext())
-            cDst.next().set(cSrc.next());
-    }
-
     @Override
     public DataBlock<?> readBlock(
             final String pathName,
@@ -322,7 +246,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
 
         final String dataBlockKey =
                 objectFile(pathName,
-                        getZarrDataBlockPath(
+                        getZarrDataBlockString(
                                 gridPosition,
                                 dimensionSeparator,
                                 zarrDatasetAttributes.isRowMajor()));
@@ -341,46 +265,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
             }
             throw ase;
         }
-    }
-
-    // CHANGE: remove N5FSReader.list(String) implementation in favor of AWS
-
-    /**
-     * CHANGE: return String rather than Path, fixed javadoc
-     * Constructs the path for a data block in a dataset at a given grid position.
-     *
-     * The returned path is
-     * <pre>
-     * $datasetPathName/$gridPosition[n]$dimensionSeparator$gridPosition[n-1]$dimensionSeparator[...]$dimensionSeparator$gridPosition[0]
-     * </pre>
-     *
-     * This is the file into which the data block will be stored.
-     *
-     * @param gridPosition
-     * @param dimensionSeparator
-     *
-     * @return
-     */
-    protected static String getZarrDataBlockPath(
-            final long[] gridPosition,
-            final String dimensionSeparator,
-            final boolean isRowMajor) {
-        final StringBuilder pathStringBuilder = new StringBuilder();
-        if (isRowMajor) {
-            pathStringBuilder.append(gridPosition[gridPosition.length - 1]);
-            for (int i = gridPosition.length - 2; i >= 0; --i) {
-                pathStringBuilder.append(dimensionSeparator);
-                pathStringBuilder.append(gridPosition[i]);
-            }
-        } else {
-            pathStringBuilder.append(gridPosition[0]);
-            for (int i = 1; i < gridPosition.length; ++i) {
-                pathStringBuilder.append(dimensionSeparator);
-                pathStringBuilder.append(gridPosition[i]);
-            }
-        }
-
-        return pathStringBuilder.toString();
     }
 
     //
