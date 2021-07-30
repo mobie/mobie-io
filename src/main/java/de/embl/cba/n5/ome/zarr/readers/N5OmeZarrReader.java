@@ -339,7 +339,7 @@ public class N5OmeZarrReader extends N5FSReader {
         if (axesJson != null) {
             this.zarrAxes = ZarrAxes.decode(axesJson.toString());
         } else {
-            this.zarrAxes = ZarrAxes.TCZYX;
+            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
         }
     }
 

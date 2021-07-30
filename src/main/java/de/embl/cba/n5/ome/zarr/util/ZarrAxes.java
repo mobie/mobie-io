@@ -35,7 +35,7 @@ public enum ZarrAxes {
     }
 
     public boolean is5D() {
-        return this.axes.equals(TCZYX.axes);
+        return this.axes.equals(TCZYX.axes)  || this.axes.equals(NOT_SPECIFIED.axes);
     }
 
     public boolean is4D() {

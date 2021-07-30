@@ -170,7 +170,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
 
         zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
-                n5 instanceof N5S3ZarrReader ? ((N5S3ZarrReader) n5).getAxes() : ZarrAxes.TCZYX;
+                n5 instanceof N5S3ZarrReader ? ((N5S3ZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
 
         long nC = 1;
         if (attributes.getNumDimensions() > 4) {
