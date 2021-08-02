@@ -31,22 +31,17 @@ import com.google.gson.reflect.TypeToken;
 import de.embl.cba.n5.ome.zarr.util.*;
 import de.embl.cba.n5.util.DType;
 import de.embl.cba.n5.util.Filter;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.Type;
-import net.imglib2.view.IntervalView;
-import net.imglib2.view.Views;
-import org.janelia.saalfeldlab.n5.*;
+import org.janelia.saalfeldlab.n5.DataBlock;
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.GsonAttributesParser;
+import org.janelia.saalfeldlab.n5.N5FSReader;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -184,14 +179,10 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
                                         lockedFileChannel.getFileChannel(),
                                         StandardCharsets.UTF_8.name()),
                                 gson);
-                final Integer zarr_format = GsonAttributesParser.parseAttribute(
-                        attributes,
-                        "zarr_format",
-                        Integer.class,
-                        gson);
 
-                if (zarr_format != null)
-                    return new Version(zarr_format, 0, 0);
+                Integer zarrFormat = n5ZarrImageReaderHelper.getZarrFormatFromMeta(attributes);
+                if (zarrFormat != null)
+                    return new Version(zarrFormat, 0, 0);
             }
         }
         return VERSION;

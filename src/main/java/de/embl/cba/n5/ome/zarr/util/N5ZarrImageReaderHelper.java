@@ -26,6 +26,14 @@ public class N5ZarrImageReaderHelper extends N5FSReader {
         super(basePath);
     }
 
+    public Integer getZarrFormatFromMeta(final HashMap<String, JsonElement> meta) throws IOException {
+        return GsonAttributesParser.parseAttribute(
+                meta,
+                "zarr_format",
+                Integer.class,
+                gson);
+    }
+
     @NotNull
     public ZArrayAttributes getZarrAttributes(final HashMap<String, JsonElement> attributes) {
         return new ZArrayAttributes(
