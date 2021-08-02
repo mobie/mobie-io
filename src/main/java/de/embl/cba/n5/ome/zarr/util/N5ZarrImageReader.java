@@ -2,11 +2,15 @@ package de.embl.cba.n5.ome.zarr.util;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import de.embl.cba.n5.util.DType;
+
 import org.janelia.saalfeldlab.n5.BlockReader;
 import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.N5Reader;
+import org.janelia.saalfeldlab.n5.zarr.DType;
+import org.janelia.saalfeldlab.n5.zarr.ZArrayAttributes;
+import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
+import org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes;
 
 import java.io.IOException;
 import java.io.InputStream;
