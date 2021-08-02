@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2019, Stephan Saalfeld
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,210 +45,205 @@ import java.util.stream.Stream;
  */
 public interface ZarrCompressor {
 
-	/* idiotic stream based initialization because Java cannot have static initialization code in interfaces */
-	public static Map< String, Class<? extends ZarrCompressor> > registry = Stream.of(
-			new SimpleImmutableEntry<>("blosc", Blosc.class),
-			new SimpleImmutableEntry<>("zlib", Zlib.class),
-			new SimpleImmutableEntry<>("gzip", Gzip.class),
-			new SimpleImmutableEntry<>("bz2", Bz2.class))
-			.collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue));
+    /* idiotic stream based initialization because Java cannot have static initialization code in interfaces */
+    public static Map<String, Class<? extends ZarrCompressor>> registry = Stream.of(
+            new SimpleImmutableEntry<>("blosc", Blosc.class),
+            new SimpleImmutableEntry<>("zlib", Zlib.class),
+            new SimpleImmutableEntry<>("gzip", Gzip.class),
+            new SimpleImmutableEntry<>("bz2", Bz2.class))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public static JsonAdapter jsonAdapter = new JsonAdapter();
 
-	public static ZarrCompressor fromCompression( final Compression compression ) {
+    public static ZarrCompressor fromCompression(final Compression compression) {
 
-		try {
-			if (compression instanceof BloscCompression ) {
-				return new Blosc((BloscCompression)compression);
-			} else if (compression instanceof GzipCompression ) {
-				final Class<? extends Compression > clazz = compression.getClass();
-				final Field field = clazz.getDeclaredField("useZlib");
-				field.setAccessible(true);
-				final Boolean useZlib = ( Boolean )field.get(compression);
-				field.setAccessible(false);
-				return useZlib != null && useZlib ? new Zlib(( GzipCompression )compression) : new Gzip(( GzipCompression )compression);
-			} else if (compression instanceof Bzip2Compression ) {
-				return new Bz2(( Bzip2Compression )compression);
-			} else {
-				return null;
-			}
-		} catch ( NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			return null;
-		}
-	}
+        try {
+            if (compression instanceof BloscCompression) {
+                return new Blosc((BloscCompression) compression);
+            } else if (compression instanceof GzipCompression) {
+                final Class<? extends Compression> clazz = compression.getClass();
+                final Field field = clazz.getDeclaredField("useZlib");
+                field.setAccessible(true);
+                final Boolean useZlib = (Boolean) field.get(compression);
+                field.setAccessible(false);
+                return useZlib != null && useZlib ? new Zlib((GzipCompression) compression) : new Gzip((GzipCompression) compression);
+            } else if (compression instanceof Bzip2Compression) {
+                return new Bz2((Bzip2Compression) compression);
+            } else {
+                return null;
+            }
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            return null;
+        }
+    }
 
-	public Compression getCompression();
+    public Compression getCompression();
 
-	public static class Blosc implements ZarrCompressor {
+    public static class Blosc implements ZarrCompressor {
 
-		private final String id = "blosc";
-		private final String cname;
-		private final int clevel;
-		private final int shuffle;
-		private final int blocksize;
-		private final transient int nthreads;
+        private final String id = "blosc";
+        private final String cname;
+        private final int clevel;
+        private final int shuffle;
+        private final int blocksize;
+        private final transient int nthreads;
 
-		public Blosc(
-				final String cname,
-				final int clevel,
-				final int shuffle,
-				final int blockSize,
-				final int nthreads) {
+        public Blosc(
+                final String cname,
+                final int clevel,
+                final int shuffle,
+                final int blockSize,
+                final int nthreads) {
 
-			this.cname = cname;
-			this.clevel = clevel;
-			this.shuffle = shuffle;
-			this.blocksize = blockSize;
-			this.nthreads = nthreads;
-		}
+            this.cname = cname;
+            this.clevel = clevel;
+            this.shuffle = shuffle;
+            this.blocksize = blockSize;
+            this.nthreads = nthreads;
+        }
 
-		public Blosc(final BloscCompression compression) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
-		{
+        public Blosc(final BloscCompression compression) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-			final Class<? extends BloscCompression> clazz = compression.getClass();
+            final Class<? extends BloscCompression> clazz = compression.getClass();
 
-			Field field = clazz.getDeclaredField("cname");
-			field.setAccessible(true);
-			cname = ( String )field.get(compression);
-			field.setAccessible(false);
+            Field field = clazz.getDeclaredField("cname");
+            field.setAccessible(true);
+            cname = (String) field.get(compression);
+            field.setAccessible(false);
 
-			field = clazz.getDeclaredField("clevel");
-			field.setAccessible(true);
-			clevel = field.getInt(compression);
-			field.setAccessible(false);
+            field = clazz.getDeclaredField("clevel");
+            field.setAccessible(true);
+            clevel = field.getInt(compression);
+            field.setAccessible(false);
 
-			field = clazz.getDeclaredField("shuffle");
-			field.setAccessible(true);
-			shuffle = field.getInt(compression);
-			field.setAccessible(false);
+            field = clazz.getDeclaredField("shuffle");
+            field.setAccessible(true);
+            shuffle = field.getInt(compression);
+            field.setAccessible(false);
 
-			field = clazz.getDeclaredField("blocksize");
-			field.setAccessible(true);
-			blocksize = field.getInt(compression);
-			field.setAccessible(false);
+            field = clazz.getDeclaredField("blocksize");
+            field.setAccessible(true);
+            blocksize = field.getInt(compression);
+            field.setAccessible(false);
 
-			field = clazz.getDeclaredField("nthreads");
-			field.setAccessible(true);
-			nthreads = field.getInt(compression);
-			field.setAccessible(false);
-		}
+            field = clazz.getDeclaredField("nthreads");
+            field.setAccessible(true);
+            nthreads = field.getInt(compression);
+            field.setAccessible(false);
+        }
 
-		@Override
-		public BloscCompression getCompression() {
+        @Override
+        public BloscCompression getCompression() {
 
-			return new BloscCompression(cname, clevel, shuffle, blocksize, Math.max(1, nthreads));
-		}
-	}
+            return new BloscCompression(cname, clevel, shuffle, blocksize, Math.max(1, nthreads));
+        }
+    }
 
-	public static class Zlib implements ZarrCompressor {
+    public static class Zlib implements ZarrCompressor {
 
-		private final String id = "zlib";
-		private final int level;
+        private final String id = "zlib";
+        private final int level;
 
-		public Zlib(final int level) {
+        public Zlib(final int level) {
 
-			this.level = level;
-		}
+            this.level = level;
+        }
 
-		public Zlib(final GzipCompression compression) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
-		{
+        public Zlib(final GzipCompression compression) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-			final Class<? extends GzipCompression > clazz = compression.getClass();
+            final Class<? extends GzipCompression> clazz = compression.getClass();
 
-			final Field field = clazz.getDeclaredField("level");
-			field.setAccessible(true);
-			level = field.getInt(compression);
-			field.setAccessible(false);
-		}
+            final Field field = clazz.getDeclaredField("level");
+            field.setAccessible(true);
+            level = field.getInt(compression);
+            field.setAccessible(false);
+        }
 
-		@Override
-		public GzipCompression getCompression() {
+        @Override
+        public GzipCompression getCompression() {
 
-			return new GzipCompression(level, true);
-		}
-	}
+            return new GzipCompression(level, true);
+        }
+    }
 
-	public static class Gzip implements ZarrCompressor {
+    public static class Gzip implements ZarrCompressor {
 
-		private final String id = "gzip";
-		private final int level;
+        private final String id = "gzip";
+        private final int level;
 
-		public Gzip(final int level) {
+        public Gzip(final int level) {
 
-			this.level = level;
-		}
+            this.level = level;
+        }
 
-		public Gzip(final GzipCompression compression) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
-		{
+        public Gzip(final GzipCompression compression) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-			final Class<? extends GzipCompression > clazz = compression.getClass();
+            final Class<? extends GzipCompression> clazz = compression.getClass();
 
-			final Field field = clazz.getDeclaredField("level");
-			field.setAccessible(true);
-			level = field.getInt(compression);
-			field.setAccessible(false);
-		}
+            final Field field = clazz.getDeclaredField("level");
+            field.setAccessible(true);
+            level = field.getInt(compression);
+            field.setAccessible(false);
+        }
 
-		@Override
-		public GzipCompression getCompression() {
+        @Override
+        public GzipCompression getCompression() {
 
-			return new GzipCompression(level);
-		}
-	}
+            return new GzipCompression(level);
+        }
+    }
 
-	public static class Bz2 implements ZarrCompressor {
+    public static class Bz2 implements ZarrCompressor {
 
-		private final String id = "bz2";
-		private final int level;
+        private final String id = "bz2";
+        private final int level;
 
-		public Bz2(final int level) {
+        public Bz2(final int level) {
 
-			this.level = level;
-		}
+            this.level = level;
+        }
 
-		public Bz2(final Bzip2Compression compression) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
-		{
+        public Bz2(final Bzip2Compression compression) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-			final Class<? extends Bzip2Compression > clazz = compression.getClass();
+            final Class<? extends Bzip2Compression> clazz = compression.getClass();
 
-			final Field field = clazz.getDeclaredField("blockSize");
-			field.setAccessible(true);
-			level = field.getInt(compression);
-			field.setAccessible(false);
-		}
+            final Field field = clazz.getDeclaredField("blockSize");
+            field.setAccessible(true);
+            level = field.getInt(compression);
+            field.setAccessible(false);
+        }
 
-		@Override
-		public Bzip2Compression getCompression() {
+        @Override
+        public Bzip2Compression getCompression() {
 
-			return new Bzip2Compression(level);
-		}
-	}
+            return new Bzip2Compression(level);
+        }
+    }
 
-	public static class Raw extends RawCompression implements ZarrCompressor {
+    public static class Raw extends RawCompression implements ZarrCompressor {
 
-		@Override
-		public RawCompression getCompression() {
+        @Override
+        public RawCompression getCompression() {
 
-			return this;
-		}
-	}
+            return this;
+        }
+    }
 
-	public static JsonAdapter jsonAdapter = new JsonAdapter();
+    static public class JsonAdapter implements JsonDeserializer<ZarrCompressor> {
 
-	static public class JsonAdapter implements JsonDeserializer<ZarrCompressor> {
+        @Override
+        public ZarrCompressor deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
+                throws JsonParseException {
 
-		@Override
-		public ZarrCompressor deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
-				throws JsonParseException {
+            final JsonObject jsonObject = json.getAsJsonObject();
+            final JsonElement jsonId = jsonObject.get("id");
+            if (jsonId == null)
+                return null;
+            final String id = jsonId.getAsString();
+            final Class<? extends ZarrCompressor> compressorClass = registry.get(id);
+            if (compressorClass == null)
+                return null;
 
-			final JsonObject jsonObject = json.getAsJsonObject();
-			final JsonElement jsonId = jsonObject.get("id");
-			if (jsonId == null)
-				return null;
-			final String id = jsonId.getAsString();
-			final Class<? extends ZarrCompressor> compressorClass = registry.get(id);
-			if (compressorClass == null)
-				return null;
-
-			return context.deserialize(json, compressorClass);
-		}
-	}
+            return context.deserialize(json, compressorClass);
+        }
+    }
 }

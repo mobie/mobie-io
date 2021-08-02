@@ -10,29 +10,14 @@ import org.scijava.plugin.Plugin;
 
 import java.io.IOException;
 
-@Plugin(type = Command.class, menuPath = "Plugins>BigDataViewer>OME ZARR>Open OME ZARR from the file system..." )
-public class OpenOMEZARRCommand implements Command
-{
-    @Parameter( label = "File path " )
+@Plugin(type = Command.class, menuPath = "Plugins>BigDataViewer>OME ZARR>Open OME ZARR from the file system...")
+public class OpenOMEZARRCommand implements Command {
+    @Parameter(label = "File path ")
     public String filePath = "";
 
-    @Override
-    public void run()
-    {
-        try
-        {
-            openAndShow( filePath );
-        }
-        catch ( IOException e )
-        {
-            e.printStackTrace();
-        }
-    }
-
-    protected static void openAndShow( String filePath ) throws IOException
-    {
-        SpimData spimData = OMEZarrOpener.openFile( filePath );
-        final OMEZarrViewer viewer = new OMEZarrViewer( spimData );
+    protected static void openAndShow(String filePath) throws IOException {
+        SpimData spimData = OMEZarrOpener.openFile(filePath);
+        final OMEZarrViewer viewer = new OMEZarrViewer(spimData);
         viewer.show();
     }
 
@@ -50,7 +35,16 @@ public class OpenOMEZARRCommand implements Command
 //            openAndShow("/home/katerina/Documents/data/v0.3/tcyx.ome.zarr");
 //            openAndShow("/home/katerina/Documents/data/v0.3/tczyx.ome.zarr");
 //            openAndShow("/home/katerina/Documents/data/Covid19-S4-Area2/images/bdv.ome.zarr/raw.ome.zarr");
-           openAndShow("/home/katerina/Downloads/example.ome.zarr");
+            openAndShow("/home/katerina/Downloads/example.ome.zarr");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            openAndShow(filePath);
         } catch (IOException e) {
             e.printStackTrace();
         }

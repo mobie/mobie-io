@@ -78,15 +78,10 @@ import java.util.function.BiConsumer;
 
 public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
 
-    public static boolean logChunkLoading = false;
-
-    protected final N5Reader n5;
-    protected AbstractSequenceDescription<?, ?, ?> seq;
-    protected ViewRegistrations viewRegistrations;
-
     private static final int C = 3;
     private static final int T = 4;
-
+    public static boolean logChunkLoading = false;
+    protected final N5Reader n5;
     /**
      * Maps setup id to {@link SetupImgLoader}.
      */
@@ -95,7 +90,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private final Map<Integer, Multiscale> setupToMultiscale = new HashMap<>();
     private final Map<Integer, DatasetAttributes> setupToAttributes = new HashMap<>();
     private final Map<Integer, Integer> setupToChannel = new HashMap<>();
-
+    protected AbstractSequenceDescription<?, ?, ?> seq;
+    protected ViewRegistrations viewRegistrations;
     private volatile boolean isOpen = false;
     private int sequenceTimepoints = 0;
     private FetcherThreads fetchers;
@@ -301,24 +297,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         }
     }
 
-    private static class Multiscale {
-        String name;
-        double[][] scales;
-        Transform transform;
-        Dataset[] datasets;
-    }
-
-    private static class Dataset {
-        String path;
-    }
-
-    private static class Transform {
-        String[] axes;
-        double[] scale;
-        double[] translate;
-        String[] units;
-    }
-
     @NotNull
     private ArrayList<ViewRegistration> createViewRegistrations(int setupId, int setupTimepoints) {
         Multiscale multiscale = setupToMultiscale.get(setupId);
@@ -429,6 +407,61 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     public CacheControl getCacheControl() {
         open();
         return cache;
+    }
+
+    private long[] getDimensions(DatasetAttributes attributes) {
+        if (zarrAxes != null) {
+            if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
+                return fillDimensions(attributes);
+            }
+        }
+        return Arrays.stream(attributes.getDimensions()).limit(3).toArray();
+    }
+
+    private long[] fillDimensions(DatasetAttributes attributes) {
+        long[] tmp = new long[3];
+        tmp[0] = Arrays.stream(attributes.getDimensions()).toArray()[0];
+        tmp[1] = Arrays.stream(attributes.getDimensions()).toArray()[1];
+        tmp[2] = 1;
+        return tmp;
+    }
+
+    private int[] getBlockSize(DatasetAttributes attributes) {
+        if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
+            return fillBlockSize(attributes);
+        }
+        return Arrays.stream(attributes.getBlockSize()).limit(3).toArray();
+    }
+
+    private int[] fillBlockSize(DatasetAttributes attributes) {
+        int[] tmp = new int[3];
+        tmp[0] = Arrays.stream(attributes.getBlockSize()).toArray()[0];
+        tmp[1] = Arrays.stream(attributes.getBlockSize()).toArray()[1];
+        tmp[2] = 1;
+        return tmp;
+    }
+
+    private SimpleCacheArrayLoader<?> createCacheArrayLoader(final N5Reader n5, final String pathName, int channel, int timepointId, CellGrid grid) throws IOException {
+        final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
+        return new N5OMEZarrCacheArrayLoader<>(n5, pathName, channel, timepointId, attributes, grid);
+    }
+
+    private static class Multiscale {
+        String name;
+        double[][] scales;
+        Transform transform;
+        Dataset[] datasets;
+    }
+
+    private static class Dataset {
+        String path;
+    }
+
+    private static class Transform {
+        String[] axes;
+        double[] scale;
+        double[] translate;
+        String[] units;
     }
 
     private class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & NativeType<V>>
@@ -561,38 +594,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                         new FinalInterval(1, 1, 1));
             }
         }
-    }
-
-    private long[] getDimensions(DatasetAttributes attributes) {
-        if (zarrAxes != null) {
-            if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
-                return fillDimensions(attributes);
-            }
-        }
-        return Arrays.stream(attributes.getDimensions()).limit(3).toArray();
-    }
-
-    private long[] fillDimensions(DatasetAttributes attributes) {
-        long[] tmp = new long[3];
-        tmp[0] = Arrays.stream(attributes.getDimensions()).toArray()[0];
-        tmp[1] = Arrays.stream(attributes.getDimensions()).toArray()[1];
-        tmp[2] = 1;
-        return tmp;
-    }
-
-    private int[] getBlockSize(DatasetAttributes attributes) {
-            if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
-                return fillBlockSize(attributes);
-            }
-        return Arrays.stream(attributes.getBlockSize()).limit(3).toArray();
-    }
-
-    private int[] fillBlockSize(DatasetAttributes attributes) {
-        int[] tmp = new int[3];
-        tmp[0] = Arrays.stream(attributes.getBlockSize()).toArray()[0];
-        tmp[1] = Arrays.stream(attributes.getBlockSize()).toArray()[1];
-        tmp[2] = 1;
-        return tmp;
     }
 
     private class ArrayCreator<A, T extends NativeType<T>> {
@@ -789,10 +790,5 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
             return dataBlockIndices;
         }
-    }
-
-    private SimpleCacheArrayLoader<?> createCacheArrayLoader(final N5Reader n5, final String pathName, int channel, int timepointId, CellGrid grid) throws IOException {
-        final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
-        return new N5OMEZarrCacheArrayLoader<>(n5, pathName, channel, timepointId, attributes, grid);
     }
 }

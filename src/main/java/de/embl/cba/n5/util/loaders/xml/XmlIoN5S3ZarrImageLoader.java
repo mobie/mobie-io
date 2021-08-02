@@ -30,7 +30,6 @@
 package de.embl.cba.n5.util.loaders.xml;
 
 
-
 import de.embl.cba.n5.ome.zarr.loaders.N5S3OMEZarrImageLoader;
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
@@ -45,44 +44,38 @@ import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
 
 // TODO: avoid code duplication!
 //  this is essentially identical to XmlIoN5S3ImageLoader
-@ImgLoaderIo( format = "ome.n5.zarr.s3", type = N5S3OMEZarrImageLoader.class )
-public class XmlIoN5S3ZarrImageLoader implements XmlIoBasicImgLoader< N5S3OMEZarrImageLoader >
-{
-	public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
-	public static final String SIGNING_REGION = "SigningRegion";
-	public static final String BUCKET_NAME = "BucketName";
-	public static final String KEY = "Key";
+@ImgLoaderIo(format = "ome.n5.zarr.s3", type = N5S3OMEZarrImageLoader.class)
+public class XmlIoN5S3ZarrImageLoader implements XmlIoBasicImgLoader<N5S3OMEZarrImageLoader> {
+    public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
+    public static final String SIGNING_REGION = "SigningRegion";
+    public static final String BUCKET_NAME = "BucketName";
+    public static final String KEY = "Key";
 
-	@Override
-	public Element toXml( final N5S3OMEZarrImageLoader imgLoader, final File basePath )
-	{
-		final Element elem = new Element( "ImageLoader" );
-		elem.setAttribute( IMGLOADER_FORMAT_ATTRIBUTE_NAME, "ome.n5.zarr.s3" );
-		elem.setAttribute( "version", "1.0" );
-		elem.setAttribute( SERVICE_ENDPOINT, imgLoader.getServiceEndpoint() );
-		elem.setAttribute( SIGNING_REGION, imgLoader.getSigningRegion() );
-		elem.setAttribute( BUCKET_NAME, imgLoader.getBucketName() );
-		elem.setAttribute( KEY, imgLoader.getKey() );
+    @Override
+    public Element toXml(final N5S3OMEZarrImageLoader imgLoader, final File basePath) {
+        final Element elem = new Element("ImageLoader");
+        elem.setAttribute(IMGLOADER_FORMAT_ATTRIBUTE_NAME, "ome.n5.zarr.s3");
+        elem.setAttribute("version", "1.0");
+        elem.setAttribute(SERVICE_ENDPOINT, imgLoader.getServiceEndpoint());
+        elem.setAttribute(SIGNING_REGION, imgLoader.getSigningRegion());
+        elem.setAttribute(BUCKET_NAME, imgLoader.getBucketName());
+        elem.setAttribute(KEY, imgLoader.getKey());
 
-		return elem;
-	}
+        return elem;
+    }
 
-	@Override
-	public N5S3OMEZarrImageLoader fromXml( final Element elem, final File basePath, final AbstractSequenceDescription< ?, ?, ? > sequenceDescription )
-	{
+    @Override
+    public N5S3OMEZarrImageLoader fromXml(final Element elem, final File basePath, final AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
 //		final String version = elem.getAttributeValue( "version" );
 
-		final String serviceEndpoint = XmlHelpers.getText( elem, SERVICE_ENDPOINT );
-		final String signingRegion = XmlHelpers.getText( elem, SIGNING_REGION );
-		final String bucketName = XmlHelpers.getText( elem, BUCKET_NAME );
-		final String key = XmlHelpers.getText( elem, KEY );
-		try
-		{
-			return new N5S3OMEZarrImageLoader( serviceEndpoint, signingRegion, bucketName, key, "/", sequenceDescription);
-		}
-		catch ( IOException e )
-		{
-			throw new RuntimeException( e );
-		}
-	}
+        final String serviceEndpoint = XmlHelpers.getText(elem, SERVICE_ENDPOINT);
+        final String signingRegion = XmlHelpers.getText(elem, SIGNING_REGION);
+        final String bucketName = XmlHelpers.getText(elem, BUCKET_NAME);
+        final String key = XmlHelpers.getText(elem, KEY);
+        try {
+            return new N5S3OMEZarrImageLoader(serviceEndpoint, signingRegion, bucketName, key, "/", sequenceDescription);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

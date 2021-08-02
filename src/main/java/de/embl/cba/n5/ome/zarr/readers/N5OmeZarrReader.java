@@ -50,27 +50,25 @@ import java.util.stream.Stream;
 
 /**
  * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
- *
  */
-public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
+public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
     protected final boolean mapN5DatasetAttributes;
-    protected String dimensionSeparator;
     final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
+    protected String dimensionSeparator;
     private ZarrAxes zarrAxes;
 
     /**
      * Opens an {@link N5OmeZarrReader} at a given base path with a custom
      * {@link GsonBuilder} to support custom attributes.
      *
-     * @param basePath Zarr base path
+     * @param basePath               Zarr base path
      * @param gsonBuilder
      * @param dimensionSeparator
-     * @param mapN5DatasetAttributes
-     * 			Virtually create N5 dataset attributes (dimensions, blockSize,
-     * 			compression, dataType) for datasets such that N5 code that
-     * 			reads or modifies these attributes directly works as expected.
-     * 			This can lead to name clashes if a zarr container uses these
-     * 			attribute keys for other purposes.
+     * @param mapN5DatasetAttributes Virtually create N5 dataset attributes (dimensions, blockSize,
+     *                               compression, dataType) for datasets such that N5 code that
+     *                               reads or modifies these attributes directly works as expected.
+     *                               This can lead to name clashes if a zarr container uses these
+     *                               attribute keys for other purposes.
      * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
@@ -85,7 +83,7 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
      * Opens an {@link N5OmeZarrReader} at a given base path with a custom
      * {@link GsonBuilder} to support custom attributes.
      *
-     * @param basePath Zarr base path
+     * @param basePath           Zarr base path
      * @param gsonBuilder
      * @param dimensionSeparator
      * @throws IOException
@@ -98,15 +96,13 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
     /**
      * Opens an {@link N5OmeZarrReader} at a given base path.
      *
-     * @param basePath Zarr base path
+     * @param basePath               Zarr base path
      * @param dimensionSeparator
-     * @param mapN5DatasetAttributes
-     * 			Virtually create N5 dataset attributes (dimensions, blockSize,
-     * 			compression, dataType) for datasets such that N5 code that
-     * 			reads or modifies these attributes directly works as expected.
-     * 			This can lead to name collisions if a zarr container uses these
-     * 			attribute keys for other purposes.
-     *
+     * @param mapN5DatasetAttributes Virtually create N5 dataset attributes (dimensions, blockSize,
+     *                               compression, dataType) for datasets such that N5 code that
+     *                               reads or modifies these attributes directly works as expected.
+     *                               This can lead to name collisions if a zarr container uses these
+     *                               attribute keys for other purposes.
      * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
@@ -117,14 +113,12 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
     /**
      * Opens an {@link N5OmeZarrReader} at a given base path.
      *
-     * @param basePath Zarr base path
-     * @param mapN5DatasetAttributes
-     * 			Virtually create N5 dataset attributes (dimensions, blockSize,
-     * 			compression, dataType) for datasets such that N5 code that
-     * 			reads or modifies these attributes directly works as expected.
-     * 			This can lead to name collisions if a zarr container uses these
-     * 			attribute keys for other purposes.
-     *
+     * @param basePath               Zarr base path
+     * @param mapN5DatasetAttributes Virtually create N5 dataset attributes (dimensions, blockSize,
+     *                               compression, dataType) for datasets such that N5 code that
+     *                               reads or modifies these attributes directly works as expected.
+     *                               This can lead to name collisions if a zarr container uses these
+     *                               attribute keys for other purposes.
      * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final boolean mapN5DatasetAttributes) throws IOException {
@@ -134,10 +128,10 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
     /**
      * Opens an {@link N5OmeZarrReader} at a given base path with a custom
      * {@link GsonBuilder} to support custom attributes.
-     *
+     * <p>
      * Zarray metadata will be virtually mapped to N5 dataset attributes.
      *
-     * @param basePath Zarr base path
+     * @param basePath    Zarr base path
      * @param gsonBuilder
      * @throws IOException
      */
@@ -147,7 +141,7 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
 
     /**
      * Opens an {@link N5OmeZarrReader} at a given base path.
-     *
+     * <p>
      * Zarray metadata will be virtually mapped to N5 dataset attributes.
      *
      * @param basePath Zarr base path
@@ -156,6 +150,44 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
     public N5OmeZarrReader(final String basePath) throws IOException {
 
         this(basePath, new GsonBuilder());
+    }
+
+    /**
+     * Constructs the path for a data block in a dataset at a given grid position.
+     * <p>
+     * The returned path is
+     * <pre>
+     * $datasetPathName/$gridPosition[n]$dimensionSeparator$gridPosition[n-1]$dimensionSeparator[...]$dimensionSeparator$gridPosition[0]
+     * </pre>
+     * <p>
+     * This is the file into which the data block will be stored.
+     *
+     * @param datasetPathName
+     * @param gridPosition
+     * @param dimensionSeparator
+     * @return
+     */
+    protected static Path getZarrDataBlockPath(
+            final long[] gridPosition,
+            final String dimensionSeparator,
+            final boolean isRowMajor) {
+
+        final StringBuilder pathStringBuilder = new StringBuilder();
+        if (isRowMajor) {
+            pathStringBuilder.append(gridPosition[gridPosition.length - 1]);
+            for (int i = gridPosition.length - 2; i >= 0; --i) {
+                pathStringBuilder.append(dimensionSeparator);
+                pathStringBuilder.append(gridPosition[i]);
+            }
+        } else {
+            pathStringBuilder.append(gridPosition[0]);
+            for (int i = 1; i < gridPosition.length; ++i) {
+                pathStringBuilder.append(dimensionSeparator);
+                pathStringBuilder.append(gridPosition[i]);
+            }
+        }
+        System.out.println("Path" + Paths.get(pathStringBuilder.toString()));
+        return Paths.get(pathStringBuilder.toString());
     }
 
     @Override
@@ -188,9 +220,7 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
         return VERSION;
     }
 
-
     /**
-     *
      * @return Zarr base path
      */
     @Override
@@ -255,10 +285,9 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
         return Files.exists(path) && Files.isRegularFile(path) && getDatasetAttributes(pathName) != null;
     }
 
-
     /**
      * @returns false if the group or dataset does not exist but also if the
-     * 		attempt to access
+     * attempt to access
      */
     @Override
     public boolean exists(final String pathName) {
@@ -270,7 +299,6 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
             return false;
         }
     }
-
 
     /**
      * If {@link #mapN5DatasetAttributes} is set, dataset attributes will
@@ -312,14 +340,6 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
         return super.listAttributes(pathName);
     }
 
-    public void setAxes(JsonElement axesJson) {
-        if (axesJson != null) {
-            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
-        } else {
-            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
-        }
-    }
-
     @Override
     public boolean axesValid(JsonElement axesJson) {
         return N5ZarrImageReader.super.axesValid(axesJson);
@@ -329,6 +349,13 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
         return this.zarrAxes;
     }
 
+    public void setAxes(JsonElement axesJson) {
+        if (axesJson != null) {
+            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
+        } else {
+            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
+        }
+    }
 
     @Override
     public DataBlock<?> readBlock(
@@ -371,44 +398,5 @@ public class N5OmeZarrReader  extends N5FSReader implements N5ZarrImageReader {
                     .filter(a -> exists(pathName + "/" + a))
                     .toArray(n -> new String[n]);
         }
-    }
-
-    /**
-     * Constructs the path for a data block in a dataset at a given grid position.
-     *
-     * The returned path is
-     * <pre>
-     * $datasetPathName/$gridPosition[n]$dimensionSeparator$gridPosition[n-1]$dimensionSeparator[...]$dimensionSeparator$gridPosition[0]
-     * </pre>
-     *
-     * This is the file into which the data block will be stored.
-     *
-     * @param datasetPathName
-     * @param gridPosition
-     * @param dimensionSeparator
-     *
-     * @return
-     */
-    protected static Path getZarrDataBlockPath(
-            final long[] gridPosition,
-            final String dimensionSeparator,
-            final boolean isRowMajor) {
-
-        final StringBuilder pathStringBuilder = new StringBuilder();
-        if (isRowMajor) {
-            pathStringBuilder.append(gridPosition[gridPosition.length - 1]);
-            for (int i = gridPosition.length - 2; i >= 0; --i) {
-                pathStringBuilder.append(dimensionSeparator);
-                pathStringBuilder.append(gridPosition[i]);
-            }
-        } else {
-            pathStringBuilder.append(gridPosition[0]);
-            for (int i = 1; i < gridPosition.length; ++i) {
-                pathStringBuilder.append(dimensionSeparator);
-                pathStringBuilder.append(gridPosition[i]);
-            }
-        }
-        System.out.println("Path" + Paths.get(pathStringBuilder.toString()));
-        return Paths.get(pathStringBuilder.toString());
     }
 }

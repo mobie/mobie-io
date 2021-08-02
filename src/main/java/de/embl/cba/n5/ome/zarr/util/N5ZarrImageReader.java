@@ -111,7 +111,7 @@ public interface N5ZarrImageReader extends N5Reader {
      * @throws IOException
      */
     @SuppressWarnings("incomplete-switch")
-   default DataBlock<?> readBlock(
+    default DataBlock<?> readBlock(
             final InputStream in,
             final ZarrDatasetAttributes datasetAttributes,
             final long... gridPosition) throws IOException {

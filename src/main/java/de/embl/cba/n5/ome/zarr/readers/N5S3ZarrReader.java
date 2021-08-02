@@ -33,49 +33,50 @@ import com.google.gson.reflect.TypeToken;
 import de.embl.cba.n5.ome.zarr.util.*;
 import de.embl.cba.n5.util.DType;
 import de.embl.cba.n5.util.Filter;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.type.Type;
-import net.imglib2.view.IntervalView;
-import net.imglib2.view.Views;
-import org.janelia.saalfeldlab.n5.*;
+import org.janelia.saalfeldlab.n5.DataBlock;
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.GsonAttributesParser;
 import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
 
 /**
  * Attempt at a diamond inheritance solution for S3+Zarr.
- *
  */
 public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReader {
 
     final protected boolean mapN5DatasetAttributes;
-
-    protected String dimensionSeparator;
     private final String serviceEndpoint;
+    protected String dimensionSeparator;
     private ZarrAxes zarrAxes;
-
-    public ZarrAxes getAxes() {
-        return this.zarrAxes;
-    }
-
-
-    public void setDimensionSeparator(String dimensionSeparator) {
-        this.dimensionSeparator = dimensionSeparator;
-    }
 
     public N5S3ZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
         super(s3, bucketName, containerPath, N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
         this.serviceEndpoint = serviceEndpoint; // for debugging
         this.dimensionSeparator = dimensionSeparator;
         mapN5DatasetAttributes = true;
+    }
+
+    public ZarrAxes getAxes() {
+        return this.zarrAxes;
+    }
+
+    @Override
+    public void setAxes(JsonElement axesJson) {
+        if (axesJson != null) {
+            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
+        } else {
+            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
+        }
+    }
+
+    public void setDimensionSeparator(String dimensionSeparator) {
+        this.dimensionSeparator = dimensionSeparator;
     }
 
     public AmazonS3 getS3() {
@@ -90,20 +91,20 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         return containerPath;
     }
 
-    public String getServiceEndpoint() {
-        return serviceEndpoint;
-    }
-
     //
     // Local helpers. May should live elsewhere
     //
+
+    public String getServiceEndpoint() {
+        return serviceEndpoint;
+    }
 
     /**
      * Helper to encapsulate building the object key for a file like
      * .zarray or .zgroup within any given path.
      *
      * @param pathName
-     * @param file One of .zarray, .zgroup or .zattrs
+     * @param file     One of .zarray, .zgroup or .zattrs
      * @return
      */
     private String objectFile(final String pathName, String file) {
@@ -119,6 +120,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         return sb.toString();
     }
 
+    // remove getBasePath
 
     @Override
     public Version getVersion() throws IOException {
@@ -143,19 +145,8 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         return VERSION;
     }
 
-    // remove getBasePath
-
     public boolean groupExists(final String pathName) {
         return exists(objectFile(pathName, zgroupFile));
-    }
-
-    @Override
-    public void setAxes(JsonElement axesJson) {
-        if (axesJson != null) {
-            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
-        } else {
-            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
-        }
     }
 
     public ZArrayAttributes getZArraryAttributes(final String pathName) throws IOException {
@@ -194,8 +185,9 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
 
     /**
      * CHANGE: rename to not overwrite the AWS list objects version
+     *
      * @returns false if the group or dataset does not exist but also if the
-     * 		attempt to access
+     * attempt to access
      */
     // @Override
     public boolean zarrExists(final String pathName) {

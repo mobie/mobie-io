@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2019, Stephan Saalfeld
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -32,27 +32,27 @@ package de.embl.cba.n5.util;
  */
 public interface Utils {
 
-	public static void reorder( final long[] array ) {
+    public static void reorder(final long[] array) {
 
-		long a;
-		final int max = array.length - 1;
-		for (int i = (max - 1) / 2; i >= 0; --i) {
-			final int j = max - i;
-			a = array[i];
-			array[i] = array[j];
-			array[j] = a;
-		}
-	}
+        long a;
+        final int max = array.length - 1;
+        for (int i = (max - 1) / 2; i >= 0; --i) {
+            final int j = max - i;
+            a = array[i];
+            array[i] = array[j];
+            array[j] = a;
+        }
+    }
 
-	public static void reorder( final int[] array ) {
+    public static void reorder(final int[] array) {
 
-		int a;
-		final int max = array.length - 1;
-		for (int i = (max - 1) / 2; i >= 0; --i) {
-			final int j = max - i;
-			a = array[i];
-			array[i] = array[j];
-			array[j] = a;
-		}
-	}
+        int a;
+        final int max = array.length - 1;
+        for (int i = (max - 1) / 2; i >= 0; --i) {
+            final int j = max - i;
+            a = array[i];
+            array[i] = array[j];
+            array[j] = a;
+        }
+    }
 }

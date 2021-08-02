@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder;
 import de.embl.cba.n5.ome.zarr.loaders.N5OMEZarrImageLoader;
 import de.embl.cba.n5.ome.zarr.readers.N5OmeZarrReader;
 import de.embl.cba.n5.util.openers.BDVOpener;
-import ij.IJ;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.util.Cast;
 

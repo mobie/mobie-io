@@ -73,12 +73,11 @@ public class N5ZarrImageReaderHelper extends N5FSReader {
 //    }
 
     public void putAttributes(HashMap<String, JsonElement> attributes, DatasetAttributes datasetAttributes) {
-            attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
-            attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
-            attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
-            attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
-        }
-
+        attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
+        attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
+        attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
+        attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
+    }
 
 
     @Override

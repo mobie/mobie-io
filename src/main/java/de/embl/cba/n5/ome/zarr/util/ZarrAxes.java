@@ -20,14 +20,14 @@ public enum ZarrAxes {
 
     private final String axes;
 
+    ZarrAxes(String axes) {
+        this.axes = axes;
+    }
+
     @JsonCreator
     public static ZarrAxes decode(final String axes) {
         return Stream.of(ZarrAxes.values()).filter(targetEnum ->
                 targetEnum.axes.equals(axes)).findFirst().orElse(NOT_SPECIFIED);
-    }
-
-    ZarrAxes(String axes) {
-        this.axes = axes;
     }
 
     public boolean is2D() {
@@ -35,14 +35,14 @@ public enum ZarrAxes {
     }
 
     public boolean is5D() {
-        return this.axes.equals(TCZYX.axes)  || this.axes.equals(NOT_SPECIFIED.axes);
+        return this.axes.equals(TCZYX.axes) || this.axes.equals(NOT_SPECIFIED.axes);
     }
 
     public boolean is4D() {
         return this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TCYX.axes);
     }
 
-    public boolean is4DWithTimepoints(){
+    public boolean is4DWithTimepoints() {
         return this.axes.equals(TZYX.axes);
     }
 

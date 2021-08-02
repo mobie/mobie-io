@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2019, Stephan Saalfeld
  * All rights reserved.
- *
+ * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * <p>
  * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ * <p>
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,40 +34,39 @@ import org.janelia.saalfeldlab.n5.DatasetAttributes;
  * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
  *
  */
-public class ZarrDatasetAttributes extends DatasetAttributes
-{
+public class ZarrDatasetAttributes extends DatasetAttributes {
 
-	private final transient boolean isRowMajor;
-	private final transient DType dType;
-	private final transient byte[] fillBytes;
+    private final transient boolean isRowMajor;
+    private final transient DType dType;
+    private final transient byte[] fillBytes;
 
-	public ZarrDatasetAttributes(
-			final long[] dimensions,
-			final int[] blockSize,
-			final DType dType,
-			final Compression compression,
-			final boolean isRowMajor,
-			final String fill_value) {
+    public ZarrDatasetAttributes(
+            final long[] dimensions,
+            final int[] blockSize,
+            final DType dType,
+            final Compression compression,
+            final boolean isRowMajor,
+            final String fill_value) {
 
-		super(dimensions, blockSize, dType.getDataType(), compression);
-		this.dType = dType;
-		this.isRowMajor = isRowMajor;
-		this.fillBytes = dType.createFillBytes(fill_value);
-	}
+        super(dimensions, blockSize, dType.getDataType(), compression);
+        this.dType = dType;
+        this.isRowMajor = isRowMajor;
+        this.fillBytes = dType.createFillBytes(fill_value);
+    }
 
-	public boolean isRowMajor() {
+    public boolean isRowMajor() {
 
-		return isRowMajor;
-	}
+        return isRowMajor;
+    }
 
-	public DType getDType() {
+    public DType getDType() {
 
-		return dType;
-	}
+        return dType;
+    }
 
-	public byte[] getFillBytes() {
+    public byte[] getFillBytes() {
 
-		// TODO Auto-generated method stub
-		return fillBytes;
-	}
+        // TODO Auto-generated method stub
+        return fillBytes;
+    }
 }
