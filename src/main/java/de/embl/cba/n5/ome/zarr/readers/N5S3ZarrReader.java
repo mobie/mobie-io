@@ -61,7 +61,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
     protected String dimensionSeparator;
     private final String serviceEndpoint;
     private ZarrAxes zarrAxes;
-    final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
 
     public ZarrAxes getAxes() {
         return this.zarrAxes;
@@ -77,7 +76,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         this.serviceEndpoint = serviceEndpoint; // for debugging
         this.dimensionSeparator = dimensionSeparator;
         mapN5DatasetAttributes = true;
-        this.n5ZarrImageReaderHelper = new N5ZarrImageReaderHelper(basePath, N5ZarrImageReader.initGsonBuilder(gsonBuilder));
     }
 
     public AmazonS3 getS3() {
@@ -132,9 +130,14 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
 
         if (meta != null) {
 
-            Integer zarrFormat = n5ZarrImageReaderHelper.getZarrFormatFromMeta(meta b);
-            if (zarrFormat != null)
-                return new Version(zarrFormat, 0, 0);
+            final Integer zarr_format = GsonAttributesParser.parseAttribute(
+                    meta,
+                    "zarr_format",
+                    Integer.class,
+                    gson);
+
+            if (zarr_format != null)
+                return new Version(zarr_format, 0, 0);
         }
 
         return VERSION;
