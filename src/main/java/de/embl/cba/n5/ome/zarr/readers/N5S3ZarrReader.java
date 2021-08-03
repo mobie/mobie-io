@@ -109,9 +109,8 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
      * Helper to encapsulate building the object key for a file like
      * .zarray or .zgroup within any given path.
      *
-     * @param pathName
+     * @param pathName file path to modify
      * @param file One of .zarray, .zgroup or .zattrs
-     * @return
      */
     private String objectFile(final String pathName, String file) {
         StringBuilder sb = new StringBuilder();
@@ -265,11 +264,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
     /**
      * Reads a {@link DataBlock} from an {@link InputStream}.
      *
-     * @param in
-     * @param datasetAttributes
-     * @param gridPosition
-     * @return
-     * @throws IOException
      */
     @SuppressWarnings("incomplete-switch")
     public static DataBlock<?> readBlock(
@@ -361,11 +355,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
      * </pre>
      *
      * This is the file into which the data block will be stored.
-     *
-     * @param gridPosition
-     * @param dimensionSeparator
-     *
-     * @return
      */
     protected static String getZarrDataBlockPath(
             final long[] gridPosition,
@@ -397,9 +386,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
      * Copied from getAttributes but doesn't change the objectPath in anyway.
      * CHANGES: returns null rather than empty hash map
      *
-     * @param objectPath
      * @return null if the object does not exist, otherwise the loaded attributes.
-     * @throws IOException
      */
     public HashMap<String, JsonElement> readJson(String objectPath) throws IOException {
         if (!this.s3.doesObjectExist(this.bucketName, objectPath)) {

@@ -331,10 +331,7 @@ public class DType {
 	/**
 	 * Factory for {@link DataBlock DataBlocks}.
 	 *
-	 * @param blockSize
-	 * @param gridPosition
 	 * @param numElements not necessarily one element per block element
-	 * @return
 	 */
 	public DataBlock<?> createDataBlock( final int[] blockSize, final long[] gridPosition, final int numElements) {
 
@@ -344,10 +341,7 @@ public class DType {
 	/**
 	 * Factory for {@link ByteArrayDataBlock ByteArrayDataBlocks}.
 	 *
-	 * @param blockSize
-	 * @param gridPosition
 	 * @param numElements not necessarily one element per block element
-	 * @return
 	 */
 	public ByteArrayDataBlock createByteBlock( final int[] blockSize, final long[] gridPosition, final int numElements) {
 
@@ -358,9 +352,6 @@ public class DType {
 	 * Factory for {@link DataBlock DataBlocks} with one data element for each
 	 * block element (e.g. pixel image).
 	 *
-	 * @param blockSize
-	 * @param gridPosition
-	 * @return
 	 */
 	public DataBlock<?> createDataBlock( final int[] blockSize, final long[] gridPosition) {
 
@@ -370,9 +361,6 @@ public class DType {
 	/**
 	 * Factory for {@link ByteArrayDataBlock ByteArrayDataBlocks}.
 	 *
-	 * @param blockSize
-	 * @param gridPosition
-	 * @return
 	 */
 	public ByteArrayDataBlock createByteBlock( final int[] blockSize, final long[] gridPosition) {
 
@@ -429,7 +417,6 @@ public class DType {
 	/**
 	 * Returns the number of bits of this type.  If the type counts the number
 	 * of bytes, this method returns 0;
-	 * @return
 	 */
 	public int getNBits() {
 
