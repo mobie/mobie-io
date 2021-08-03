@@ -95,6 +95,7 @@ public class N5OmeZarrReader extends N5FSReader {
      * 			reads or modifies these attributes directly works as expected.
      * 			This can lead to name clashes if a zarr container uses these
      * 			attribute keys for other purposes.
+     * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
 
@@ -108,8 +109,9 @@ public class N5OmeZarrReader extends N5FSReader {
      * {@link GsonBuilder} to support custom attributes.
      *
      * @param basePath Zarr base path
-     * @param gsonBuilder GsonBuilder
-     * @param dimensionSeparator string symbol of dimension separator
+     * @param gsonBuilder
+     * @param dimensionSeparator
+     * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator) throws IOException {
 
@@ -120,7 +122,7 @@ public class N5OmeZarrReader extends N5FSReader {
      * Opens an {@link N5OmeZarrReader} at a given base path.
      *
      * @param basePath Zarr base path
-     * @param dimensionSeparator string symbol of dimension separator
+     * @param dimensionSeparator
      * @param mapN5DatasetAttributes
      * 			Virtually create N5 dataset attributes (dimensions, blockSize,
      * 			compression, dataType) for datasets such that N5 code that
@@ -128,6 +130,7 @@ public class N5OmeZarrReader extends N5FSReader {
      * 			This can lead to name collisions if a zarr container uses these
      * 			attribute keys for other purposes.
      *
+     * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
 
@@ -145,6 +148,7 @@ public class N5OmeZarrReader extends N5FSReader {
      * 			This can lead to name collisions if a zarr container uses these
      * 			attribute keys for other purposes.
      *
+     * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final boolean mapN5DatasetAttributes) throws IOException {
         this(basePath, new GsonBuilder(), DEFAULT_SEPARATOR, mapN5DatasetAttributes);
@@ -157,7 +161,8 @@ public class N5OmeZarrReader extends N5FSReader {
      * Zarray metadata will be virtually mapped to N5 dataset attributes.
      *
      * @param basePath Zarr base path
-     * @param gsonBuilder GsonBuilder
+     * @param gsonBuilder
+     * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder) throws IOException {
         this(basePath, gsonBuilder, DEFAULT_SEPARATOR);
@@ -169,6 +174,7 @@ public class N5OmeZarrReader extends N5FSReader {
      * Zarray metadata will be virtually mapped to N5 dataset attributes.
      *
      * @param basePath Zarr base path
+     * @throws IOException
      */
     public N5OmeZarrReader(final String basePath) throws IOException {
 
@@ -350,9 +356,11 @@ public class N5OmeZarrReader extends N5FSReader {
     /**
      * Reads a {@link DataBlock} from an {@link InputStream}.
      *
-     * @param in InputStream
-     * @param datasetAttributes ZarrDatasetAttributes
-     * @param gridPosition long...
+     * @param in
+     * @param datasetAttributes
+     * @param gridPosition
+     * @return
+     * @throws IOException
      */
     @SuppressWarnings("incomplete-switch")
     public static DataBlock<?> readBlock(
@@ -510,6 +518,11 @@ public class N5OmeZarrReader extends N5FSReader {
      *
      * This is the file into which the data block will be stored.
      *
+     * @param datasetPathName
+     * @param gridPosition
+     * @param dimensionSeparator
+     *
+     * @return
      */
     protected static Path getZarrDataBlockPath(
             final long[] gridPosition,

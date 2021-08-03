@@ -69,6 +69,7 @@
 		<system>None</system>
 	</ciManagement>
 	<properties>
+		<doclint>none</doclint>
 		<package-name>de.embl.cba.mobie</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>EMBL</license.copyrightOwners>

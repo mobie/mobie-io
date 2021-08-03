@@ -70,15 +70,16 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer
 	 * If the base path does not exist, it will be created.
 	 *
 	 * @param basePath Zarr base path
-	 * @param gsonBuilder GsonBuilder
-	 * @param dimensionSeparator string symbol of dimension separator
+	 * @param gsonBuilder
+	 * @param dimensionSeparator
 	 * @param mapN5DatasetAttributes
 	 * 			Virtually create N5 dataset attributes (dimensions, blockSize,
 	 * 			compression, dataType) for datasets such that N5 code that
 	 * 			reads or modifies these attributes directly works as expected.
 	 * 			This can lead to name clashes if a zarr container uses these
 	 * 			attribute keys for other purposes.
-	 * @throws IOException if the base path cannot be written to or cannot be created,
+	 * @throws IOException
+	 *    if the base path cannot be written to or cannot be created,
 	 */
 	public N5ZarrWriter( final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
 	{
@@ -94,8 +95,9 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer
 	 * If the base path does not exist, it will be created.
 	 *
 	 * @param basePath Zarr base path
-	 * @param gsonBuilder GsonBuilder
-	 * @param dimensionSeparator string symbol of dimension separator
+	 * @param gsonBuilder
+	 * @param dimensionSeparator
+	 * @throws IOException
 	 */
 	public N5ZarrWriter( final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator) throws IOException
 	{
@@ -109,13 +111,15 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer
 	 * If the base path does not exist, it will be created.
 	 *
 	 * @param basePath Zarr base path
-	 * @param dimensionSeparator string symbol of dimension separator
+	 * @param dimensionSeparator
 	 * @param mapN5DatasetAttributes
 	 * 			Virtually create N5 dataset attributes (dimensions, blockSize,
 	 * 			compression, dataType) for datasets such that N5 code that
 	 * 			reads or modifies these attributes directly works as expected.
 	 * 			This can lead to name collisions if a zarr container uses these
 	 * 			attribute keys for other purposes.
+	 *
+	 * @throws IOException
 	 */
 	public N5ZarrWriter( final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException
 	{
@@ -135,6 +139,8 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer
 	 * 			reads or modifies these attributes directly works as expected.
 	 * 			This can lead to name collisions if a zarr container uses these
 	 * 			attribute keys for other purposes.
+	 *
+	 * @throws IOException
 	 */
 	public N5ZarrWriter( final String basePath, final boolean mapN5DatasetAttributes) throws IOException
 	{
@@ -149,7 +155,7 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer
 	 * If the base path does not exist, it will be created.
 	 *
 	 * @param basePath Zarr base path
-	 * @param gsonBuilder GsonBuilder
+	 * @param gsonBuilder
 	 * @throws IOException
 	 *    if the base path cannot be written to or cannot be created,
 	 */
@@ -169,7 +175,9 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer
 	 * will be set to the current N5 version of this implementation.
 	 *
 	 * @param basePath n5 base path
-	 * @throws IOException if the base path cannot be written to or cannot be created,
+	 * @param gsonBuilder
+	 * @throws IOException
+	 *    if the base path cannot be written to or cannot be created,
 	 */
 	public N5ZarrWriter(final String basePath) throws IOException
 	{
@@ -410,10 +418,10 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer
 	/**
 	 * Writes a {@link DataBlock} into an {@link OutputStream}.
 	 *
-	 * @param out Output stream for writing
-	 * @param datasetAttributes ZarrDatasetAttributes
-	 * @param dataBlock DataBlock to write
-	 * @throws IOException while writing
+	 * @param out
+	 * @param datasetAttributes
+	 * @param dataBlock
+	 * @throws IOException
 	 */
 	public static <T> void writeBlock(
 			final OutputStream out,

@@ -100,6 +100,8 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
 	/**
 	 * The sequenceDescription and viewRegistrations are known already, typically read from xml.
 	 *
+	 * @param n5Reader N5Reader for the loader
+	 * @param sequenceDescription SequenceDescription
 	 */
 	@Deprecated
 	public OpenOrganelleN5ImageLoader( N5Reader n5Reader, AbstractSequenceDescription< ?, ?, ? > sequenceDescription )
@@ -111,6 +113,7 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
 	/**
 	 * The sequenceDescription and viewRegistrations are to be read from the n5 attributes.
 	 *
+	 * @param n5Reader N5Reader for the loader
 	 */
 	public OpenOrganelleN5ImageLoader( N5Reader n5Reader )
 	{
@@ -206,6 +209,9 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
 	 *
 	 * In addition, level 0 contains the information about the size of the full resolution image.
 	 *
+	 * @return DatasetAttributes
+	 * @throws IOException while getting attributes
+	 * @param pathName to get attributes
 	 */
 	private DatasetAttributes getDatasetAttributes( String pathName ) throws IOException
 	{
@@ -223,6 +229,9 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
 	 * ??? There's no need for the two multiscales to have the same base though.
 	 * ??? So it would also allow you to just have two pyramids (in our jargon) in the same zgroup.
 	 *
+	 * @return
+	 * @throws IOException
+	 * @param pathName
 	 */
 	private Multiscale getMultiscale( String pathName ) throws IOException
 	{
@@ -458,6 +467,8 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
 
 		/**
 		 *
+		 * @return
+		 * @throws IOException
 		 */
 		private double[][] readMipmapResolutions() throws IOException
 		{
