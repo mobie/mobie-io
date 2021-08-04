@@ -41,14 +41,6 @@ public class OMEZarrS3Opener extends S3Reader {
         return reader.readKey(key);
     }
 
-    public static void main(String[] args) throws IOException {
-        //showMyosin();
-        //showAll();
-        //readI2KGif();
-        //showIDR0();
-        showIDR1();
-    }
-
     public static void showIDR0() throws IOException {
         //  /idr/zarr/v0.1/6001237.zarr
         N5OMEZarrImageLoader.logChunkLoading = true;
