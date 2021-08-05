@@ -64,15 +64,18 @@ public class N5ZarrImageReaderHelper extends N5FSReader {
 //        gson. = newGson;
 //    }
 
-//    private void putAttributes(String pathName, HashMap<String, JsonElement> attributes) throws IOException {
-//        if (mapN5DatasetAttributes && datasetExists(pathName)) {
-//            final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
-//            attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
-//            attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
-//            attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
-//            attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
-//        }
-//    }
+    public ZArrayAttributes getN5DatasetAttributes(String pathName, @NotNull HashMap<String, JsonElement> attributes) throws IOException {
+            return new ZArrayAttributes(
+                    attributes.get("zarr_format").getAsInt(),
+                    gson.fromJson(attributes.get("shape"), long[].class),
+                    gson.fromJson(attributes.get("chunks"), int[].class),
+                    gson.fromJson(attributes.get("dtype"), DType.class),
+                    gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
+                    attributes.get("fill_value").getAsString(),
+                    attributes.get("order").getAsCharacter(),
+                    gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
+
+    }
 
     public void putAttributes(HashMap<String, JsonElement> attributes, DatasetAttributes datasetAttributes) {
         attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));

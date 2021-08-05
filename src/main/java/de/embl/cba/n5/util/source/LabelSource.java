@@ -26,16 +26,14 @@ public class LabelSource<T extends NumericType<T> & RealType<T>> implements Sour
     protected final Source<T> source;
     private final DefaultInterpolators<T> interpolators;
     private boolean showAsBoundaries;
-    private int boundaryWidth;
 
     public LabelSource(final Source<T> source) {
         this.source = source;
-        this.interpolators = new DefaultInterpolators();
+        this.interpolators = new DefaultInterpolators<>();
     }
 
     public void showAsBoundary(boolean showAsBoundaries, int boundaryWidth) {
         this.showAsBoundaries = showAsBoundaries;
-        this.boundaryWidth = boundaryWidth;
     }
 
     @Override
@@ -80,8 +78,7 @@ public class LabelSource<T extends NumericType<T> & RealType<T>> implements Sour
         // do not interpolate for label images, but always use NEARESTNEIGHBOR
         if (showAsBoundaries) {
             RandomAccessibleInterval<T> rai = getSource(t, level);
-            RealRandomAccessible<T> interpolate = Views.interpolate(Views.extendZero(rai), interpolators.get(Interpolation.NEARESTNEIGHBOR));
-            return interpolate;
+            return Views.interpolate(Views.extendZero(rai), interpolators.get(Interpolation.NEARESTNEIGHBOR));
         } else {
             return source.getInterpolatedSource(t, level, Interpolation.NEARESTNEIGHBOR);
         }

@@ -42,6 +42,7 @@ public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader {
     private final String bucketName;
     private final String key;
 
+
     // sequenceDescription has been read from xml
     public N5S3OMEZarrImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key, String dimensionSeparator, AbstractSequenceDescription<?, ?, ?> sequenceDescription) throws IOException {
         super(new N5S3ZarrReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key, dimensionSeparator), sequenceDescription);

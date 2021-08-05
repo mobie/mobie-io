@@ -36,7 +36,7 @@ import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import java.io.IOException;
 
-public class N5S3ImageLoader extends N5ImageLoader {
+public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader {
     private final String serviceEndpoint;
     private final String signingRegion;
     private final String bucketName;

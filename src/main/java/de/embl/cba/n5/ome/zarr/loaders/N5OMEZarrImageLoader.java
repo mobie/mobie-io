@@ -97,7 +97,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private FetcherThreads fetchers;
     private VolatileGlobalCellCache cache;
     private ZarrAxes zarrAxes;
-
+    private BlockingFetchQueues< Callable< ? > > queue;
     /**
      * The sequenceDescription and viewRegistrations are known already, typically read from xml.
      *
@@ -112,6 +112,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
     public N5OMEZarrImageLoader(N5Reader n5Reader) {
         this.n5 = n5Reader;
+        fetchSequenceDescriptionAndViewRegistrations();
+    }
+
+    public N5OMEZarrImageLoader(N5Reader n5Reader, BlockingFetchQueues<Callable<?>> queue) {
+        this.n5 = n5Reader;
+        this.queue = queue;
         fetchSequenceDescriptionAndViewRegistrations();
     }
 
@@ -284,10 +290,19 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                         maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
                     }
 
-                    final int numFetcherThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
-                    final BlockingFetchQueues<Callable<?>> queue = new BlockingFetchQueues<>(maxNumLevels, numFetcherThreads);
-                    fetchers = new FetcherThreads(queue, numFetcherThreads);
-                    cache = new VolatileGlobalCellCache(queue);
+//                    final int numFetcherThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
+//                    final BlockingFetchQueues<Callable<?>> queue = new BlockingFetchQueues<>(maxNumLevels, numFetcherThreads);
+//                    fetchers = new FetcherThreads(queue, numFetcherThreads);
+//                    cache = new VolatileGlobalCellCache(queue);
+
+                    if ( queue == null )
+                    {
+                        final int numFetcherThreads = Math.max( 1, Runtime.getRuntime().availableProcessors() );
+                        queue = new BlockingFetchQueues<>( maxNumLevels, numFetcherThreads );
+                        fetchers = new FetcherThreads( queue, numFetcherThreads);
+                    }
+                    cache = new VolatileGlobalCellCache( queue );
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -302,11 +317,11 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         Multiscale multiscale = setupToMultiscale.get(setupId);
         AffineTransform3D transform = new AffineTransform3D();
 
-        try {
+        if ( multiscale.transform != null && multiscale.transform.scale != null && multiscale.transform.scale.length > 2 ) {
             double[] scale = multiscale.transform.scale;
-            transform.scale(scale[0], scale[1], scale[2]);
-        } catch (Exception e) {
-            System.out.println("No scale given" + e);
+            transform.scale( scale[ 0 ], scale[ 1 ], scale[ 2 ] );
+        } else {
+            transform.scale( 1, 1, 1 );
         }
 
         ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
@@ -364,7 +379,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             synchronized (this) {
                 if (!isOpen)
                     return;
-                fetchers.shutdown();
+                if ( fetchers != null )
+                    fetchers.shutdown();
                 cache.clearCache();
                 isOpen = false;
             }

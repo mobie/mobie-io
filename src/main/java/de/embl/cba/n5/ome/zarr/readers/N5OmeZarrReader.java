@@ -211,11 +211,15 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
                                         StandardCharsets.UTF_8.name()),
                                 gson);
 
-                Integer zarrFormat = n5ZarrImageReaderHelper.getZarrFormatFromMeta(attributes);
-                if (zarrFormat != null)
-                    return new Version(zarrFormat, 0, 0);
-            }
-        }
+                final Integer zarr_format = GsonAttributesParser.parseAttribute(
+                        attributes,
+                        "zarr_format",
+                        Integer.class,
+                        gson);
+
+                if (zarr_format != null)
+                    return new Version(zarr_format, 0, 0);
+        }}
         return VERSION;
     }
 
@@ -259,15 +263,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         JsonElement dimSep = attributes.get("dimension_separator");
         this.dimensionSeparator = dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
 
-        return new ZArrayAttributes(
-                attributes.get("zarr_format").getAsInt(),
-                gson.fromJson(attributes.get("shape"), long[].class),
-                gson.fromJson(attributes.get("chunks"), int[].class),
-                gson.fromJson(attributes.get("dtype"), DType.class),
-                gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
-                attributes.get("fill_value").getAsString(),
-                attributes.get("order").getAsCharacter(),
-                gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
+        return n5ZarrImageReaderHelper.getN5DatasetAttributes(pathName, attributes);
     }
 
     @Override
@@ -308,7 +304,6 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
 
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zattrsFile);
         final HashMap<String, JsonElement> attributes = new HashMap<>();
-
         if (Files.exists(path)) {
             try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
                 attributes.putAll(
@@ -325,10 +320,13 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
             final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
-            attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
-            attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
-            attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
-            attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
+                    n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);
+
+
+//            attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
+//            attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
+//            attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
+//            attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
         }
 
         return attributes;
@@ -375,7 +373,6 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
                         gridPosition,
                         dimensionSeparator,
                         zarrDatasetAttributes.isRowMajor()).toString());
-        System.out.println("readBlock path: " + path);
         if (!Files.exists(path)) {
             return null;
         }

@@ -33,4 +33,4 @@
  * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
  *
  */
-package de.embl.cba.n5.ome.zarr;
+package de.embl.cba.n5;
