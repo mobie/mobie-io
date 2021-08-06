@@ -85,6 +85,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private static boolean is4DC = false;
     private static boolean is4DT = false;
     private static boolean is2D = false;
+    private BlockingFetchQueues< Callable< ? > > queue;
 
     /**
      * Maps setup id to {@link SetupImgLoader}.
@@ -120,6 +121,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         fetchSequenceDescriptionAndViewRegistrations();
     }
 
+    public N5OMEZarrImageLoader(N5Reader n5Reader, HashMap<String, Integer> axesMap, BlockingFetchQueues< Callable< ? > > queue ) {
+        this.n5 = n5Reader;
+        this.axesMap = axesMap;
+        this.queue = queue;
+        fetchSequenceDescriptionAndViewRegistrations();
+    }
 
     private void fetchSequenceDescriptionAndViewRegistrations() {
         try {
@@ -292,10 +299,13 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                         maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
                     }
 
-                    final int numFetcherThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
-                    final BlockingFetchQueues<Callable<?>> queue = new BlockingFetchQueues<>(maxNumLevels, numFetcherThreads);
-                    fetchers = new FetcherThreads(queue, numFetcherThreads);
-                    cache = new VolatileGlobalCellCache(queue);
+                    if ( queue == null )
+                    {
+                        final int numFetcherThreads = Math.max( 1, Runtime.getRuntime().availableProcessors() );
+                        queue = new BlockingFetchQueues<>( maxNumLevels, numFetcherThreads );
+                        fetchers = new FetcherThreads( queue, numFetcherThreads);
+                    }
+                    cache = new VolatileGlobalCellCache( queue );
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -390,7 +400,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             synchronized (this) {
                 if (!isOpen)
                     return;
-                fetchers.shutdown();
+                if ( fetchers != null )
+                    fetchers.shutdown();
                 cache.clearCache();
                 isOpen = false;
             }
