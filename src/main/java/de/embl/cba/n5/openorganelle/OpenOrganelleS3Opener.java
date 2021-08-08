@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class OpenOrganelleS3Reader extends S3Reader {
-    public OpenOrganelleS3Reader(String serviceEndpoint, String signingRegion, String bucketName) {
+public class OpenOrganelleS3Opener extends S3Reader {
+    public OpenOrganelleS3Opener(String serviceEndpoint, String signingRegion, String bucketName) {
         super(serviceEndpoint, signingRegion, bucketName);
     }
 
@@ -25,7 +25,7 @@ public class OpenOrganelleS3Reader extends S3Reader {
         String signingRegion = "us-west-2";
         String bucketName = split[3];
         final String key = Arrays.stream(split).skip(4).collect(Collectors.joining("/"));
-        final OpenOrganelleS3Reader reader = new OpenOrganelleS3Reader(serviceEndpoint, signingRegion, bucketName);
+        final OpenOrganelleS3Opener reader = new OpenOrganelleS3Opener(serviceEndpoint, signingRegion, bucketName);
         return reader.readKey(key);
     }
 
@@ -34,11 +34,11 @@ public class OpenOrganelleS3Reader extends S3Reader {
     }
 
     public static void showHela() throws IOException {
-        OpenOrganelleS3Reader reader = new OpenOrganelleS3Reader(
+        OpenOrganelleS3Opener reader = new OpenOrganelleS3Opener(
                 "https://janelia-cosem.s3.amazonaws.com",
                 "us-west-2",
                 "jrc_hela-2");
-        OpenOrganelleS3Reader.setLogChunkLoading(true);
+        OpenOrganelleS3Opener.setLogChunkLoading(true);
         SpimData image = reader.readKey("jrc_hela-2.n5/em/fibsem-uint16");
         BdvFunctions.show(image);
     }

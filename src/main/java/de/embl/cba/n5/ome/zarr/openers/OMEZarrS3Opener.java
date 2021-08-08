@@ -1,20 +1,15 @@
 package de.embl.cba.n5.ome.zarr.openers;
 
-import bdv.util.BdvFunctions;
-import bdv.util.BdvOptions;
-import bdv.util.BdvStackSource;
+import bdv.util.volatiles.SharedQueue;
 import de.embl.cba.n5.ome.zarr.loaders.N5OMEZarrImageLoader;
 import de.embl.cba.n5.ome.zarr.loaders.N5S3OMEZarrImageLoader;
 import de.embl.cba.n5.util.readers.S3Reader;
-import de.embl.cba.n5.util.source.Sources;
 import mpicbg.spim.data.SpimData;
-import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.util.Cast;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class OMEZarrS3Opener extends S3Reader {
@@ -27,8 +22,14 @@ public class OMEZarrS3Opener extends S3Reader {
         N5OMEZarrImageLoader.logChunkLoading = true;
         HashMap<String, Integer> axesMap = new HashMap<>();
         N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader(serviceEndpoint, signingRegion, bucketName, key, ".", axesMap);
-        SpimData spimData = new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
-        return spimData;
+        return new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
+    }
+
+    public SpimData readKey(String key, SharedQueue sharedQueue) throws IOException {
+        N5OMEZarrImageLoader.logChunkLoading = true;
+        HashMap<String, Integer> axesMap = new HashMap<>();
+        N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader(serviceEndpoint, signingRegion, bucketName, key, ".", axesMap);
+        return new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
     }
 
     public static SpimData readURL(String url) throws IOException {
@@ -40,55 +41,13 @@ public class OMEZarrS3Opener extends S3Reader {
         final OMEZarrS3Opener reader = new OMEZarrS3Opener(serviceEndpoint, signingRegion, bucketName);
         return reader.readKey(key);
     }
-
-    public static void showIDR0() throws IOException {
-        //  /idr/zarr/v0.1/6001237.zarr
-        N5OMEZarrImageLoader.logChunkLoading = true;
-        OMEZarrS3Opener reader = new OMEZarrS3Opener("https://s3.embassy.ebi.ac.uk", "us-west-2", "idr");
-        SpimData image = reader.readURL("zarr/v0.1/6001237.zarr");
-        List<BdvStackSource<?>> sources = BdvFunctions.show(image);
-        sources.get(0).setColor(new ARGBType(ARGBType.rgba(0, 0, 255, 255)));
-        sources.get(0).setDisplayRange(0, 3000);
-        sources.get(1).setColor(new ARGBType(ARGBType.rgba(0, 255, 0, 255)));
-        sources.get(1).setDisplayRange(0, 3000);
-        sources.get(2).setColor(new ARGBType(ARGBType.rgba(255, 0, 0, 255)));
-        sources.get(2).setDisplayRange(0, 3000);
-        sources.get(3).setColor(new ARGBType(ARGBType.rgba(255, 255, 255, 255)));
-        sources.get(3).setDisplayRange(0, 3000);
-        //sources.get( 4 ).setDisplayRange( 0, 100 );
-        Sources.showAsLabelMask(sources.get(4));
-    }
-
-    public static void readI2KGif() throws IOException {
-        // https://play.minio.io:9000/i2k2020/gif.zarr
-        N5OMEZarrImageLoader.logChunkLoading = true;
-        OMEZarrS3Opener reader = new OMEZarrS3Opener("https://play.minio.io:9000", "us-west-2", "i2k2020");
-        SpimData image = readURL("gif.zarr");
-        BdvFunctions.show(image);
-    }
-
-    public static void showAll() throws IOException {
-        N5OMEZarrImageLoader.logChunkLoading = true;
-        OMEZarrS3Opener reader = new OMEZarrS3Opener("https://s3.embl.de", "us-west-2", "i2k-2020");
-        SpimData myosin = readURL("prospr-myosin.ome.zarr");
-        List<BdvStackSource<?>> myosinBdvSources = BdvFunctions.show(myosin);
-        SpimData em = readURL("em-raw.ome.zarr");
-        List<BdvStackSource<?>> sources = BdvFunctions.show(em, BdvOptions.options().addTo(myosinBdvSources.get(0).getBdvHandle()));
-        Sources.showAsLabelMask(sources.get(1));
-        Sources.viewAsHyperstack(sources.get(0), 4);
-    }
-
-    public static void showMyosin() throws IOException {
-        N5OMEZarrImageLoader.logChunkLoading = true;
-        OMEZarrS3Opener reader = new OMEZarrS3Opener("https://s3.embl.de", "us-west-2", "i2k-2020");
-        SpimData myosin = readURL("prospr-myosin.ome.zarr");
-        BdvFunctions.show(myosin);
-    }
-
-    public static void showIDR1() throws IOException {
-        N5OMEZarrImageLoader.logChunkLoading = true;
-        OMEZarrS3Opener reader = new OMEZarrS3Opener("https://s3.embassy.ebi.ac.uk", "us-west-2", "idr");
-        SpimData data = readURL("zarr/v0.1/9822151.zarr");
-        BdvFunctions.show(data, BdvOptions.options().is2D()).get(0).setDisplayRange(3000, 15000);
+    public static SpimData readURL(String url, SharedQueue sharedQueue) throws IOException {
+        final String[] split = url.split("/");
+        String serviceEndpoint = Arrays.stream(split).limit(3).collect(Collectors.joining("/"));
+        String signingRegion = "us-west-2";
+        String bucketName = split[3];
+        final String key = Arrays.stream(split).skip(4).collect(Collectors.joining("/"));
+        final OMEZarrS3Opener reader = new OMEZarrS3Opener(serviceEndpoint, signingRegion, bucketName);
+        return reader.readKey(key, sharedQueue);
     }
 }

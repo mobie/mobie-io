@@ -1,5 +1,6 @@
 package de.embl.cba.n5.ome.zarr.openers;
 
+import bdv.util.volatiles.SharedQueue;
 import com.google.gson.GsonBuilder;
 
 import de.embl.cba.n5.ome.zarr.readers.N5OmeZarrReader;
@@ -35,6 +36,18 @@ public class OMEZarrOpener
         N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
         OMEZarrOpener omeZarrOpener = new OMEZarrOpener(filePath);
         return omeZarrOpener.readFile();
+    }
+
+    private SpimData readFile(SharedQueue sharedQueue) throws IOException
+    {
+        N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
+        N5OmeZarrReader reader = new N5OmeZarrReader(this.filePath, new GsonBuilder());
+        HashMap<String, Integer> axesMap = reader.getAxes();
+        N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader, axesMap, sharedQueue);
+        return new SpimData(
+                new File(this.filePath),
+                Cast.unchecked( imageLoader.getSequenceDescription() ),
+                imageLoader.getViewRegistrations());
     }
 
     private SpimData readFile() throws IOException
