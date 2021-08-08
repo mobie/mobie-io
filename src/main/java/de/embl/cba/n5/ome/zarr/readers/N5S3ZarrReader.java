@@ -53,12 +53,14 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
     private final String serviceEndpoint;
     protected String dimensionSeparator;
     private ZarrAxes zarrAxes;
+    private N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
 
     public N5S3ZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
         super(s3, bucketName, containerPath, N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
         this.serviceEndpoint = serviceEndpoint; // for debugging
         this.dimensionSeparator = dimensionSeparator;
         mapN5DatasetAttributes = true;
+        this.n5ZarrImageReaderHelper = new N5ZarrImageReaderHelper(N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
     }
 
     public ZarrAxes getAxes() {
@@ -159,15 +161,16 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
 
         JsonElement dimSep = attributes.get("dimension_separator");
         this.dimensionSeparator = dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
-        return new ZArrayAttributes(
-                attributes.get("zarr_format").getAsInt(),
-                gson.fromJson(attributes.get("shape"), long[].class),
-                gson.fromJson(attributes.get("chunks"), int[].class),
-                gson.fromJson(attributes.get("dtype"), DType.class),
-                gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
-                attributes.get("fill_value").getAsString(),
-                attributes.get("order").getAsCharacter(),
-                gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
+        return n5ZarrImageReaderHelper.getN5DatasetAttributes(pathName, attributes);
+//        return new ZArrayAttributes(
+//                attributes.get("zarr_format").getAsInt(),
+//                gson.fromJson(attributes.get("shape"), long[].class),
+//                gson.fromJson(attributes.get("chunks"), int[].class),
+//                gson.fromJson(attributes.get("dtype"), DType.class),
+//                gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
+//                attributes.get("fill_value").getAsString(),
+//                attributes.get("order").getAsCharacter(),
+//                gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
     }
 
     @Override
@@ -213,12 +216,14 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         }
         getDimensions(attributes);
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
-
             final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
-            attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
-            attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
-            attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
-            attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
+            n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);
+
+//            final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
+//            attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
+//            attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
+//            attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
+//            attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
         }
 
         return attributes;

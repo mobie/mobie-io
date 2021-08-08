@@ -747,7 +747,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             }
 
             try {
-                System.out.println("dataBlockIndices" + Arrays.toString(dataBlockIndices));
+//                System.out.println("dataBlockIndices" + Arrays.toString(dataBlockIndices));
                 block = n5.readBlock(pathName, attributes, dataBlockIndices);
             } catch (SdkClientException e) {
                 System.err.println(e); // this happens sometimes, not sure yet why...

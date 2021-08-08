@@ -151,44 +151,6 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         this(basePath, new GsonBuilder());
     }
 
-    /**
-     * Constructs the path for a data block in a dataset at a given grid position.
-     * <p>
-     * The returned path is
-     * <pre>
-     * $datasetPathName/$gridPosition[n]$dimensionSeparator$gridPosition[n-1]$dimensionSeparator[...]$dimensionSeparator$gridPosition[0]
-     * </pre>
-     * <p>
-     * This is the file into which the data block will be stored.
-     *
-     * @param datasetPathName
-     * @param gridPosition
-     * @param dimensionSeparator
-     * @return
-     */
-    protected static Path getZarrDataBlockPath(
-            final long[] gridPosition,
-            final String dimensionSeparator,
-            final boolean isRowMajor) {
-
-        final StringBuilder pathStringBuilder = new StringBuilder();
-        if (isRowMajor) {
-            pathStringBuilder.append(gridPosition[gridPosition.length - 1]);
-            for (int i = gridPosition.length - 2; i >= 0; --i) {
-                pathStringBuilder.append(dimensionSeparator);
-                pathStringBuilder.append(gridPosition[i]);
-            }
-        } else {
-            pathStringBuilder.append(gridPosition[0]);
-            for (int i = 1; i < gridPosition.length; ++i) {
-                pathStringBuilder.append(dimensionSeparator);
-                pathStringBuilder.append(gridPosition[i]);
-            }
-        }
-        System.out.println("Path" + Paths.get(pathStringBuilder.toString()));
-        return Paths.get(pathStringBuilder.toString());
-    }
-
     @Override
     public Version getVersion() throws IOException {
 
@@ -369,10 +331,10 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         Path path = Paths.get(
                 basePath,
                 removeLeadingSlash(pathName),
-                getZarrDataBlockPath(
+                getZarrDataBlockString(
                         gridPosition,
                         dimensionSeparator,
-                        zarrDatasetAttributes.isRowMajor()).toString());
+                        zarrDatasetAttributes.isRowMajor()));
         if (!Files.exists(path)) {
             return null;
         }

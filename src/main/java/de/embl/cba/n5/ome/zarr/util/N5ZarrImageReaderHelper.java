@@ -19,7 +19,9 @@ import java.util.HashMap;
 
 public class N5ZarrImageReaderHelper extends N5FSReader {
 
-
+    public N5ZarrImageReaderHelper(GsonBuilder gsonBuilder) throws IOException {
+        super("", gsonBuilder);
+    }
     public N5ZarrImageReaderHelper(String basePath, GsonBuilder gsonBuilder) throws IOException {
         super(basePath, gsonBuilder);
     }
