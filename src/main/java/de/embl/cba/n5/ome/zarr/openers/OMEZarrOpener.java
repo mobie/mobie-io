@@ -37,6 +37,13 @@ public class OMEZarrOpener
         OMEZarrOpener omeZarrOpener = new OMEZarrOpener(filePath);
         return omeZarrOpener.readFile();
     }
+    public static SpimData openFile(String filePath, SharedQueue sharedQueue) throws IOException
+    {
+        setLogChunkLoading(true);
+        N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
+        OMEZarrOpener omeZarrOpener = new OMEZarrOpener(filePath);
+        return omeZarrOpener.readFile(sharedQueue);
+    }
 
     private SpimData readFile(SharedQueue sharedQueue) throws IOException
     {
