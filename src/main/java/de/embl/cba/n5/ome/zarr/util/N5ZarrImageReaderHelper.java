@@ -9,7 +9,6 @@ import org.janelia.saalfeldlab.n5.GsonAttributesParser;
 import org.janelia.saalfeldlab.n5.N5FSReader;
 import org.janelia.saalfeldlab.n5.zarr.DType;
 import org.janelia.saalfeldlab.n5.zarr.Filter;
-import org.janelia.saalfeldlab.n5.zarr.ZArrayAttributes;
 import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
 import org.jetbrains.annotations.NotNull;
 

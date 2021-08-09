@@ -27,8 +27,9 @@ package de.embl.cba.n5.ome.zarr.readers;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
 import de.embl.cba.n5.ome.zarr.util.*;
+import de.embl.cba.n5.ome.zarr.util.ZArrayAttributes;
+import de.embl.cba.n5.ome.zarr.util.ZarrDatasetAttributes;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.GsonAttributesParser;
@@ -36,12 +37,12 @@ import org.janelia.saalfeldlab.n5.N5FSReader;
 import org.janelia.saalfeldlab.n5.zarr.*;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -205,33 +206,40 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         return N5ZarrImageReader.super.getZarrDataBlockString(gridPosition, dimensionSeparator, isRowMajor);
     }
 
-    public ZArrayAttributes getZArraryAttributes(final String pathName) throws IOException {
+    public ZArrayAttributes getZArrayAttributes(final String pathName) throws IOException {
 
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
-        final HashMap<String, JsonElement> attributes = new HashMap<>();
-
+//        final HashMap<String, JsonElement> attributes = new HashMap<>();
+        OmeZArrayAttributes zArrayAttributes = null;
         if (Files.exists(path)) {
 
-            try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
-                attributes.putAll(
-                        GsonAttributesParser.readAttributes(
-                                Channels.newReader(
-                                        lockedFileChannel.getFileChannel(),
-                                        StandardCharsets.UTF_8.name()),
-                                gson));
+//            try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
+//                attributes.putAll(
+//                        GsonAttributesParser.readAttributes(
+//                                Channels.newReader(
+//                                        lockedFileChannel.getFileChannel(),
+//                                        StandardCharsets.UTF_8.name()),
+//                                gson));
+            try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path);
+                 final Reader reader = Channels.newReader(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name()) ) {
+                         zArrayAttributes = gson.fromJson(reader, OmeZArrayAttributes.class);
             }
         } else System.out.println(path + " does not exist.");
 
-        JsonElement dimSep = attributes.get("dimension_separator");
-        this.dimensionSeparator = dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
+//        JsonElement dimSep = attributes.get("dimension_separator");
+//        this.dimensionSeparator = dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
+//
+//        return n5ZarrImageReaderHelper.getN5DatasetAttributes(pathName, attributes);
+        this.dimensionSeparator = zArrayAttributes == null || zArrayAttributes.getDimensionSeparator() == null ?
+                DEFAULT_SEPARATOR : zArrayAttributes.getDimensionSeparator();
 
-        return n5ZarrImageReaderHelper.getN5DatasetAttributes(pathName, attributes);
+        return zArrayAttributes;
     }
 
     @Override
     public DatasetAttributes getDatasetAttributes(final String pathName) throws IOException {
 
-        final ZArrayAttributes zArrayAttributes = getZArraryAttributes(pathName);
+        final ZArrayAttributes zArrayAttributes = getZArrayAttributes(pathName);
         return zArrayAttributes == null ? null : zArrayAttributes.getDatasetAttributes();
     }
 
@@ -281,7 +289,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
 
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
-            final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
+            final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
                     n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);
 
 
@@ -326,7 +334,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         if (datasetAttributes instanceof ZarrDatasetAttributes)
             zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
         else
-            zarrDatasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
+            zarrDatasetAttributes = (ZarrDatasetAttributes) getZArrayAttributes(pathName).getDatasetAttributes();
 
         Path path = Paths.get(
                 basePath,

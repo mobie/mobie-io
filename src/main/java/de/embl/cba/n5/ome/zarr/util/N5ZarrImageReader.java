@@ -3,12 +3,8 @@ package de.embl.cba.n5.ome.zarr.util;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
-import org.janelia.saalfeldlab.n5.BlockReader;
-import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
-import org.janelia.saalfeldlab.n5.DataBlock;
-import org.janelia.saalfeldlab.n5.N5Reader;
+import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.zarr.DType;
-import org.janelia.saalfeldlab.n5.zarr.ZArrayAttributes;
 import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
 import org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes;
 
@@ -16,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+
+import static de.embl.cba.n5.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
 public interface N5ZarrImageReader extends N5Reader {
     String DEFAULT_SEPARATOR = ".";
@@ -29,7 +27,9 @@ public interface N5ZarrImageReader extends N5Reader {
         gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
         gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
         gsonBuilder.serializeNulls();
-
+        gsonBuilder.registerTypeAdapter(ZarrAxes.class, new ZarrAxesAdapter());
+        gsonBuilder.registerTypeAdapter(N5Reader.Version.class, new VersionAdapter());
+        gsonBuilder.setPrettyPrinting();
         return gsonBuilder;
     }
 
@@ -47,7 +47,7 @@ public interface N5ZarrImageReader extends N5Reader {
 //        final ZArrayAttributes zArrayAttributes = getZArraryAttributes(pathName);
 //        return zArrayAttributes == null ? null : zArrayAttributes.getDatasetAttributes();
 //    }
-
+//////////////////////////////////////////////////////TODO:
     default void getDimensions(HashMap<String, JsonElement> attributes) {
         JsonElement multiscales = attributes.get("multiscales");
         if (multiscales != null) {
@@ -62,7 +62,7 @@ public interface N5ZarrImageReader extends N5Reader {
         return ZarrAxes.decode(axesJson.toString()) != null;
     }
 
-    ZArrayAttributes getZArraryAttributes(final String pathName) throws IOException;
+    ZArrayAttributes getZArrayAttributes(final String pathName) throws IOException;
 
     boolean datasetExists(final String pathName) throws IOException;
 

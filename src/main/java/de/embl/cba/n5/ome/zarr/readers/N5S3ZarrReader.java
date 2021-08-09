@@ -29,18 +29,16 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
 import de.embl.cba.n5.ome.zarr.util.*;
+import de.embl.cba.n5.ome.zarr.util.ZarrDatasetAttributes;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.GsonAttributesParser;
 import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
-import org.janelia.saalfeldlab.n5.zarr.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collection;
 import java.util.HashMap;
 
 
@@ -150,7 +148,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         return exists(objectFile(pathName, zgroupFile));
     }
 
-    public ZArrayAttributes getZArraryAttributes(final String pathName) throws IOException {
+    public ZArrayAttributes getZArrayAttributes(final String pathName) throws IOException {
         final String path = objectFile(pathName, zarrayFile);
         HashMap<String, JsonElement> attributes = readJson(path);
 
@@ -175,7 +173,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
 
     @Override
     public DatasetAttributes getDatasetAttributes(final String pathName) throws IOException {
-        final ZArrayAttributes zArrayAttributes = getZArraryAttributes(pathName);
+        final ZArrayAttributes zArrayAttributes = getZArrayAttributes(pathName);
         return zArrayAttributes == null ? null : zArrayAttributes.getDatasetAttributes();
     }
 
@@ -216,7 +214,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         }
         getDimensions(attributes);
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
-            final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
+            final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
             n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);
 
 //            final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
@@ -238,7 +236,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         if (datasetAttributes instanceof ZarrDatasetAttributes)
             zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
         else
-            zarrDatasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
+            zarrDatasetAttributes = (ZarrDatasetAttributes) getZArrayAttributes(pathName).getDatasetAttributes();
 
         final String dataBlockKey =
                 objectFile(pathName,
