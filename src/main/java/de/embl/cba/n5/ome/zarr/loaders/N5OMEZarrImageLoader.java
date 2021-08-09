@@ -39,6 +39,7 @@ import bdv.util.MipmapTransforms;
 import com.amazonaws.SdkClientException;
 import de.embl.cba.n5.ome.zarr.readers.N5OmeZarrReader;
 import de.embl.cba.n5.ome.zarr.readers.N5S3ZarrReader;
+import de.embl.cba.n5.ome.zarr.util.N5OMEZarrCacheArrayLoader;
 import de.embl.cba.n5.ome.zarr.util.OmeZarrMultiscales;
 import de.embl.cba.n5.ome.zarr.util.ZarrAxes;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
@@ -447,7 +448,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
     private SimpleCacheArrayLoader<?> createCacheArrayLoader(final N5Reader n5, final String pathName, int channel, int timepointId, CellGrid grid) throws IOException {
         final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
-        return new N5OMEZarrCacheArrayLoader<>(n5, pathName, channel, timepointId, attributes, grid);
+        return new N5OMEZarrCacheArrayLoader<>(n5, pathName, channel, timepointId, attributes, grid, zarrAxes);
     }
 
     private class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & NativeType<V>>
@@ -574,202 +575,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                         new ConstantRandomAccessible<>(type.createVariable(), 3),
                         new FinalInterval(1, 1, 1));
             }
-        }
-    }
-
-    private class ArrayCreator<A, T extends NativeType<T>> {
-        private final CellGrid cellGrid;
-        private final DataType dataType;
-        private final BiConsumer<ArrayImg<T, ?>, DataBlock<?>> copyFromBlock;
-
-        public ArrayCreator(CellGrid cellGrid, DataType dataType) {
-            this.cellGrid = cellGrid;
-            this.dataType = dataType;
-            this.copyFromBlock = N5CellLoader.createCopy(dataType);
-        }
-
-        public A createArray(DataBlock<?> dataBlock, long[] gridPosition) {
-            long[] cellDims = getCellDims(gridPosition);
-            int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
-
-            if (zarrAxes.is2D())
-                cellDims = Arrays.stream(cellDims).limit(2).toArray();
-
-            switch (dataType) {
-                case UINT8:
-                case INT8:
-                    byte[] bytes = new byte[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.bytes(bytes, cellDims)), dataBlock);
-                    return (A) new VolatileByteArray(bytes, true);
-                case UINT16:
-                case INT16:
-                    short[] shorts = new short[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.shorts(shorts, cellDims)), dataBlock);
-                    return (A) new VolatileShortArray(shorts, true);
-                case UINT32:
-                case INT32:
-                    int[] ints = new int[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.ints(ints, cellDims)), dataBlock);
-                    return (A) new VolatileIntArray(ints, true);
-                case UINT64:
-                case INT64:
-                    long[] longs = new long[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.longs(longs, cellDims)), dataBlock);
-                    return (A) new VolatileLongArray(longs, true);
-                case FLOAT32:
-                    float[] floats = new float[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.floats(floats, cellDims)), dataBlock);
-                    return (A) new VolatileFloatArray(floats, true);
-                case FLOAT64:
-                    double[] doubles = new double[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.doubles(doubles, cellDims)), dataBlock);
-                    return (A) new VolatileDoubleArray(doubles, true);
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-
-        public A createEmptyArray(long[] gridPosition) {
-            long[] cellDims = getCellDims(gridPosition);
-            int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
-            switch (dataType) {
-                case UINT8:
-                case INT8:
-                    return Cast.unchecked(new VolatileByteArray(new byte[n], true));
-                case UINT16:
-                case INT16:
-                    return Cast.unchecked(new VolatileShortArray(new short[n], true));
-                case UINT32:
-                case INT32:
-                    return Cast.unchecked(new VolatileIntArray(new int[n], true));
-                case UINT64:
-                case INT64:
-                    return Cast.unchecked(new VolatileLongArray(new long[n], true));
-                case FLOAT32:
-                    return Cast.unchecked(new VolatileFloatArray(new float[n], true));
-                case FLOAT64:
-                    return Cast.unchecked(new VolatileDoubleArray(new double[n], true));
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-
-        private long[] getCellDims(long[] gridPosition) {
-            long[] cellMin = new long[3];
-            int[] cellDims = new int[3];
-
-            if (zarrAxes.is4DWithChannels() || zarrAxes.is4DWithTimepoints()) {
-                cellMin = new long[4];
-                cellDims = new int[4];
-                cellDims[3] = 1; // channel
-            }
-
-            if (zarrAxes.is4DWithTimepointsAndChannels()) {
-                cellMin = new long[4];
-                cellDims = new int[4];
-                cellDims[2] = 1; // channel
-                cellDims[3] = 1; // timepoint
-            }
-            if (zarrAxes.is5D()) {
-                cellMin = new long[5];
-                cellDims = new int[5];
-                cellDims[3] = 1; // channel
-                cellDims[4] = 1; // timepoint
-            }
-
-            cellGrid.getCellDimensions(gridPosition, cellMin, cellDims);
-            return Arrays.stream(cellDims).mapToLong(i -> i).toArray(); // casting to long for creating ArrayImgs.*
-        }
-    }
-
-    private class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
-        private final N5Reader n5;
-        private final String pathName;
-        private final int channel;
-        private final int timepoint;
-        private final DatasetAttributes attributes;
-        private final ArrayCreator<A, ?> arrayCreator;
-
-        N5OMEZarrCacheArrayLoader(final N5Reader n5, final String pathName, final int channel, final int timepoint, final DatasetAttributes attributes, CellGrid grid) {
-            this.n5 = n5;
-            this.pathName = pathName; // includes the level
-            this.channel = channel;
-            this.timepoint = timepoint;
-            this.attributes = attributes;
-            this.arrayCreator = new ArrayCreator<>(grid, attributes.getDataType());
-        }
-
-        @Override
-        public A loadArray(final long[] gridPosition) throws IOException {
-            DataBlock<?> block = null;
-
-            long[] dataBlockIndices = toDataBlockIndices(gridPosition);
-
-            long start = 0;
-            if (logChunkLoading) {
-                start = System.currentTimeMillis();
-                System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + " ...");
-            }
-
-            try {
-//                System.out.println("dataBlockIndices" + Arrays.toString(dataBlockIndices));
-                block = n5.readBlock(pathName, attributes, dataBlockIndices);
-            } catch (SdkClientException e) {
-                System.err.println(e); // this happens sometimes, not sure yet why...
-            }
-
-            if (logChunkLoading) {
-                if (block != null)
-                    System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + " fetched " + block.getNumElements() + " voxels in " + (System.currentTimeMillis() - start) + " ms.");
-                else
-                    System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + " is missing, returning zeros.");
-            }
-
-            if (block == null) {
-                return arrayCreator.createEmptyArray(gridPosition);
-            } else {
-                return arrayCreator.createArray(block, gridPosition);
-            }
-        }
-
-        private long[] toDataBlockIndices(long[] gridPosition) {
-            long[] dataBlockIndices = gridPosition;
-
-            if (zarrAxes.is2D()) {
-                dataBlockIndices = new long[2];
-                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 2);
-            }
-
-            if (zarrAxes.is4DWithTimepointsAndChannels()) {
-                dataBlockIndices = new long[4];
-                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 2);
-                dataBlockIndices[2] = channel;
-                dataBlockIndices[3] = timepoint;
-            }
-
-            if (zarrAxes.is5D()) {
-                dataBlockIndices = new long[5];
-                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
-                dataBlockIndices[3] = channel;
-                dataBlockIndices[4] = timepoint;
-            }
-
-            if (zarrAxes.is4DWithChannels()) {
-                dataBlockIndices = new long[4];
-                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
-                dataBlockIndices[3] = channel;
-            }
-
-            if (zarrAxes.is4DWithTimepoints()) {
-                dataBlockIndices = new long[4];
-                System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);
-                dataBlockIndices[3] = timepoint;
-            }
-
-            if (dataBlockIndices == null)
-                throw new RuntimeException("Could not determine the data block to be loaded.");
-
-            return dataBlockIndices;
         }
     }
 }
