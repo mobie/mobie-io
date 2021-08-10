@@ -20,15 +20,14 @@ import org.scijava.ui.behaviour.util.Behaviours;
 import java.lang.reflect.Method;
 
 public abstract class Sources {
-    public static <R extends NumericType<R> & RealType<R>> SourceAndConverter<R> replaceConverter(SourceAndConverter<?> source, Converter<RealType, ARGBType> converter) {
-        LabelSource<R> labelVolatileSource = new LabelSource(source.asVolatile().getSpimSource());
-        SourceAndConverter volatileSourceAndConverter = new SourceAndConverter(labelVolatileSource, converter);
-        LabelSource<R> labelSource = new LabelSource(source.getSpimSource());
-        SourceAndConverter sourceAndConverter = new SourceAndConverter(labelSource, converter, volatileSourceAndConverter);
-        return sourceAndConverter;
+    public static <R extends NumericType<R> & RealType<R>> SourceAndConverter<R> replaceConverter(SourceAndConverter<?> source, Converter<RealType<?>, ARGBType> converter) {
+        LabelSource<?> labelVolatileSource = new LabelSource(source.asVolatile().getSpimSource());
+        SourceAndConverter<?> volatileSourceAndConverter = new SourceAndConverter(labelVolatileSource, converter);
+        LabelSource<?> labelSource = new LabelSource(source.getSpimSource());
+        return new SourceAndConverter(labelSource, converter, volatileSourceAndConverter);
     }
 
-    public static <R extends NumericType<R> & RealType<R>> BdvStackSource<R> showAsLabelMask(BdvStackSource<?> bdvStackSource) {
+    public static <R extends NumericType<R> & RealType<R>> BdvStackSource<?> showAsLabelMask(BdvStackSource<?> bdvStackSource) {
         LabelConverter converter = new LabelConverter();
         SourceAndConverter<R> sac = replaceConverter(bdvStackSource.getSources().get(0), converter);
         BdvHandle bdvHandle = bdvStackSource.getBdvHandle();
@@ -39,7 +38,7 @@ public abstract class Sources {
         try {
             Method method = BdvFunctions.class.getDeclaredMethod("addSpimDataSource", BdvHandle.class, SourceAndConverter.class, int.class);
             method.setAccessible(true);
-            BdvStackSource<R> newBdvStackSource = (BdvStackSource<R>) method.invoke("addSpimDataSource", bdvHandle, sac, 1);
+            BdvStackSource<?> newBdvStackSource = (BdvStackSource<?>) method.invoke("addSpimDataSource", bdvHandle, sac, 1);
 
             Behaviours behaviours = new Behaviours(new InputTriggerConfig());
             behaviours.install(bdvHandle.getTriggerbindings(), "label source " + sac.getSpimSource().getName());

@@ -36,7 +36,7 @@ import net.imglib2.display.ColorConverter;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 
-public class LabelConverter implements Converter<RealType, ARGBType>, ColorConverter {
+public class LabelConverter implements Converter<RealType<?>, ARGBType>, ColorConverter {
     private final LazyCategoryColoringModel<Double> coloringModel;
     private ARGBType singleColor;
     private double max = 500;
@@ -48,7 +48,8 @@ public class LabelConverter implements Converter<RealType, ARGBType>, ColorConve
     @Override
     public void convert(RealType label, ARGBType color) {
         if (label instanceof Volatile) {
-            if (!((Volatile) label).isValid()) {
+            Volatile<?> volatileLabel = (Volatile<?>) label;
+            if (!(volatileLabel).isValid()) {
                 color.set(0);
                 return;
             }
