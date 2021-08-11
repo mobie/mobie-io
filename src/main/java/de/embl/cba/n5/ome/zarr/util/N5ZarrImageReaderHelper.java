@@ -37,19 +37,6 @@ public class N5ZarrImageReaderHelper extends N5FSReader {
                 gson);
     }
 
-    @NotNull
-    public ZArrayAttributes getZarrAttributes(final HashMap<String, JsonElement> attributes) {
-        return new ZArrayAttributes(
-                attributes.get("zarr_format").getAsInt(),
-                gson.fromJson(attributes.get("shape"), long[].class),
-                gson.fromJson(attributes.get("chunks"), int[].class),
-                gson.fromJson(attributes.get("dtype"), DType.class),
-                gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
-                attributes.get("fill_value").getAsString(),
-                attributes.get("order").getAsCharacter(),
-                gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
-    }
-
     public Version getVersionFromAttributes(HashMap<String, JsonElement> attributes) throws IOException {
         final Integer zarr_format = GsonAttributesParser.parseAttribute(
                 attributes,
@@ -61,9 +48,6 @@ public class N5ZarrImageReaderHelper extends N5FSReader {
         else
             return null;
     }
-//    void setGson(Gson newGson) {
-//        gson. = newGson;
-//    }
 
     public ZArrayAttributes getN5DatasetAttributes(String pathName, @NotNull HashMap<String, JsonElement> attributes) throws IOException {
             return new ZArrayAttributes(

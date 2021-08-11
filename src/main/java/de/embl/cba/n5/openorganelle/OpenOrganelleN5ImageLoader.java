@@ -36,6 +36,7 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
+import de.embl.cba.n5.util.ArrayCreator;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
@@ -405,81 +406,19 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
         String[] units;
     }
 
-    private static class ArrayCreator<A, T extends NativeType<T>> {
-        private final CellGrid cellGrid;
-        private final DataType dataType;
-        private final BiConsumer<ArrayImg<T, ?>, DataBlock<?>> copyFromBlock;
-
-        public ArrayCreator(CellGrid cellGrid, DataType dataType) {
-            this.cellGrid = cellGrid;
-            this.dataType = dataType;
-            this.copyFromBlock = N5CellLoader.createCopy(dataType);
+    private static class OrganelleArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
+        public OrganelleArrayCreator(CellGrid cellGrid, DataType dataType) {
+           super(cellGrid, dataType);
         }
 
         public A createArray(DataBlock<?> dataBlock, long[] gridPosition) {
             long[] cellDims = getCellDims(gridPosition);
             int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
-
-            switch (dataType) {
-                case UINT8:
-                case INT8:
-                    byte[] bytes = new byte[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.bytes(bytes, cellDims)), dataBlock);
-                    return (A) new VolatileByteArray(bytes, true);
-                case UINT16:
-                case INT16:
-                    short[] shorts = new short[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.shorts(shorts, cellDims)), dataBlock);
-                    return (A) new VolatileShortArray(shorts, true);
-                case UINT32:
-                case INT32:
-                    int[] ints = new int[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.ints(ints, cellDims)), dataBlock);
-                    return (A) new VolatileIntArray(ints, true);
-                case UINT64:
-                case INT64:
-                    long[] longs = new long[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.longs(longs, cellDims)), dataBlock);
-                    return (A) new VolatileLongArray(longs, true);
-                case FLOAT32:
-                    float[] floats = new float[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.floats(floats, cellDims)), dataBlock);
-                    return (A) new VolatileFloatArray(floats, true);
-                case FLOAT64:
-                    double[] doubles = new double[n];
-                    copyFromBlock.accept(Cast.unchecked(ArrayImgs.doubles(doubles, cellDims)), dataBlock);
-                    return (A) new VolatileDoubleArray(doubles, true);
-                default:
-                    throw new IllegalArgumentException();
-            }
+            return (A) VolatileDoubleArray(dataBlock, cellDims, n);
         }
 
-        public A createEmptyArray(long[] gridPosition) {
-            long[] cellDims = getCellDims(gridPosition);
-            int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
-            switch (dataType) {
-                case UINT8:
-                case INT8:
-                    return Cast.unchecked(new VolatileByteArray(new byte[n], true));
-                case UINT16:
-                case INT16:
-                    return Cast.unchecked(new VolatileShortArray(new short[n], true));
-                case UINT32:
-                case INT32:
-                    return Cast.unchecked(new VolatileIntArray(new int[n], true));
-                case UINT64:
-                case INT64:
-                    return Cast.unchecked(new VolatileLongArray(new long[n], true));
-                case FLOAT32:
-                    return Cast.unchecked(new VolatileFloatArray(new float[n], true));
-                case FLOAT64:
-                    return Cast.unchecked(new VolatileDoubleArray(new double[n], true));
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-
-        private long[] getCellDims(long[] gridPosition) {
+        @Override
+        public long[] getCellDims(long[] gridPosition) {
             long[] cellMin = new long[3];
             int[] cellDims = new int[3];
             cellGrid.getCellDimensions(gridPosition, cellMin, cellDims);
@@ -491,13 +430,13 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
         private final N5Reader n5;
         private final String pathName;
         private final DatasetAttributes attributes;
-        private final ArrayCreator<A, ?> arrayCreator;
+        private final OrganelleArrayCreator<A, ?> arrayCreator;
 
         N5CacheArrayLoader(final N5Reader n5, final String pathName, final DatasetAttributes attributes, CellGrid grid) {
             this.n5 = n5;
             this.pathName = pathName;
             this.attributes = attributes;
-            this.arrayCreator = new ArrayCreator<>(grid, attributes.getDataType());
+            this.arrayCreator = new OrganelleArrayCreator<>(grid, attributes.getDataType());
         }
 
         @Override
@@ -516,7 +455,7 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
 //				System.out.println( pathName + " " + Arrays.toString( gridPosition ) + " NaN" );
 
             if (block == null) {
-                return arrayCreator.createEmptyArray(gridPosition);
+                return (A) arrayCreator.createEmptyArray(gridPosition);
             } else {
                 return arrayCreator.createArray(block, gridPosition);
             }

@@ -1,5 +1,6 @@
-package de.embl.cba.n5.ome.zarr.util;
+package de.embl.cba.n5.util;
 
+import de.embl.cba.n5.ome.zarr.util.ZarrAxes;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.basictypeaccess.volatiles.array.*;
@@ -9,30 +10,24 @@ import net.imglib2.util.Cast;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.imglib2.N5CellLoader;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 
-public class ArrayCreator<A, T extends NativeType<T>> {
-    private final CellGrid cellGrid;
-    private final DataType dataType;
-    private final BiConsumer<ArrayImg<T, ?>, DataBlock<?>> copyFromBlock;
-    private final ZarrAxes zarrAxes;
+public abstract class ArrayCreator<A, T extends NativeType<T>> {
+    protected final CellGrid cellGrid;
+    protected final DataType dataType;
+    protected final BiConsumer<ArrayImg<T, ?>, DataBlock<?>> copyFromBlock;
 
-    public ArrayCreator(CellGrid cellGrid, DataType dataType, ZarrAxes zarrAxes) {
+    public ArrayCreator(CellGrid cellGrid, DataType dataType) {
         this.cellGrid = cellGrid;
         this.dataType = dataType;
         this.copyFromBlock = N5CellLoader.createCopy(dataType);
-        this.zarrAxes = zarrAxes;
     }
 
-    public A createArray(DataBlock<?> dataBlock, long[] gridPosition) {
-        long[] cellDims = getCellDims(gridPosition);
-        int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
-
-        if (zarrAxes.is2D())
-            cellDims = Arrays.stream(cellDims).limit(2).toArray();
-
+    @NotNull
+    public A VolatileDoubleArray(DataBlock<?> dataBlock, long[] cellDims, int n) {
         switch (dataType) {
             case UINT8:
             case INT8:
@@ -92,30 +87,7 @@ public class ArrayCreator<A, T extends NativeType<T>> {
         }
     }
 
-    private long[] getCellDims(long[] gridPosition) {
-        long[] cellMin = new long[3];
-        int[] cellDims = new int[3];
-
-        if (zarrAxes.is4DWithChannels() || zarrAxes.is4DWithTimepoints()) {
-            cellMin = new long[4];
-            cellDims = new int[4];
-            cellDims[3] = 1; // channel
-        }
-
-        if (zarrAxes.is4DWithTimepointsAndChannels()) {
-            cellMin = new long[4];
-            cellDims = new int[4];
-            cellDims[2] = 1; // channel
-            cellDims[3] = 1; // timepoint
-        }
-        if (zarrAxes.is5D()) {
-            cellMin = new long[5];
-            cellDims = new int[5];
-            cellDims[3] = 1; // channel
-            cellDims[4] = 1; // timepoint
-        }
-
-        cellGrid.getCellDimensions(gridPosition, cellMin, cellDims);
-        return Arrays.stream(cellDims).mapToLong(i -> i).toArray(); // casting to long for creating ArrayImgs.*
+    public long[] getCellDims(long[] gridPosition) {
+        return null;
     }
 }

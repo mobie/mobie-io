@@ -2,7 +2,6 @@ package de.embl.cba.n5.ome.zarr.util;
 
 import bdv.img.cache.SimpleCacheArrayLoader;
 import com.amazonaws.SdkClientException;
-import de.embl.cba.n5.ome.zarr.loaders.N5OMEZarrImageLoader;
 import net.imglib2.img.cell.CellGrid;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
@@ -19,7 +18,7 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
     private final int channel;
     private final int timepoint;
     private final DatasetAttributes attributes;
-    private final ArrayCreator<A, ?> arrayCreator;
+    private final ZarrArrayCreator<A, ?> zarrArrayCreator;
     private final ZarrAxes zarrAxes;
 
     public N5OMEZarrCacheArrayLoader(final N5Reader n5, final String pathName, final int channel, final int timepoint, final DatasetAttributes attributes, CellGrid grid, ZarrAxes zarrAxes) {
@@ -28,7 +27,7 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         this.channel = channel;
         this.timepoint = timepoint;
         this.attributes = attributes;
-        this.arrayCreator = new ArrayCreator<>(grid, attributes.getDataType(), zarrAxes);
+        this.zarrArrayCreator = new ZarrArrayCreator<>(grid, attributes.getDataType(), zarrAxes);
         this.zarrAxes = zarrAxes;
     }
 
@@ -45,10 +44,9 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         }
 
         try {
-//                System.out.println("dataBlockIndices" + Arrays.toString(dataBlockIndices));
             block = n5.readBlock(pathName, attributes, dataBlockIndices);
         } catch (SdkClientException e) {
-            System.err.println(e); // this happens sometimes, not sure yet why...
+            System.err.println(e.getMessage()); // this happens sometimes, not sure yet why...
         }
 
         if (logChunkLoading) {
@@ -59,9 +57,9 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         }
 
         if (block == null) {
-            return arrayCreator.createEmptyArray(gridPosition);
+            return (A) zarrArrayCreator.createEmptyArray(gridPosition);
         } else {
-            return arrayCreator.createArray(block, gridPosition);
+            return zarrArrayCreator.createArray(block, gridPosition);
         }
     }
 

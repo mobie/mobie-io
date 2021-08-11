@@ -28,13 +28,10 @@ package de.embl.cba.n5.ome.zarr.readers;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import de.embl.cba.n5.ome.zarr.util.*;
-import de.embl.cba.n5.ome.zarr.util.ZArrayAttributes;
-import de.embl.cba.n5.ome.zarr.util.ZarrDatasetAttributes;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.GsonAttributesParser;
 import org.janelia.saalfeldlab.n5.N5FSReader;
-import org.janelia.saalfeldlab.n5.zarr.*;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -209,27 +206,13 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
     public ZArrayAttributes getZArrayAttributes(final String pathName) throws IOException {
 
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
-//        final HashMap<String, JsonElement> attributes = new HashMap<>();
         OmeZArrayAttributes zArrayAttributes = null;
         if (Files.exists(path)) {
-
-//            try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
-//                attributes.putAll(
-//                        GsonAttributesParser.readAttributes(
-//                                Channels.newReader(
-//                                        lockedFileChannel.getFileChannel(),
-//                                        StandardCharsets.UTF_8.name()),
-//                                gson));
             try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path);
                  final Reader reader = Channels.newReader(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name()) ) {
                          zArrayAttributes = gson.fromJson(reader, OmeZArrayAttributes.class);
             }
         } else System.out.println(path + " does not exist.");
-
-//        JsonElement dimSep = attributes.get("dimension_separator");
-//        this.dimensionSeparator = dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
-//
-//        return n5ZarrImageReaderHelper.getN5DatasetAttributes(pathName, attributes);
         this.dimensionSeparator = zArrayAttributes == null || zArrayAttributes.getDimensionSeparator() == null ?
                 DEFAULT_SEPARATOR : zArrayAttributes.getDimensionSeparator();
 
@@ -288,15 +271,8 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         getDimensions(attributes);
 
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
-
             final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
                     n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);
-
-
-//            attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
-//            attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
-//            attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
-//            attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
         }
 
         return attributes;
@@ -334,7 +310,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         if (datasetAttributes instanceof ZarrDatasetAttributes)
             zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
         else
-            zarrDatasetAttributes = (ZarrDatasetAttributes) getZArrayAttributes(pathName).getDatasetAttributes();
+            zarrDatasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
 
         Path path = Paths.get(
                 basePath,
@@ -359,10 +335,10 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         try (final Stream<Path> pathStream = Files.list(path)) {
 
             return pathStream
-                    .filter(a -> Files.isDirectory(a))
+                    .filter(Files::isDirectory)
                     .map(a -> path.relativize(a).toString())
                     .filter(a -> exists(pathName + "/" + a))
-                    .toArray(n -> new String[n]);
+                    .toArray(String[]::new);
         }
     }
 }

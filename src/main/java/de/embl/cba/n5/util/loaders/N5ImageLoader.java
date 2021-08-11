@@ -80,7 +80,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
     /**
      * Maps setup id to {@link SetupImgLoader}.
      */
-    private final Map<Integer, SetupImgLoader> setupImgLoaders = new HashMap<>();
+    private final Map<Integer, SetupImgLoader<?, ?>> setupImgLoaders = new HashMap<>();
 
     private volatile boolean isOpen = false;
     private FetcherThreads fetchers;
@@ -132,9 +132,11 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
                     final List<? extends BasicViewSetup> setups = seq.getViewSetupsOrdered();
                     for (final BasicViewSetup setup : setups) {
                         final int setupId = setup.getId();
-                        final SetupImgLoader setupImgLoader = createSetupImgLoader(setupId);
+                        final SetupImgLoader<?, ?> setupImgLoader = createSetupImgLoader(setupId);
                         setupImgLoaders.put(setupId, setupImgLoader);
-                        maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
+                        if (setupImgLoader != null) {
+                            maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
+                        }
                     }
 
                     final int numFetcherThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
@@ -169,7 +171,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
     }
 
     @Override
-    public SetupImgLoader getSetupImgLoader(final int setupId) {
+    public SetupImgLoader<?, ?> getSetupImgLoader(final int setupId) {
         open();
         return setupImgLoaders.get(setupId);
     }
@@ -222,7 +224,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
         }
 
         @Override
-        public A loadArray(final long[] gridPosition) throws IOException {
+        public A loadArray(final long[] gridPosition) {
             DataBlock<?> block = null;
 
             try {
@@ -300,8 +302,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
             try {
                 final String pathName = getPathName(setupId, timepointId, level);
                 final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
-                FinalDimensions dimensions = new FinalDimensions(attributes.getDimensions());
-                return dimensions;
+                return new FinalDimensions(attributes.getDimensions());
             } catch (Exception e) {
                 return null;
             }
@@ -330,7 +331,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
         /**
          * Create a {@link CellImg} backed by the cache.
          */
-        private <T extends NativeType<T>> RandomAccessibleInterval<T> prepareCachedImage(final int timepointId, final int level, final LoadingStrategy loadingStrategy, final T type) {
+        private <N extends NativeType<N>> RandomAccessibleInterval<N> prepareCachedImage(final int timepointId, final int level, final LoadingStrategy loadingStrategy, final N type) {
             try {
                 final String pathName = getPathName(setupId, timepointId, level);
                 final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
@@ -344,9 +345,9 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
                 final SimpleCacheArrayLoader<?> loader = createCacheArrayLoader(n5, pathName);
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
-                System.err.println(String.format(
-                        "image data for timepoint %d setup %d level %d could not be found.",
-                        timepointId, setupId, level));
+                System.err.printf(
+                        "image data for timepoint %d setup %d level %d could not be found.%n",
+                        timepointId, setupId, level);
                 return Views.interval(
                         new ConstantRandomAccessible<>(type.createVariable(), 3),
                         new FinalInterval(1, 1, 1));

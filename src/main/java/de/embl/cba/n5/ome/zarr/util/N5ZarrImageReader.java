@@ -2,8 +2,10 @@ package de.embl.cba.n5.ome.zarr.util;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-
-import org.janelia.saalfeldlab.n5.*;
+import org.janelia.saalfeldlab.n5.BlockReader;
+import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
+import org.janelia.saalfeldlab.n5.DataBlock;
+import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.zarr.DType;
 import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
 import org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes;
@@ -12,8 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-
-import static de.embl.cba.n5.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
 public interface N5ZarrImageReader extends N5Reader {
     String DEFAULT_SEPARATOR = ".";

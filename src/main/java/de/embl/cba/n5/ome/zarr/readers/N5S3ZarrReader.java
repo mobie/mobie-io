@@ -51,7 +51,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
     private final String serviceEndpoint;
     protected String dimensionSeparator;
     private ZarrAxes zarrAxes;
-    private N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
+    private final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
 
     public N5S3ZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
         super(s3, bucketName, containerPath, N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
@@ -89,10 +89,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
     public String getContainerPath() {
         return containerPath;
     }
-
-    //
-    // Local helpers. May should live elsewhere
-    //
 
     public String getServiceEndpoint() {
         return serviceEndpoint;
@@ -160,15 +156,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         JsonElement dimSep = attributes.get("dimension_separator");
         this.dimensionSeparator = dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
         return n5ZarrImageReaderHelper.getN5DatasetAttributes(pathName, attributes);
-//        return new ZArrayAttributes(
-//                attributes.get("zarr_format").getAsInt(),
-//                gson.fromJson(attributes.get("shape"), long[].class),
-//                gson.fromJson(attributes.get("chunks"), int[].class),
-//                gson.fromJson(attributes.get("dtype"), DType.class),
-//                gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
-//                attributes.get("fill_value").getAsString(),
-//                attributes.get("order").getAsCharacter(),
-//                gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
     }
 
     @Override
@@ -216,14 +203,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
             final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
             n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);
-
-//            final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
-//            attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
-//            attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
-//            attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
-//            attributes.put("compression", gson.toJsonTree(datasetAttributes.getCompression()));
         }
-
         return attributes;
     }
 
@@ -236,7 +216,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         if (datasetAttributes instanceof ZarrDatasetAttributes)
             zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
         else
-            zarrDatasetAttributes = (ZarrDatasetAttributes) getZArrayAttributes(pathName).getDatasetAttributes();
+            zarrDatasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
 
         final String dataBlockKey =
                 objectFile(pathName,
@@ -261,10 +241,6 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
         }
     }
 
-    //
-    // Helpers from N5AmazonS3Reader which could be extracted
-    //
-
     /**
      * Copied from getAttributes but doesn't change the objectPath in anyway.
      * CHANGES: returns null rather than empty hash map
@@ -276,12 +252,11 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
     public HashMap<String, JsonElement> readJson(String objectPath) throws IOException {
         if (!this.s3.doesObjectExist(this.bucketName, objectPath)) {
             return null;
-//			throw new UnsupportedOperationException( this.bucketName + " " + objectPath + " does not exist." );
         } else {
             InputStream in = this.readS3Object(objectPath);
             Throwable var4 = null;
 
-            HashMap var5;
+            HashMap<String, JsonElement>  var5;
             try {
                 var5 = GsonAttributesParser.readAttributes(new InputStreamReader(in), this.gson);
             } catch (Throwable var14) {

@@ -69,10 +69,9 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader<N5S3ImageLoader
     @Override
     public N5S3ImageLoader fromXml(final Element elem, final File basePath, final AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
 //		final String version = elem.getAttributeValue( "version" );
-
-        // We would need to make below work in case we want to enable relative
-        // paths on S3
-        //final File path = loadPath( elem, N5, basePath );
+//         We would need to make below work in case we want to enable relative
+//         paths on S3
+//        final File path = loadPath( elem, N5, basePath );
 
         final String serviceEndpoint = XmlHelpers.getText(elem, SERVICE_ENDPOINT);
         final String signingRegion = XmlHelpers.getText(elem, SIGNING_REGION);

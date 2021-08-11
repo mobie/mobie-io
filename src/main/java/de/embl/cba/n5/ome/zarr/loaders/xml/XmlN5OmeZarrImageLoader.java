@@ -27,8 +27,7 @@ public class XmlN5OmeZarrImageLoader implements XmlIoBasicImgLoader<N5OMEZarrIma
             if (basePath == null)
                 return null;
             else {
-                String xmlPath = basePath.toString();
-                return xmlPath.substring(0, xmlPath.lastIndexOf('/')) + "/" + path;
+                return basePath.substring(0, basePath.lastIndexOf('/')) + "/" + path;
             }
         } else
             return path;
@@ -40,7 +39,7 @@ public class XmlN5OmeZarrImageLoader implements XmlIoBasicImgLoader<N5OMEZarrIma
         elem.setAttribute(IMGLOADER_FORMAT_ATTRIBUTE_NAME, "bdv.ome.zarr");
         elem.setAttribute("version", "0.2");
         N5OmeZarrReader reader = (N5OmeZarrReader) imgLoader.n5;
-        elem.addContent( XmlHelpers.pathElement( OmeZarr, new File( reader.getBasePath() ), basePath ) );
+        elem.addContent(XmlHelpers.pathElement(OmeZarr, new File(reader.getBasePath()), basePath));
         return elem;
     }
 

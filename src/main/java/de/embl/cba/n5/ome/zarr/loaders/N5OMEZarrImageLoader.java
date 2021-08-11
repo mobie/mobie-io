@@ -36,7 +36,6 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
-import com.amazonaws.SdkClientException;
 import de.embl.cba.n5.ome.zarr.readers.N5OmeZarrReader;
 import de.embl.cba.n5.ome.zarr.readers.N5S3ZarrReader;
 import de.embl.cba.n5.ome.zarr.util.N5OMEZarrCacheArrayLoader;
@@ -53,9 +52,6 @@ import net.imglib2.cache.queue.BlockingFetchQueues;
 import net.imglib2.cache.queue.FetcherThreads;
 import net.imglib2.cache.volatiles.CacheHints;
 import net.imglib2.cache.volatiles.LoadingStrategy;
-import net.imglib2.img.array.ArrayImg;
-import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.img.basictypeaccess.volatiles.array.*;
 import net.imglib2.img.cell.CellGrid;
 import net.imglib2.img.cell.CellImg;
 import net.imglib2.realtransform.AffineTransform3D;
@@ -66,19 +62,14 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.type.volatiles.*;
 import net.imglib2.util.Cast;
 import net.imglib2.view.Views;
-import org.janelia.saalfeldlab.n5.DataBlock;
-import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
-import org.janelia.saalfeldlab.n5.imglib2.N5CellLoader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
 
-import static bdv.img.n5.BdvN5Format.getPathName;
 import static de.embl.cba.n5.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
 public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
@@ -90,7 +81,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     /**
      * Maps setup id to {@link SetupImgLoader}.
      */
-    private final Map<Integer, SetupImgLoader> setupImgLoaders = new HashMap<>();
+    private final Map<Integer, SetupImgLoader<?, ?>> setupImgLoaders = new HashMap<>();
     private final Map<Integer, String> setupToPathname = new HashMap<>();
     private final Map<Integer, OmeZarrMultiscales> setupToMultiscale = new HashMap<>();
     private final Map<Integer, DatasetAttributes> setupToAttributes = new HashMap<>();
@@ -170,7 +161,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return timePoints;
     }
 
-    @NotNull
     private void initSetups() throws IOException {
         int setupId = -1;
 
@@ -290,16 +280,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                     final List<? extends BasicViewSetup> setups = seq.getViewSetupsOrdered();
                     for (final BasicViewSetup setup : setups) {
                         final int setupId = setup.getId();
-                        final SetupImgLoader setupImgLoader = createSetupImgLoader(setupId);
+                        final SetupImgLoader<?,?> setupImgLoader = createSetupImgLoader(setupId);
                         setupImgLoaders.put(setupId, setupImgLoader);
-                        maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
+                        if (setupImgLoader != null) {
+                            maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
+                        }
                     }
-
-//                    final int numFetcherThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
-//                    final BlockingFetchQueues<Callable<?>> queue = new BlockingFetchQueues<>(maxNumLevels, numFetcherThreads);
-//                    fetchers = new FetcherThreads(queue, numFetcherThreads);
-//                    cache = new VolatileGlobalCellCache(queue);
-
                     if ( queue == null )
                     {
                         final int numFetcherThreads = Math.max( 1, Runtime.getRuntime().availableProcessors() );
@@ -377,7 +363,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     @Override
-    public SetupImgLoader getSetupImgLoader(final int setupId) {
+    public SetupImgLoader<?, ?> getSetupImgLoader(final int setupId) {
         open();
         return setupImgLoaders.get(setupId);
     }
@@ -478,11 +464,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             OmeZarrMultiscales multiscale = setupToMultiscale.get(setupId);
             double[][] mipmapResolutions = new double[multiscale.datasets.length][];
 
-//Try to fix 2D problem
             long[] dimensionsOfLevel0 = getDatasetAttributes(getPathName(setupId, 0)).getDimensions();
             mipmapResolutions[0] = new double[]{1.0, 1.0, 1.0};
 
-                //Try to fix 2D problem
             for (int level = 1; level < mipmapResolutions.length; level++) {
                 long[] dimensions = getDatasetAttributes(getPathName(setupId, level)).getDimensions();
                 mipmapResolutions[level] = new double[3];

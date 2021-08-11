@@ -31,12 +31,13 @@ package de.embl.cba.n5.ome.zarr.loaders;
 
 import com.amazonaws.services.s3.AmazonS3;
 import de.embl.cba.n5.ome.zarr.readers.N5S3ZarrReader;
+import de.embl.cba.n5.util.loaders.S3ImageLoader;
 import de.embl.cba.tables.S3Utils;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 
 import java.io.IOException;
 
-public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader {
+public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader implements S3ImageLoader {
     private final String serviceEndpoint;
     private final String signingRegion;
     private final String bucketName;
