@@ -61,7 +61,7 @@ import java.util.stream.Stream;
 public class N5ZarrReader extends N5FSReader
 {
 
-	protected static Version VERSION = new Version(2, 0, 0);
+	public static Version VERSION = new Version(2, 0, 0);
 
 	protected static final String zarrayFile = ".zarray";
 	protected static final String zattrsFile = ".zattrs";

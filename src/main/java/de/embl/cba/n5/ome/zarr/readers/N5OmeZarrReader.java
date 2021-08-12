@@ -27,13 +27,9 @@ package de.embl.cba.n5.ome.zarr.readers;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
-import de.embl.cba.n5.ome.zarr.util.ZArrayAttributes;
-import de.embl.cba.n5.ome.zarr.util.ZarrAxes;
-import de.embl.cba.n5.ome.zarr.util.ZarrCompressor;
-import de.embl.cba.n5.ome.zarr.util.ZarrDatasetAttributes;
+import de.embl.cba.n5.ome.zarr.util.*;
+
 import de.embl.cba.n5.util.DType;
-import de.embl.cba.n5.util.Filter;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.Type;
@@ -43,6 +39,7 @@ import org.janelia.saalfeldlab.n5.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
@@ -50,9 +47,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Stream;
+
+import static de.embl.cba.n5.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
 
 /**
@@ -75,6 +74,9 @@ public class N5OmeZarrReader extends N5FSReader {
         gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
         gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
         gsonBuilder.serializeNulls();
+        gsonBuilder.registerTypeAdapter(ZarrAxes.class, new ZarrAxesAdapter());
+        gsonBuilder.registerTypeAdapter(Version.class, new VersionAdapter());
+        gsonBuilder.setPrettyPrinting();
 
         return gsonBuilder;
     }
@@ -87,8 +89,8 @@ public class N5OmeZarrReader extends N5FSReader {
      * {@link GsonBuilder} to support custom attributes.
      *
      * @param basePath Zarr base path
-     * @param gsonBuilder GsonBuilder
-     * @param dimensionSeparator string symbol of dimension separator
+     * @param gsonBuilder
+     * @param dimensionSeparator
      * @param mapN5DatasetAttributes
      * 			Virtually create N5 dataset attributes (dimensions, blockSize,
      * 			compression, dataType) for datasets such that N5 code that
@@ -231,41 +233,28 @@ public class N5OmeZarrReader extends N5FSReader {
         return Files.exists(path) && Files.isRegularFile(path);
     }
 
-    public ZArrayAttributes getZArraryAttributes(final String pathName) throws IOException {
+    public ZArrayAttributes getZArrayAttributes(final String pathName) throws IOException {
 
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
-        final HashMap<String, JsonElement> attributes = new HashMap<>();
 
+        OmeZArrayAttributes zArrayAttributes = null;
         if (Files.exists(path)) {
-
-            try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
-                attributes.putAll(
-                        GsonAttributesParser.readAttributes(
-                                Channels.newReader(
-                                        lockedFileChannel.getFileChannel(),
-                                        StandardCharsets.UTF_8.name()),
-                                gson));
+            try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path);
+                    final Reader reader = Channels.newReader(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name()) ) {
+                zArrayAttributes = gson.fromJson(reader, OmeZArrayAttributes.class);
             }
         } else System.out.println(path + " does not exist.");
 
-        JsonElement dimSep = attributes.get("dimension_separator");
-        this.dimensionSeparator = dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
+        this.dimensionSeparator = zArrayAttributes == null || zArrayAttributes.getDimensionSeparator() == null ?
+                DEFAULT_SEPARATOR : zArrayAttributes.getDimensionSeparator();
 
-        return new ZArrayAttributes(
-                attributes.get("zarr_format").getAsInt(),
-                gson.fromJson(attributes.get("shape"), long[].class),
-                gson.fromJson(attributes.get("chunks"), int[].class),
-                gson.fromJson(attributes.get("dtype"), DType.class),
-                gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
-                attributes.get("fill_value").getAsString(),
-                attributes.get("order").getAsCharacter(),
-                gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
+        return zArrayAttributes;
     }
 
     @Override
     public DatasetAttributes getDatasetAttributes(final String pathName) throws IOException {
 
-        final ZArrayAttributes zArrayAttributes = getZArraryAttributes(pathName);
+        final ZArrayAttributes zArrayAttributes = getZArrayAttributes(pathName);
         return zArrayAttributes == null ? null : zArrayAttributes.getDatasetAttributes();
     }
 
@@ -314,11 +303,11 @@ public class N5OmeZarrReader extends N5FSReader {
             }
         }
 
-        getDimensions(attributes);
+        setAxes(attributes);
 
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
-            final DatasetAttributes datasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
+            final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
             attributes.put("dimensions", gson.toJsonTree(datasetAttributes.getDimensions()));
             attributes.put("blockSize", gson.toJsonTree(datasetAttributes.getBlockSize()));
             attributes.put("dataType", gson.toJsonTree(datasetAttributes.getDataType()));
@@ -328,23 +317,15 @@ public class N5OmeZarrReader extends N5FSReader {
         return attributes;
     }
 
-    private void getDimensions(HashMap<String, JsonElement> attributes) {
-        JsonElement multiscales = attributes.get("multiscales");
-        if (multiscales != null) {
-            JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
-            setAxes(axes);
-        }
-    }
-
-    private boolean axesValid(JsonElement axesJson) {
-        return ZarrAxes.decode(axesJson.toString()) != null;
-    }
-
-    public void setAxes(JsonElement axesJson) {
-        if (axesJson != null && axesValid(axesJson)) {
-            for (int i = 0; i < axesJson.getAsJsonArray().size(); i++) {
-                String elem = axesJson.getAsJsonArray().get(i).getAsString();
-                this.axesMap.put(elem, i);
+    private void setAxes( HashMap<String, JsonElement> attributes ) throws IOException {
+        if ( attributes.size() > 0) {
+            OmeZarrMultiscales multiscale = GsonAttributesParser.parseAttribute(attributes,
+                    MULTI_SCALE_KEY, OmeZarrMultiscales[].class, gson)[0];
+            if (multiscale != null && multiscale.axes != null) {
+                List<String> axisList = multiscale.axes.getAxesList();
+                for (int i = 0; i < axisList.size(); i++) {
+                    this.axesMap.put(axisList.get(i), i);
+                }
             }
         }
     }
@@ -475,7 +456,7 @@ public class N5OmeZarrReader extends N5FSReader {
         if (datasetAttributes instanceof ZarrDatasetAttributes)
             zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
         else
-            zarrDatasetAttributes = getZArraryAttributes(pathName).getDatasetAttributes();
+            zarrDatasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
 
         Path path = Paths.get(
                 basePath,
@@ -484,7 +465,6 @@ public class N5OmeZarrReader extends N5FSReader {
                         gridPosition,
                         dimensionSeparator,
                         zarrDatasetAttributes.isRowMajor()).toString());
-        System.out.println("readBlock path: " + path);
         if (!Files.exists(path)) {
             return null;
         }
@@ -543,7 +523,6 @@ public class N5OmeZarrReader extends N5FSReader {
                 pathStringBuilder.append(gridPosition[i]);
             }
         }
-        System.out.println("Path" + Paths.get(pathStringBuilder.toString()));
         return Paths.get(pathStringBuilder.toString());
     }
 }

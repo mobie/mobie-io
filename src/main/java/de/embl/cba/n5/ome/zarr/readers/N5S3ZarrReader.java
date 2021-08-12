@@ -30,10 +30,7 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import de.embl.cba.n5.ome.zarr.util.ZArrayAttributes;
-import de.embl.cba.n5.ome.zarr.util.ZarrAxes;
-import de.embl.cba.n5.ome.zarr.util.ZarrCompressor;
-import de.embl.cba.n5.ome.zarr.util.ZarrDatasetAttributes;
+import de.embl.cba.n5.ome.zarr.util.*;
 import de.embl.cba.n5.util.DType;
 import de.embl.cba.n5.util.Filter;
 import net.imglib2.Cursor;
@@ -133,6 +130,8 @@ public class N5S3ZarrReader extends N5AmazonS3Reader {
         gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
         gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
         gsonBuilder.serializeNulls();
+        gsonBuilder.registerTypeAdapter(ZarrAxes.class, new ZarrAxesAdapter());
+        gsonBuilder.registerTypeAdapter(Version.class, new VersionAdapter());
 
         return gsonBuilder;
     }

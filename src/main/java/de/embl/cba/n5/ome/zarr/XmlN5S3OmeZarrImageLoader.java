@@ -1,6 +1,5 @@
 package de.embl.cba.n5.ome.zarr;
 
-import de.embl.cba.n5.ome.zarr.loaders.N5OMEZarrImageLoader;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
@@ -9,12 +8,13 @@ import org.jdom2.Element;
 import java.io.File;
 
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
-@ImgLoaderIo(format = "bdv.ome.zarr.s3", type = N5OMEZarrImageLoader.class)
-public class XmlN5S3OmeZarrImageLoader implements XmlIoBasicImgLoader<N5OMEZarrImageLoader>
+
+@ImgLoaderIo(format = "bdv.ome.zarr.s3", type = N5S3OMEZarrImageLoader.class)
+public class XmlN5S3OmeZarrImageLoader implements XmlIoBasicImgLoader<N5S3OMEZarrImageLoader>
 {
 
     @Override
-    public Element toXml( final N5OMEZarrImageLoader imgLoader, final File basePath) {
+    public Element toXml( final N5S3OMEZarrImageLoader imgLoader, final File basePath) {
         final Element elem = new Element("ImageLoader");
         elem.setAttribute(IMGLOADER_FORMAT_ATTRIBUTE_NAME, "bdv.ome.zarr.s3");
         elem.setAttribute("version", "0.2");
@@ -22,7 +22,7 @@ public class XmlN5S3OmeZarrImageLoader implements XmlIoBasicImgLoader<N5OMEZarrI
     }
 
     @Override
-    public N5OMEZarrImageLoader fromXml(Element elem, File basePath, AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
+    public N5S3OMEZarrImageLoader fromXml(Element elem, File basePath, AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
         return null;
     }
 }
