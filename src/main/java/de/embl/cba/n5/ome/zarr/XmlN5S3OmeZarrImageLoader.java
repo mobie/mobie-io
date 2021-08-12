@@ -1,5 +1,6 @@
 package de.embl.cba.n5.ome.zarr;
 
+import de.embl.cba.n5.ome.zarr.loaders.N5S3OMEZarrImageLoader;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
