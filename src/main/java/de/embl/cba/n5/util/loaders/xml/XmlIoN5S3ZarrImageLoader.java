@@ -42,8 +42,6 @@ import java.io.IOException;
 
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
 
-// TODO: avoid code duplication!
-//  this is essentially identical to XmlIoN5S3ImageLoader
 @ImgLoaderIo(format = "ome.n5.zarr.s3", type = N5S3OMEZarrImageLoader.class)
 public class XmlIoN5S3ZarrImageLoader implements XmlIoBasicImgLoader<N5S3OMEZarrImageLoader> {
     public static final String SERVICE_ENDPOINT = "ServiceEndpoint";

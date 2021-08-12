@@ -36,7 +36,6 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
-import de.embl.cba.n5.util.ArrayCreator;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
@@ -48,9 +47,6 @@ import net.imglib2.cache.queue.BlockingFetchQueues;
 import net.imglib2.cache.queue.FetcherThreads;
 import net.imglib2.cache.volatiles.CacheHints;
 import net.imglib2.cache.volatiles.LoadingStrategy;
-import net.imglib2.img.array.ArrayImg;
-import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.img.basictypeaccess.volatiles.array.*;
 import net.imglib2.img.cell.CellGrid;
 import net.imglib2.img.cell.CellImg;
 import net.imglib2.realtransform.AffineTransform3D;
@@ -61,27 +57,21 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.type.volatiles.*;
 import net.imglib2.util.Cast;
 import net.imglib2.view.Views;
-import org.janelia.saalfeldlab.n5.DataBlock;
-import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
-import org.janelia.saalfeldlab.n5.imglib2.N5CellLoader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
 
-// TODO: avoid code duplication!
-//  Check N5OMEZarrImageLoader and N5ImageLoader
 public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
     public static boolean logChunkLoading = false;
     protected final N5Reader n5;
     /**
      * Maps setup id to {@link SetupImgLoader}.
      */
-    private final Map<Integer, SetupImgLoader> setupImgLoaders = new HashMap<>();
+    private final Map<Integer, SetupImgLoader<?, ?>> setupImgLoaders = new HashMap<>();
     private final Map<Integer, String> setupToPathname = new HashMap<>();
     private final Map<Integer, Multiscale> setupToMultiscale = new HashMap<>();
     private final Map<Integer, DatasetAttributes> setupToAttributes = new HashMap<>();
@@ -93,18 +83,6 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
     private FetcherThreads fetchers;
     private VolatileGlobalCellCache cache;
     private int sequenceTimepoints = 0;
-
-    /**
-     * The sequenceDescription and viewRegistrations are known already, typically read from xml.
-     *
-     * @param n5Reader
-     * @param sequenceDescription
-     */
-    @Deprecated
-    public OpenOrganelleN5ImageLoader(N5Reader n5Reader, AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
-        this.n5 = n5Reader;
-        this.seq = sequenceDescription; // TODO: it is better to fetch from within Zarr
-    }
 
     /**
      * The sequenceDescription and viewRegistrations are to be read from the n5 attributes.
@@ -132,7 +110,7 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
             for (int setupId = 0; setupId < numSetups; setupId++) {
                 ViewSetup viewSetup = createViewSetup(setupId);
                 int setupTimepoints = 1;
-                sequenceTimepoints = setupTimepoints > sequenceTimepoints ? setupTimepoints : sequenceTimepoints;
+                sequenceTimepoints = Math.max(setupTimepoints, sequenceTimepoints);
                 viewSetups.add(viewSetup);
                 viewRegistrationList.addAll(createViewRegistrations(setupId, setupTimepoints));
             }
@@ -155,7 +133,6 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
         return timePoints;
     }
 
-    @NotNull
     private void initSetups() throws IOException {
         int setupId = -1;
         double[][] scales = n5.getAttribute("", "scales", double[][].class);
@@ -259,7 +236,7 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
                     final List<? extends BasicViewSetup> setups = seq.getViewSetupsOrdered();
                     for (final BasicViewSetup setup : setups) {
                         final int setupId = setup.getId();
-                        final SetupImgLoader setupImgLoader = createSetupImgLoader(setupId);
+                        final SetupImgLoader<?, ?> setupImgLoader = createSetupImgLoader(setupId);
                         setupImgLoaders.put(setupId, setupImgLoader);
                         if (setupImgLoader != null) {
                             maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
@@ -351,7 +328,7 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
     }
 
     @Override
-    public SetupImgLoader getSetupImgLoader(final int setupId) {
+    public SetupImgLoader<?, ?> getSetupImgLoader(final int setupId) {
         open();
         return setupImgLoaders.get(setupId);
     }
@@ -406,62 +383,6 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
         String[] units;
     }
 
-    private static class OrganelleArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
-        public OrganelleArrayCreator(CellGrid cellGrid, DataType dataType) {
-           super(cellGrid, dataType);
-        }
-
-        public A createArray(DataBlock<?> dataBlock, long[] gridPosition) {
-            long[] cellDims = getCellDims(gridPosition);
-            int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
-            return (A) VolatileDoubleArray(dataBlock, cellDims, n);
-        }
-
-        @Override
-        public long[] getCellDims(long[] gridPosition) {
-            long[] cellMin = new long[3];
-            int[] cellDims = new int[3];
-            cellGrid.getCellDimensions(gridPosition, cellMin, cellDims);
-            return Arrays.stream(cellDims).mapToLong(i -> i).toArray(); // casting to long for creating ArrayImgs.*
-        }
-    }
-
-    private static class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
-        private final N5Reader n5;
-        private final String pathName;
-        private final DatasetAttributes attributes;
-        private final OrganelleArrayCreator<A, ?> arrayCreator;
-
-        N5CacheArrayLoader(final N5Reader n5, final String pathName, final DatasetAttributes attributes, CellGrid grid) {
-            this.n5 = n5;
-            this.pathName = pathName;
-            this.attributes = attributes;
-            this.arrayCreator = new OrganelleArrayCreator<>(grid, attributes.getDataType());
-        }
-
-        @Override
-        public A loadArray(final long[] gridPosition) throws IOException {
-            DataBlock<?> block = null;
-
-            try {
-                block = n5.readBlock(pathName, attributes, gridPosition);
-            } catch (Exception e) {
-                System.err.println("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
-            }
-
-//			if ( block != null )
-//				System.out.println( pathName + " " + Arrays.toString( gridPosition ) + " " + block.getNumElements() );
-//			else
-//				System.out.println( pathName + " " + Arrays.toString( gridPosition ) + " NaN" );
-
-            if (block == null) {
-                return (A) arrayCreator.createEmptyArray(gridPosition);
-            } else {
-                return arrayCreator.createArray(block, gridPosition);
-            }
-        }
-    }
-
     private class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & NativeType<V>>
             extends AbstractViewerSetupImgLoader<T, V>
             implements MultiResolutionSetupImgLoader<T> {
@@ -471,7 +392,7 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
 
         private final AffineTransform3D[] mipmapTransforms;
 
-        public SetupImgLoader(final int setupId, final T type, final V volatileType) throws IOException {
+        public SetupImgLoader(final int setupId, final T type, final V volatileType) {
             super(type, volatileType);
             this.setupId = setupId;
             mipmapResolutions = readMipmapResolutions();
@@ -482,11 +403,9 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
 
         /**
          * @return
-         * @throws IOException
          */
-        private double[][] readMipmapResolutions() throws IOException {
-            double[][] scales = setupToScales.get(setupId);
-            return scales;
+        private double[][] readMipmapResolutions() {
+            return setupToScales.get(setupId);
         }
 
         @Override
@@ -538,7 +457,7 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
         /**
          * Create a {@link CellImg} backed by the cache.
          */
-        private <T extends NativeType<T>> RandomAccessibleInterval<T> prepareCachedImage(final int timepointId, final int level, final LoadingStrategy loadingStrategy, final T type) {
+        private <N extends NativeType<N>> RandomAccessibleInterval<N> prepareCachedImage(final int timepointId, final int level, final LoadingStrategy loadingStrategy, final N type) {
             try {
                 final String pathName = getPathName(setupId, level);
                 final DatasetAttributes attributes = getDatasetAttributes(pathName);

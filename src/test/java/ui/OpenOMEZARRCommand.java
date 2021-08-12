@@ -25,10 +25,10 @@ public class OpenOMEZARRCommand implements Command {
         try {
 //            openAndShow("/home/katerina/Documents/data/v0.3/yx.ome.zarr");
 //            openAndShow("/home/katerina/Documents/data/v0.3/flat_yx.ome.zarr");
-
+//
 //            openAndShow("/home/katerina/Documents/data/v0.3/cyx.ome.zarr");
 //            openAndShow("/home/katerina/Documents/data/v0.3/tyx.ome.zarr");
-//
+
 //            openAndShow("/home/katerina/Documents/data/v0.3/zyx.ome.zarr");
 //            openAndShow("/home/katerina/Documents/data/v0.3/czyx.ome.zarr");
 //            openAndShow("/home/katerina/Documents/data/v0.3/tzyx.ome.zarr");

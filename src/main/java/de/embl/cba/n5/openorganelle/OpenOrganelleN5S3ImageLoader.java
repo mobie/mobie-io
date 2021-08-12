@@ -35,7 +35,6 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import de.embl.cba.n5.util.loaders.S3ImageLoader;
-import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import java.io.IOException;
@@ -48,15 +47,6 @@ public class OpenOrganelleN5S3ImageLoader extends OpenOrganelleN5ImageLoader imp
     private final String signingRegion;
     private final String bucketName;
     private final String key;
-
-    // sequenceDescription has been read from xml
-    public OpenOrganelleN5S3ImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key, AbstractSequenceDescription<?, ?, ?> sequenceDescription) throws IOException {
-        super(new N5S3ReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key), sequenceDescription);
-        this.serviceEndpoint = serviceEndpoint;
-        this.signingRegion = signingRegion;
-        this.bucketName = bucketName;
-        this.key = key;
-    }
 
     // sequenceDescription will be read from
     public OpenOrganelleN5S3ImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key) throws IOException {

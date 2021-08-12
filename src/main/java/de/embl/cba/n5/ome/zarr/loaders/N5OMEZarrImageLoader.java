@@ -93,7 +93,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private FetcherThreads fetchers;
     private VolatileGlobalCellCache cache;
     private ZarrAxes zarrAxes;
-    private BlockingFetchQueues< Callable< ? > > queue;
+    private BlockingFetchQueues<Callable<?>> queue;
+
     /**
      * The sequenceDescription and viewRegistrations are known already, typically read from xml.
      *
@@ -280,19 +281,18 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                     final List<? extends BasicViewSetup> setups = seq.getViewSetupsOrdered();
                     for (final BasicViewSetup setup : setups) {
                         final int setupId = setup.getId();
-                        final SetupImgLoader<?,?> setupImgLoader = createSetupImgLoader(setupId);
+                        final SetupImgLoader<?, ?> setupImgLoader = createSetupImgLoader(setupId);
                         setupImgLoaders.put(setupId, setupImgLoader);
                         if (setupImgLoader != null) {
                             maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
                         }
                     }
-                    if ( queue == null )
-                    {
-                        final int numFetcherThreads = Math.max( 1, Runtime.getRuntime().availableProcessors() );
-                        queue = new BlockingFetchQueues<>( maxNumLevels, numFetcherThreads );
-                        fetchers = new FetcherThreads( queue, numFetcherThreads);
+                    if (queue == null) {
+                        final int numFetcherThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
+                        queue = new BlockingFetchQueues<>(maxNumLevels, numFetcherThreads);
+                        fetchers = new FetcherThreads(queue, numFetcherThreads);
                     }
-                    cache = new VolatileGlobalCellCache( queue );
+                    cache = new VolatileGlobalCellCache(queue);
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -354,7 +354,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             synchronized (this) {
                 if (!isOpen)
                     return;
-                if ( fetchers != null )
+                if (fetchers != null)
                     fetchers.shutdown();
                 cache.clearCache();
                 isOpen = false;

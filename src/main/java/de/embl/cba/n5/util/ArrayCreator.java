@@ -1,6 +1,5 @@
 package de.embl.cba.n5.util;
 
-import de.embl.cba.n5.ome.zarr.util.ZarrAxes;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.img.basictypeaccess.volatiles.array.*;
@@ -12,7 +11,6 @@ import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.imglib2.N5CellLoader;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 public abstract class ArrayCreator<A, T extends NativeType<T>> {

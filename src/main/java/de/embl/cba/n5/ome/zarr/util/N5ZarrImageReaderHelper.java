@@ -15,50 +15,30 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+
+import static de.embl.cba.n5.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
 public class N5ZarrImageReaderHelper extends N5FSReader {
 
     public N5ZarrImageReaderHelper(GsonBuilder gsonBuilder) throws IOException {
         super("", gsonBuilder);
     }
+
     public N5ZarrImageReaderHelper(String basePath, GsonBuilder gsonBuilder) throws IOException {
         super(basePath, gsonBuilder);
     }
 
-    public N5ZarrImageReaderHelper(String basePath) throws IOException {
-        super(basePath);
-    }
-
-    public Integer getZarrFormatFromMeta(final HashMap<String, JsonElement> meta) throws IOException {
-        return GsonAttributesParser.parseAttribute(
-                meta,
-                "zarr_format",
-                Integer.class,
-                gson);
-    }
-
-    public Version getVersionFromAttributes(HashMap<String, JsonElement> attributes) throws IOException {
-        final Integer zarr_format = GsonAttributesParser.parseAttribute(
-                attributes,
-                "zarr_format",
-                Integer.class,
-                gson);
-        if (zarr_format != null)
-            return new Version(zarr_format, 0, 0);
-        else
-            return null;
-    }
-
-    public ZArrayAttributes getN5DatasetAttributes(String pathName, @NotNull HashMap<String, JsonElement> attributes) throws IOException {
-            return new ZArrayAttributes(
-                    attributes.get("zarr_format").getAsInt(),
-                    gson.fromJson(attributes.get("shape"), long[].class),
-                    gson.fromJson(attributes.get("chunks"), int[].class),
-                    gson.fromJson(attributes.get("dtype"), DType.class),
-                    gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
-                    attributes.get("fill_value").getAsString(),
-                    attributes.get("order").getAsCharacter(),
-                    gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
+    public ZArrayAttributes getN5DatasetAttributes(@NotNull HashMap<String, JsonElement> attributes) {
+        return new ZArrayAttributes(
+                attributes.get("zarr_format").getAsInt(),
+                gson.fromJson(attributes.get("shape"), long[].class),
+                gson.fromJson(attributes.get("chunks"), int[].class),
+                gson.fromJson(attributes.get("dtype"), DType.class),
+                gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
+                attributes.get("fill_value").getAsString(),
+                attributes.get("order").getAsCharacter(),
+                gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
 
     }
 
@@ -71,12 +51,12 @@ public class N5ZarrImageReaderHelper extends N5FSReader {
 
 
     @Override
-    public HashMap<String, JsonElement> getAttributes(String pathName) throws IOException {
+    public HashMap<String, JsonElement> getAttributes(String pathName) {
         return null;
     }
 
     @Override
-    public DataBlock<?> readBlock(String pathName, DatasetAttributes datasetAttributes, long[] gridPosition) throws IOException {
+    public DataBlock<?> readBlock(String pathName, DatasetAttributes datasetAttributes, long[] gridPosition) {
         return null;
     }
 

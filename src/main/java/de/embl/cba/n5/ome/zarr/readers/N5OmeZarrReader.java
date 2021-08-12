@@ -179,7 +179,8 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
 
                 if (zarr_format != null)
                     return new Version(zarr_format, 0, 0);
-        }}
+            }
+        }
         return VERSION;
     }
 
@@ -209,8 +210,8 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         OmeZArrayAttributes zArrayAttributes = null;
         if (Files.exists(path)) {
             try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path);
-                 final Reader reader = Channels.newReader(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name()) ) {
-                         zArrayAttributes = gson.fromJson(reader, OmeZArrayAttributes.class);
+                 final Reader reader = Channels.newReader(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name())) {
+                zArrayAttributes = gson.fromJson(reader, OmeZArrayAttributes.class);
             }
         } else System.out.println(path + " does not exist.");
         this.dimensionSeparator = zArrayAttributes == null || zArrayAttributes.getDimensionSeparator() == null ?
@@ -272,7 +273,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
 
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
             final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
-                    n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);
+            n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);
         }
 
         return attributes;
@@ -283,15 +284,11 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         return super.listAttributes(pathName);
     }
 
-    @Override
-    public boolean axesValid(JsonElement axesJson) {
-        return N5ZarrImageReader.super.axesValid(axesJson);
-    }
-
     public ZarrAxes getAxes() {
         return this.zarrAxes;
     }
 
+    @Override
     public void setAxes(JsonElement axesJson) {
         if (axesJson != null) {
             this.zarrAxes = ZarrAxes.decode(axesJson.toString());

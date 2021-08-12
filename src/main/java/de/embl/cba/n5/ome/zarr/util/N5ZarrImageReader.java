@@ -41,12 +41,7 @@ public interface N5ZarrImageReader extends N5Reader {
         JsonElement dimSep = attributes.get("dimension_separator");
         return dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
     }
-//    @Override
-//    default DatasetAttributes getDatasetAttributes(final String pathName) throws IOException
-//    {
-//        final ZArrayAttributes zArrayAttributes = getZArraryAttributes(pathName);
-//        return zArrayAttributes == null ? null : zArrayAttributes.getDatasetAttributes();
-//    }
+
 //////////////////////////////////////////////////////TODO:
     default void getDimensions(HashMap<String, JsonElement> attributes) {
         JsonElement multiscales = attributes.get("multiscales");
@@ -57,10 +52,6 @@ public interface N5ZarrImageReader extends N5Reader {
     }
 
     void setAxes(JsonElement axesJson);
-
-    default boolean axesValid(JsonElement axesJson) {
-        return ZarrAxes.decode(axesJson.toString()) != null;
-    }
 
     ZArrayAttributes getZArrayAttributes(final String pathName) throws IOException;
 

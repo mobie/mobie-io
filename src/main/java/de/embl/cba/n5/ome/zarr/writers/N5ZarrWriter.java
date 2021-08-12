@@ -60,20 +60,18 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer {
     /**
      * Opens an {@link N5ZarrWriter} at a given base path with a custom
      * {@link GsonBuilder} to support custom attributes.
-     *
+     * <p>
      * If the base path does not exist, it will be created.
      *
-     * @param basePath Zarr base path
+     * @param basePath               Zarr base path
      * @param gsonBuilder
      * @param dimensionSeparator
-     * @param mapN5DatasetAttributes
-     * 			Virtually create N5 dataset attributes (dimensions, blockSize,
-     * 			compression, dataType) for datasets such that N5 code that
-     * 			reads or modifies these attributes directly works as expected.
-     * 			This can lead to name clashes if a zarr container uses these
-     * 			attribute keys for other purposes.
-     * @throws IOException
-     *    if the base path cannot be written to or cannot be created,
+     * @param mapN5DatasetAttributes Virtually create N5 dataset attributes (dimensions, blockSize,
+     *                               compression, dataType) for datasets such that N5 code that
+     *                               reads or modifies these attributes directly works as expected.
+     *                               This can lead to name clashes if a zarr container uses these
+     *                               attribute keys for other purposes.
+     * @throws IOException if the base path cannot be written to or cannot be created,
      */
     public N5ZarrWriter(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
 
@@ -84,10 +82,10 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer {
     /**
      * Opens an {@link N5ZarrWriter} at a given base path with a custom
      * {@link GsonBuilder} to support custom attributes.
-     *
+     * <p>
      * If the base path does not exist, it will be created.
      *
-     * @param basePath Zarr base path
+     * @param basePath           Zarr base path
      * @param gsonBuilder
      * @param dimensionSeparator
      * @throws IOException
@@ -99,18 +97,16 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer {
 
     /**
      * Opens an {@link N5ZarrWriter} at a given base path.
-     *
+     * <p>
      * If the base path does not exist, it will be created.
      *
-     * @param basePath Zarr base path
+     * @param basePath               Zarr base path
      * @param dimensionSeparator
-     * @param mapN5DatasetAttributes
-     * 			Virtually create N5 dataset attributes (dimensions, blockSize,
-     * 			compression, dataType) for datasets such that N5 code that
-     * 			reads or modifies these attributes directly works as expected.
-     * 			This can lead to name collisions if a zarr container uses these
-     * 			attribute keys for other purposes.
-     *
+     * @param mapN5DatasetAttributes Virtually create N5 dataset attributes (dimensions, blockSize,
+     *                               compression, dataType) for datasets such that N5 code that
+     *                               reads or modifies these attributes directly works as expected.
+     *                               This can lead to name collisions if a zarr container uses these
+     *                               attribute keys for other purposes.
      * @throws IOException
      */
     public N5ZarrWriter(final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
@@ -120,17 +116,15 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer {
 
     /**
      * Opens an {@link N5ZarrWriter} at a given base path.
-     *
+     * <p>
      * If the base path does not exist, it will be created.
      *
-     * @param basePath Zarr base path
-     * @param mapN5DatasetAttributes
-     * 			Virtually create N5 dataset attributes (dimensions, blockSize,
-     * 			compression, dataType) for datasets such that N5 code that
-     * 			reads or modifies these attributes directly works as expected.
-     * 			This can lead to name collisions if a zarr container uses these
-     * 			attribute keys for other purposes.
-     *
+     * @param basePath               Zarr base path
+     * @param mapN5DatasetAttributes Virtually create N5 dataset attributes (dimensions, blockSize,
+     *                               compression, dataType) for datasets such that N5 code that
+     *                               reads or modifies these attributes directly works as expected.
+     *                               This can lead to name collisions if a zarr container uses these
+     *                               attribute keys for other purposes.
      * @throws IOException
      */
     public N5ZarrWriter(final String basePath, final boolean mapN5DatasetAttributes) throws IOException {
@@ -141,13 +135,12 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer {
     /**
      * Opens an {@link N5ZarrWriter} at a given base path with a custom
      * {@link GsonBuilder} to support custom attributes.
-     *
+     * <p>
      * If the base path does not exist, it will be created.
      *
-     * @param basePath Zarr base path
+     * @param basePath    Zarr base path
      * @param gsonBuilder
-     * @throws IOException
-     *    if the base path cannot be written to or cannot be created,
+     * @throws IOException if the base path cannot be written to or cannot be created,
      */
     public N5ZarrWriter(final String basePath, final GsonBuilder gsonBuilder) throws IOException {
 
@@ -156,17 +149,16 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer {
 
     /**
      * Opens an {@link N5ZarrWriter} at a given base path.
-     *
+     * <p>
      * If the base path does not exist, it will be created.
-     *
+     * <p>
      * If the base path exists and if the N5 version of the container is
      * compatible with this implementation, the N5 version of this container
      * will be set to the current N5 version of this implementation.
      *
-     * @param basePath n5 base path
+     * @param basePath    n5 base path
      * @param gsonBuilder
-     * @throws IOException
-     *    if the base path cannot be written to or cannot be created,
+     * @throws IOException if the base path cannot be written to or cannot be created,
      */
     public N5ZarrWriter(final String basePath) throws IOException {
 
@@ -279,9 +271,9 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer {
     /**
      * This is a copy of {@link Files#createDirectories(Path, FileAttribute...)}
      * that follows symlinks.
-     *
+     * <p>
      * Workaround for https://bugs.openjdk.java.net/browse/JDK-8130464
-     *
+     * <p>
      * Creates a directory by creating all nonexistent parent directories first.
      * Unlike the {@link #createDirectory createDirectory} method, an exception
      * is not thrown if the directory could not be created because it already
@@ -296,34 +288,25 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer {
      * <p> If this method fails, then it may do so after creating some, but not
      * all, of the parent directories.
      *
-     * @param   dir
-     *          the directory to create
-     *
-     * @param   attrs
-     *          an optional list of file attributes to set atomically when
-     *          creating the directory
-     *
+     * @param dir   the directory to create
+     * @param attrs an optional list of file attributes to set atomically when
+     *              creating the directory
      * @return the directory
-     *
-     * @throws UnsupportedOperationException
-     *          if the array contains an attribute that cannot be set atomically
-     *          when creating the directory
-     * @throws FileAlreadyExistsException
-     *          if {@code dir} exists but is not a directory <i>(optional specific
-     *          exception)</i>
-     * @throws IOException
-     *          if an I/O error occurs
-     * @throws SecurityException
-     *          in the case of the default provider, and a security manager is
-     *          installed, the {@link SecurityManager#checkWrite(String) checkWrite}
-     *          method is invoked prior to attempting to create a directory and
-     *          its {@link SecurityManager#checkRead(String) checkRead} is
-     *          invoked for each parent directory that is checked. If {@code
-     *          dir} is not an absolute path then its {@link Path#toAbsolutePath
-     *          toAbsolutePath} may need to be invoked to get its absolute path.
-     *          This may invoke the security manager's {@link
-     *          SecurityManager#checkPropertyAccess(String) checkPropertyAccess}
-     *          method to check access to the system property {@code user.dir}
+     * @throws UnsupportedOperationException if the array contains an attribute that cannot be set atomically
+     *                                       when creating the directory
+     * @throws FileAlreadyExistsException    if {@code dir} exists but is not a directory <i>(optional specific
+     *                                       exception)</i>
+     * @throws IOException                   if an I/O error occurs
+     * @throws SecurityException             in the case of the default provider, and a security manager is
+     *                                       installed, the {@link SecurityManager#checkWrite(String) checkWrite}
+     *                                       method is invoked prior to attempting to create a directory and
+     *                                       its {@link SecurityManager#checkRead(String) checkRead} is
+     *                                       invoked for each parent directory that is checked. If {@code
+     *                                       dir} is not an absolute path then its {@link Path#toAbsolutePath
+     *                                       toAbsolutePath} may need to be invoked to get its absolute path.
+     *                                       This may invoke the security manager's {@link
+     *                                       SecurityManager#checkPropertyAccess(String) checkPropertyAccess}
+     *                                       method to check access to the system property {@code user.dir}
      */
     private static Path createDirectories(Path dir, final FileAttribute<?>... attrs)
             throws IOException {
@@ -377,9 +360,9 @@ public class N5ZarrWriter extends N5ZarrReader implements N5Writer {
     /**
      * This is a copy of {@link Files#createAndCheckIsDirectory(Path, FileAttribute...)}
      * that follows symlinks.
-     *
+     * <p>
      * Workaround for https://bugs.openjdk.java.net/browse/JDK-8130464
-     *
+     * <p>
      * Used by createDirectories to attempt to create a directory. A no-op
      * if the directory already exists.
      */

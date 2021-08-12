@@ -30,7 +30,6 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import de.embl.cba.n5.ome.zarr.util.*;
-import de.embl.cba.n5.ome.zarr.util.ZarrDatasetAttributes;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.GsonAttributesParser;
@@ -49,9 +48,9 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
 
     final protected boolean mapN5DatasetAttributes;
     private final String serviceEndpoint;
+    private final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
     protected String dimensionSeparator;
     private ZarrAxes zarrAxes;
-    private final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
 
     public N5S3ZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
         super(s3, bucketName, containerPath, N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
@@ -155,7 +154,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
 
         JsonElement dimSep = attributes.get("dimension_separator");
         this.dimensionSeparator = dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
-        return n5ZarrImageReaderHelper.getN5DatasetAttributes(pathName, attributes);
+        return n5ZarrImageReaderHelper.getN5DatasetAttributes(attributes);
     }
 
     @Override
@@ -256,7 +255,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
             InputStream in = this.readS3Object(objectPath);
             Throwable var4 = null;
 
-            HashMap<String, JsonElement>  var5;
+            HashMap<String, JsonElement> var5;
             try {
                 var5 = GsonAttributesParser.readAttributes(new InputStreamReader(in), this.gson);
             } catch (Throwable var14) {

@@ -29,59 +29,47 @@
  */
 package de.embl.cba.n5.util.loaders;
 
-import bdv.AbstractViewerSetupImgLoader;
 import bdv.ViewerImgLoader;
 import bdv.cache.CacheControl;
 import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
-import bdv.util.ConstantRandomAccessible;
-import bdv.util.MipmapTransforms;
+import de.embl.cba.n5.util.N5CacheArrayLoader;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
-import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
 import mpicbg.spim.data.sequence.MultiResolutionImgLoader;
-import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
-import mpicbg.spim.data.sequence.VoxelDimensions;
-import net.imglib2.*;
+import net.imglib2.Volatile;
 import net.imglib2.cache.queue.BlockingFetchQueues;
 import net.imglib2.cache.queue.FetcherThreads;
-import net.imglib2.cache.volatiles.CacheHints;
-import net.imglib2.cache.volatiles.LoadingStrategy;
 import net.imglib2.img.basictypeaccess.volatiles.array.*;
-import net.imglib2.img.cell.CellGrid;
-import net.imglib2.img.cell.CellImg;
-import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.integer.*;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.type.volatiles.*;
 import net.imglib2.util.Cast;
-import net.imglib2.view.Views;
-import org.janelia.saalfeldlab.n5.*;
+import org.janelia.saalfeldlab.n5.DataType;
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.N5Reader;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.function.Function;
 
-import static bdv.img.n5.BdvN5Format.*;
+import static bdv.img.n5.BdvN5Format.DATA_TYPE_KEY;
+import static bdv.img.n5.BdvN5Format.getPathName;
 
 public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
-    protected final N5Reader n5;
-
-    // TODO: it would be good if this would not be needed
-    //       find available setups from the n5
-    protected final AbstractSequenceDescription<?, ?, ?> seq;
-
+    public final N5Reader n5;
     /**
      * Maps setup id to {@link SetupImgLoader}.
      */
-    private final Map<Integer, SetupImgLoader<?, ?>> setupImgLoaders = new HashMap<>();
-
+    public final Map<Integer, SetupImgLoader<?, ?>> setupImgLoaders = new HashMap<>();
+    public BlockingFetchQueues<Callable<?>> queue;
+    // TODO: it would be good if this would not be needed
+    //       find available setups from the n5
+    protected AbstractSequenceDescription<?, ?, ?> seq;
     private volatile boolean isOpen = false;
     private FetcherThreads fetchers;
     private VolatileGlobalCellCache cache;
@@ -89,6 +77,15 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
     public N5ImageLoader(N5Reader n5Reader, AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
         this.n5 = n5Reader;
         this.seq = sequenceDescription;
+    }
+
+    public N5ImageLoader(N5Reader n5Reader) {
+        this.n5 = n5Reader;
+    }
+
+    public N5ImageLoader(N5Reader n5Reader, BlockingFetchQueues<Callable<?>> queue) {
+        this.n5 = n5Reader;
+        this.queue = queue;
     }
 
     public static SimpleCacheArrayLoader<?> createCacheArrayLoader(final N5Reader n5, final String pathName) throws IOException {
@@ -119,6 +116,9 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
             default:
                 throw new IllegalArgumentException();
         }
+    }
+
+    protected void fetchSequenceDescriptionAndViewRegistrations() {
     }
 
     private void open() {
@@ -176,30 +176,30 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
         return setupImgLoaders.get(setupId);
     }
 
-    private <T extends NativeType<T>, V extends Volatile<T> & NativeType<V>> SetupImgLoader<T, V> createSetupImgLoader(final int setupId) throws IOException {
+    protected <T extends NativeType<T>, V extends Volatile<T> & NativeType<V>> SetupImgLoader<T, V> createSetupImgLoader(final int setupId) throws IOException {
         final String pathName = getPathName(setupId);
         final DataType dataType = n5.getAttribute(pathName, DATA_TYPE_KEY, DataType.class);
         switch (dataType) {
             case UINT8:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new UnsignedByteType(), new VolatileUnsignedByteType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new UnsignedByteType(), new VolatileUnsignedByteType(), n5, cache));
             case UINT16:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new UnsignedShortType(), new VolatileUnsignedShortType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new UnsignedShortType(), new VolatileUnsignedShortType(), n5, cache));
             case UINT32:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new UnsignedIntType(), new VolatileUnsignedIntType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new UnsignedIntType(), new VolatileUnsignedIntType(), n5, cache));
             case UINT64:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new UnsignedLongType(), new VolatileUnsignedLongType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new UnsignedLongType(), new VolatileUnsignedLongType(), n5, cache));
             case INT8:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new ByteType(), new VolatileByteType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new ByteType(), new VolatileByteType(), n5, cache));
             case INT16:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new ShortType(), new VolatileShortType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new ShortType(), new VolatileShortType(), n5, cache));
             case INT32:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new IntType(), new VolatileIntType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new IntType(), new VolatileIntType(), n5, cache));
             case INT64:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new LongType(), new VolatileLongType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new LongType(), new VolatileLongType(), n5, cache));
             case FLOAT32:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new FloatType(), new VolatileFloatType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new FloatType(), new VolatileFloatType(), n5, cache));
             case FLOAT64:
-                return Cast.unchecked(new SetupImgLoader<>(setupId, new DoubleType(), new VolatileDoubleType()));
+                return Cast.unchecked(new SetupImgLoader<>(setupId, new DoubleType(), new VolatileDoubleType(), n5, cache));
         }
         return null;
     }
@@ -208,150 +208,5 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
     public CacheControl getCacheControl() {
         open();
         return cache;
-    }
-
-    private static class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
-        private final N5Reader n5;
-        private final String pathName;
-        private final DatasetAttributes attributes;
-        private final Function<DataBlock<?>, A> createArray;
-
-        N5CacheArrayLoader(final N5Reader n5, final String pathName, final DatasetAttributes attributes, final Function<DataBlock<?>, A> createArray) {
-            this.n5 = n5;
-            this.pathName = pathName;
-            this.attributes = attributes;
-            this.createArray = createArray;
-        }
-
-        @Override
-        public A loadArray(final long[] gridPosition) {
-            DataBlock<?> block = null;
-
-            try {
-                block = n5.readBlock(pathName, attributes, gridPosition);
-            } catch (Exception e) {
-                System.err.println("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
-            }
-
-//			if ( block != null )
-//				System.out.println( pathName + " " + Arrays.toString( gridPosition ) + " " + block.getNumElements() );
-//			else
-//				System.out.println( pathName + " " + Arrays.toString( gridPosition ) + " NaN" );
-
-
-            if (block == null) {
-                final int[] blockSize = attributes.getBlockSize();
-                final int n = blockSize[0] * blockSize[1] * blockSize[2];
-                switch (attributes.getDataType()) {
-                    case UINT8:
-                    case INT8:
-                        return createArray.apply(new ByteArrayDataBlock(blockSize, gridPosition, new byte[n]));
-                    case UINT16:
-                    case INT16:
-                        return createArray.apply(new ShortArrayDataBlock(blockSize, gridPosition, new short[n]));
-                    case UINT32:
-                    case INT32:
-                        return createArray.apply(new IntArrayDataBlock(blockSize, gridPosition, new int[n]));
-                    case UINT64:
-                    case INT64:
-                        return createArray.apply(new LongArrayDataBlock(blockSize, gridPosition, new long[n]));
-                    case FLOAT32:
-                        return createArray.apply(new FloatArrayDataBlock(blockSize, gridPosition, new float[n]));
-                    case FLOAT64:
-                        return createArray.apply(new DoubleArrayDataBlock(blockSize, gridPosition, new double[n]));
-                    default:
-                        throw new IllegalArgumentException();
-                }
-            } else {
-                return createArray.apply(block);
-            }
-        }
-    }
-
-    public class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & NativeType<V>>
-            extends AbstractViewerSetupImgLoader<T, V>
-            implements MultiResolutionSetupImgLoader<T> {
-        private final int setupId;
-
-        private final double[][] mipmapResolutions;
-
-        private final AffineTransform3D[] mipmapTransforms;
-
-        public SetupImgLoader(final int setupId, final T type, final V volatileType) throws IOException {
-            super(type, volatileType);
-            this.setupId = setupId;
-            final String pathName = getPathName(setupId);
-            mipmapResolutions = n5.getAttribute(pathName, DOWNSAMPLING_FACTORS_KEY, double[][].class);
-            mipmapTransforms = new AffineTransform3D[mipmapResolutions.length];
-            for (int level = 0; level < mipmapResolutions.length; level++)
-                mipmapTransforms[level] = MipmapTransforms.getMipmapTransformDefault(mipmapResolutions[level]);
-        }
-
-        @Override
-        public RandomAccessibleInterval<V> getVolatileImage(final int timepointId, final int level, final ImgLoaderHint... hints) {
-            return prepareCachedImage(timepointId, level, LoadingStrategy.BUDGETED, volatileType);
-        }
-
-        @Override
-        public RandomAccessibleInterval<T> getImage(final int timepointId, final int level, final ImgLoaderHint... hints) {
-            return prepareCachedImage(timepointId, level, LoadingStrategy.BLOCKING, type);
-        }
-
-        @Override
-        public Dimensions getImageSize(final int timepointId, final int level) {
-            try {
-                final String pathName = getPathName(setupId, timepointId, level);
-                final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
-                return new FinalDimensions(attributes.getDimensions());
-            } catch (Exception e) {
-                return null;
-            }
-        }
-
-        @Override
-        public double[][] getMipmapResolutions() {
-            return mipmapResolutions;
-        }
-
-        @Override
-        public AffineTransform3D[] getMipmapTransforms() {
-            return mipmapTransforms;
-        }
-
-        @Override
-        public int numMipmapLevels() {
-            return mipmapResolutions.length;
-        }
-
-        @Override
-        public VoxelDimensions getVoxelSize(final int timepointId) {
-            return null;
-        }
-
-        /**
-         * Create a {@link CellImg} backed by the cache.
-         */
-        private <N extends NativeType<N>> RandomAccessibleInterval<N> prepareCachedImage(final int timepointId, final int level, final LoadingStrategy loadingStrategy, final N type) {
-            try {
-                final String pathName = getPathName(setupId, timepointId, level);
-                final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
-                final long[] dimensions = attributes.getDimensions();
-                final int[] cellDimensions = attributes.getBlockSize();
-                final CellGrid grid = new CellGrid(dimensions, cellDimensions);
-
-                final int priority = numMipmapLevels() - 1 - level;
-                final CacheHints cacheHints = new CacheHints(loadingStrategy, priority, false);
-
-                final SimpleCacheArrayLoader<?> loader = createCacheArrayLoader(n5, pathName);
-                return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
-            } catch (IOException e) {
-                System.err.printf(
-                        "image data for timepoint %d setup %d level %d could not be found.%n",
-                        timepointId, setupId, level);
-                return Views.interval(
-                        new ConstantRandomAccessible<>(type.createVariable(), 3),
-                        new FinalInterval(1, 1, 1));
-            }
-        }
     }
 }
