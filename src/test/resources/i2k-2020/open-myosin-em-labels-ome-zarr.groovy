@@ -1,6 +1,6 @@
 /**
  * Demonstrate loading of data from ome.zarr.s3 into BigDataViewer 
- * 
+ *
  * - lazy loading from s3
  * - multiscale layers
  * - label coloring [Ctrl L] to shuffle the LUT)
@@ -21,15 +21,16 @@
  */
 
 
+import bdv.util.BdvFunctions
+import bdv.util.BdvOptions
 import de.embl.cba.n5.ome.zarr.openers.OMEZarrS3Opener
-import bdv.util.*;
 
 N5OMEZarrImageLoader.logChunkLoading = true;
-reader = new OMEZarrS3Opener( "https://s3.embl.de", "us-west-2", "i2k-2020" );
-myosin = reader.readKey( "prospr-myosin.ome.zarr" );
-myosinBdvSources = BdvFunctions.show( myosin );
-emAndLabels = reader.readKey( "em-raw.ome.zarr" );
-emAndLabelSources = BdvFunctions.show( emAndLabels, BdvOptions.options().addTo( myosinBdvSources.get( 0 ).getBdvHandle() ) );
-Sources.showAsLabelMask( emAndLabelSources.get( 1 ) );
+reader = new OMEZarrS3Opener("https://s3.embl.de", "us-west-2", "i2k-2020");
+myosin = reader.readKey("prospr-myosin.ome.zarr");
+myosinBdvSources = BdvFunctions.show(myosin);
+emAndLabels = reader.readKey("em-raw.ome.zarr");
+emAndLabelSources = BdvFunctions.show(emAndLabels, BdvOptions.options().addTo(myosinBdvSources.get(0).getBdvHandle()));
+Sources.showAsLabelMask(emAndLabelSources.get(1));
 
 //Sources.viewAsHyperstack( emAndLabelSources.get( 0 ), 4 );
