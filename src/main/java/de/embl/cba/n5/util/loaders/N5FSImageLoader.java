@@ -28,24 +28,22 @@
  * #L%
  */
 package de.embl.cba.n5.util.loaders;
+
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import org.janelia.saalfeldlab.n5.N5FSReader;
 
 import java.io.File;
 import java.io.IOException;
 
-public class N5FSImageLoader extends N5ImageLoader
-{
-	private final File n5File;
+public class N5FSImageLoader extends N5ImageLoader {
+    private final File n5File;
 
-	public N5FSImageLoader( final File n5File, final AbstractSequenceDescription< ?, ?, ? > sequenceDescription ) throws IOException
-	{
-		super( new N5FSReader( n5File.getAbsolutePath() ), sequenceDescription );
-		this.n5File = n5File;
-	}
+    public N5FSImageLoader(final File n5File, final AbstractSequenceDescription<?, ?, ?> sequenceDescription) throws IOException {
+        super(new N5FSReader(n5File.getAbsolutePath()), sequenceDescription);
+        this.n5File = n5File;
+    }
 
-	public File getN5File()
-	{
-		return n5File;
-	}
+    public File getN5File() {
+        return n5File;
+    }
 }

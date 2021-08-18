@@ -25,55 +25,24 @@
  */
 package de.embl.cba.n5.ome.zarr.util;
 
-import de.embl.cba.n5.util.DType;
 import org.janelia.saalfeldlab.n5.Compression;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.zarr.DType;
 
+public class ZarrDatasetAttributes extends org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes {
+    private final transient String fillValue;
 
-/**
- * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
- *
- */
-public class ZarrDatasetAttributes extends DatasetAttributes
-{
+    public ZarrDatasetAttributes(
+            final long[] dimensions,
+            final int[] blockSize,
+            final DType dType,
+            final Compression compression,
+            final boolean isRowMajor,
+            final String fill_value) {
+        super(dimensions, blockSize, dType, compression, isRowMajor, fill_value);
+        this.fillValue = fill_value;
+    }
 
-	private final transient boolean isRowMajor;
-	private final transient DType dType;
-	private final transient byte[] fillBytes;
-	private final transient String fillValue;
-
-	public ZarrDatasetAttributes(
-			final long[] dimensions,
-			final int[] blockSize,
-			final DType dType,
-			final Compression compression,
-			final boolean isRowMajor,
-			final String fill_value) {
-
-		super(dimensions, blockSize, dType.getDataType(), compression);
-		this.dType = dType;
-		this.isRowMajor = isRowMajor;
-		this.fillBytes = dType.createFillBytes(fill_value);
-		this.fillValue = fill_value;
-	}
-
-	public boolean isRowMajor() {
-
-		return isRowMajor;
-	}
-
-	public DType getDType() {
-
-		return dType;
-	}
-
-	public byte[] getFillBytes() {
-
-		// TODO Auto-generated method stub
-		return fillBytes;
-	}
-
-	public String getFillValue() {
-		return fillValue;
-	}
+    public String getFillValue() {
+        return fillValue;
+    }
 }
