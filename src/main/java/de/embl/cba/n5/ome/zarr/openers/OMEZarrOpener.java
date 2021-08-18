@@ -10,6 +10,7 @@ import net.imglib2.util.Cast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class OMEZarrOpener extends BDVOpener {
     private final String filePath;
@@ -34,8 +35,7 @@ public class OMEZarrOpener extends BDVOpener {
     {
         N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
         N5OmeZarrReader reader = new N5OmeZarrReader(this.filePath, new GsonBuilder());
-        HashMap<String, Integer> axesMap = reader.getAxes();
-        N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader, axesMap, sharedQueue);
+        N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader, sharedQueue);
         return new SpimData(
                 new File(this.filePath),
                 Cast.unchecked( imageLoader.getSequenceDescription() ),

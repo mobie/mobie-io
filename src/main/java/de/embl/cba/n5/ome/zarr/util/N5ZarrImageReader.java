@@ -42,7 +42,7 @@ public interface N5ZarrImageReader extends N5Reader {
         return dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
     }
 
-//////////////////////////////////////////////////////TODO:
+//////TODO:
     default void getDimensions(HashMap<String, JsonElement> attributes) {
         JsonElement multiscales = attributes.get("multiscales");
         if (multiscales != null) {

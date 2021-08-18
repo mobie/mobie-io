@@ -39,9 +39,6 @@ import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import java.io.IOException;
 
-
-// TODO: avoid code duplication!
-//  this is essentially identical to N5S3ImageLoader and N5S3OMEZarrImageLoader
 public class OpenOrganelleN5S3ImageLoader extends OpenOrganelleN5ImageLoader implements S3ImageLoader {
     private final String serviceEndpoint;
     private final String signingRegion;
