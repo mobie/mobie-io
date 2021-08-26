@@ -1,6 +1,6 @@
 package spimdata;
 
-import de.embl.cba.n5.openorganelle.OpenOrganelleS3Opener;
+import de.embl.cba.n5.ome.zarr.openers.OMEZarrS3Opener;
 import mpicbg.spim.data.SpimData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,12 +12,8 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class OpenOrganelleSpimDataTest {
-    public static final OpenOrganelleS3Opener reader = new OpenOrganelleS3Opener(
-            "https://janelia-cosem.s3.amazonaws.com",
-            "us-west-2",
-            "jrc_hela-2");
-    public static final String FILE_KEY = "jrc_hela-2.n5/em/fibsem-uint16";
+public class OmeZarrS3SpimDataTest {
+    public static final String FILE_KEY = "https://s3.embl.de/i2k-2020/em-raw.ome.zarr";
     public static final int N = 3;
     public final Map<long[], Object> trueValuesMap = new LinkedHashMap<>();
 
@@ -30,7 +26,7 @@ public class OpenOrganelleSpimDataTest {
     public void init() {
         System.out.println("Before init() method called");
         try {
-            SpimData spimData = reader.readKey(FILE_KEY);
+            SpimData spimData = OMEZarrS3Opener.readURL(FILE_KEY);
             long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).dimensionsAsLongArray();
             for (int i = 0; i <= N; i++) {
                 long x = getRandomNumberUsingNextInt(0, Math.toIntExact(imageDimensions[0] - 1));
@@ -50,7 +46,7 @@ public class OpenOrganelleSpimDataTest {
     public void RandomSpimDataTest() {
         System.out.println("Running random test");
         try {
-            SpimData spimData = reader.readKey(FILE_KEY);
+            SpimData spimData = OMEZarrS3Opener.readURL(FILE_KEY);
             List<Object> testValues = new ArrayList<>();
             for (long[] axes : trueValuesMap.keySet()) {
                 Object realPixelValue = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).getAt(axes[0], axes[1], axes[2]);
