@@ -1,4 +1,4 @@
-package de.embl.cba.n5.ome.zarr.projectcreator;
+package de.embl.cba.n5.util.writers.projectcreator;
 
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static de.embl.cba.n5.ome.zarr.projectcreator.WriteImgPlusToN5Helper.*;
+import static de.embl.cba.n5.util.writers.projectcreator.WriteImgPlusToN5Helper.*;
 
 
 // splits functionality from https://github.com/bigdataviewer/bigdataviewer_fiji/blob/master/src/main/java/bdv/ij/ExportImagePlusAsN5PlugIn.java
@@ -44,21 +44,21 @@ import static de.embl.cba.n5.ome.zarr.projectcreator.WriteImgPlusToN5Helper.*;
 public class WriteImgPlusToN5 {
 
     protected static class Parameters {
-        final int[][] resolutions;
+        public final int[][] resolutions;
 
-        final int[][] subdivisions;
+        public final int[][] subdivisions;
 
-        final File seqFile;
+        public final File seqFile;
 
-        final File n5File;
+        public final File n5File;
 
-        final AffineTransform3D sourceTransform;
+        public final AffineTransform3D sourceTransform;
 
-        final DownsampleBlock.DownsamplingMethod downsamplingMethod;
+        public final DownsampleBlock.DownsamplingMethod downsamplingMethod;
 
-        final Compression compression;
+        public final Compression compression;
 
-        final String[] viewSetupNames;
+        public final String[] viewSetupNames;
 
         public Parameters(
                 final int[][] resolutions, final int[][] subdivisions,
@@ -363,4 +363,5 @@ public class WriteImgPlusToN5 {
         new XmlIoSpimDataMinimal().save(spimData, params.seqFile.getAbsolutePath());
         progressWriter.setProgress(1.0);
     }
+
 }

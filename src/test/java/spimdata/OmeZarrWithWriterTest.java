@@ -1,8 +1,8 @@
 package spimdata;
 
-import de.embl.cba.n5.ome.zarr.projectcreator.DownsampleBlock;
-import de.embl.cba.n5.ome.zarr.projectcreator.WriteImgPlusToN5BdvOmeZarr;
-import de.embl.cba.n5.ome.zarr.projectcreator.WriteImgPlusToN5OmeZarr;
+import de.embl.cba.n5.util.writers.projectcreator.DownsampleBlock;
+import de.embl.cba.n5.ome.zarr.writers.projectcreator.WriteImgPlusToN5BdvOmeZarr;
+import de.embl.cba.n5.ome.zarr.writers.projectcreator.WriteImgPlusToN5OmeZarr;
 import ij.IJ;
 import ij.ImagePlus;
 import org.janelia.saalfeldlab.n5.GzipCompression;

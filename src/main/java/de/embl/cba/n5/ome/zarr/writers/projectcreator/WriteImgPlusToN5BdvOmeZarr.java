@@ -1,4 +1,4 @@
-package de.embl.cba.n5.ome.zarr.projectcreator;
+package de.embl.cba.n5.ome.zarr.writers.projectcreator;
 
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
@@ -8,6 +8,9 @@ import bdv.spimdata.SequenceDescriptionMinimal;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.XmlIoSpimDataMinimal;
 import de.embl.cba.n5.ome.zarr.loaders.N5OMEZarrImageLoader;
+import de.embl.cba.n5.util.writers.projectcreator.DownsampleBlock;
+import de.embl.cba.n5.util.writers.projectcreator.ExportScalePyramid;
+import de.embl.cba.n5.util.writers.projectcreator.WriteImgPlusToN5;
 import de.embl.cba.n5.ome.zarr.readers.N5OmeZarrReader;
 import ij.IJ;
 import ij.ImagePlus;
@@ -25,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static de.embl.cba.n5.ome.zarr.projectcreator.WriteImgPlusToN5Helper.*;
+import static de.embl.cba.n5.util.writers.projectcreator.WriteImgPlusToN5Helper.*;
 
 public class WriteImgPlusToN5BdvOmeZarr extends WriteImgPlusToN5 {
 
