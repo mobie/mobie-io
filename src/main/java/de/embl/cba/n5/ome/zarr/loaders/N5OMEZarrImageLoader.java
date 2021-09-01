@@ -472,7 +472,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 mipmapResolutions[level] = new double[3];
                 if (dimensions.length < 3 && dimensionsOfLevel0.length < 3) {
                     for (int d = 0; d < 2; d++) {
-                        mipmapResolutions[level][d] = 1.0 * dimensionsOfLevel0[d] / dimensions[d];
+                        mipmapResolutions[level][d] = Math.ceil( 1.0 * dimensionsOfLevel0[d] / dimensions[d] );
                     }
                     mipmapResolutions[level][2] = 1.0;
                 } else {
