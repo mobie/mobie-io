@@ -1,13 +1,13 @@
-package de.embl.cba.n5.ome.zarr.writers.projectcreator;
+package de.embl.cba.n5.ome.zarr.writers.imgplus;
 
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
 import bdv.export.ProposeMipmaps;
 import bdv.export.SubTaskProgressWriter;
 import bdv.spimdata.SequenceDescriptionMinimal;
-import de.embl.cba.n5.util.writers.projectcreator.DownsampleBlock;
-import de.embl.cba.n5.util.writers.projectcreator.ExportScalePyramid;
-import de.embl.cba.n5.util.writers.projectcreator.WriteImgPlusToN5;
+import de.embl.cba.n5.util.DownsampleBlock;
+import de.embl.cba.n5.util.ExportScalePyramid;
+import de.embl.cba.n5.util.writers.WriteImgPlusToN5;
 import ij.IJ;
 import ij.ImagePlus;
 import mpicbg.spim.data.SpimDataException;
@@ -21,8 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import static de.embl.cba.n5.util.writers.projectcreator.WriteImgPlusToN5Helper.getSize;
-import static de.embl.cba.n5.util.writers.projectcreator.WriteImgPlusToN5Helper.getVoxelSize;
+import static de.embl.cba.n5.util.writers.WriteImgPlusToN5Helper.getSize;
+import static de.embl.cba.n5.util.writers.WriteImgPlusToN5Helper.getVoxelSize;
 
 public class WriteImgPlusToN5OmeZarr extends WriteImgPlusToN5 {
 

@@ -1,4 +1,4 @@
-package de.embl.cba.n5.util.writers.projectcreator;
+package de.embl.cba.n5.util.writers;
 
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
@@ -12,6 +12,8 @@ import bdv.img.virtualstack.VirtualStackImageLoader;
 import bdv.spimdata.SequenceDescriptionMinimal;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.XmlIoSpimDataMinimal;
+import de.embl.cba.n5.util.DownsampleBlock;
+import de.embl.cba.n5.util.ExportScalePyramid;
 import ij.IJ;
 import ij.ImagePlus;
 import mpicbg.spim.data.SpimDataException;
@@ -34,8 +36,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import static de.embl.cba.n5.util.writers.projectcreator.WriteImgPlusToN5Helper.*;
 
 
 // splits functionality from https://github.com/bigdataviewer/bigdataviewer_fiji/blob/master/src/main/java/bdv/ij/ExportImagePlusAsN5PlugIn.java
@@ -93,12 +93,12 @@ public class WriteImgPlusToN5 {
     // export, generating default source transform, and default resolutions / subdivisions
     public void export(ImagePlus imp, String xmlPath, DownsampleBlock.DownsamplingMethod downsamplingMethod,
                        Compression compression) {
-        if (!isImageSuitable(imp)) {
+        if (!WriteImgPlusToN5Helper.isImageSuitable(imp)) {
             return;
         }
 
-        FinalVoxelDimensions voxelSize = getVoxelSize(imp);
-        final AffineTransform3D sourceTransform = generateSourceTransform(voxelSize);
+        FinalVoxelDimensions voxelSize = WriteImgPlusToN5Helper.getVoxelSize(imp);
+        final AffineTransform3D sourceTransform = WriteImgPlusToN5Helper.generateSourceTransform(voxelSize);
 
         Parameters defaultParameters = generateDefaultParameters(imp, xmlPath, sourceTransform, downsamplingMethod,
                 compression, null);
@@ -109,7 +109,7 @@ public class WriteImgPlusToN5 {
     // export, generating default resolutions / subdivisions
     public void export(ImagePlus imp, String xmlPath, AffineTransform3D sourceTransform,
                        DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression) {
-        if (!isImageSuitable(imp)) {
+        if (!WriteImgPlusToN5Helper.isImageSuitable(imp)) {
             return;
         }
 
@@ -123,7 +123,7 @@ public class WriteImgPlusToN5 {
     public void export(ImagePlus imp, String xmlPath, AffineTransform3D sourceTransform,
                        DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression,
                        String[] viewSetupNames) {
-        if (!isImageSuitable(imp)) {
+        if (!WriteImgPlusToN5Helper.isImageSuitable(imp)) {
             return;
         }
 
@@ -160,12 +160,12 @@ public class WriteImgPlusToN5 {
         String seqFilename = xmlPath;
         if (!seqFilename.endsWith(".xml"))
             seqFilename += ".xml";
-        final File seqFile = getSeqFileFromPath(seqFilename);
+        final File seqFile = WriteImgPlusToN5Helper.getSeqFileFromPath(seqFilename);
         if (seqFile == null) {
             return;
         }
 
-        final File n5File = getN5FileFromXmlPath(seqFilename);
+        final File n5File = WriteImgPlusToN5Helper.getN5FileFromXmlPath(seqFilename);
 
         // TODO - check transform and downsampling mode
 
@@ -178,8 +178,8 @@ public class WriteImgPlusToN5 {
     protected Parameters generateDefaultParameters(ImagePlus imp, String xmlPath, AffineTransform3D sourceTransform,
                                                    DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression,
                                                    String[] viewSetupNames) {
-        FinalVoxelDimensions voxelSize = getVoxelSize(imp);
-        FinalDimensions size = getSize(imp);
+        FinalVoxelDimensions voxelSize = WriteImgPlusToN5Helper.getVoxelSize(imp);
+        FinalDimensions size = WriteImgPlusToN5Helper.getSize(imp);
 
         // propose reasonable mipmap settings
         final int maxNumElements = 64 * 64 * 64;
@@ -198,12 +198,12 @@ public class WriteImgPlusToN5 {
         String seqFilename = xmlPath;
         if (!seqFilename.endsWith(".xml"))
             seqFilename += ".xml";
-        final File seqFile = getSeqFileFromPath(seqFilename);
+        final File seqFile = WriteImgPlusToN5Helper.getSeqFileFromPath(seqFilename);
         if (seqFile == null) {
             return null;
         }
 
-        final File n5File = getN5FileFromXmlPath(seqFilename);
+        final File n5File = WriteImgPlusToN5Helper.getN5FileFromXmlPath(seqFilename);
 
         return new Parameters(resolutions, subdivisions, seqFile, n5File, sourceTransform,
                 downsamplingMethod, compression, viewSetupNames);
@@ -211,8 +211,8 @@ public class WriteImgPlusToN5 {
 
     protected void export(ImagePlus imp, Parameters params) {
 
-        FinalVoxelDimensions voxelSize = getVoxelSize(imp);
-        FinalDimensions size = getSize(imp);
+        FinalVoxelDimensions voxelSize = WriteImgPlusToN5Helper.getVoxelSize(imp);
+        FinalDimensions size = WriteImgPlusToN5Helper.getSize(imp);
 
         final ProgressWriter progressWriter = new ProgressWriterIJ();
         progressWriter.out().println("starting export...");

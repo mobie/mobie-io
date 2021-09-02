@@ -1,4 +1,4 @@
-package de.embl.cba.n5.util.writers.projectcreator;
+package de.embl.cba.n5.util.writers;
 /*-
  * #%L
  * BigDataViewer core classes with minimal dependencies.
@@ -34,6 +34,8 @@ import bdv.export.ProgressWriterNull;
 import bdv.export.SubTaskProgressWriter;
 import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.n5.N5ImageLoader;
+import de.embl.cba.n5.util.DownsampleBlock;
+import de.embl.cba.n5.util.ExportScalePyramid;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicSetupImgLoader;

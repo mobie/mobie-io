@@ -1,4 +1,4 @@
-package de.embl.cba.n5.util.writers.projectcreator;
+package de.embl.cba.n5.util;
 
 /*
  * #%L

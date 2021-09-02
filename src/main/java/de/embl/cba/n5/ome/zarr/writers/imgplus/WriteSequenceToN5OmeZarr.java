@@ -1,4 +1,4 @@
-package de.embl.cba.n5.ome.zarr.writers.projectcreator;
+package de.embl.cba.n5.ome.zarr.writers.imgplus;
 
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
@@ -8,8 +8,8 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.n5.N5ImageLoader;
 import com.google.gson.GsonBuilder;
 import de.embl.cba.n5.ome.zarr.writers.N5OMEZarrWriter;
-import de.embl.cba.n5.util.writers.projectcreator.DownsampleBlock;
-import de.embl.cba.n5.util.writers.projectcreator.ExportScalePyramid;
+import de.embl.cba.n5.util.DownsampleBlock;
+import de.embl.cba.n5.util.ExportScalePyramid;
 import de.embl.cba.n5.ome.zarr.util.OmeZarrMultiscales;
 import de.embl.cba.n5.ome.zarr.util.ZarrAxes;
 import de.embl.cba.n5.ome.zarr.util.ZarrDatasetAttributes;
