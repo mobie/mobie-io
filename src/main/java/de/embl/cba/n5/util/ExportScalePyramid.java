@@ -1,4 +1,4 @@
-package de.embl.cba.n5.ome.zarr.projectcreator;
+package de.embl.cba.n5.util;
 
 /*
  * #%L
