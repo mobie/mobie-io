@@ -25,7 +25,6 @@ public class OMEZarrOpener extends BDVOpener {
     }
     public static SpimData openFile(String filePath, SharedQueue sharedQueue) throws IOException
     {
-        setLogChunkLoading(true);
         N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
         OMEZarrOpener omeZarrOpener = new OMEZarrOpener(filePath);
         return omeZarrOpener.readFile(sharedQueue);
