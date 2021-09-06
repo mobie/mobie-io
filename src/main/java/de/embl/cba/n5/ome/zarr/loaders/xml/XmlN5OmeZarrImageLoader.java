@@ -27,7 +27,7 @@ public class XmlN5OmeZarrImageLoader implements XmlIoBasicImgLoader<N5OMEZarrIma
             if (basePath == null)
                 return null;
             else {
-                return basePath.substring(0, basePath.lastIndexOf('/')) + "/" + path;
+                return new File( basePath ).getParent() +  File.separator + path;
             }
         } else
             return path;
