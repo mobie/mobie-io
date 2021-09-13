@@ -1,6 +1,6 @@
 package spimdata;
 
-import org.embl.mobie.viewer.ome.zarr.openers.OMEZarrOpener;
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import mpicbg.spim.data.SpimData;
 import org.junit.jupiter.api.Test;
 

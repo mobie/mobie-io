@@ -1,6 +1,6 @@
 package spimdata;
 
-import org.embl.mobie.viewer.openorganelle.OpenOrganelleS3Opener;
+import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
 import mpicbg.spim.data.SpimData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

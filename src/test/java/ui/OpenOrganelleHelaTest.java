@@ -1,7 +1,7 @@
 package ui;
 
 import bdv.util.BdvFunctions;
-import org.embl.mobie.viewer.openorganelle.OpenOrganelleS3Opener;
+import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
 import mpicbg.spim.data.SpimData;
 
 import java.io.IOException;
