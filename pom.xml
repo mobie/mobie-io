@@ -8,8 +8,8 @@
     </parent>
 
     <groupId>org.embl.mobie</groupId>
-    <artifactId>bigdataviewer-imageloader</artifactId>
-    <version>1.0.2</version>
+    <artifactId>mobie-io</artifactId>
+    <version>1.0.1</version>
 
 	<url>https://github.com/mobie/bigdataviewer-imageloader</url>
 	<name>BDV ImageLoaders</name>
