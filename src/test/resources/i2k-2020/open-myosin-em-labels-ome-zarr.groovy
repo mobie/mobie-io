@@ -23,7 +23,7 @@
 
 import bdv.util.BdvFunctions
 import bdv.util.BdvOptions
-import de.embl.cba.n5.ome.zarr.openers.OMEZarrS3Opener
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener
 
 N5OMEZarrImageLoader.logChunkLoading = true;
 reader = new OMEZarrS3Opener("https://s3.embl.de", "us-west-2", "i2k-2020");

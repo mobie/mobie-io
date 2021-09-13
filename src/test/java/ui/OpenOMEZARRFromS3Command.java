@@ -1,7 +1,7 @@
 package ui;
 
-import de.embl.cba.n5.ome.zarr.OMEZarrViewer;
-import de.embl.cba.n5.ome.zarr.openers.OMEZarrS3Opener;
+import org.embl.mobie.viewer.ome.zarr.OMEZarrViewer;
+import org.embl.mobie.viewer.ome.zarr.openers.OMEZarrS3Opener;
 import mpicbg.spim.data.SpimData;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
