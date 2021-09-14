@@ -1,6 +1,6 @@
-[![](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml/badge.svg)](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml)
 
-# bigdataviewer-imageloader
+
+# mobie-io
 
 Collection of classes to load different file formats into BigDataViewer or write data into a BigDataViewer compatible format.
 Currently supports:
