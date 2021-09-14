@@ -9,7 +9,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.3</version>
 
 	<url>https://github.com/mobie/bigdataviewer-imageloader</url>
 	<name>BDV ImageLoaders</name>
