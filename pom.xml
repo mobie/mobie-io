@@ -74,8 +74,7 @@
 		<package-name>org.embl.mobie.io</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>EMBL</license.copyrightOwners>
-		<scijava.app.directory>/Users/tischer/Desktop/Fiji/Fiji-MoBIE-beta.app</scijava.app.directory>
-		<enforcer.skip>true</enforcer.skip>
+        <enforcer.skip>true</enforcer.skip>
 
         <!-- Java 8	Update Site	-->
         <imglib2.version>5.11.1</imglib2.version>
@@ -120,8 +119,8 @@
 
     <repositories>
         <repository>
-            <id>imagej.public</id>
-            <url>https://maven.imagej.net/content/groups/public</url>
+            <id>scijava.public</id>
+            <url>https://maven.scijava.org/content/groups/public</url>
         </repository>
     </repositories>
     <dependencies>
