@@ -3,16 +3,16 @@ package ui;
 import bdv.util.BdvFunctions;
 import bdv.util.BdvOptions;
 import bdv.util.BdvStackSource;
-import de.embl.cba.n5.ome.zarr.loaders.N5OMEZarrImageLoader;
-import de.embl.cba.n5.ome.zarr.openers.OMEZarrS3Opener;
-import de.embl.cba.n5.util.source.Sources;
+import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
+import org.embl.mobie.io.util.source.Sources;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.type.numeric.ARGBType;
 
 import java.io.IOException;
 import java.util.List;
 
-import static de.embl.cba.n5.ome.zarr.openers.OMEZarrS3Opener.readURL;
+import static org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener.readURL;
 
 public class OmeZarrS3OpenerTests {
 
