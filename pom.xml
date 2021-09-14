@@ -71,7 +71,7 @@
 	</ciManagement>
 	<properties>
 		<doclint>none</doclint>
-		<package-name>de.embl.cba.mobie</package-name>
+		<package-name>org.embl.mobie.io</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>EMBL</license.copyrightOwners>
 		<scijava.app.directory>/Users/tischer/Desktop/Fiji/Fiji-MoBIE-beta.app</scijava.app.directory>
