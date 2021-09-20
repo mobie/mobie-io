@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.util.loaders.xml;
+package org.embl.mobie.io.ome.zarr.loaders.xml;
 
 
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
