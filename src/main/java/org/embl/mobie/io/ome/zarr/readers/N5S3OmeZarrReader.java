@@ -44,7 +44,7 @@ import java.util.HashMap;
 /**
  * Attempt at a diamond inheritance solution for S3+Zarr.
  */
-public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReader {
+public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageReader {
 
     final protected boolean mapN5DatasetAttributes;
     private final String serviceEndpoint;
@@ -52,7 +52,7 @@ public class N5S3ZarrReader extends N5AmazonS3Reader implements N5ZarrImageReade
     protected String dimensionSeparator;
     private ZarrAxes zarrAxes;
 
-    public N5S3ZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
+    public N5S3OmeZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
         super(s3, bucketName, containerPath, N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
         this.serviceEndpoint = serviceEndpoint; // for debugging
         this.dimensionSeparator = dimensionSeparator;

@@ -37,7 +37,7 @@ import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
 import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
-import org.embl.mobie.io.ome.zarr.readers.N5S3ZarrReader;
+import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
 import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
 import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
@@ -170,7 +170,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
 
         zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
-                n5 instanceof N5S3ZarrReader ? ((N5S3ZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
+                n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
 
         long nC = 1;
         if (attributes.getNumDimensions() > 4) {
@@ -246,8 +246,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         OmeZarrMultiscales[] multiscales = n5.getAttribute(pathName, key, OmeZarrMultiscales[].class);
         if (multiscales == null) {
             String location = "";
-            if (n5 instanceof N5S3ZarrReader) {
-                final N5S3ZarrReader s3ZarrReader = (N5S3ZarrReader) n5;
+            if (n5 instanceof N5S3OmeZarrReader) {
+                final N5S3OmeZarrReader s3ZarrReader = (N5S3OmeZarrReader) n5;
                 s3ZarrReader.setDimensionSeparator("/");
                 location += "service endpoint: " + s3ZarrReader.getServiceEndpoint();
                 location += "; bucket: " + s3ZarrReader.getBucketName();

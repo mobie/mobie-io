@@ -30,7 +30,7 @@
 package org.embl.mobie.io.ome.zarr.loaders;
 
 import com.amazonaws.services.s3.AmazonS3;
-import org.embl.mobie.io.ome.zarr.readers.N5S3ZarrReader;
+import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
 import org.embl.mobie.io.util.loaders.S3ImageLoader;
 import de.embl.cba.tables.S3Utils;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
@@ -79,9 +79,9 @@ public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader implements S3Im
     }
 
     static class N5S3ZarrReaderCreator {
-        public N5S3ZarrReader create(String serviceEndpoint, String signingRegion, String bucketName, String key, String dimensionSeparator) throws IOException {
+        public N5S3OmeZarrReader create(String serviceEndpoint, String signingRegion, String bucketName, String key, String dimensionSeparator) throws IOException {
             final AmazonS3 s3 = S3Utils.getS3Client(serviceEndpoint, signingRegion, bucketName);
-            return new N5S3ZarrReader(s3, serviceEndpoint, bucketName, key, dimensionSeparator);
+            return new N5S3OmeZarrReader(s3, serviceEndpoint, bucketName, key, dimensionSeparator);
         }
     }
 }
