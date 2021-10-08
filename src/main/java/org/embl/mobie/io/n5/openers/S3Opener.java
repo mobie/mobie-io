@@ -1,4 +1,4 @@
-package org.embl.mobie.io.util.openers;
+package org.embl.mobie.io.n5.openers;
 
 import mpicbg.spim.data.SpimData;
 

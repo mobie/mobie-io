@@ -1,4 +1,4 @@
-package org.embl.mobie.io.util.writers;
+package org.embl.mobie.io.n5.writers;
 /*-
  * #%L
  * BigDataViewer core classes with minimal dependencies.
@@ -34,8 +34,8 @@ import bdv.export.ProgressWriterNull;
 import bdv.export.SubTaskProgressWriter;
 import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.n5.N5ImageLoader;
-import org.embl.mobie.io.util.DownsampleBlock;
-import org.embl.mobie.io.util.ExportScalePyramid;
+import org.embl.mobie.io.n5.util.DownsampleBlock;
+import org.embl.mobie.io.n5.util.ExportScalePyramid;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicSetupImgLoader;

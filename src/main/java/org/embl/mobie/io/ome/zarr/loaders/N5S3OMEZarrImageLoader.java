@@ -31,7 +31,7 @@ package org.embl.mobie.io.ome.zarr.loaders;
 
 import com.amazonaws.services.s3.AmazonS3;
 import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
-import org.embl.mobie.io.util.loaders.S3ImageLoader;
+import org.embl.mobie.io.n5.loaders.S3ImageLoader;
 import de.embl.cba.tables.S3Utils;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 

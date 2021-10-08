@@ -1,4 +1,4 @@
-package org.embl.mobie.io.util;
+package org.embl.mobie.io.n5.util;
 
 import bdv.img.cache.SimpleCacheArrayLoader;
 import org.janelia.saalfeldlab.n5.*;

@@ -8,9 +8,9 @@ import bdv.spimdata.SequenceDescriptionMinimal;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.XmlIoSpimDataMinimal;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
-import org.embl.mobie.io.util.DownsampleBlock;
-import org.embl.mobie.io.util.ExportScalePyramid;
-import org.embl.mobie.io.util.writers.WriteImgPlusToN5;
+import org.embl.mobie.io.n5.util.DownsampleBlock;
+import org.embl.mobie.io.n5.util.ExportScalePyramid;
+import org.embl.mobie.io.n5.writers.WriteImgPlusToN5;
 import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
 import ij.IJ;
 import ij.ImagePlus;
@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static org.embl.mobie.io.util.writers.WriteImgPlusToN5Helper.*;
+import static org.embl.mobie.io.n5.writers.WriteImgPlusToN5Helper.*;
 
 public class WriteImgPlusToN5BdvOmeZarr extends WriteImgPlusToN5 {
 

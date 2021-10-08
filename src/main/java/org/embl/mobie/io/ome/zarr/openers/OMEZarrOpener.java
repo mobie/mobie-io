@@ -4,7 +4,7 @@ import bdv.util.volatiles.SharedQueue;
 import com.google.gson.GsonBuilder;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
-import org.embl.mobie.io.util.openers.BDVOpener;
+import org.embl.mobie.io.n5.openers.BDVOpener;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.util.Cast;
 

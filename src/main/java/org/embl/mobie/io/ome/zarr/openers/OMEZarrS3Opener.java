@@ -1,7 +1,7 @@
 package org.embl.mobie.io.ome.zarr.openers;
 
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
-import org.embl.mobie.io.util.openers.S3Opener;
+import org.embl.mobie.io.n5.openers.S3Opener;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.util.Cast;
 

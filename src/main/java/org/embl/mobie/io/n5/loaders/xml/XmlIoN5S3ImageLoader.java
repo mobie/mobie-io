@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.util.loaders.xml;
+package org.embl.mobie.io.n5.loaders.xml;
 
-import org.embl.mobie.io.util.loaders.N5FSImageLoader;
+import org.embl.mobie.io.n5.loaders.N5S3ImageLoader;
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
@@ -39,28 +39,47 @@ import org.jdom2.Element;
 import java.io.File;
 import java.io.IOException;
 
-import static mpicbg.spim.data.XmlHelpers.loadPath;
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
 
-@ImgLoaderIo(format = "bdv.n5", type = N5FSImageLoader.class)
-public class XmlIoN5FSImageLoader implements XmlIoBasicImgLoader<N5FSImageLoader> {
-    public static final String N5 = "n5";
+@ImgLoaderIo(format = "bdv.n5.s3", type = N5S3ImageLoader.class)
+public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader<N5S3ImageLoader> {
+    public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
+    public static final String SIGNING_REGION = "SigningRegion";
+    public static final String BUCKET_NAME = "BucketName";
+    public static final String KEY = "Key";
+
 
     @Override
-    public Element toXml(final N5FSImageLoader imgLoader, final File basePath) {
+    public Element toXml(final N5S3ImageLoader imgLoader, final File basePath) {
+        return toXml(imgLoader.getServiceEndpoint(), imgLoader.getSigningRegion(), imgLoader.getBucketName(),
+                imgLoader.getKey());
+    }
+
+    public Element toXml(String serviceEndpoint, String signingRegion, String bucketName, String key) {
         final Element elem = new Element("ImageLoader");
-        elem.setAttribute(IMGLOADER_FORMAT_ATTRIBUTE_NAME, "bdv.n5");
-        elem.setAttribute("version", "1.0");
-        elem.addContent(XmlHelpers.pathElement(N5, imgLoader.getN5File(), basePath));
+        elem.setAttribute(IMGLOADER_FORMAT_ATTRIBUTE_NAME, "bdv.n5.s3");
+        elem.addContent(new Element(KEY).addContent(key));
+        elem.addContent(new Element(SIGNING_REGION).addContent(signingRegion));
+        elem.addContent(new Element(SERVICE_ENDPOINT).addContent(serviceEndpoint));
+        elem.addContent(new Element(BUCKET_NAME).addContent(bucketName));
+
         return elem;
     }
 
     @Override
-    public N5FSImageLoader fromXml(final Element elem, final File basePath, final AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
+    public N5S3ImageLoader fromXml(final Element elem, final File basePath, final AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
 //		final String version = elem.getAttributeValue( "version" );
-        final File path = loadPath(elem, N5, basePath);
+//         We would need to make below work in case we want to enable relative
+//         paths on S3
+//        final File path = loadPath( elem, N5, basePath );
+
+        final String serviceEndpoint = XmlHelpers.getText(elem, SERVICE_ENDPOINT);
+        final String signingRegion = XmlHelpers.getText(elem, SIGNING_REGION);
+        final String bucketName = XmlHelpers.getText(elem, BUCKET_NAME);
+        final String key = XmlHelpers.getText(elem, KEY);
+
         try {
-            return new N5FSImageLoader(path, sequenceDescription);
+            return new N5S3ImageLoader(serviceEndpoint, signingRegion, bucketName, key, sequenceDescription);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.util.loaders;
+package org.embl.mobie.io.n5.loaders;
 
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import org.janelia.saalfeldlab.n5.N5FSReader;

@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.util.loaders;
+package org.embl.mobie.io.n5.loaders;
 
 import com.amazonaws.services.s3.AmazonS3;
 import de.embl.cba.tables.S3Utils;

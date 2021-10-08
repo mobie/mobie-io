@@ -1,4 +1,4 @@
-package org.embl.mobie.io.util.source;
+package org.embl.mobie.io.n5.source;
 
 import bdv.util.BdvFunctions;
 import bdv.util.BdvHandle;
