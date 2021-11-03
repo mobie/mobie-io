@@ -29,13 +29,17 @@
  */
 package org.embl.mobie.io.n5.loaders;
 
+import bdv.util.volatiles.SharedQueue;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
+import mpicbg.spim.data.sequence.SequenceDescription;
+import org.embl.mobie.io.n5.loaders.N5ImageLoader;
 import org.janelia.saalfeldlab.n5.N5FSReader;
 
 import java.io.File;
 import java.io.IOException;
 
-public class N5FSImageLoader extends N5ImageLoader {
+public class N5FSImageLoader extends N5ImageLoader
+{
     private final File n5File;
 
     public N5FSImageLoader(final File n5File, final AbstractSequenceDescription<?, ?, ?> sequenceDescription) throws IOException {
@@ -43,7 +47,18 @@ public class N5FSImageLoader extends N5ImageLoader {
         this.n5File = n5File;
     }
 
+    public N5FSImageLoader( final File n5File, final AbstractSequenceDescription<?, ?, ?> sequenceDescription, SharedQueue sharedQueue) throws IOException {
+        super(new N5FSReader(n5File.getAbsolutePath()), sequenceDescription, sharedQueue);
+        this.n5File = n5File;
+    }
+    public N5FSImageLoader(final File n5File, SharedQueue sharedQueue) throws IOException {
+        super(new N5FSReader(n5File.getPath()), sharedQueue);
+        this.n5File = n5File;
+    }
+
     public File getN5File() {
         return n5File;
     }
+
+
 }
