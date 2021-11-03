@@ -127,7 +127,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader
 
     // TODO: it would be good if this would not be needed
     //       find available setups from the n5
-    protected SequenceDescription seq;
+    protected AbstractSequenceDescription<?, ?, ?> seq;
     private int sequenceTimepoints = 0;
 
 
@@ -147,13 +147,13 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader
     protected ViewRegistrations viewRegistrations;
 
 
-    public N5ImageLoader( N5Reader n5Reader, SequenceDescription sequenceDescription )
+    public N5ImageLoader( N5Reader n5Reader, AbstractSequenceDescription<?, ?, ?> sequenceDescription )
     {
         this.n5 = n5Reader;
         this.seq = sequenceDescription;
     }
 
-    public N5ImageLoader( N5Reader n5Reader, SequenceDescription sequenceDescription, BlockingFetchQueues<Callable<?>> queue )
+    public N5ImageLoader( N5Reader n5Reader, AbstractSequenceDescription<?, ?, ?> sequenceDescription, BlockingFetchQueues<Callable<?>> queue )
     {
         this.n5 = n5Reader;
         this.seq = sequenceDescription;
@@ -291,7 +291,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader
             final MissingViews missingViews = null;
             this.seq = new SequenceDescription( timepoints, setups, null, missingViews );
             final ImgLoader imgLoader = createImgLoaderFromXml( sequenceDescriptionElement, basePath, this.seq );
-            this.seq.setImgLoader( imgLoader );
+            this.seq.setImgLoader(  Cast.unchecked(imgLoader) );
         } catch ( IOException e ) {
             e.printStackTrace();
             throw new RuntimeException( e );
@@ -300,7 +300,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader
         }
     }
 
-    private static ImgLoader createImgLoaderFromXml( final Element sequenceDescriptionElem, final File basePath, final SequenceDescription sequenceDescription )
+    private static ImgLoader createImgLoaderFromXml( final Element sequenceDescriptionElem, final File basePath, final AbstractSequenceDescription<?, ?, ?> sequenceDescription )
     {
         final Element elem = sequenceDescriptionElem.getChild( "ImageLoader" );
         final String classn = elem.getAttributeValue( "class" );

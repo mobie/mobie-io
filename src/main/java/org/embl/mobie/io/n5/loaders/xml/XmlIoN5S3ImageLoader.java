@@ -80,7 +80,7 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader<N5S3ImageLoader
         final String key = XmlHelpers.getText(elem, KEY);
 
         try {
-            return new N5S3ImageLoader(serviceEndpoint, signingRegion, bucketName, key, (SequenceDescription) sequenceDescription);
+            return new N5S3ImageLoader(serviceEndpoint, signingRegion, bucketName, key, sequenceDescription);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

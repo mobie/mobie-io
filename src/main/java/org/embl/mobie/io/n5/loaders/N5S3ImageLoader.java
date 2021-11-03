@@ -32,7 +32,7 @@ package org.embl.mobie.io.n5.loaders;
 import bdv.util.volatiles.SharedQueue;
 import com.amazonaws.services.s3.AmazonS3;
 import de.embl.cba.tables.S3Utils;
-import mpicbg.spim.data.sequence.SequenceDescription;
+import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader
     private final String bucketName;
     private final String key;
 
-    public N5S3ImageLoader( String serviceEndpoint, String signingRegion, String bucketName, String key, SequenceDescription sequenceDescription) throws IOException {
+    public N5S3ImageLoader( String serviceEndpoint, String signingRegion, String bucketName, String key, AbstractSequenceDescription<?, ?, ?> sequenceDescription) throws IOException {
         super(new N5S3ImageLoader.N5AmazonS3ReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key), sequenceDescription);
         this.serviceEndpoint = serviceEndpoint;
         this.signingRegion = signingRegion;
@@ -52,7 +52,7 @@ public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader
         this.key = key;
     }
 
-    public N5S3ImageLoader( String serviceEndpoint, String signingRegion, String bucketName, String key, SequenceDescription sequenceDescription, SharedQueue sharedQueue) throws IOException {
+    public N5S3ImageLoader( String serviceEndpoint, String signingRegion, String bucketName, String key, AbstractSequenceDescription<?, ?, ?> sequenceDescription, SharedQueue sharedQueue) throws IOException {
         super(new N5S3ImageLoader.N5AmazonS3ReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key), sequenceDescription, sharedQueue);
         this.serviceEndpoint = serviceEndpoint;
         this.signingRegion = signingRegion;

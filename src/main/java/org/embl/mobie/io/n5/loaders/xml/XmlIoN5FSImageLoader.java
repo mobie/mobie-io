@@ -61,7 +61,7 @@ public class XmlIoN5FSImageLoader implements XmlIoBasicImgLoader<N5FSImageLoader
 //		final String version = elem.getAttributeValue( "version" );
         final File path = loadPath(elem, N5, basePath);
         try {
-            return new N5FSImageLoader(path, (SequenceDescription) sequenceDescription);
+            return new N5FSImageLoader(path, sequenceDescription);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
