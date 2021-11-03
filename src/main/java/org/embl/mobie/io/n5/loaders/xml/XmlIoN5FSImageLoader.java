@@ -29,6 +29,7 @@
  */
 package org.embl.mobie.io.n5.loaders.xml;
 
+import mpicbg.spim.data.sequence.SequenceDescription;
 import org.embl.mobie.io.n5.loaders.N5FSImageLoader;
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
@@ -60,7 +61,7 @@ public class XmlIoN5FSImageLoader implements XmlIoBasicImgLoader<N5FSImageLoader
 //		final String version = elem.getAttributeValue( "version" );
         final File path = loadPath(elem, N5, basePath);
         try {
-            return new N5FSImageLoader(path, sequenceDescription);
+            return new N5FSImageLoader(path, (SequenceDescription) sequenceDescription);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
