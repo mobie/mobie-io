@@ -427,7 +427,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader
             final String unit = elem.getChildText( "unit" );
             final String[] voxelValues = elem.getChildText( "size" ).split( " " );
 //                final long d = XmlHelpers.getInt( elem, "depth" );
-            final VoxelDimensions voxelSize = new FinalVoxelDimensions( "px", Integer.parseInt( voxelValues[ 0 ] ), Integer.parseInt( voxelValues[ 1 ] ), Integer.parseInt( voxelValues[ 2 ] ) );
+            final VoxelDimensions voxelSize = new FinalVoxelDimensions( unit, Integer.parseInt( voxelValues[ 0 ] ), Integer.parseInt( voxelValues[ 1 ] ), Integer.parseInt( voxelValues[ 2 ] ) );
 
 
             final ViewSetup setup = new ViewSetup( id, null, size, voxelSize, channel, angle, illumination );

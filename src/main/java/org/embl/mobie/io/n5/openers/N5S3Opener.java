@@ -36,10 +36,10 @@ public class N5S3Opener extends S3Opener
     public static SpimData readURL( String url, SharedQueue sharedQueue ) throws IOException
     {
         final N5S3Opener reader = new N5S3Opener( url );
-        return reader.readKey( url, sharedQueue );
+        return reader.readURLData( url, sharedQueue );
     }
 
-    public SpimData readKey( String url, SharedQueue sharedQueue ) throws IOException
+    public SpimData readURLData(String url, SharedQueue sharedQueue ) throws IOException
     {
         final SAXBuilder sax = new SAXBuilder();
         Document doc;
@@ -120,7 +120,8 @@ public class N5S3Opener extends S3Opener
                 final String[] values = sizeString.split( " " );
                 final Dimensions size = new FinalDimensions( Integer.parseInt( values[ 0 ] ), Integer.parseInt( values[ 1 ] ), Integer.parseInt( values[ 2 ] ) );
                 final String[] voxelValues = elem.getChildText( "size" ).split( " " );
-                final VoxelDimensions voxelSize = new FinalVoxelDimensions( "px",
+                final String unit = elem.getChildText( "unit" );
+                final VoxelDimensions voxelSize = new FinalVoxelDimensions( unit,
                         Integer.parseInt( voxelValues[ 0 ] ),
                         Integer.parseInt( voxelValues[ 1 ] ),
                         Integer.parseInt( voxelValues[ 2 ] ) );
