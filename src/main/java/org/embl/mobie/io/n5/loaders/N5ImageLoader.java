@@ -410,10 +410,6 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader
                 System.out.println( "No width, height, depth specified (separately)" );
 
             }
-            final String sizeString = elem.getChildText( "size" );
-            final String[] values = sizeString.split( " " );
-//                final long d = XmlHelpers.getInt( elem, "depth" );
-            final Dimensions size = new FinalDimensions( Integer.parseInt( values[ 0 ] ), Integer.parseInt( values[ 1 ] ), Integer.parseInt( values[ 2 ] ) );
             try {
                 final double pw = XmlHelpers.getDouble( elem, "pixelWidth" );
                 final double ph = XmlHelpers.getDouble( elem, "pixelHeight" );
@@ -423,15 +419,22 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader
                 System.out.println( "No pixelWidth, pixelHeight, pixelDepth specified (separately)" );
 
             }
-            final Element voxelsizeString = elem.getChild( "voxelSize" );
-            final String unit = elem.getChildText( "unit" );
-            final String[] voxelValues = elem.getChildText( "size" ).split( " " );
-//                final long d = XmlHelpers.getInt( elem, "depth" );
-            final VoxelDimensions voxelSize = new FinalVoxelDimensions( unit, Integer.parseInt( voxelValues[ 0 ] ), Integer.parseInt( voxelValues[ 1 ] ), Integer.parseInt( voxelValues[ 2 ] ) );
-
-
-            final ViewSetup setup = new ViewSetup( id, null, size, voxelSize, channel, angle, illumination );
-            setups.put( id, setup );
+            try {
+                final String sizeString = elem.getChildText( "size" );
+                final String name = elem.getChildText( "name" );
+                final String[] values = sizeString.split( " " );
+                final Dimensions size = new FinalDimensions( Integer.parseInt( values[ 0 ] ), Integer.parseInt( values[ 1 ] ), Integer.parseInt( values[ 2 ] ) );
+                final String[] voxelValues = elem.getChild( "voxelSize" ).getChildText( "size" ).split( " " );
+                final String unit = elem.getChild( "voxelSize" ).getChildText( "unit" );
+                final VoxelDimensions voxelSize = new FinalVoxelDimensions( unit,
+                        Double.parseDouble( voxelValues[ 0 ] ),
+                        Double.parseDouble(  voxelValues[ 1 ] ),
+                        Double.parseDouble(  voxelValues[ 2 ] ) );
+                final ViewSetup setup = new ViewSetup( id, name, size, voxelSize, channel, angle, illumination );
+                setups.put( id, setup );
+            } catch ( Exception e ) {
+                System.out.println( "No pixel parameters specified" );
+            }
         }
         return setups;
     }
