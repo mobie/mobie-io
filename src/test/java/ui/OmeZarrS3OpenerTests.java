@@ -5,7 +5,7 @@ import bdv.util.BdvOptions;
 import bdv.util.BdvStackSource;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
-import org.embl.mobie.io.util.source.Sources;
+import org.embl.mobie.io.n5.source.Sources;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.type.numeric.ARGBType;
 

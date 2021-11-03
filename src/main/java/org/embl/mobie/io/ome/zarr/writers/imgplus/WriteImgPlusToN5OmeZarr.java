@@ -5,9 +5,9 @@ import bdv.export.ProgressWriter;
 import bdv.export.ProposeMipmaps;
 import bdv.export.SubTaskProgressWriter;
 import bdv.spimdata.SequenceDescriptionMinimal;
-import org.embl.mobie.io.util.DownsampleBlock;
-import org.embl.mobie.io.util.ExportScalePyramid;
-import org.embl.mobie.io.util.writers.WriteImgPlusToN5;
+import org.embl.mobie.io.n5.util.DownsampleBlock;
+import org.embl.mobie.io.n5.util.ExportScalePyramid;
+import org.embl.mobie.io.n5.writers.WriteImgPlusToN5;
 import ij.IJ;
 import ij.ImagePlus;
 import mpicbg.spim.data.SpimDataException;
@@ -21,8 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.embl.mobie.io.util.writers.WriteImgPlusToN5Helper.getSize;
-import static org.embl.mobie.io.util.writers.WriteImgPlusToN5Helper.getVoxelSize;
+import static org.embl.mobie.io.n5.writers.WriteImgPlusToN5Helper.getSize;
+import static org.embl.mobie.io.n5.writers.WriteImgPlusToN5Helper.getVoxelSize;
 
 public class WriteImgPlusToN5OmeZarr extends WriteImgPlusToN5 {
 

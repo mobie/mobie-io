@@ -1,4 +1,4 @@
-package org.embl.mobie.io.util.writers;
+package org.embl.mobie.io.n5.writers;
 
 import ij.IJ;
 import ij.ImagePlus;

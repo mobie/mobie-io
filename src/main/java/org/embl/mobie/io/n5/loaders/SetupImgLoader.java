@@ -1,4 +1,4 @@
-package org.embl.mobie.io.util.loaders;
+package org.embl.mobie.io.n5.loaders;
 
 
 import bdv.AbstractViewerSetupImgLoader;

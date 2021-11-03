@@ -9,7 +9,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 
 	<url>https://github.com/mobie/mobie-io</url>
 	<name>BDV ImageLoaders</name>

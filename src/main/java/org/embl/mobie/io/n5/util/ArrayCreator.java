@@ -1,4 +1,4 @@
-package org.embl.mobie.io.util;
+package org.embl.mobie.io.n5.util;
 
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgs;

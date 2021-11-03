@@ -34,7 +34,7 @@ import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import org.embl.mobie.io.util.loaders.S3ImageLoader;
+import org.embl.mobie.io.n5.loaders.S3ImageLoader;
 import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import java.io.IOException;
