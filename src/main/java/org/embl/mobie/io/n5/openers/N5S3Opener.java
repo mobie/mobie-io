@@ -36,10 +36,10 @@ public class N5S3Opener extends S3Opener
     public static SpimData readURL( String url, SharedQueue sharedQueue ) throws IOException
     {
         final N5S3Opener reader = new N5S3Opener( url );
-        return reader.readKey( url, sharedQueue );
+        return reader.readURLData( url, sharedQueue );
     }
 
-    public SpimData readKey( String url, SharedQueue sharedQueue ) throws IOException
+    public SpimData readURLData(String url, SharedQueue sharedQueue ) throws IOException
     {
         final SAXBuilder sax = new SAXBuilder();
         Document doc;
