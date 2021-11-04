@@ -2,6 +2,7 @@ package org.embl.mobie.io.ome.zarr.util;
 
 import bdv.img.cache.SimpleCacheArrayLoader;
 import com.amazonaws.SdkClientException;
+import lombok.extern.slf4j.Slf4j;
 import net.imglib2.img.cell.CellGrid;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.janelia.saalfeldlab.n5.DataBlock;
@@ -11,6 +12,7 @@ import org.janelia.saalfeldlab.n5.N5Reader;
 import java.io.IOException;
 import java.util.Arrays;
 
+@Slf4j
 public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
     private final N5Reader n5;
     private final String pathName;
@@ -39,20 +41,20 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         long start = 0;
         if (N5OMEZarrImageLoader.logChunkLoading) {
             start = System.currentTimeMillis();
-            System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + " ...");
+            log.info(pathName + " " + Arrays.toString(dataBlockIndices) + " ...");
         }
 
         try {
             block = n5.readBlock(pathName, attributes, dataBlockIndices);
         } catch (SdkClientException e) {
-            System.err.println(e.getMessage()); // this happens sometimes, not sure yet why...
+            log.error(e.getMessage()); // this happens sometimes, not sure yet why...
         }
 
         if (N5OMEZarrImageLoader.logChunkLoading) {
             if (block != null)
-                System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + " fetched " + block.getNumElements() + " voxels in " + (System.currentTimeMillis() - start) + " ms.");
+                log.info(pathName + " " + Arrays.toString(dataBlockIndices) + " fetched " + block.getNumElements() + " voxels in " + (System.currentTimeMillis() - start) + " ms.");
             else
-                System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + " is missing, returning zeros.");
+                log.warn(pathName + " " + Arrays.toString(dataBlockIndices) + " is missing, returning zeros.");
         }
 
         if (block == null) {

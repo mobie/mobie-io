@@ -1,8 +1,8 @@
 package org.embl.mobie.io.openorganelle;
 
-import org.embl.mobie.io.n5.openers.S3Opener;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.util.Cast;
+import org.embl.mobie.io.n5.openers.S3Opener;
 
 import java.io.IOException;
 

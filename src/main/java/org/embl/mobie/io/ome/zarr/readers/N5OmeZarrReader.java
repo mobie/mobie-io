@@ -27,6 +27,7 @@ package org.embl.mobie.io.ome.zarr.readers;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import lombok.extern.slf4j.Slf4j;
 import org.embl.mobie.io.ome.zarr.util.*;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
@@ -48,6 +49,7 @@ import java.util.stream.Stream;
 /**
  * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
  */
+@Slf4j
 public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
     protected final boolean mapN5DatasetAttributes;
     final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
@@ -213,7 +215,9 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
                  final Reader reader = Channels.newReader(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name())) {
                 zArrayAttributes = gson.fromJson(reader, OmeZArrayAttributes.class);
             }
-        } else System.out.println(path + " does not exist.");
+        } else {
+            log.warn(path + " does not exist.");
+        }
         this.dimensionSeparator = zArrayAttributes == null || zArrayAttributes.getDimensionSeparator() == null ?
                 DEFAULT_SEPARATOR : zArrayAttributes.getDimensionSeparator();
 

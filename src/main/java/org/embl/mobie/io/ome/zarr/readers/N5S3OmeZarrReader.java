@@ -29,6 +29,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import lombok.extern.slf4j.Slf4j;
 import org.embl.mobie.io.ome.zarr.util.*;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
@@ -44,6 +45,7 @@ import java.util.HashMap;
 /**
  * Attempt at a diamond inheritance solution for S3+Zarr.
  */
+@Slf4j
 public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageReader {
 
     final protected boolean mapN5DatasetAttributes;
@@ -148,7 +150,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
         HashMap<String, JsonElement> attributes = readJson(path);
 
         if (attributes == null) {
-            System.out.println(path + " does not exist.");
+            log.warn(path + " does not exist.");
             attributes = new HashMap<>();
         }
 

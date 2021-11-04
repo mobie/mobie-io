@@ -36,6 +36,7 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
+import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
@@ -65,6 +66,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
 
+@Slf4j
 public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
     public static boolean logChunkLoading = false;
     protected final N5Reader n5;
@@ -463,7 +465,7 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
                 final DatasetAttributes attributes = getDatasetAttributes(pathName);
 
                 if (logChunkLoading) {
-                    System.out.println("Preparing image " + pathName + " of data type " + attributes.getDataType());
+                    log.info("Preparing image " + pathName + " of data type " + attributes.getDataType());
                 }
 
                 // ome.zarr is 5D but BDV expects 3D
@@ -477,9 +479,8 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
                 final SimpleCacheArrayLoader<?> loader = createCacheArrayLoader(n5, pathName, grid);
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
-                System.err.printf(
-                        "image data for timepoint %d setup %d level %d could not be found.%n",
-                        timepointId, setupId, level);
+                log.error(String.format("image data for timepoint %d setup %d level %d could not be found.%n",
+                        timepointId, setupId, level));
                 return Views.interval(
                         new ConstantRandomAccessible<>(type.createVariable(), 3),
                         new FinalInterval(1, 1, 1));

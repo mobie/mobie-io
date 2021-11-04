@@ -1,8 +1,8 @@
 package org.embl.mobie.io.openorganelle;
 
-import org.embl.mobie.io.n5.util.ArrayCreator;
 import net.imglib2.img.cell.CellGrid;
 import net.imglib2.type.NativeType;
+import org.embl.mobie.io.n5.util.ArrayCreator;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DataType;
 

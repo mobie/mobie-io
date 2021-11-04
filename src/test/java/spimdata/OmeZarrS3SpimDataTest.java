@@ -1,7 +1,8 @@
 package spimdata;
 
-import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
+import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
+@Slf4j
 public class OmeZarrS3SpimDataTest {
     public static final String FILE_KEY = "https://s3.embl.de/i2k-2020/em-raw.ome.zarr";
     public static final int N = 3;
@@ -24,7 +26,7 @@ public class OmeZarrS3SpimDataTest {
 
     @BeforeEach
     public void init() {
-        System.out.println("Before init() method called");
+        log.info("Before init() method called");
         try {
             SpimData spimData = OMEZarrS3Opener.readURL(FILE_KEY);
             long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).dimensionsAsLongArray();
@@ -44,7 +46,7 @@ public class OmeZarrS3SpimDataTest {
     @Test
     @DisplayName("Random SpimData test")
     public void RandomSpimDataTest() {
-        System.out.println("Running random test");
+        log.info("Running random test");
         try {
             SpimData spimData = OMEZarrS3Opener.readURL(FILE_KEY);
             List<Object> testValues = new ArrayList<>();

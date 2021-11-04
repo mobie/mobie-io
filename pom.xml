@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.scijava</groupId>
@@ -9,71 +10,71 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7-SNAPSHOT</version>
 
-	<url>https://github.com/mobie/mobie-io</url>
-	<name>BDV ImageLoaders</name>
-	<description>BDV ImageLoaders for MoBIE projects</description>
-	<inceptionYear>2021</inceptionYear>
-	<organization>
-		<name>EMBL</name>
-		<url>http://embl.de/</url>
-	</organization>
-	<licenses>
-		<license>
-			<name>Simplified BSD License</name>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<developers>
-		<developer>
-			<id>tischi</id>
-			<name>Christian Tischer</name>
-			<roles>
-				<role>lead</role>
-				<role>developer</role>
-				<role>debugger</role>
-				<role>reviewer</role>
-				<role>support</role>
-				<role>maintainer</role>
-			</roles>
-		</developer>
-	</developers>
-	<contributors>
-		<contributor>
-			<name>Kimberly Meechan</name>
-			<roles>
-				<role>developer</role>
-				<role>debugger</role>
-				<role>reviewer</role>
-				<role>support</role>
-			</roles>
-		</contributor>
-	</contributors>
-	<mailingLists>
-		<mailingList>
-			<name>ImageJ Forum</name>
-			<archive>http://forum.imagej.net/</archive>
-		</mailingList>
-	</mailingLists>
-	<scm>
-		<connection>scm:git:git://github.com/mobie/mobie-io</connection>
-		<developerConnection>scm:git:git@github.com/mobie/mobie-io</developerConnection>
-		<tag>HEAD</tag>
-		<url>https://github.com/mobie/mobie-io</url>
-	</scm>
-	<issueManagement>
-		<system>GitHub</system>
-		<url>https://github.com/mobie/mobie-io/issues</url>
-	</issueManagement>
-	<ciManagement>
-		<system>None</system>
-	</ciManagement>
-	<properties>
-		<doclint>none</doclint>
-		<package-name>org.embl.mobie.io</package-name>
-		<license.licenseName>bsd_2</license.licenseName>
-		<license.copyrightOwners>EMBL</license.copyrightOwners>
+    <url>https://github.com/mobie/mobie-io</url>
+    <name>BDV ImageLoaders</name>
+    <description>BDV ImageLoaders for MoBIE projects</description>
+    <inceptionYear>2021</inceptionYear>
+    <organization>
+        <name>EMBL</name>
+        <url>http://embl.de/</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>Simplified BSD License</name>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>tischi</id>
+            <name>Christian Tischer</name>
+            <roles>
+                <role>lead</role>
+                <role>developer</role>
+                <role>debugger</role>
+                <role>reviewer</role>
+                <role>support</role>
+                <role>maintainer</role>
+            </roles>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Kimberly Meechan</name>
+            <roles>
+                <role>developer</role>
+                <role>debugger</role>
+                <role>reviewer</role>
+                <role>support</role>
+            </roles>
+        </contributor>
+    </contributors>
+    <mailingLists>
+        <mailingList>
+            <name>ImageJ Forum</name>
+            <archive>http://forum.imagej.net/</archive>
+        </mailingList>
+    </mailingLists>
+    <scm>
+        <connection>scm:git:git://github.com/mobie/mobie-io</connection>
+        <developerConnection>scm:git:git@github.com/mobie/mobie-io</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/mobie/mobie-io</url>
+    </scm>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/mobie/mobie-io/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>None</system>
+    </ciManagement>
+    <properties>
+        <doclint>none</doclint>
+        <package-name>org.embl.mobie.io</package-name>
+        <license.licenseName>bsd_2</license.licenseName>
+        <license.copyrightOwners>EMBL</license.copyrightOwners>
         <enforcer.skip>true</enforcer.skip>
 
         <!-- Java 8	Update Site	-->
@@ -98,11 +99,11 @@
 		the easiest is to use version 1.6.0-scijava-2 instead, which is available
 		on a central repository, and which we will use here for the ome.zarr branch
 		-->
-		<j3dcore.version>1.6.0-scijava-2</j3dcore.version>
+        <j3dcore.version>1.6.0-scijava-2</j3dcore.version>
 
-		<!-- NB: Deploy releases to the SciJava Maven repository. -->
-		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
-	</properties>
+        <!-- NB: Deploy releases to the SciJava Maven repository. -->
+        <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
+    </properties>
 
     <build>
         <plugins>
@@ -128,6 +129,16 @@
             <groupId>sc.fiji</groupId>
             <artifactId>bigdataviewer-playground</artifactId>
             <version>${bigdataviewer-playground.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
@@ -137,6 +148,16 @@
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2</artifactId>
             <version>${imglib2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.imglib2</groupId>
@@ -181,9 +202,29 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.14.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>de.embl.cba</groupId>
             <artifactId>imagej-utils</artifactId>
             <version>${imagej-utils.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>logback-classic</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -204,6 +245,12 @@
             <groupId>trove</groupId>
             <artifactId>trove</artifactId>
             <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.22</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

@@ -1,11 +1,11 @@
 package org.embl.mobie.io.ome.zarr.loaders.xml;
 
-import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
-import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
+import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
+import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
 import org.jdom2.Element;
 
 import java.io.File;
@@ -27,7 +27,7 @@ public class XmlN5OmeZarrImageLoader implements XmlIoBasicImgLoader<N5OMEZarrIma
             if (basePath == null)
                 return null;
             else {
-                return new File( basePath ).getParent() +  File.separator + path;
+                return new File(basePath).getParent() + File.separator + path;
             }
         } else
             return path;
