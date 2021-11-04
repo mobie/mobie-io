@@ -29,12 +29,11 @@
  */
 package org.embl.mobie.io.n5.loaders.xml;
 
-import mpicbg.spim.data.sequence.SequenceDescription;
-import org.embl.mobie.io.n5.loaders.N5S3ImageLoader;
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
+import org.embl.mobie.io.n5.loaders.N5S3ImageLoader;
 import org.jdom2.Element;
 
 import java.io.File;

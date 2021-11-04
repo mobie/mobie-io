@@ -29,11 +29,12 @@
  */
 package org.embl.mobie.io.ome.zarr.loaders;
 
+import bdv.util.volatiles.SharedQueue;
 import com.amazonaws.services.s3.AmazonS3;
-import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
-import org.embl.mobie.io.n5.loaders.S3ImageLoader;
 import de.embl.cba.tables.S3Utils;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
+import org.embl.mobie.io.n5.loaders.S3ImageLoader;
+import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
 
 import java.io.IOException;
 
@@ -56,6 +57,14 @@ public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader implements S3Im
     // sequenceDescription will be read from zarr
     public N5S3OMEZarrImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key, String dimensionSeparator) throws IOException {
         super(new N5S3ZarrReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key, dimensionSeparator));
+        this.serviceEndpoint = serviceEndpoint;
+        this.signingRegion = signingRegion;
+        this.bucketName = bucketName;
+        this.key = key;
+    }
+
+    public N5S3OMEZarrImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key, String dimensionSeparator, SharedQueue sharedQueue) throws IOException {
+        super(new N5S3ZarrReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key, dimensionSeparator), sharedQueue);
         this.serviceEndpoint = serviceEndpoint;
         this.signingRegion = signingRegion;
         this.bucketName = bucketName;

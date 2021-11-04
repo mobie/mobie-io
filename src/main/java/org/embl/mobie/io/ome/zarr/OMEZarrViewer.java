@@ -3,10 +3,10 @@ package org.embl.mobie.io.ome.zarr;
 import bdv.util.BdvFunctions;
 import bdv.util.BdvOptions;
 import bdv.util.BdvStackSource;
-import org.embl.mobie.io.n5.source.Sources;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.sequence.ViewSetup;
 import net.imglib2.Dimensions;
+import org.embl.mobie.io.n5.source.Sources;
 
 import java.util.List;
 

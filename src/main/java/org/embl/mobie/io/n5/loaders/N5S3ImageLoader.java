@@ -37,14 +37,13 @@ import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import java.io.IOException;
 
-public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader
-{
+public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader {
     private final String serviceEndpoint;
     private final String signingRegion;
     private final String bucketName;
     private final String key;
 
-    public N5S3ImageLoader( String serviceEndpoint, String signingRegion, String bucketName, String key, AbstractSequenceDescription<?, ?, ?> sequenceDescription) throws IOException {
+    public N5S3ImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key, AbstractSequenceDescription<?, ?, ?> sequenceDescription) throws IOException {
         super(new N5S3ImageLoader.N5AmazonS3ReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key), sequenceDescription);
         this.serviceEndpoint = serviceEndpoint;
         this.signingRegion = signingRegion;
@@ -52,7 +51,7 @@ public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader
         this.key = key;
     }
 
-    public N5S3ImageLoader( String serviceEndpoint, String signingRegion, String bucketName, String key, AbstractSequenceDescription<?, ?, ?> sequenceDescription, SharedQueue sharedQueue) throws IOException {
+    public N5S3ImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key, AbstractSequenceDescription<?, ?, ?> sequenceDescription, SharedQueue sharedQueue) throws IOException {
         super(new N5S3ImageLoader.N5AmazonS3ReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key), sequenceDescription, sharedQueue);
         this.serviceEndpoint = serviceEndpoint;
         this.signingRegion = signingRegion;
@@ -60,7 +59,7 @@ public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader
         this.key = key;
     }
 
-    public N5S3ImageLoader( String serviceEndpoint, String signingRegion, String bucketName, String key, SharedQueue sharedQueue) throws IOException {
+    public N5S3ImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key, SharedQueue sharedQueue) throws IOException {
         super(new N5S3ImageLoader.N5AmazonS3ReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key), sharedQueue);
         this.serviceEndpoint = serviceEndpoint;
         this.signingRegion = signingRegion;

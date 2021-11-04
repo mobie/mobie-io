@@ -1,6 +1,7 @@
 package org.embl.mobie.io.openorganelle;
 
 import bdv.img.cache.SimpleCacheArrayLoader;
+import lombok.extern.slf4j.Slf4j;
 import net.imglib2.img.cell.CellGrid;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
@@ -8,6 +9,7 @@ import org.janelia.saalfeldlab.n5.N5Reader;
 
 import java.util.Arrays;
 
+@Slf4j
 public class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
     private final N5Reader n5;
     private final String pathName;
@@ -28,7 +30,7 @@ public class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         try {
             block = n5.readBlock(pathName, attributes, gridPosition);
         } catch (Exception e) {
-            System.err.println("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
+            log.error("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
         }
 
         if (block == null) {

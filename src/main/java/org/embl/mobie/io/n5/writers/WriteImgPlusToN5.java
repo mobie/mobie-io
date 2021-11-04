@@ -12,8 +12,6 @@ import bdv.img.virtualstack.VirtualStackImageLoader;
 import bdv.spimdata.SequenceDescriptionMinimal;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.XmlIoSpimDataMinimal;
-import org.embl.mobie.io.n5.util.DownsampleBlock;
-import org.embl.mobie.io.n5.util.ExportScalePyramid;
 import ij.IJ;
 import ij.ImagePlus;
 import mpicbg.spim.data.SpimDataException;
@@ -29,6 +27,8 @@ import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.Intervals;
+import org.embl.mobie.io.n5.util.DownsampleBlock;
+import org.embl.mobie.io.n5.util.ExportScalePyramid;
 import org.janelia.saalfeldlab.n5.Compression;
 
 import java.io.File;
@@ -42,53 +42,6 @@ import java.util.Map;
 // separating from GUI. Provides general export functions for ImagePlus.
 
 public class WriteImgPlusToN5 {
-
-    protected static class Parameters {
-        public final int[][] resolutions;
-
-        public final int[][] subdivisions;
-
-        public final File seqFile;
-
-        public final File n5File;
-
-        public final AffineTransform3D sourceTransform;
-
-        public final DownsampleBlock.DownsamplingMethod downsamplingMethod;
-
-        public final Compression compression;
-
-        public final String[] viewSetupNames;
-
-        public Parameters(
-                final int[][] resolutions, final int[][] subdivisions,
-                final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
-                final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression) {
-            this.resolutions = resolutions;
-            this.subdivisions = subdivisions;
-            this.seqFile = seqFile;
-            this.n5File = n5File;
-            this.sourceTransform = sourceTransform;
-            this.downsamplingMethod = downsamplingMethod;
-            this.compression = compression;
-            this.viewSetupNames = null;
-        }
-
-        public Parameters(
-                final int[][] resolutions, final int[][] subdivisions,
-                final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
-                final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression,
-                final String[] viewSetupNames) {
-            this.resolutions = resolutions;
-            this.subdivisions = subdivisions;
-            this.seqFile = seqFile;
-            this.n5File = n5File;
-            this.sourceTransform = sourceTransform;
-            this.downsamplingMethod = downsamplingMethod;
-            this.compression = compression;
-            this.viewSetupNames = viewSetupNames;
-        }
-    }
 
     // export, generating default source transform, and default resolutions / subdivisions
     public void export(ImagePlus imp, String xmlPath, DownsampleBlock.DownsamplingMethod downsamplingMethod,
@@ -362,6 +315,53 @@ public class WriteImgPlusToN5 {
 
         new XmlIoSpimDataMinimal().save(spimData, params.seqFile.getAbsolutePath());
         progressWriter.setProgress(1.0);
+    }
+
+    protected static class Parameters {
+        public final int[][] resolutions;
+
+        public final int[][] subdivisions;
+
+        public final File seqFile;
+
+        public final File n5File;
+
+        public final AffineTransform3D sourceTransform;
+
+        public final DownsampleBlock.DownsamplingMethod downsamplingMethod;
+
+        public final Compression compression;
+
+        public final String[] viewSetupNames;
+
+        public Parameters(
+                final int[][] resolutions, final int[][] subdivisions,
+                final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
+                final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression) {
+            this.resolutions = resolutions;
+            this.subdivisions = subdivisions;
+            this.seqFile = seqFile;
+            this.n5File = n5File;
+            this.sourceTransform = sourceTransform;
+            this.downsamplingMethod = downsamplingMethod;
+            this.compression = compression;
+            this.viewSetupNames = null;
+        }
+
+        public Parameters(
+                final int[][] resolutions, final int[][] subdivisions,
+                final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
+                final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression,
+                final String[] viewSetupNames) {
+            this.resolutions = resolutions;
+            this.subdivisions = subdivisions;
+            this.seqFile = seqFile;
+            this.n5File = n5File;
+            this.sourceTransform = sourceTransform;
+            this.downsamplingMethod = downsamplingMethod;
+            this.compression = compression;
+            this.viewSetupNames = viewSetupNames;
+        }
     }
 
 }

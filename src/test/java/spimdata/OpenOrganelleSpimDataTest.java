@@ -1,7 +1,8 @@
 package spimdata;
 
-import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
+import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
+import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
+@Slf4j
 public class OpenOrganelleSpimDataTest {
     public static final OpenOrganelleS3Opener reader = new OpenOrganelleS3Opener(
             "https://janelia-cosem.s3.amazonaws.com",
@@ -28,7 +30,7 @@ public class OpenOrganelleSpimDataTest {
 
     @BeforeEach
     public void init() {
-        System.out.println("Before init() method called");
+        log.info("Before init() method called");
         try {
             SpimData spimData = reader.readKey(FILE_KEY);
             long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).dimensionsAsLongArray();
@@ -48,7 +50,7 @@ public class OpenOrganelleSpimDataTest {
     @Test
     @DisplayName("Random SpimData test")
     public void RandomSpimDataTest() {
-        System.out.println("Running random test");
+        log.info("Running random test");
         try {
             SpimData spimData = reader.readKey(FILE_KEY);
             List<Object> testValues = new ArrayList<>();

@@ -1,11 +1,13 @@
 package org.embl.mobie.io.n5.util;
 
 import bdv.img.cache.SimpleCacheArrayLoader;
+import lombok.extern.slf4j.Slf4j;
 import org.janelia.saalfeldlab.n5.*;
 
 import java.util.Arrays;
 import java.util.function.Function;
 
+@Slf4j
 public class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
     private final N5Reader n5;
     private final String pathName;
@@ -26,7 +28,7 @@ public class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         try {
             block = n5.readBlock(pathName, attributes, gridPosition);
         } catch (Exception e) {
-            System.err.println("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
+            log.error("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
         }
 
         if (block == null) {

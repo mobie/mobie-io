@@ -1,8 +1,8 @@
 package ui;
 
+import mpicbg.spim.data.SpimData;
 import org.embl.mobie.io.ome.zarr.OMEZarrViewer;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
-import mpicbg.spim.data.SpimData;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;

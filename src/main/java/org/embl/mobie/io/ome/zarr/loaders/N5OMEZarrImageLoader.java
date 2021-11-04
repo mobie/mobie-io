@@ -36,11 +36,7 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
-import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
-import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
-import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
-import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
@@ -62,6 +58,11 @@ import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.type.volatiles.*;
 import net.imglib2.util.Cast;
 import net.imglib2.view.Views;
+import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
+import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
+import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
+import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
+import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.jetbrains.annotations.NotNull;
@@ -72,6 +73,7 @@ import java.util.concurrent.Callable;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
+@Slf4j
 public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
 
     private static final int C = 3;
@@ -472,7 +474,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 mipmapResolutions[level] = new double[3];
                 if (dimensions.length < 3 && dimensionsOfLevel0.length < 3) {
                     for (int d = 0; d < 2; d++) {
-                        mipmapResolutions[level][d] = Math.round( 1.0 * dimensionsOfLevel0[d] / dimensions[d] );
+                        mipmapResolutions[level][d] = Math.round(1.0 * dimensionsOfLevel0[d] / dimensions[d]);
                     }
                     mipmapResolutions[level][2] = 1.0;
                 } else {
@@ -540,7 +542,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 final DatasetAttributes attributes = getDatasetAttributes(pathName);
 
                 if (logChunkLoading) {
-                    System.out.println("Preparing image " + pathName + " of data type " + attributes.getDataType());
+                    log.info("Preparing image " + pathName + " of data type " + attributes.getDataType());
                 }
                 long[] dimensions = getDimensions(attributes);
                 final int[] cellDimensions = getBlockSize(attributes);
@@ -552,9 +554,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 final SimpleCacheArrayLoader<?> loader = createCacheArrayLoader(n5, pathName, setupToChannel.get(setupId), timepointId, grid);
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
-                System.err.printf(
+                log.error(String.format(
                         "image data for timepoint %d setup %d level %d could not be found.%n",
-                        timepointId, setupId, level);
+                        timepointId, setupId, level));
                 return Views.interval(
                         new ConstantRandomAccessible<>(type.createVariable(), 3),
                         new FinalInterval(1, 1, 1));

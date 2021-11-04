@@ -30,11 +30,11 @@
 package org.embl.mobie.io.ome.zarr.loaders.xml;
 
 
-import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
+import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
 import org.jdom2.Element;
 
 import java.io.File;
