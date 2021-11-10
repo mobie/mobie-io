@@ -388,7 +388,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
 
     private void fetchSequenceDescriptionAndViewRegistrations() {
         try {
-            if (!(n5 instanceof N5FSImageLoader)) {
+            if (!(n5 instanceof N5FSReader)) {
                 return;
             }
             String n5BasePath = n5.toString();
