@@ -59,14 +59,6 @@ public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader {
         this.key = key;
     }
 
-    public N5S3ImageLoader(String serviceEndpoint, String signingRegion, String bucketName, String key, SharedQueue sharedQueue) throws IOException {
-        super(new N5S3ImageLoader.N5AmazonS3ReaderCreator().create(serviceEndpoint, signingRegion, bucketName, key), sharedQueue);
-        this.serviceEndpoint = serviceEndpoint;
-        this.signingRegion = signingRegion;
-        this.bucketName = bucketName;
-        this.key = key;
-    }
-
     public String getServiceEndpoint() {
         return serviceEndpoint;
     }
