@@ -3,7 +3,6 @@ package org.embl.mobie.io.n5.source;
 import bdv.util.DefaultInterpolators;
 import bdv.viewer.Interpolation;
 import bdv.viewer.Source;
-import de.embl.cba.lazyalgorithm.RandomAccessibleIntervalFilter;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealRandomAccessible;
@@ -13,8 +12,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 /**
- * A {@link Source} that wraps another {@link Source} and allows to decorate it
- * with an extra {@link RandomAccessibleIntervalFilter}.
+ * A {@link Source} that wraps another {@link Source}
  * <p>
  * This extra transformation is made to capture manual editing of the actual
  * transform in the SpimViewer.
