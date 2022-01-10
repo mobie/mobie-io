@@ -11,6 +11,11 @@ import com.google.gson.annotations.SerializedName;
  * the multi-scale image pyramid and transformations.
  * The xml is extended with custom fields that describe the s3 storage.
  * <p>
+ * bdv.hdf5
+ * The data is stored in the HDF5 data format, using the bdv hdf5 format
+ * to represent image metadata. This format can only be read locally and does not
+ * support remote access from an object store.
+ * <p>
  * openOrganelle.s3
  * The data is stored in the open organelle data format, which is based on n5.
  * Currently, this data format can only be streamed from s3.
@@ -54,6 +59,7 @@ public enum ImageDataFormat {
     public static final String BDVOMEZARRS3 = "BdvOmeZarrS3";
     public static final String OMEZARR = "OmeZarr";
     public static final String OMEZARRS3 = "OmeZarrS3";
+    public static final String BDVHDF5 = "BdvHDF5";
 
     @Override
     public String toString() {
@@ -74,6 +80,8 @@ public enum ImageDataFormat {
                 return "bdv.ome.zarr.s3";
             case OmeZarrS3:
                 return "ome.zarr.s3";
+            case BdvHDF5:
+                return "bdv.hdf5";
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + this);
         }
@@ -97,6 +105,8 @@ public enum ImageDataFormat {
                 return BdvOmeZarrS3;
             case "ome.zarr.s3":
                 return OmeZarrS3;
+            case "bdv.hdf5":
+                return BdvHDF5;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + string);
         }
@@ -112,6 +122,7 @@ public enum ImageDataFormat {
             case BdvN5:
             case BdvOmeZarr:
             case OmeZarr:
+            case BdvHDF5:
             default:
                 return false;
         }
@@ -130,7 +141,5 @@ public enum ImageDataFormat {
             default:
                 return false;
         }
-
     }
-
 }
