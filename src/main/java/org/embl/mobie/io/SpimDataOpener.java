@@ -2,12 +2,13 @@ package org.embl.mobie.io;
 
 import bdv.util.volatiles.SharedQueue;
 import de.embl.cba.bdv.utils.BdvUtils;
+import de.embl.cba.bdv.utils.CustomXmlIoSpimData;
 import de.embl.cba.tables.FileAndUrlUtils;
 import mpicbg.spim.data.SpimData;
+import mpicbg.spim.data.SpimDataException;
 import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.openers.N5Opener;
 import org.embl.mobie.io.n5.openers.N5S3Opener;
-import org.embl.mobie.io.n5.util.ImageDataFormat;
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.loaders.xml.XmlN5OmeZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
@@ -33,58 +34,57 @@ public class SpimDataOpener {
     public SpimDataOpener() {}
 
     public SpimData openSpimData( String imagePath, ImageDataFormat imageDataFormat ) {
-        SpimData spimData = null;
         switch ( imageDataFormat ) {
+            case BdvHDF5:
             case BdvN5:
             case BdvN5S3:
-                spimData = BdvUtils.openSpimData( imagePath );
-                break;
+                return openBdvHdf5AndBdvN5AndBdvN5S3( imagePath );
             case OmeZarr:
-                spimData = openOmeZarr( imagePath );
-                break;
+                return openOmeZarr( imagePath );
             case OmeZarrS3:
-                spimData = openOmeZarrS3( imagePath );
-                break;
+                return openOmeZarrS3( imagePath );
             case BdvOmeZarr:
-                spimData = openBdvOmeZarr( imagePath );
-                break;
+                return openBdvOmeZarr( imagePath );
             case BdvOmeZarrS3:
-                spimData = openBdvOmeZarrS3( imagePath );
-                break;
+                return openBdvOmeZarrS3( imagePath );
             case OpenOrganelleS3:
-                spimData = openOpenOrganelleS3( imagePath );
+                return openOpenOrganelleS3( imagePath );
+            default:
+                throw new UnsupportedOperationException("Opening of " + imageDataFormat + " is not supported.");
         }
-
-        return spimData;
     }
 
     public SpimData openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue ) {
-        SpimData spimData = null;
         switch ( imageDataFormat ) {
             case BdvN5:
-                spimData = openBdvN5( imagePath, sharedQueue );
-                break;
+                return openBdvN5( imagePath, sharedQueue );
             case BdvN5S3:
-                spimData = openBdvN5S3( imagePath, sharedQueue );
-                break;
+                return openBdvN5S3( imagePath, sharedQueue );
             case OmeZarr:
-                spimData = openOmeZarr( imagePath, sharedQueue );
-                break;
+                return openOmeZarr( imagePath, sharedQueue );
             case OmeZarrS3:
-                spimData = openOmeZarrS3( imagePath, sharedQueue );
-                break;
-            case BdvOmeZarrS3:
-                spimData = openBdvOmeZarrS3( imagePath );
-                break;
-            case BdvOmeZarr:
-                spimData = openBdvOmeZarr( imagePath );
-                break;
-            case OpenOrganelleS3:
-                spimData = openOpenOrganelleS3( imagePath );
+                return openOmeZarrS3( imagePath, sharedQueue );
+            default:
+                throw new UnsupportedOperationException("Shared queues for " + imageDataFormat + " are not yet supported!" );
         }
-
-        return spimData;
     }
+
+    private SpimData openBdvHdf5AndBdvN5AndBdvN5S3( String path )
+    {
+        try
+        {
+            InputStream stream = FileAndUrlUtils.getInputStream( path );
+            SpimData spimData = new CustomXmlIoSpimData().loadFromStream( stream, path );
+            return spimData;
+        }
+        catch ( SpimDataException | IOException e )
+        {
+            System.out.println( path );
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     private SpimData openBdvN5( String path, SharedQueue queue)
     {
@@ -170,12 +170,13 @@ public class SpimDataOpener {
             String object = Arrays.stream( split ).skip( 1 ).collect( Collectors.joining( "/") );
             N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild( "ServiceEndpoint" ).getText(), imgLoaderElem.getChild( "SigningRegion" ).getText(),bucket, object, ".");
 
-            SpimData spim = new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
-            SpimData sp1 = BdvUtils.openSpimData( path );
-            sp1.setBasePath(null);
-            sp1.getSequenceDescription().setImgLoader( spim.getSequenceDescription().getImgLoader() );
-            sp1.getSequenceDescription().getAllChannels().putAll( spim.getSequenceDescription().getAllChannels() );
-            return sp1;
+            // TODO: Add explanation to what is happening!
+            SpimData spimData = new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
+            SpimData spimData1 = openBdvHdf5AndBdvN5AndBdvN5S3( path );
+            spimData1.setBasePath(null);
+            spimData1.getSequenceDescription().setImgLoader( spimData.getSequenceDescription().getImgLoader() );
+            spimData1.getSequenceDescription().getAllChannels().putAll( spimData.getSequenceDescription().getAllChannels() );
+            return spimData1;
         } catch ( IOException | JDOMException e ) {
             e.printStackTrace();
         }

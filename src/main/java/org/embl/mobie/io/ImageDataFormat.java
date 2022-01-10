@@ -1,4 +1,4 @@
-package org.embl.mobie.io.n5.util;
+package org.embl.mobie.io;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -27,7 +27,7 @@ import com.google.gson.annotations.SerializedName;
  * 's3' ending indicates that the data is taken from the remote s3 object store.
  */
 public enum ImageDataFormat {
-    @SerializedName("bdv.hdf5")
+    @SerializedName("bdv.h5")
     BdvHDF5,
     @SerializedName("bdv.n5")
     BdvN5,
@@ -58,6 +58,8 @@ public enum ImageDataFormat {
     @Override
     public String toString() {
         switch (this) {
+            case BdvHDF5:
+                return "bdv.h5";
             case BdvN5:
                 return "bdv.n5";
             case BdvN5S3:
@@ -79,6 +81,8 @@ public enum ImageDataFormat {
 
     public static ImageDataFormat fromString(String string) {
         switch (string) {
+            case "bdv.h5":
+                return BdvHDF5;
             case "bdv.n5":
                 return BdvN5;
             case "bdv.n5.s3":
