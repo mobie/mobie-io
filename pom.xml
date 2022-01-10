@@ -160,6 +160,10 @@
             <version>${bigdataviewer-vistools.version}</version>
         </dependency>
         <dependency>
+            <groupId>sc.fiji</groupId>
+            <artifactId>bigdataviewer_fiji</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
             <artifactId>n5-aws-s3</artifactId>
         </dependency>
@@ -179,6 +183,10 @@
             <groupId>org.scijava</groupId>
             <artifactId>j3dcore</artifactId>
             <version>${j3dcore.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

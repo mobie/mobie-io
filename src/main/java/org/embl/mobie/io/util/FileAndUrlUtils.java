@@ -1,9 +1,8 @@
-package org.embl.mobie.io;
+package org.embl.mobie.io.util;
 
 import com.amazonaws.services.s3.AmazonS3;
-import de.embl.cba.tables.S3Utils;
-import de.embl.cba.tables.github.GitHubUtils;
 import org.apache.commons.io.IOUtils;
+import org.embl.mobie.io.github.GitHubUtils;
 
 import javax.swing.*;
 import java.io.BufferedReader;
@@ -25,10 +24,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static de.embl.cba.tables.S3Utils.getS3FileNames;
-import static de.embl.cba.tables.S3Utils.selectS3PathFromDirectory;
-import static de.embl.cba.tables.github.GitHubUtils.isGithub;
-import static de.embl.cba.tables.github.GitHubUtils.selectGitHubPathFromDirectory;
+import static org.embl.mobie.io.util.S3Utils.getS3FileNames;
+import static org.embl.mobie.io.util.S3Utils.selectS3PathFromDirectory;
+import static org.embl.mobie.io.github.GitHubUtils.isGithub;
+import static org.embl.mobie.io.github.GitHubUtils.selectGitHubPathFromDirectory;
 
 public class FileAndUrlUtils
 {
@@ -38,15 +37,15 @@ public class FileAndUrlUtils
 		S3     // resource supports s3 API
 	}
 
-	public static de.embl.cba.tables.FileAndUrlUtils.ResourceType getType( String uri ) {
+	public static ResourceType getType( String uri ) {
 		if( uri.startsWith("https://s3") || uri.contains("s3.amazon.aws.com") ) {
-			return de.embl.cba.tables.FileAndUrlUtils.ResourceType.S3;
+			return FileAndUrlUtils.ResourceType.S3;
 		}
 		else if( uri.startsWith("http") ) {
-			return de.embl.cba.tables.FileAndUrlUtils.ResourceType.HTTP;
+			return FileAndUrlUtils.ResourceType.HTTP;
 		}
 		else {
-			return de.embl.cba.tables.FileAndUrlUtils.ResourceType.FILE;
+			return FileAndUrlUtils.ResourceType.FILE;
 		}
 	}
 
@@ -99,7 +98,7 @@ public class FileAndUrlUtils
 		final List< File > fileList = getFileList(
 				inputDirectory, filePattern, false );
 
-		Collections.sort( fileList, new de.embl.cba.tables.FileAndUrlUtils.SortFilesIgnoreCase() );
+		Collections.sort( fileList, new FileAndUrlUtils.SortFilesIgnoreCase() );
 
 		final List< String > paths = fileList.stream().map( x -> x.toString() ).collect( Collectors.toList() );
 
@@ -108,7 +107,7 @@ public class FileAndUrlUtils
 
 	public static String getSeparator( String uri )
 	{
-		de.embl.cba.tables.FileAndUrlUtils.ResourceType type = getType( uri );
+		FileAndUrlUtils.ResourceType type = getType( uri );
 		String separator = null;
 		switch (type) {
 			case FILE:
@@ -148,7 +147,7 @@ public class FileAndUrlUtils
 
 	public static InputStream getInputStream( String uri ) throws IOException
 	{
-		de.embl.cba.tables.FileAndUrlUtils.ResourceType type = getType( uri );
+		FileAndUrlUtils.ResourceType type = getType( uri );
 		switch (type) {
 			case HTTP:
 				URL url = new URL( uri );
@@ -166,7 +165,7 @@ public class FileAndUrlUtils
 
 	public static String read( String uri ) throws IOException
 	{
-		try ( final InputStream inputStream = de.embl.cba.tables.FileAndUrlUtils.getInputStream( uri ) ) {
+		try ( final InputStream inputStream = FileAndUrlUtils.getInputStream( uri ) ) {
 			final String s = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
 			return s;
 		}
@@ -174,7 +173,7 @@ public class FileAndUrlUtils
 
 	public static String getParentLocation( String uri )
 	{
-		de.embl.cba.tables.FileAndUrlUtils.ResourceType type = getType( uri );
+		FileAndUrlUtils.ResourceType type = getType( uri );
 		switch (type) {
 			case HTTP:
 			case S3:
@@ -221,7 +220,7 @@ public class FileAndUrlUtils
 	}
 
 	public static boolean exists(String uri) {
-		de.embl.cba.tables.FileAndUrlUtils.ResourceType type = getType( uri );
+		FileAndUrlUtils.ResourceType type = getType( uri );
 		switch (type) {
 			case HTTP:
 				try {
@@ -248,7 +247,7 @@ public class FileAndUrlUtils
 			return null;
 		}
 
-		de.embl.cba.tables.FileAndUrlUtils.ResourceType type = getType( uri );
+		FileAndUrlUtils.ResourceType type = getType( uri );
 		switch (type) {
 			case HTTP:
 				if( isGithub( uri )) {
@@ -282,7 +281,7 @@ public class FileAndUrlUtils
 			return null;
 		}
 
-		de.embl.cba.tables.FileAndUrlUtils.ResourceType type = getType( uri );
+		FileAndUrlUtils.ResourceType type = getType( uri );
 		String filePath = null;
 		switch (type) {
 			case HTTP:

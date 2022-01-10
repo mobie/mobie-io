@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io;
+package org.embl.mobie.io.util;
 
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;

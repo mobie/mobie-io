@@ -1,9 +1,6 @@
 package org.embl.mobie.io;
 
 import bdv.util.volatiles.SharedQueue;
-import de.embl.cba.bdv.utils.BdvUtils;
-import de.embl.cba.bdv.utils.CustomXmlIoSpimData;
-import de.embl.cba.tables.FileAndUrlUtils;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.util.Cast;
@@ -14,6 +11,8 @@ import org.embl.mobie.io.ome.zarr.loaders.xml.XmlN5OmeZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
+import org.embl.mobie.io.util.CustomXmlIoSpimData;
+import org.embl.mobie.io.util.FileAndUrlUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -56,9 +55,6 @@ public class SpimDataOpener {
 
     public SpimData openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue ) {
         switch ( imageDataFormat ) {
-            case BdvHDF5:
-                spimData = BdvUtils.openSpimData( imagePath );
-                break;
             case BdvN5:
                 return openBdvN5( imagePath, sharedQueue );
             case BdvN5S3:
@@ -199,7 +195,7 @@ public class SpimDataOpener {
                 if ((imagesFile.equals(Paths.get(imagesFile).toString())))
                 {
                     SpimData spim =  OMEZarrOpener.openFile( imagesFile );
-                    SpimData sp1 = BdvUtils.openSpimData( path );
+                    SpimData sp1 = openBdvHdf5AndBdvN5AndBdvN5S3( path );
                     sp1.setBasePath( new File( imagesFile ) );
                     sp1.getSequenceDescription().setImgLoader( spim.getSequenceDescription().getImgLoader() );
                     sp1.getSequenceDescription().getAllChannels().putAll( spim.getSequenceDescription().getAllChannels() );
@@ -207,7 +203,7 @@ public class SpimDataOpener {
                 } else
                 {
                     SpimData spim = OMEZarrS3Opener.readURL( imagesFile );
-                    SpimData sp1 = BdvUtils.openSpimData( path );
+                    SpimData sp1 = openBdvHdf5AndBdvN5AndBdvN5S3( path );
                     sp1.setBasePath(null);
                     sp1.getSequenceDescription().setImgLoader( spim.getSequenceDescription().getImgLoader() );
                     sp1.getSequenceDescription().getAllChannels().putAll( spim.getSequenceDescription().getAllChannels() );

@@ -5,7 +5,6 @@ import bdv.util.BdvOptions;
 import bdv.util.BdvStackSource;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.type.numeric.ARGBType;
-import org.embl.mobie.io.n5.source.Sources;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 
@@ -39,7 +38,7 @@ public class OmeZarrS3OpenerTests {
         sources.get(3).setColor(new ARGBType(ARGBType.rgba(255, 255, 255, 255)));
         sources.get(3).setDisplayRange(0, 3000);
         //sources.get( 4 ).setDisplayRange( 0, 100 );
-        Sources.showAsLabelMask(sources.get(4));
+       // Sources.showAsLabelMask(sources.get(4));
     }
 
     public static void readI2KGif() throws IOException {
@@ -57,8 +56,8 @@ public class OmeZarrS3OpenerTests {
         List<BdvStackSource<?>> myosinBdvSources = BdvFunctions.show(myosin);
         SpimData em = readURL("em-raw.ome.zarr");
         List<BdvStackSource<?>> sources = BdvFunctions.show(em, BdvOptions.options().addTo(myosinBdvSources.get(0).getBdvHandle()));
-        Sources.showAsLabelMask(sources.get(1));
-        Sources.viewAsHyperstack(sources.get(0), 4);
+        // Sources.showAsLabelMask(sources.get(1));
+        // Sources.viewAsHyperstack(sources.get(0), 4);
     }
 
     public static void showMyosin() throws IOException {

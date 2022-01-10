@@ -32,7 +32,7 @@ import com.google.gson.annotations.SerializedName;
  * 's3' ending indicates that the data is taken from the remote s3 object store.
  */
 public enum ImageDataFormat {
-    @SerializedName("bdv.h5")
+    @SerializedName("bdv.hdf5")
     BdvHDF5,
     @SerializedName("bdv.n5")
     BdvN5,
@@ -44,12 +44,10 @@ public enum ImageDataFormat {
     OmeZarr,
     @SerializedName("ome.zarr.s3")
     OmeZarrS3,
-    // OME Zarr with BDV XML
     @SerializedName("bdv.ome.zarr")
-    BdvOmeZarr,
-    // OME Zarr S3 with BDV XML
+    BdvOmeZarr, // OME Zarr with BDV XML
     @SerializedName("bdv.ome.zarr.s3")
-    BdvOmeZarrS3;
+    BdvOmeZarrS3; // OME Zarr S3 with BDV XML
 
     // needed for SciJava Command UI, which does not support enums
     public static final String BDVN5 = "BdvN5";
@@ -80,8 +78,6 @@ public enum ImageDataFormat {
                 return "bdv.ome.zarr.s3";
             case OmeZarrS3:
                 return "ome.zarr.s3";
-            case BdvHDF5:
-                return "bdv.hdf5";
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + this);
         }
