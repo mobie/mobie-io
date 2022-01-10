@@ -1,10 +1,12 @@
-package org.embl.mobie.io.n5.openers;
+package org.embl.mobie.io;
 
 import bdv.util.volatiles.SharedQueue;
 import de.embl.cba.bdv.utils.BdvUtils;
 import de.embl.cba.tables.FileAndUrlUtils;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.util.Cast;
+import org.embl.mobie.io.n5.openers.N5Opener;
+import org.embl.mobie.io.n5.openers.N5S3Opener;
 import org.embl.mobie.io.n5.util.ImageDataFormat;
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.loaders.xml.XmlN5OmeZarrImageLoader;
@@ -38,19 +40,19 @@ public class SpimDataOpener {
                 spimData = BdvUtils.openSpimData( imagePath );
                 break;
             case OmeZarr:
-                spimData = openOmeZarrData( imagePath );
+                spimData = openOmeZarr( imagePath );
                 break;
             case OmeZarrS3:
-                spimData = openOmeZarrS3Data( imagePath );
-                break;
-            case BdvOmeZarrS3:
-                spimData = openBdvOmeZarrS3Data( imagePath );
+                spimData = openOmeZarrS3( imagePath );
                 break;
             case BdvOmeZarr:
-                spimData = openBdvZarrData( imagePath );
+                spimData = openBdvOmeZarr( imagePath );
+                break;
+            case BdvOmeZarrS3:
+                spimData = openBdvOmeZarrS3( imagePath );
                 break;
             case OpenOrganelleS3:
-                spimData = openOpenOrganelleData( imagePath );
+                spimData = openOpenOrganelleS3( imagePath );
         }
 
         return spimData;
@@ -60,31 +62,31 @@ public class SpimDataOpener {
         SpimData spimData = null;
         switch ( imageDataFormat ) {
             case BdvN5:
-                spimData = openBDV( imagePath, sharedQueue );
+                spimData = openBdvN5( imagePath, sharedQueue );
                 break;
             case BdvN5S3:
-                spimData = openBDVS3( imagePath, sharedQueue );
+                spimData = openBdvN5S3( imagePath, sharedQueue );
                 break;
             case OmeZarr:
-                spimData = openOmeZarrData( imagePath, sharedQueue );
+                spimData = openOmeZarr( imagePath, sharedQueue );
                 break;
             case OmeZarrS3:
-                spimData = openOmeZarrS3Data( imagePath, sharedQueue );
+                spimData = openOmeZarrS3( imagePath, sharedQueue );
                 break;
             case BdvOmeZarrS3:
-                spimData = openBdvOmeZarrS3Data( imagePath );
+                spimData = openBdvOmeZarrS3( imagePath );
                 break;
             case BdvOmeZarr:
-                spimData = openBdvZarrData( imagePath );
+                spimData = openBdvOmeZarr( imagePath );
                 break;
             case OpenOrganelleS3:
-                spimData = openOpenOrganelleData( imagePath );
+                spimData = openOpenOrganelleS3( imagePath );
         }
 
         return spimData;
     }
 
-    private SpimData openBDV(String path, SharedQueue queue)
+    private SpimData openBdvN5( String path, SharedQueue queue)
     {
         try {
             return N5Opener.openFile( path, queue );
@@ -94,7 +96,7 @@ public class SpimDataOpener {
         return null;
 
     }
-    private SpimData openBDVS3(String path, SharedQueue queue)
+    private SpimData openBdvN5S3( String path, SharedQueue queue)
     {
         try {
             return N5S3Opener.readURL( path, queue );
@@ -105,7 +107,7 @@ public class SpimDataOpener {
 
     }
 
-    private SpimData openOmeZarrData( String path )
+    private SpimData openOmeZarr( String path )
     {
         try {
             return OMEZarrOpener.openFile( path );
@@ -115,7 +117,7 @@ public class SpimDataOpener {
         return null;
     }
 
-    private SpimData openOmeZarrData(String path, SharedQueue sharedQueue )
+    private SpimData openOmeZarr( String path, SharedQueue sharedQueue )
     {
         try {
             return OMEZarrOpener.openFile( path, sharedQueue);
@@ -125,7 +127,7 @@ public class SpimDataOpener {
         return null;
     }
 
-    private SpimData openOmeZarrS3Data( String path )
+    private SpimData openOmeZarrS3( String path )
     {
         try {
             return OMEZarrS3Opener.readURL( path);
@@ -135,7 +137,7 @@ public class SpimDataOpener {
         return null;
     }
 
-    private SpimData openOmeZarrS3Data( String path, SharedQueue sharedQueue  )
+    private SpimData openOmeZarrS3( String path, SharedQueue sharedQueue  )
     {
         try {
             return OMEZarrS3Opener.readURL( path, sharedQueue);
@@ -145,7 +147,7 @@ public class SpimDataOpener {
         return null;
     }
 
-    private SpimData openOpenOrganelleData( String path )
+    private SpimData openOpenOrganelleS3( String path )
     {
         try {
             return OpenOrganelleS3Opener.readURL( path );
@@ -155,7 +157,7 @@ public class SpimDataOpener {
         return null;
     }
 
-    private SpimData openBdvOmeZarrS3Data( String path )
+    private SpimData openBdvOmeZarrS3( String path )
     {
         try {
             final SAXBuilder sax = new SAXBuilder();
@@ -180,7 +182,7 @@ public class SpimDataOpener {
         return null;
     }
 
-    private SpimData openBdvZarrData(String path) {
+    private SpimData openBdvOmeZarr( String path) {
         try
         {
             final SAXBuilder sax = new SAXBuilder();

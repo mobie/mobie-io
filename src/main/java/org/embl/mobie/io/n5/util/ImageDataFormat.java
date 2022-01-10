@@ -27,20 +27,24 @@ import com.google.gson.annotations.SerializedName;
  * 's3' ending indicates that the data is taken from the remote s3 object store.
  */
 public enum ImageDataFormat {
+    @SerializedName("bdv.hdf5")
+    BdvHDF5,
     @SerializedName("bdv.n5")
     BdvN5,
     @SerializedName("bdv.n5.s3")
     BdvN5S3,
     @SerializedName("openOrganelle.s3")
     OpenOrganelleS3,
-    @SerializedName("bdv.ome.zarr")
-    BdvOmeZarr,
-    @SerializedName("bdv.ome.zarr.s3")
-    BdvOmeZarrS3,
     @SerializedName("ome.zarr")
     OmeZarr,
     @SerializedName("ome.zarr.s3")
-    OmeZarrS3;
+    OmeZarrS3,
+    // OME Zarr with BDV XML
+    @SerializedName("bdv.ome.zarr")
+    BdvOmeZarr,
+    // OME Zarr S3 with BDV XML
+    @SerializedName("bdv.ome.zarr.s3")
+    BdvOmeZarrS3;
 
     // needed for SciJava Command UI, which does not support enums
     public static final String BDVN5 = "BdvN5";
