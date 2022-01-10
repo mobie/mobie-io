@@ -110,21 +110,6 @@
         </repository>
     </repositories>
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>sc.fiji</groupId>-->
-<!--            <artifactId>bigdataviewer-playground</artifactId>-->
-<!--            <version>${bigdataviewer-playground.version}</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.slf4j</groupId>-->
-<!--                    <artifactId>slf4j-log4j12</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>log4j</groupId>-->
-<!--                    <artifactId>log4j</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
             <artifactId>n5-zarr</artifactId>
@@ -175,10 +160,6 @@
             <groupId>org.janelia.saalfeldlab</groupId>
             <artifactId>n5-blosc</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>sc.fiji</groupId>-->
-<!--            <artifactId>3D_Viewer</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.scijava</groupId>
             <artifactId>j3dcore</artifactId>
@@ -194,25 +175,6 @@
             <version>2.14.1</version>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>de.embl.cba</groupId>-->
-<!--            <artifactId>imagej-utils</artifactId>-->
-<!--            <version>${imagej-utils.version}</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>logback-classic</artifactId>-->
-<!--                    <groupId>ch.qos.logback</groupId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.slf4j</groupId>-->
-<!--                    <artifactId>slf4j-log4j12</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>log4j</groupId>-->
-<!--                    <artifactId>log4j</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
@@ -226,7 +188,6 @@
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-<!--            <version>1.53d</version>-->
         </dependency>
         <dependency>
             <groupId>trove</groupId>
