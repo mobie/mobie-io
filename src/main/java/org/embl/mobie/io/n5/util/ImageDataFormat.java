@@ -32,8 +32,6 @@ import com.google.gson.annotations.SerializedName;
  * 's3' ending indicates that the data is taken from the remote s3 object store.
  */
 public enum ImageDataFormat {
-    @SerializedName("bdv.hdf5")
-    BdvHDF5,
     @SerializedName("bdv.n5")
     BdvN5,
     @SerializedName("bdv.n5.s3")

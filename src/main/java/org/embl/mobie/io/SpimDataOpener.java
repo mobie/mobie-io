@@ -64,6 +64,7 @@ public class SpimDataOpener {
         switch ( imageDataFormat ) {
             case BdvHDF5:
                 spimData = BdvUtils.openSpimData( imagePath );
+                break;
             case BdvN5:
                 spimData = openBdvN5( imagePath, sharedQueue );
                 break;
