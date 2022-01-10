@@ -1,8 +1,11 @@
 package org.embl.mobie.io;
 
+import bdv.img.imaris.Imaris;
+import bdv.spimdata.SpimDataMinimal;
 import bdv.util.volatiles.SharedQueue;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
+import mpicbg.spim.data.generic.AbstractSpimData;
 import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.openers.N5Opener;
 import org.embl.mobie.io.n5.openers.N5S3Opener;
@@ -17,6 +20,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,8 +36,10 @@ public class SpimDataOpener {
 
     public SpimDataOpener() {}
 
-    public SpimData openSpimData( String imagePath, ImageDataFormat imageDataFormat ) {
+    public AbstractSpimData openSpimData( String imagePath, ImageDataFormat imageDataFormat ) {
         switch ( imageDataFormat ) {
+            case Imaris:
+                return openImaris( imagePath );
             case BdvHDF5:
             case BdvN5:
             case BdvN5S3:
@@ -53,7 +59,19 @@ public class SpimDataOpener {
         }
     }
 
-    public SpimData openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue ) {
+    @NotNull
+    private SpimDataMinimal openImaris( String imagePath )
+    {
+        try
+        {
+            return Imaris.openIms( imagePath );
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    public AbstractSpimData openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue ) {
         switch ( imageDataFormat ) {
             case BdvN5:
                 return openBdvN5( imagePath, sharedQueue );

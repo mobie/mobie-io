@@ -29,6 +29,10 @@ import com.google.gson.annotations.SerializedName;
  * The data is stored in the ome zarr file format.
  * Does not use xml with additional metadata.
  * <p>
+ * <p>
+ * ims
+ * The data is stored in the hdf5 based Imaris file format (https://imaris.oxinst.com/support/imaris-file-format)
+ * <p>
  * 's3' ending indicates that the data is taken from the remote s3 object store.
  */
 public enum ImageDataFormat {
@@ -45,9 +49,11 @@ public enum ImageDataFormat {
     @SerializedName("ome.zarr.s3")
     OmeZarrS3,
     @SerializedName("bdv.ome.zarr")
-    BdvOmeZarr, // OME Zarr with BDV XML
+    BdvOmeZarr,
     @SerializedName("bdv.ome.zarr.s3")
-    BdvOmeZarrS3; // OME Zarr S3 with BDV XML
+    BdvOmeZarrS3,
+    @SerializedName("ims")
+    Imaris;
 
     // needed for SciJava Command UI, which does not support enums
     public static final String BDVN5 = "BdvN5";
