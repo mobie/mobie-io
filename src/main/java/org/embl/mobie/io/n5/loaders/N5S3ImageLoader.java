@@ -31,8 +31,8 @@ package org.embl.mobie.io.n5.loaders;
 
 import bdv.util.volatiles.SharedQueue;
 import com.amazonaws.services.s3.AmazonS3;
-import de.embl.cba.tables.S3Utils;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
+import org.embl.mobie.io.util.S3Utils;
 import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import java.io.IOException;
