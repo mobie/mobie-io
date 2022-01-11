@@ -45,7 +45,7 @@ public class SpimDataOpener {
             case BdvHDF5:
             case BdvN5:
             case BdvN5S3:
-                return openBdvHdf5AndBdvN5AndBdvN5S3(imagePath);
+                return openBdvXml(imagePath);
             case OmeZarr:
                 return openOmeZarr(imagePath);
             case OmeZarrS3:
@@ -85,7 +85,7 @@ public class SpimDataOpener {
         }
     }
 
-    private SpimData openBdvHdf5AndBdvN5AndBdvN5S3(String path) throws SpimDataException {
+    private SpimData openBdvXml(String path) throws SpimDataException {
         try {
             InputStream stream = de.embl.cba.tables.FileAndUrlUtils.getInputStream(path);
             return new CustomXmlIoSpimData().loadFromStream(stream, path);
@@ -153,7 +153,7 @@ public class SpimDataOpener {
     private SpimData openBdvOmeZarrS3(String path) throws SpimDataException {
         try {
             N5S3OMEZarrImageLoader imageLoader = createN5S3OmeZarrImageLoader(path);
-            SpimData spimData = openBdvHdf5AndBdvN5AndBdvN5S3(path);
+            SpimData spimData = openBdvXml(path);
             if (spimData != null) {
                 spimData.getSequenceDescription().setImgLoader(imageLoader);
                 return spimData;
@@ -166,7 +166,7 @@ public class SpimDataOpener {
     }
 
     private SpimData openBdvOmeZarr(String path) throws SpimDataException {
-        SpimData spimData = openBdvHdf5AndBdvN5AndBdvN5S3(path);
+        SpimData spimData = openBdvXml(path);
         SpimData spimDataWithImageLoader = getSpimDataWithImageLoader(path);
         if (spimData != null && spimDataWithImageLoader != null) {
             spimData.getSequenceDescription().setImgLoader(spimDataWithImageLoader.getSequenceDescription().getImgLoader());
