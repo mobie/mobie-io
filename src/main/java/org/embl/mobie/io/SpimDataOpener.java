@@ -43,7 +43,7 @@ public class SpimDataOpener {
             case BdvHDF5:
             case BdvN5:
             case BdvN5S3:
-                return openBdvHdf5AndBdvN5AndBdvN5S3( imagePath );
+                return openBdvXml( imagePath );
             case OmeZarr:
                 return openOmeZarr( imagePath );
             case OmeZarrS3:
@@ -86,7 +86,7 @@ public class SpimDataOpener {
         }
     }
 
-    private SpimData openBdvHdf5AndBdvN5AndBdvN5S3( String path )
+    private SpimData openBdvXml( String path )
     {
         try
         {
@@ -174,6 +174,9 @@ public class SpimDataOpener {
         return null;
     }
 
+    // TODO:
+    //  - code duplication with openBdvOmeZarr
+    //  - probably this could be handled with the usual XML image loader mechanism?
     private SpimData openBdvOmeZarrS3( String path )
     {
         try {
@@ -187,9 +190,8 @@ public class SpimDataOpener {
             String object = Arrays.stream( split ).skip( 1 ).collect( Collectors.joining( "/") );
             N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild( "ServiceEndpoint" ).getText(), imgLoaderElem.getChild( "SigningRegion" ).getText(),bucket, object, ".");
 
-            // TODO: Add explanation to what is happening!
             SpimData spimData = new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
-            SpimData spimData1 = openBdvHdf5AndBdvN5AndBdvN5S3( path );
+            SpimData spimData1 = openBdvXml( path );
             spimData1.setBasePath(null);
             spimData1.getSequenceDescription().setImgLoader( spimData.getSequenceDescription().getImgLoader() );
             spimData1.getSequenceDescription().getAllChannels().putAll( spimData.getSequenceDescription().getAllChannels() );
@@ -200,6 +202,9 @@ public class SpimDataOpener {
         return null;
     }
 
+    // TODO:
+    //  - code duplication with openBdvOmeZarrS3
+    //  - probably this could be handled with the usual XML image loader mechanism?
     private SpimData openBdvOmeZarr( String path) {
         try
         {
@@ -213,7 +218,7 @@ public class SpimDataOpener {
                 if ((imagesFile.equals(Paths.get(imagesFile).toString())))
                 {
                     SpimData spim =  OMEZarrOpener.openFile( imagesFile );
-                    SpimData sp1 = openBdvHdf5AndBdvN5AndBdvN5S3( path );
+                    SpimData sp1 = openBdvXml( path );
                     sp1.setBasePath( new File( imagesFile ) );
                     sp1.getSequenceDescription().setImgLoader( spim.getSequenceDescription().getImgLoader() );
                     sp1.getSequenceDescription().getAllChannels().putAll( spim.getSequenceDescription().getAllChannels() );
@@ -221,7 +226,7 @@ public class SpimDataOpener {
                 } else
                 {
                     SpimData spim = OMEZarrS3Opener.readURL( imagesFile );
-                    SpimData sp1 = openBdvHdf5AndBdvN5AndBdvN5S3( path );
+                    SpimData sp1 = openBdvXml( path );
                     sp1.setBasePath(null);
                     sp1.getSequenceDescription().setImgLoader( spim.getSequenceDescription().getImgLoader() );
                     sp1.getSequenceDescription().getAllChannels().putAll( spim.getSequenceDescription().getAllChannels() );
