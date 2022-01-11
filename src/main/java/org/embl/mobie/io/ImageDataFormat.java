@@ -64,6 +64,7 @@ public enum ImageDataFormat {
     public static final String OMEZARR = "OmeZarr";
     public static final String OMEZARRS3 = "OmeZarrS3";
     public static final String BDVHDF5 = "BdvHDF5";
+    public static final String IMARIS = "Imaris";
 
     @Override
     public String toString() {
@@ -84,6 +85,8 @@ public enum ImageDataFormat {
                 return "bdv.ome.zarr.s3";
             case OmeZarrS3:
                 return "ome.zarr.s3";
+            case Imaris:
+                return "ims";
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + this);
         }
@@ -109,6 +112,8 @@ public enum ImageDataFormat {
                 return OmeZarrS3;
             case "bdv.hdf5":
                 return BdvHDF5;
+            case "ims":
+                return Imaris;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + string);
         }

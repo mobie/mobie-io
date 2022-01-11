@@ -3,8 +3,6 @@ package org.embl.mobie.io;
 import bdv.img.imaris.Imaris;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.util.volatiles.SharedQueue;
-import de.embl.cba.bdv.utils.CustomXmlIoSpimData;
-import de.embl.cba.tables.FileAndUrlUtils;
 import ij.IJ;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
@@ -16,6 +14,8 @@ import org.embl.mobie.io.ome.zarr.loaders.xml.XmlN5OmeZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
+import org.embl.mobie.io.util.CustomXmlIoSpimData;
+import org.embl.mobie.io.util.FileAndUrlUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -87,7 +87,7 @@ public class SpimDataOpener {
 
     private SpimData openBdvXml(String path) throws SpimDataException {
         try {
-            InputStream stream = de.embl.cba.tables.FileAndUrlUtils.getInputStream(path);
+            InputStream stream = FileAndUrlUtils.getInputStream(path);
             return new CustomXmlIoSpimData().loadFromStream(stream, path);
         } catch (SpimDataException | IOException e) {
             throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  + e.getMessage());
@@ -180,7 +180,7 @@ public class SpimDataOpener {
     @NotNull
     private N5S3OMEZarrImageLoader createN5S3OmeZarrImageLoader(String path) throws IOException, JDOMException {
         final SAXBuilder sax = new SAXBuilder();
-        InputStream stream = de.embl.cba.tables.FileAndUrlUtils.getInputStream(path);
+        InputStream stream = FileAndUrlUtils.getInputStream(path);
         final Document doc = sax.build(stream);
         final Element imgLoaderElem = doc.getRootElement().getChild(SEQUENCEDESCRIPTION_TAG).getChild(IMGLOADER_TAG);
         String bucketAndObject = imgLoaderElem.getChild("BucketName").getText() + "/" + imgLoaderElem.getChild("Key").getText();
