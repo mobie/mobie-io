@@ -33,6 +33,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
@@ -53,11 +54,17 @@ import java.util.stream.Collectors;
 
 public abstract class S3Utils
 {
+    private static String[] s3AccessAndSecretKey;
+
+    public static void setS3AccessAndSecretKey( String[] s3AccessAndSecretKey )
+    {
+        S3Utils.s3AccessAndSecretKey = s3AccessAndSecretKey;
+    }
 
     public static AmazonS3 getS3Client( String endpoint, String region, String bucket ) {
         final AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, region);
 
-        // first we create a client with anon credentials and see if we can access the bucket like this
+        // first we create a client with anonymous credentials and see if we can access the bucket like this
         AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider( new AnonymousAWSCredentials() );
         AmazonS3 s3 = AmazonS3ClientBuilder
                 .standard()
@@ -76,13 +83,23 @@ public abstract class S3Utils
             switch(e.getStatusCode()) {
                 // if we get a 403 response (access forbidden), we try again with credentials
                 case HttpStatusCodes.STATUS_CODE_FORBIDDEN:
-                    credentialsProvider = new DefaultAWSCredentialsProviderChain();
-                    checkCredentialsExistence(credentialsProvider);
+                    if ( s3AccessAndSecretKey != null )
+                    {
+                        // use the given credentials
+                        final BasicAWSCredentials credentials = new BasicAWSCredentials(s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ]);
+                        credentialsProvider = new AWSStaticCredentialsProvider( credentials );
+                    }
+                    else
+                    {
+                        // look for credentials at other places
+                        credentialsProvider = new DefaultAWSCredentialsProviderChain();
+                        checkCredentialsExistence( credentialsProvider );
+                    }
                     s3 = AmazonS3ClientBuilder
                             .standard()
-                            .withPathStyleAccessEnabled(true)
-                            .withEndpointConfiguration(endpointConfiguration)
-                            .withCredentials(credentialsProvider)
+                            .withPathStyleAccessEnabled( true )
+                            .withEndpointConfiguration( endpointConfiguration )
+                            .withCredentials( credentialsProvider )
                             .build();
                     // check if we have access permissions now
                     try {

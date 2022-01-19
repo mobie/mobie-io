@@ -10,7 +10,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <url>https://github.com/mobie/mobie-io</url>
     <name>BDV ImageLoaders</name>
@@ -85,7 +85,6 @@
 
         <!-- EMBL CBA -->
         <imagej-utils.version>0.6.4</imagej-utils.version>
-
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
     </properties>
