@@ -1,6 +1,7 @@
 package org.embl.mobie.io.ome.zarr.util;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import org.janelia.saalfeldlab.n5.BlockReader;
 import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
@@ -9,11 +10,15 @@ import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.zarr.DType;
 import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
 import org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes;
+import org.scijava.table.AbstractTable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public interface N5ZarrImageReader extends N5Reader {
     String DEFAULT_SEPARATOR = ".";
@@ -45,9 +50,30 @@ public interface N5ZarrImageReader extends N5Reader {
     //////TODO:
     default void getDimensions(HashMap<String, JsonElement> attributes) {
         JsonElement multiscales = attributes.get("multiscales");
-        if (multiscales != null) {
+       if (multiscales == null) {
+           return;
+       }
+       String version = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
+        if (version.equals("0.3")) {
             JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
             setAxes(axes);
+        } else if (version.equals("0.4")) {
+            JsonArray axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes").getAsJsonArray();
+            int index = 0;
+            List<ZarrAxe> zarrAxes = new ArrayList<>();
+            for (JsonElement axe : axes) {
+                String name = axe.getAsJsonObject().get("name").getAsString();
+                String type = axe.getAsJsonObject().get("type").getAsString();
+                ZarrAxe zarrAxe;
+                if (axe.getAsJsonObject().get("unit") != null) {
+                    zarrAxe = new ZarrAxe(index, name, type, axe.getAsJsonObject().get("unit").getAsString());
+                } else {
+                    zarrAxe = new ZarrAxe(index, name, type);
+                }
+                index++;
+                zarrAxes.add(zarrAxe);
+            }
+            setAxes(ZarrAxe.convertToJson(zarrAxes));
         }
     }
 

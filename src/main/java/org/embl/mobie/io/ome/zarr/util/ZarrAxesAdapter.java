@@ -13,13 +13,24 @@ public class ZarrAxesAdapter implements JsonDeserializer<ZarrAxes>, JsonSerializ
         if (array.size() > 0) {
             StringBuilder axisString = new StringBuilder("[");
             for (int i = 0; i < array.size(); i++) {
-                String element = array.get(i).getAsString();
+                String element;
+                try {
+                    element = array.get(i).getAsString();
+                } catch (UnsupportedOperationException e) {
+                    try {
+                        JsonElement jj = array.get(i);
+                        element = jj.getAsJsonObject().get("name").getAsString();
+                    } catch (Exception exception) {
+                        throw new JsonParseException("" + e);
+                    }
+                }
                 if (i != 0) {
                     axisString.append(",");
                 }
                 axisString.append("\"");
                 axisString.append(element);
                 axisString.append("\"");
+
             }
             axisString.append("]");
             return ZarrAxes.decode(axisString.toString());
