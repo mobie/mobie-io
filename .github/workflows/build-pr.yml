@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - omezarr_v4
     tags:
       - "*-[0-9]+.*-SNAPSHOT"
 
