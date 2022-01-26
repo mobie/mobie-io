@@ -10,7 +10,6 @@ import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.zarr.DType;
 import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
 import org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes;
-import org.scijava.table.AbstractTable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +55,7 @@ public interface N5ZarrImageReader extends N5Reader {
         } else if (version.equals("0.4")) {
             JsonArray axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes").getAsJsonArray();
             int index = 0;
-            List<ZarrAxe> zarrAxes = new ArrayList<>();
+            List<ZarrAxis> zarrAxes = new ArrayList<>();
             for (JsonElement axe : axes) {
                 String name = axe.getAsJsonObject().get("name").getAsString();
                 String type = axe.getAsJsonObject().get("type").getAsString();
@@ -64,21 +63,21 @@ public interface N5ZarrImageReader extends N5Reader {
                 if (name.isEmpty() || type.isEmpty() || !AxesTypes.contains(type)) {
                     throw new IllegalArgumentException("Unsupported multiscales axes: " + name + ", " + type);
                 }
-                ZarrAxe zarrAxe;
+                ZarrAxis zarrAxe;
                 if (axe.getAsJsonObject().get("unit") != null && axe.getAsJsonObject().get("unit").isJsonPrimitive()) {
                     String unit = axe.getAsJsonObject().get("unit").getAsString();
                     if (UnitTypes.contains(unit)) {
-                        zarrAxe = new ZarrAxe(index, name, type, unit);
+                        zarrAxe = new ZarrAxis(index, name, type, unit);
                     } else {
                         throw new IllegalArgumentException("Unsupported multiscales axes unit type" + unit);
                     }
                 } else {
-                    zarrAxe = new ZarrAxe(index, name, type);
+                    zarrAxe = new ZarrAxis(index, name, type);
                 }
                 index++;
                 zarrAxes.add(zarrAxe);
             }
-            setAxes(ZarrAxe.convertToJson(zarrAxes));
+            setAxes(ZarrAxis.convertToJson(zarrAxes));
         }
     }
 
