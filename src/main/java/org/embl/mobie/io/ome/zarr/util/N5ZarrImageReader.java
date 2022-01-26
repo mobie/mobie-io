@@ -15,10 +15,7 @@ import org.scijava.table.AbstractTable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public interface N5ZarrImageReader extends N5Reader {
     String DEFAULT_SEPARATOR = ".";
@@ -48,7 +45,7 @@ public interface N5ZarrImageReader extends N5Reader {
     }
 
     //////TODO:
-    default void getDimensions(HashMap<String, JsonElement> attributes) {
+    default void getDimensions(HashMap<String, JsonElement> attributes) throws IllegalArgumentException {
         JsonElement multiscales = attributes.get("multiscales");
        if (multiscales == null) {
            return;
@@ -64,9 +61,18 @@ public interface N5ZarrImageReader extends N5Reader {
             for (JsonElement axe : axes) {
                 String name = axe.getAsJsonObject().get("name").getAsString();
                 String type = axe.getAsJsonObject().get("type").getAsString();
+                boolean nnn = AxesTypes.contains(type);
+                if (name.isEmpty() || type.isEmpty() || !AxesTypes.contains(type)) {
+                    throw new IllegalArgumentException("Unsupported multiscales axes: " + name + ", " + type);
+                }
                 ZarrAxe zarrAxe;
                 if (axe.getAsJsonObject().get("unit") != null && axe.getAsJsonObject().get("unit").isJsonPrimitive()) {
-                    zarrAxe = new ZarrAxe(index, name, type, axe.getAsJsonObject().get("unit").getAsString());
+                    String unit = axe.getAsJsonObject().get("unit").getAsString();
+                    if (UnitTypes.contains(unit)) {
+                        zarrAxe = new ZarrAxe(index, name, type, unit);
+                    } else {
+                        throw new IllegalArgumentException("Unsupported multiscales axes unit type" + unit);
+                    }
                 } else {
                     zarrAxe = new ZarrAxe(index, name, type);
                 }
