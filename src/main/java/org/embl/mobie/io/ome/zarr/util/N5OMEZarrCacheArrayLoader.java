@@ -92,6 +92,18 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
             dataBlockIndices[3] = channel;
         }
 
+        if (zarrAxes.is3DWithTimepoints()) {
+            dataBlockIndices = new long[3];
+            System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 2);
+            dataBlockIndices[2] = timepoint;
+        }
+
+        if (zarrAxes.is3DWithChannels()) {
+            dataBlockIndices = new long[3];
+            System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 2);
+            dataBlockIndices[2] = channel;
+        }
+
         if (zarrAxes.is4DWithTimepoints()) {
             dataBlockIndices = new long[4];
             System.arraycopy(gridPosition, 0, dataBlockIndices, 0, 3);

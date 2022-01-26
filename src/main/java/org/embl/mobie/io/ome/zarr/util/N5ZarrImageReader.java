@@ -1,6 +1,7 @@
 package org.embl.mobie.io.ome.zarr.util;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import org.janelia.saalfeldlab.n5.BlockReader;
 import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
@@ -13,7 +14,7 @@ import org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+import java.util.*;
 
 public interface N5ZarrImageReader extends N5Reader {
     String DEFAULT_SEPARATOR = ".";
@@ -42,12 +43,41 @@ public interface N5ZarrImageReader extends N5Reader {
         return dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
     }
 
-    //////TODO:
-    default void getDimensions(HashMap<String, JsonElement> attributes) {
+    default void getDimensions(HashMap<String, JsonElement> attributes) throws IllegalArgumentException {
         JsonElement multiscales = attributes.get("multiscales");
-        if (multiscales != null) {
+       if (multiscales == null) {
+           return;
+       }
+       String version = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
+        if (version.equals("0.3")) {
             JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
             setAxes(axes);
+        } else if (version.equals("0.4")) {
+            JsonArray axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes").getAsJsonArray();
+            int index = 0;
+            List<ZarrAxis> zarrAxes = new ArrayList<>();
+            for (JsonElement axis : axes) {
+                String name = axis.getAsJsonObject().get("name").getAsString();
+                String type = axis.getAsJsonObject().get("type").getAsString();
+                boolean nnn = AxesTypes.contains(type);
+                if (name.isEmpty() || type.isEmpty() || !AxesTypes.contains(type)) {
+                    throw new IllegalArgumentException("Unsupported multiscales axes: " + name + ", " + type);
+                }
+                ZarrAxis zarrAxis;
+                if (axis.getAsJsonObject().get("unit") != null && axis.getAsJsonObject().get("unit").isJsonPrimitive()) {
+                    String unit = axis.getAsJsonObject().get("unit").getAsString();
+                    if (UnitTypes.contains(unit)) {
+                        zarrAxis = new ZarrAxis(index, name, type, unit);
+                    } else {
+                        throw new IllegalArgumentException("Unsupported multiscales axes unit type" + unit);
+                    }
+                } else {
+                    zarrAxis = new ZarrAxis(index, name, type);
+                }
+                index++;
+                zarrAxes.add(zarrAxis);
+            }
+            setAxes(ZarrAxis.convertToJson(zarrAxes));
         }
     }
 

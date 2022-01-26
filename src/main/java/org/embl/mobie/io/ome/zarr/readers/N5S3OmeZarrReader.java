@@ -200,7 +200,13 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
         if (attributes == null) {
             attributes = new HashMap<>();
         }
-        getDimensions(attributes);
+
+        try {
+            getDimensions(attributes);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Error while getting datasets dimensions", e);
+        }
+
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
             final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
             n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);

@@ -63,6 +63,7 @@ import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
 import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
 import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.openorganelle.OpenOrganelleN5ImageLoader;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.jetbrains.annotations.NotNull;
@@ -137,8 +138,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                     setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[T];
                 }
 
-                if (setupToAttributes.get(setupId).getNumDimensions() == 4 && zarrAxes.is4DWithTimepoints()) {
+                if (setupToAttributes.get(setupId).getNumDimensions() == 4 && zarrAxes.is4DWithTimepoints() || zarrAxes.is4DWithTimepointsAndChannels()) {
                     setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[3];
+                }
+
+                if (setupToAttributes.get(setupId).getNumDimensions() == 3 && zarrAxes.is3DWithTimepoints()) {
+                    setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[2];
                 }
 
                 sequenceTimepoints = Math.max(setupTimepoints, sequenceTimepoints);
@@ -306,12 +311,22 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     @NotNull
-    private ArrayList<ViewRegistration> createViewRegistrations(int setupId, int setupTimepoints) {
-
+    private ArrayList<ViewRegistration> createViewRegistrations(int setupId, int setupTimePoints) {
+        OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
         AffineTransform3D transform = new AffineTransform3D();
-
+        if (multiscales.datasets[setupId].transformations != null && multiscales.datasets[setupId].transformations[0].scale != null) {
+            double[] scale = multiscales.datasets[setupId].transformations[0].scale;
+            if (scale.length > 2) {
+                transform.scale(scale[0] / 1000, scale[1] / 1000, scale[2] / 1000);
+            } else {
+                transform.scale(scale[0] / 1000, scale[1] / 1000, 1);
+            }
+        }
+        if (multiscales.transformations != null) {
+            transform.scale(multiscales.transformations[0].scale[0]);
+        }
         ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
-        for (int t = 0; t < setupTimepoints; t++)
+        for (int t = 0; t < setupTimePoints; t++)
             viewRegistrations.add(new ViewRegistration(t, setupId, transform));
 
         return viewRegistrations;

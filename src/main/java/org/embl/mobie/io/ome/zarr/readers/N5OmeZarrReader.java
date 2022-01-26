@@ -273,7 +273,11 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
             }
         }
 
-        getDimensions(attributes);
+        try {
+            getDimensions(attributes);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Error while getting datasets dimensions", e);
+        }
 
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
             final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
