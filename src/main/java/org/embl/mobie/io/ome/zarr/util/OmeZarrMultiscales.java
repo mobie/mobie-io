@@ -42,7 +42,7 @@ public class OmeZarrMultiscales {
 
     public static class Transformation {
         public String type;
-        public int[] scale;
+        public double[] scale;
         public int[] axisIndices;
     }
 }

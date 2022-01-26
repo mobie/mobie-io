@@ -65,7 +65,7 @@ public interface N5ZarrImageReader extends N5Reader {
                 String name = axe.getAsJsonObject().get("name").getAsString();
                 String type = axe.getAsJsonObject().get("type").getAsString();
                 ZarrAxe zarrAxe;
-                if (axe.getAsJsonObject().get("unit") != null) {
+                if (axe.getAsJsonObject().get("unit") != null && axe.getAsJsonObject().get("unit").isJsonPrimitive()) {
                     zarrAxe = new ZarrAxe(index, name, type, axe.getAsJsonObject().get("unit").getAsString());
                 } else {
                     zarrAxe = new ZarrAxe(index, name, type);

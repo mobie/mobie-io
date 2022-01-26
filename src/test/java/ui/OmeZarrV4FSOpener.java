@@ -17,7 +17,7 @@ public class OmeZarrV4FSOpener {
         OMEZarrOpener reader = new OMEZarrOpener(
                 "/g/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4");
         OMEZarrS3Opener.setLogChunkLoading(true);
-        SpimData image = OMEZarrOpener.openFile("/home/katerina/Documents/embl/mnt/kreshuk2/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4/yx.ome.zarr");
+        SpimData image = OMEZarrOpener.openFile("/home/katerina/Documents/embl/mnt/kreshuk/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4/tcyx.ome.zarr");
         BdvFunctions.show(image);
     }
 }
