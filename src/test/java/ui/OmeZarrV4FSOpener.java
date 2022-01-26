@@ -9,10 +9,10 @@ import java.io.IOException;
 
 public class OmeZarrV4FSOpener {
     public static void main(String[] args) throws IOException {
-        showHela();
+        showV4();
     }
 
-    public static void showHela() throws IOException {
+    public static void showV4() throws IOException {
         SpimData image = OMEZarrOpener.openFile("g/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4/tcyx.ome.zarr");
         BdvFunctions.show(image);
     }
