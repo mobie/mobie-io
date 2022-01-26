@@ -46,9 +46,9 @@ public class ZarrAxis {
     public static JsonElement convertToJson(List<ZarrAxis> zarrAxes) {
         StringBuilder axes = new StringBuilder();
         axes.append("[");
-        for (ZarrAxis axe : zarrAxes) {
-            axes.append("\"").append(axe.getName()).append("\"");
-            if (axe.getIndex() < zarrAxes.size() - 1) {
+        for (ZarrAxis axis : zarrAxes) {
+            axes.append("\"").append(axis.getName()).append("\"");
+            if (axis.getIndex() < zarrAxes.size() - 1) {
                 axes.append(",");
             }
         }

@@ -56,16 +56,16 @@ public interface N5ZarrImageReader extends N5Reader {
             JsonArray axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes").getAsJsonArray();
             int index = 0;
             List<ZarrAxis> zarrAxes = new ArrayList<>();
-            for (JsonElement axe : axes) {
-                String name = axe.getAsJsonObject().get("name").getAsString();
-                String type = axe.getAsJsonObject().get("type").getAsString();
+            for (JsonElement axis : axes) {
+                String name = axis.getAsJsonObject().get("name").getAsString();
+                String type = axis.getAsJsonObject().get("type").getAsString();
                 boolean nnn = AxesTypes.contains(type);
                 if (name.isEmpty() || type.isEmpty() || !AxesTypes.contains(type)) {
                     throw new IllegalArgumentException("Unsupported multiscales axes: " + name + ", " + type);
                 }
                 ZarrAxis zarrAxe;
-                if (axe.getAsJsonObject().get("unit") != null && axe.getAsJsonObject().get("unit").isJsonPrimitive()) {
-                    String unit = axe.getAsJsonObject().get("unit").getAsString();
+                if (axis.getAsJsonObject().get("unit") != null && axis.getAsJsonObject().get("unit").isJsonPrimitive()) {
+                    String unit = axis.getAsJsonObject().get("unit").getAsString();
                     if (UnitTypes.contains(unit)) {
                         zarrAxe = new ZarrAxis(index, name, type, unit);
                     } else {
