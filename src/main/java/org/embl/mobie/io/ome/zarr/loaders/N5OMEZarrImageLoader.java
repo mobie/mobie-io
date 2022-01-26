@@ -322,6 +322,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 transform.scale(scale[0] / 1000, scale[1] / 1000, 1);
             }
         }
+        if (multiscales.transformations != null) {
+            transform.scale(multiscales.transformations[0].scale[0]);
+        }
         ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
         for (int t = 0; t < setupTimePoints; t++)
             viewRegistrations.add(new ViewRegistration(t, setupId, transform));
