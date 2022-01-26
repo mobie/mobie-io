@@ -63,19 +63,19 @@ public interface N5ZarrImageReader extends N5Reader {
                 if (name.isEmpty() || type.isEmpty() || !AxesTypes.contains(type)) {
                     throw new IllegalArgumentException("Unsupported multiscales axes: " + name + ", " + type);
                 }
-                ZarrAxis zarrAxe;
+                ZarrAxis zarrAxis;
                 if (axis.getAsJsonObject().get("unit") != null && axis.getAsJsonObject().get("unit").isJsonPrimitive()) {
                     String unit = axis.getAsJsonObject().get("unit").getAsString();
                     if (UnitTypes.contains(unit)) {
-                        zarrAxe = new ZarrAxis(index, name, type, unit);
+                        zarrAxis = new ZarrAxis(index, name, type, unit);
                     } else {
                         throw new IllegalArgumentException("Unsupported multiscales axes unit type" + unit);
                     }
                 } else {
-                    zarrAxe = new ZarrAxis(index, name, type);
+                    zarrAxis = new ZarrAxis(index, name, type);
                 }
                 index++;
-                zarrAxes.add(zarrAxe);
+                zarrAxes.add(zarrAxis);
             }
             setAxes(ZarrAxis.convertToJson(zarrAxes));
         }
