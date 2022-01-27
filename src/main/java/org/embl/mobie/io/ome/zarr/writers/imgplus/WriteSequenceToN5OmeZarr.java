@@ -22,6 +22,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.util.DownsampleBlock;
 import org.embl.mobie.io.n5.util.ExportScalePyramid;
+import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
 import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
 import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
@@ -370,12 +371,13 @@ public class WriteSequenceToN5OmeZarr {
 
         @Override
         public RandomAccessibleInterval<T> getImage(final int level) throws IOException {
-            final String pathName = getPathName(level);
-            final DatasetAttributes attributes = zarrWriter.getDatasetAttributes("s" + level);
+            final String pathName = String.format("s%d", level); // only include level as rest is handled by N5OmeZarrCacheArrayLoader
+            final DatasetAttributes attributes = zarrWriter.getDatasetAttributes( pathName );
             final long[] dimensions = attributes.getDimensions();
             final int[] cellDimensions = attributes.getBlockSize();
             final CellGrid grid = new CellGrid(dimensions, cellDimensions);
-            final SimpleCacheArrayLoader<?> cacheArrayLoader = N5ImageLoader.createCacheArrayLoader(zarrWriter, pathName);
+            final SimpleCacheArrayLoader<?> cacheArrayLoader =
+                    new N5OMEZarrCacheArrayLoader<>( zarrWriter, pathName, setupId, timepointId, attributes, grid, axes );
             return new ReadOnlyCachedCellImgFactory().createWithCacheLoader(
                     dimensions, type,
                     key -> {
