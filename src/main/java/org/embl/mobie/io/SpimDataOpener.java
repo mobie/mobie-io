@@ -72,7 +72,8 @@ public class SpimDataOpener {
             case OmeZarrS3:
                 return openOmeZarrS3(imagePath, sharedQueue);
             default:
-                throw new UnsupportedOperationException("Shared queues for " + imageDataFormat + " are not yet supported!");
+                System.out.println("Shared queues for " + imageDataFormat + " are not yet supported; opening with own queue.");
+                return openSpimData( imagePath, imageDataFormat );
         }
     }
 
