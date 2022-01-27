@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,29 +45,26 @@ import java.io.InputStream;
 import static mpicbg.spim.data.XmlKeys.SPIMDATA_TAG;
 
 
-public class CustomXmlIoSpimData extends XmlIoAbstractSpimData< SequenceDescription, SpimData> {
+public class CustomXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDescription, SpimData> {
     public CustomXmlIoSpimData() {
         super(SpimData.class, new XmlIoSequenceDescription(), new XmlIoViewRegistrations());
     }
 
     // NOTE we still need to pass the xml filename here, so that bdv can determine the relative
     // paths for local files.
-    public SpimData loadFromStream( InputStream in, String xmlFilename ) throws SpimDataException {
+    public SpimData loadFromStream(InputStream in, String xmlFilename) throws SpimDataException {
         final SAXBuilder sax = new SAXBuilder();
         Document doc;
-        try
-        {
-            doc = sax.build( in );
-        }
-        catch ( final Exception e )
-        {
-            throw new SpimDataIOException( e );
+        try {
+            doc = sax.build(in);
+        } catch (final Exception e) {
+            throw new SpimDataIOException(e);
         }
         final Element root = doc.getRootElement();
 
-        if ( root.getName() != SPIMDATA_TAG )
-            throw new RuntimeException( "expected <" + SPIMDATA_TAG + "> root element. wrong file?" );
+        if (root.getName() != SPIMDATA_TAG)
+            throw new RuntimeException("expected <" + SPIMDATA_TAG + "> root element. wrong file?");
 
-        return fromXml( root, new File( xmlFilename ) );
+        return fromXml(root, new File(xmlFilename));
     }
 }

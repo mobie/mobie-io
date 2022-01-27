@@ -1,15 +1,12 @@
 package org.embl.mobie.io.ome.zarr.util;
 
 public enum AxesTypes {
-    TIME ("time"),
+    TIME("time"),
     CHANNEL("channel"),
     SPACE("space");
 
     private final String typeName;
 
-    public String getTypeName() {
-        return typeName;
-    }
     AxesTypes(String typeName) {
         this.typeName = typeName;
     }
@@ -21,5 +18,9 @@ public enum AxesTypes {
             }
         }
         return false;
+    }
+
+    public String getTypeName() {
+        return typeName;
     }
 }

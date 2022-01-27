@@ -14,7 +14,9 @@ import org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public interface N5ZarrImageReader extends N5Reader {
     String DEFAULT_SEPARATOR = ".";
@@ -45,10 +47,10 @@ public interface N5ZarrImageReader extends N5Reader {
 
     default void getDimensions(HashMap<String, JsonElement> attributes) throws IllegalArgumentException {
         JsonElement multiscales = attributes.get("multiscales");
-       if (multiscales == null) {
-           return;
-       }
-       String version = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
+        if (multiscales == null) {
+            return;
+        }
+        String version = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
         if (version.equals("0.3")) {
             JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
             setAxes(axes);
@@ -78,6 +80,9 @@ public interface N5ZarrImageReader extends N5Reader {
                 zarrAxes.add(zarrAxis);
             }
             setAxes(ZarrAxis.convertToJson(zarrAxes));
+        } else {
+            JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
+            setAxes(axes);
         }
     }
 

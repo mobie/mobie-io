@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -38,150 +38,131 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class RESTCaller
-{
-	private int issueNumber;
-	private String status;
+public class RESTCaller {
+    private int issueNumber;
+    private String status;
 
-	public RESTCaller()
-	{
-	}
+    public RESTCaller() {
+    }
 
-	public void put( String url, String requestMethod, String content, String accessToken )
-	{
-		try
-		{
-			URL obj = new URL( url );
-			HttpURLConnection httpURLConnection = ( HttpURLConnection ) obj.openConnection();
+    public void put(String url, String requestMethod, String content, String accessToken) {
+        try {
+            URL obj = new URL(url);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) obj.openConnection();
 
-			httpURLConnection.setRequestMethod( requestMethod );
-			httpURLConnection.setRequestProperty( "Content-Type", "application/json" );
-			httpURLConnection.setRequestProperty( "Authorization", "Token " + accessToken );
+            httpURLConnection.setRequestMethod(requestMethod);
+            httpURLConnection.setRequestProperty("Content-Type", "application/json");
+            httpURLConnection.setRequestProperty("Authorization", "Token " + accessToken);
 
-			httpURLConnection.setDoOutput( true );
-			DataOutputStream wr = new DataOutputStream( httpURLConnection.getOutputStream() );
-			wr.writeBytes( content );
-			wr.flush();
-			wr.close();
+            httpURLConnection.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
+            wr.writeBytes(content);
+            wr.flush();
+            wr.close();
 
-			parseResponse( httpURLConnection );
-		}
-		catch( Exception e )
-		{
-			System.err.println( e );
-		}
-	}
+            parseResponse(httpURLConnection);
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }
 
-	private HttpURLConnection createUrlConnection( String url, String requestMethod, String accessToken ) throws IOException {
-		URL obj = new URL( url );
-		HttpURLConnection httpURLConnection = ( HttpURLConnection ) obj.openConnection();
+    private HttpURLConnection createUrlConnection(String url, String requestMethod, String accessToken) throws IOException {
+        URL obj = new URL(url);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) obj.openConnection();
 
-		httpURLConnection.setRequestMethod( requestMethod );
-		httpURLConnection.setRequestProperty( "Content-Type", "application/json" );
-		if ( accessToken != null )
-			httpURLConnection.setRequestProperty( "Authorization", "Token " + accessToken );
+        httpURLConnection.setRequestMethod(requestMethod);
+        httpURLConnection.setRequestProperty("Content-Type", "application/json");
+        if (accessToken != null)
+            httpURLConnection.setRequestProperty("Authorization", "Token " + accessToken);
 
-		return httpURLConnection;
-	}
+        return httpURLConnection;
+    }
 
-	public Integer getResponseCode(String url, String requestMethod, String accessToken ) {
-		try {
-			HttpURLConnection httpURLConnection = createUrlConnection( url, requestMethod, accessToken );
-			return httpURLConnection.getResponseCode();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+    public Integer getResponseCode(String url, String requestMethod, String accessToken) {
+        try {
+            HttpURLConnection httpURLConnection = createUrlConnection(url, requestMethod, accessToken);
+            return httpURLConnection.getResponseCode();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 
-	public String get(
-			String url,
-			String requestMethod,
-			String accessToken // nullable
-	)
-	{
-		try
-		{
-			HttpURLConnection httpURLConnection = createUrlConnection( url, requestMethod, accessToken );
-			return parseResponse( httpURLConnection );
-		}
-		catch( Exception e )
-		{
-			System.err.println( e );
-			throw new RuntimeException( e );
-		}
-	}
+    public String get(
+            String url,
+            String requestMethod,
+            String accessToken // nullable
+    ) {
+        try {
+            HttpURLConnection httpURLConnection = createUrlConnection(url, requestMethod, accessToken);
+            return parseResponse(httpURLConnection);
+        } catch (Exception e) {
+            System.err.println(e);
+            throw new RuntimeException(e);
+        }
+    }
 
 
-	private String parseResponse( HttpURLConnection httpURLConnection ) throws IOException
-	{
-		StringBuilder builder = getResponse( httpURLConnection );
+    private String parseResponse(HttpURLConnection httpURLConnection) throws IOException {
+        StringBuilder builder = getResponse(httpURLConnection);
 
-		int responseCode = httpURLConnection.getResponseCode();
-		if ( ! ( responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED ) )
-		{
-			System.err.println( "Unexpected response code: " + responseCode + "\n"  + status + ".\n" +  builder.toString() );
-			throw new RuntimeException();
-		}
-		else
-		{
-			final BufferedReader bufferedReader = new BufferedReader( new InputStreamReader( ( httpURLConnection.getInputStream() ) ) );
-			final StringBuilder stringBuilder = new StringBuilder();
-			String output;
-			while ((output = bufferedReader.readLine()) != null) {
-				stringBuilder.append(output);
-			}
-			final String response = stringBuilder.toString();
-			return response;
-		}
-	}
+        int responseCode = httpURLConnection.getResponseCode();
+        if (!(responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED)) {
+            System.err.println("Unexpected response code: " + responseCode + "\n" + status + ".\n" + builder.toString());
+            throw new RuntimeException();
+        } else {
+            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader((httpURLConnection.getInputStream())));
+            final StringBuilder stringBuilder = new StringBuilder();
+            String output;
+            while ((output = bufferedReader.readLine()) != null) {
+                stringBuilder.append(output);
+            }
+            final String response = stringBuilder.toString();
+            return response;
+        }
+    }
 
-	private StringBuilder getResponse( HttpURLConnection httpURLConnection ) throws IOException
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append(httpURLConnection.getResponseCode())
-				.append(" ")
-				.append(httpURLConnection.getResponseMessage())
-				.append("\n");
+    private StringBuilder getResponse(HttpURLConnection httpURLConnection) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        builder.append(httpURLConnection.getResponseCode())
+                .append(" ")
+                .append(httpURLConnection.getResponseMessage())
+                .append("\n");
 
-		Map<String, List<String> > map = httpURLConnection.getHeaderFields();
-		for (Map.Entry<String, List<String>> entry : map.entrySet())
-		{
-			if (entry.getKey() == null)
-				continue;
-			builder.append( entry.getKey())
-					.append(": ");
+        Map<String, List<String>> map = httpURLConnection.getHeaderFields();
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            if (entry.getKey() == null)
+                continue;
+            builder.append(entry.getKey())
+                    .append(": ");
 
-			List<String> headerValues = entry.getValue();
-			Iterator<String> it = headerValues.iterator();
-			if (it.hasNext()) {
-				builder.append(it.next());
+            List<String> headerValues = entry.getValue();
+            Iterator<String> it = headerValues.iterator();
+            if (it.hasNext()) {
+                builder.append(it.next());
 
-				while (it.hasNext()) {
-					builder.append(", ")
-							.append(it.next());
-				}
-			}
+                while (it.hasNext()) {
+                    builder.append(", ")
+                            .append(it.next());
+                }
+            }
 
-			if (entry.getKey().equals( "Location" ) )
-			{
-				final String[] split = entry.getValue().get( 0 ).split( "/" );
-				issueNumber = Integer.parseInt( split[ split.length - 1 ] );
-			}
+            if (entry.getKey().equals("Location")) {
+                final String[] split = entry.getValue().get(0).split("/");
+                issueNumber = Integer.parseInt(split[split.length - 1]);
+            }
 
-			if (entry.getKey().equals( "Status" ) )
-			{
-				status = entry.getValue().get( 0 );
-			}
+            if (entry.getKey().equals("Status")) {
+                status = entry.getValue().get(0);
+            }
 
-			builder.append("\n");
-		}
-		return builder;
-	}
+            builder.append("\n");
+        }
+        return builder;
+    }
 
-	public int getIssueNumber()
-	{
-		return issueNumber;
-	}
+    public int getIssueNumber() {
+        return issueNumber;
+    }
 }

@@ -66,32 +66,6 @@ public enum ImageDataFormat {
     public static final String BDVHDF5 = "BdvHDF5";
     public static final String IMARIS = "Imaris";
 
-    @Override
-    public String toString() {
-        switch (this) {
-            case BdvHDF5:
-                return "bdv.h5";
-            case BdvN5:
-                return "bdv.n5";
-            case BdvN5S3:
-                return "bdv.n5.s3";
-            case OpenOrganelleS3:
-                return "openOrganelle.s3";
-            case BdvOmeZarr:
-                return "bdv.ome.zarr";
-            case OmeZarr:
-                return "ome.zarr";
-            case BdvOmeZarrS3:
-                return "bdv.ome.zarr.s3";
-            case OmeZarrS3:
-                return "ome.zarr.s3";
-            case Imaris:
-                return "ims";
-            default:
-                throw new UnsupportedOperationException("Unknown file format: " + this);
-        }
-    }
-
     public static ImageDataFormat fromString(String string) {
         switch (string) {
             case "bdv.h5":
@@ -116,6 +90,32 @@ public enum ImageDataFormat {
                 return Imaris;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + string);
+        }
+    }
+
+    @Override
+    public String toString() {
+        switch (this) {
+            case BdvHDF5:
+                return "bdv.h5";
+            case BdvN5:
+                return "bdv.n5";
+            case BdvN5S3:
+                return "bdv.n5.s3";
+            case OpenOrganelleS3:
+                return "openOrganelle.s3";
+            case BdvOmeZarr:
+                return "bdv.ome.zarr";
+            case OmeZarr:
+                return "ome.zarr";
+            case BdvOmeZarrS3:
+                return "bdv.ome.zarr.s3";
+            case OmeZarrS3:
+                return "ome.zarr.s3";
+            case Imaris:
+                return "ims";
+            default:
+                throw new UnsupportedOperationException("Unknown file format: " + this);
         }
     }
 

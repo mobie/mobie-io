@@ -54,10 +54,6 @@ public enum UnitTypes {
 
     private final String typeName;
 
-    public String getTypeName() {
-        return typeName;
-    }
-
     UnitTypes(String typeName) {
         this.typeName = typeName;
     }
@@ -69,5 +65,9 @@ public enum UnitTypes {
             }
         }
         return false;
+    }
+
+    public String getTypeName() {
+        return typeName;
     }
 }

@@ -17,14 +17,25 @@ public class ZarrAxis {
         this.type = type;
         this.unit = unit;
     }
+
     public ZarrAxis(int index, String name, String type) {
         this.index = index;
         this.name = name;
         this.type = type;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
+    public static JsonElement convertToJson(List<ZarrAxis> zarrAxes) {
+        StringBuilder axes = new StringBuilder();
+        axes.append("[");
+        for (ZarrAxis axis : zarrAxes) {
+            axes.append("\"").append(axis.getName()).append("\"");
+            if (axis.getIndex() < zarrAxes.size() - 1) {
+                axes.append(",");
+            }
+        }
+        axes.append("]");
+        Gson gson = new Gson();
+        return gson.fromJson(axes.toString(), JsonElement.class);
     }
 
     public int getIndex() {
@@ -43,17 +54,7 @@ public class ZarrAxis {
         return unit;
     }
 
-    public static JsonElement convertToJson(List<ZarrAxis> zarrAxes) {
-        StringBuilder axes = new StringBuilder();
-        axes.append("[");
-        for (ZarrAxis axis : zarrAxes) {
-            axes.append("\"").append(axis.getName()).append("\"");
-            if (axis.getIndex() < zarrAxes.size() - 1) {
-                axes.append(",");
-            }
-        }
-        axes.append("]");
-        Gson gson = new Gson();
-        return gson.fromJson (axes.toString(), JsonElement.class);
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }

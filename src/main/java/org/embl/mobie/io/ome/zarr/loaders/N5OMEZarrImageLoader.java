@@ -63,7 +63,6 @@ import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
 import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
 import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
-import org.embl.mobie.io.openorganelle.OpenOrganelleN5ImageLoader;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.jetbrains.annotations.NotNull;

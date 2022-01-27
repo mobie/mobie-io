@@ -3,7 +3,6 @@ package ui;
 import bdv.util.BdvFunctions;
 import mpicbg.spim.data.SpimData;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
-import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 
 import java.io.IOException;
 

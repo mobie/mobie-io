@@ -73,7 +73,7 @@ public class SpimDataOpener {
                 return openOmeZarrS3(imagePath, sharedQueue);
             default:
                 System.out.println("Shared queues for " + imageDataFormat + " are not yet supported; opening with own queue.");
-                return openSpimData( imagePath, imageDataFormat );
+                return openSpimData(imagePath, imageDataFormat);
         }
     }
 
@@ -91,7 +91,7 @@ public class SpimDataOpener {
             InputStream stream = FileAndUrlUtils.getInputStream(path);
             return new CustomXmlIoSpimData().loadFromStream(stream, path);
         } catch (SpimDataException | IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  + e.getMessage());
+            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
         }
     }
 
@@ -99,7 +99,7 @@ public class SpimDataOpener {
         try {
             return N5Opener.openFile(path, queue);
         } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  + e.getMessage());
+            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
         }
     }
 
@@ -107,7 +107,7 @@ public class SpimDataOpener {
         try {
             return N5S3Opener.readURL(path, queue);
         } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  + e.getMessage());
+            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
         }
     }
 
@@ -115,7 +115,7 @@ public class SpimDataOpener {
         try {
             return OMEZarrOpener.openFile(path);
         } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  + e.getMessage());
+            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
         }
     }
 
@@ -123,7 +123,7 @@ public class SpimDataOpener {
         try {
             return OMEZarrOpener.openFile(path, sharedQueue);
         } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  + e.getMessage());
+            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
         }
     }
 
@@ -131,7 +131,7 @@ public class SpimDataOpener {
         try {
             return OMEZarrS3Opener.readURL(path);
         } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  + e.getMessage());
+            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
         }
     }
 
@@ -147,7 +147,7 @@ public class SpimDataOpener {
         try {
             return OpenOrganelleS3Opener.readURL(path);
         } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  + e.getMessage());
+            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
         }
     }
 
@@ -162,7 +162,7 @@ public class SpimDataOpener {
                 throw new SpimDataException("Error while trying to read spimData. SpimData is null");
             }
         } catch (IOException | JDOMException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  + e.getMessage());
+            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
         }
     }
 
@@ -174,7 +174,7 @@ public class SpimDataOpener {
             spimData.getSequenceDescription().getAllChannels().putAll(spimDataWithImageLoader.getSequenceDescription().getAllChannels());
             return spimData;
         } else {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA  );
+            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA);
         }
     }
 
