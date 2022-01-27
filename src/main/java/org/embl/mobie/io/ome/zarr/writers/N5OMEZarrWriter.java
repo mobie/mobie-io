@@ -423,7 +423,7 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
                 chunks,
                 new DType(datasetAttributes.getDataType()),
                 ZarrCompressor.fromCompression(datasetAttributes.getCompression()),
-                "0",
+                0,
                 'C',
                 null,
                 dimensionSeparator);

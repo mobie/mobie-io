@@ -15,7 +15,7 @@ public class OmeZArrayAttributes extends ZArrayAttributes {
     private final String dimensionSeparator;
 
     public OmeZArrayAttributes(int zarr_format, long[] shape, int[] chunks, DType dtype, ZarrCompressor compressor,
-                               String fill_value, char order, Collection<Filter> filters, String dimensionSeparator) {
+                               Integer fill_value, char order, Collection<Filter> filters, String dimensionSeparator) {
         super(zarr_format, shape, chunks, dtype, compressor, fill_value, order, filters);
         this.dimensionSeparator = dimensionSeparator;
     }

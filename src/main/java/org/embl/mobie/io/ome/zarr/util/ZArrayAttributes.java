@@ -27,7 +27,7 @@ public class ZArrayAttributes {
     private final int[] chunks;
     private final DType dtype;
     private final ZarrCompressor compressor;
-    private final String fill_value;
+    private final Integer fill_value;
     private final char order;
     private final List<Filter> filters = new ArrayList<>();
 
@@ -37,7 +37,7 @@ public class ZArrayAttributes {
             final int[] chunks,
             final DType dtype,
             final ZarrCompressor compressor,
-            final String fill_value,
+            final Integer fill_value,
             final char order,
             final Collection<Filter> filters) {
 
@@ -99,7 +99,7 @@ public class ZArrayAttributes {
         return order;
     }
 
-    public String getFillValue() {
+    public Integer getFillValue() {
         return fill_value;
     }
 
