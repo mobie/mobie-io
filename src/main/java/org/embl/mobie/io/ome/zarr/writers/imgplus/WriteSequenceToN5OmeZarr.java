@@ -338,6 +338,22 @@ public class WriteSequenceToN5OmeZarr {
             return shape;
         }
 
+        private long[] removeSetupAndTimeFromShape( long[] shape ) {
+            long[] xyzShape = new long[3];
+            for (int i = 0; i < 3; i++) {
+                xyzShape[i] = shape[i];
+            }
+            return xyzShape;
+        }
+
+        private int[] removeSetupAndTimeFromShape( int[] shape ) {
+            int[] xyzShape = new int[3];
+            for (int i = 0; i < 3; i++) {
+                xyzShape[i] = shape[i];
+            }
+            return xyzShape;
+        }
+
         @Override
         public OmeZarrDataset createDataset(final int level, final long[] zyxDimensions, final int[] zyxBlockSize) throws IOException {
             // create dataset directory + metadata
@@ -371,10 +387,11 @@ public class WriteSequenceToN5OmeZarr {
 
         @Override
         public RandomAccessibleInterval<T> getImage(final int level) throws IOException {
+            // this needs to return the zyx image for the current timepoint and channel (as we are only chunking in zyx)
             final String pathName = String.format("s%d", level); // only include level as rest is handled by N5OmeZarrCacheArrayLoader
             final DatasetAttributes attributes = zarrWriter.getDatasetAttributes( pathName );
-            final long[] dimensions = attributes.getDimensions();
-            final int[] cellDimensions = attributes.getBlockSize();
+            final long[] dimensions = removeSetupAndTimeFromShape( attributes.getDimensions() );
+            final int[] cellDimensions = removeSetupAndTimeFromShape( attributes.getBlockSize() );
             final CellGrid grid = new CellGrid(dimensions, cellDimensions);
             final SimpleCacheArrayLoader<?> cacheArrayLoader =
                     new N5OMEZarrCacheArrayLoader<>( zarrWriter, pathName, setupId, timepointId, attributes, grid, axes );
