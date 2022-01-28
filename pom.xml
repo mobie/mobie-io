@@ -85,6 +85,10 @@
 
         <!-- EMBL CBA -->
         <imagej-utils.version>0.6.4</imagej-utils.version>
+
+        <!-- spim_data.version required for fix that closes xml files properly after creation - should soon be in main fiji	-->
+        <spim_data.version>2.2.5</spim_data.version>
+
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
     </properties>
@@ -147,6 +151,11 @@
         <dependency>
             <groupId>sc.fiji</groupId>
             <artifactId>bigdataviewer_fiji</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>sc.fiji</groupId>
+            <artifactId>spim_data</artifactId>
+            <version>${spim_data.version}</version>
         </dependency>
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
