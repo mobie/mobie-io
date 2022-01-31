@@ -185,8 +185,8 @@ public class OmeZarrWithWriterTest {
     }
 
     @Test
-    void checkOmeZarrEdges() throws SpimDataException {
-        // check that edges in most downsampled levels are written properly for ome-zarr (i.e. that the loopback
+    void checkOmeZarrLoopBack() throws SpimDataException {
+        // check that most downsampled levels are written properly for ome-zarr (i.e. that the loopback
         // is working correctly)
         // related to https://github.com/mobie/mobie-viewer-fiji/issues/572
 
