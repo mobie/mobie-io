@@ -54,10 +54,10 @@ public class XmlIoN5S3ZarrImageLoader implements XmlIoBasicImgLoader<N5S3OMEZarr
         final Element elem = new Element("ImageLoader");
         elem.setAttribute(IMGLOADER_FORMAT_ATTRIBUTE_NAME, "ome.n5.zarr.s3");
         elem.setAttribute("version", "1.0");
-        elem.setAttribute(SERVICE_ENDPOINT, imgLoader.getServiceEndpoint());
-        elem.setAttribute(SIGNING_REGION, imgLoader.getSigningRegion());
-        elem.setAttribute(BUCKET_NAME, imgLoader.getBucketName());
-        elem.setAttribute(KEY, imgLoader.getKey());
+		elem.addContent(XmlHelpers.textElement(SERVICE_ENDPOINT, imgLoader.getServiceEndpoint()));
+		elem.addContent(XmlHelpers.textElement(SIGNING_REGION, imgLoader.getSigningRegion()));
+		elem.addContent(XmlHelpers.textElement(BUCKET_NAME, imgLoader.getBucketName()));
+		elem.addContent(XmlHelpers.textElement(KEY, imgLoader.getKey()));
 
         return elem;
     }
