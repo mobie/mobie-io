@@ -107,6 +107,15 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     public N5OMEZarrImageLoader(N5Reader n5Reader, AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
         this.n5 = n5Reader;
         this.seq = sequenceDescription; // TODO: it is better to fetch from within Zarr
+		try
+		{
+			initSetups();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
     }
 
     public N5OMEZarrImageLoader(N5Reader n5Reader) {
