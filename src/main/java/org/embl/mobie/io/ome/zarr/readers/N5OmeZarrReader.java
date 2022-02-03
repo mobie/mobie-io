@@ -71,7 +71,6 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
-
         super(basePath, N5ZarrImageReader.initGsonBuilder(gsonBuilder));
         this.dimensionSeparator = dimensionSeparator;
         this.mapN5DatasetAttributes = mapN5DatasetAttributes;
