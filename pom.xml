@@ -168,6 +168,7 @@
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
             <artifactId>n5-blosc</artifactId>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.scijava</groupId>
