@@ -29,7 +29,6 @@ public interface N5ZarrImageReader extends N5Reader {
 
         gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
         gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
-        gsonBuilder.serializeNulls();
         gsonBuilder.registerTypeAdapter(ZarrAxes.class, new ZarrAxesAdapter());
         gsonBuilder.registerTypeAdapter(N5Reader.Version.class, new VersionAdapter());
         gsonBuilder.setPrettyPrinting();
