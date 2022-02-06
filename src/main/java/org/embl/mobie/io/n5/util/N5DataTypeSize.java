@@ -2,7 +2,7 @@ package org.embl.mobie.io.n5.util;
 
 import org.janelia.saalfeldlab.n5.DataType;
 
-public abstract class N5DataTypeByteSize
+public abstract class N5DataTypeSize
 {
 	public static int getNumBytesPerElement( DataType dataType )
 	{
@@ -24,7 +24,7 @@ public abstract class N5DataTypeByteSize
 				return 8;
 			case OBJECT:
 			default:
-				throw new UnsupportedOperationException( "Cannot determine the byte size of " + dataType );
+				return -1;
 		}
 	}
 }
