@@ -24,13 +24,13 @@ public class OMEZarrOpener extends BDVOpener {
     }
 
     public static SpimData openFile(String filePath, SharedQueue sharedQueue) throws IOException {
-        N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
+        N5OMEZarrImageLoader.logging = logging;
         OMEZarrOpener omeZarrOpener = new OMEZarrOpener(filePath);
         return omeZarrOpener.readFile(sharedQueue);
     }
 
     private SpimData readFile(SharedQueue sharedQueue) throws IOException {
-        N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
+        N5OMEZarrImageLoader.logging = logging;
         N5OmeZarrReader reader = new N5OmeZarrReader(this.filePath, new GsonBuilder());
         N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader, sharedQueue);
         return new SpimData(
@@ -40,7 +40,7 @@ public class OMEZarrOpener extends BDVOpener {
     }
 
     private SpimData readFile() throws IOException {
-        N5OMEZarrImageLoader.logChunkLoading = logChunkLoading;
+        N5OMEZarrImageLoader.logging = logging;
         N5OmeZarrReader reader = new N5OmeZarrReader(this.filePath, new GsonBuilder());
         N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader);
         return new SpimData(

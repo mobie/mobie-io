@@ -3,11 +3,11 @@ package org.embl.mobie.io.n5.openers;
 import ij.IJ;
 
 public abstract class BDVOpener {
-    protected static boolean logChunkLoading;
+    protected static boolean logging;
 
-    public static void setLogChunkLoading(final boolean logChunkLoading) {
-        S3Opener.logChunkLoading = logChunkLoading;
-        if (logChunkLoading) IJ.run("Console");
+    public static void setLogging( final boolean logging) {
+        S3Opener.logging = logging;
+        if (logging) IJ.run("Console");
     }
 
 }

@@ -25,7 +25,7 @@ public class OmeZarrS3OpenerTests {
 
     public static void showIDR0() throws IOException {
         //  /idr/zarr/v0.1/6001237.zarr
-        N5OMEZarrImageLoader.logChunkLoading = true;
+        N5OMEZarrImageLoader.logging = true;
         OMEZarrS3Opener reader = new OMEZarrS3Opener("https://s3.embassy.ebi.ac.uk", "us-west-2", "idr");
         SpimData image = readURL("zarr/v0.1/6001237.zarr");
         List<BdvStackSource<?>> sources = BdvFunctions.show(image);
@@ -43,14 +43,14 @@ public class OmeZarrS3OpenerTests {
 
     public static void readI2KGif() throws IOException {
         // https://play.minio.io:9000/i2k2020/gif.zarr
-        N5OMEZarrImageLoader.logChunkLoading = true;
+        N5OMEZarrImageLoader.logging = true;
         OMEZarrS3Opener reader = new OMEZarrS3Opener("https://play.minio.io:9000", "us-west-2", "i2k2020");
         SpimData image = readURL("gif.zarr");
         BdvFunctions.show(image);
     }
 
     public static void showAll() throws IOException {
-        N5OMEZarrImageLoader.logChunkLoading = true;
+        N5OMEZarrImageLoader.logging = true;
         OMEZarrS3Opener reader = new OMEZarrS3Opener("https://s3.embl.de", "us-west-2", "i2k-2020");
         SpimData myosin = readURL("prospr-myosin.ome.zarr");
         List<BdvStackSource<?>> myosinBdvSources = BdvFunctions.show(myosin);
@@ -61,14 +61,14 @@ public class OmeZarrS3OpenerTests {
     }
 
     public static void showMyosin() throws IOException {
-        N5OMEZarrImageLoader.logChunkLoading = true;
+        N5OMEZarrImageLoader.logging = true;
         OMEZarrS3Opener reader = new OMEZarrS3Opener("https://s3.embl.de", "us-west-2", "i2k-2020");
         SpimData myosin = readURL("prospr-myosin.ome.zarr");
         BdvFunctions.show(myosin);
     }
 
     public static void showIDR1() throws IOException {
-        N5OMEZarrImageLoader.logChunkLoading = true;
+        N5OMEZarrImageLoader.logging = true;
         OMEZarrS3Opener reader = new OMEZarrS3Opener("https://s3.embassy.ebi.ac.uk", "us-west-2", "idr");
         SpimData data = readURL("zarr/v0.1/9822151.zarr");
         BdvFunctions.show(data, BdvOptions.options().is2D()).get(0).setDisplayRange(3000, 15000);

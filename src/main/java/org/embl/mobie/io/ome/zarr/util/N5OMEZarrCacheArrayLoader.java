@@ -4,8 +4,10 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import com.amazonaws.SdkClientException;
 import lombok.extern.slf4j.Slf4j;
 import net.imglib2.img.cell.CellGrid;
+import org.embl.mobie.io.n5.util.N5DataTypeByteSize;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.janelia.saalfeldlab.n5.DataBlock;
+import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
 
@@ -39,20 +41,24 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         long[] dataBlockIndices = toDataBlockIndices(gridPosition);
 
         long start = 0;
-        if (N5OMEZarrImageLoader.logChunkLoading) {
+        if (N5OMEZarrImageLoader.logging)
             start = System.currentTimeMillis();
-            log.info(pathName + " " + Arrays.toString(dataBlockIndices) + " ...");
-        }
 
         try {
             block = n5.readBlock(pathName, attributes, dataBlockIndices);
         } catch (SdkClientException e) {
             log.error(e.getMessage()); // this happens sometimes, not sure yet why...
         }
-
-        if (N5OMEZarrImageLoader.logChunkLoading) {
+        if (N5OMEZarrImageLoader.logging) {
             if (block != null)
-                log.info(pathName + " " + Arrays.toString(dataBlockIndices) + " fetched " + block.getNumElements() + " voxels in " + (System.currentTimeMillis() - start) + " ms.");
+            {
+                final long millis = System.currentTimeMillis() - start;
+                final int numElements = block.getNumElements();
+                final DataType dataType = attributes.getDataType();
+                final float megaBytes = (float) numElements * N5DataTypeByteSize.getNumBytesPerElement( dataType ) / 1000000.0F;
+                final float mbPerSecond = megaBytes / ( millis / 1000.0F );
+                log.info( pathName + " " + Arrays.toString( dataBlockIndices ) + " fetched " + numElements + " elements [" + dataType + "] in " + millis + " ms. MB/s = " + mbPerSecond );
+            }
             else
                 log.warn(pathName + " " + Arrays.toString(dataBlockIndices) + " is missing, returning zeros.");
         }

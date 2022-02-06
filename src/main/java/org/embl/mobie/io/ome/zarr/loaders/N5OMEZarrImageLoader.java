@@ -78,7 +78,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
     private static final int C = 3;
     private static final int T = 4;
-    public static boolean logChunkLoading = false;
+    public static boolean logging = false;
     public final N5Reader n5;
     /**
      * Maps setup id to {@link SetupImgLoader}.
@@ -564,7 +564,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 final String pathName = getPathName(setupId, level);
                 final DatasetAttributes attributes = getDatasetAttributes(pathName);
 
-                if (logChunkLoading) {
+                if ( logging ) {
                     log.info("Preparing image " + pathName + " of data type " + attributes.getDataType());
                 }
                 long[] dimensions = getDimensions(attributes);

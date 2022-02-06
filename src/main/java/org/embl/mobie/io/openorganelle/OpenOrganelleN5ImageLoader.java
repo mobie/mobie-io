@@ -68,7 +68,7 @@ import java.util.concurrent.Callable;
 
 @Slf4j
 public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
-    public static boolean logChunkLoading = false;
+    public static boolean logging = false;
     protected final N5Reader n5;
     /**
      * Maps setup id to {@link SetupImgLoader}.
@@ -464,7 +464,7 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
                 final String pathName = getPathName(setupId, level);
                 final DatasetAttributes attributes = getDatasetAttributes(pathName);
 
-                if (logChunkLoading) {
+                if (logging) {
                     log.info("Preparing image " + pathName + " of data type " + attributes.getDataType());
                 }
 
