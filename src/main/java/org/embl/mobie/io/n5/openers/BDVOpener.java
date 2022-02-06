@@ -7,7 +7,6 @@ public abstract class BDVOpener {
 
     public static void setLogging( final boolean logging) {
         S3Opener.logging = logging;
-        if (logging) IJ.run("Console");
     }
 
 }
