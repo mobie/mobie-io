@@ -57,10 +57,10 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
                 final DataType dataType = attributes.getDataType();
                 final float megaBytes = (float) numElements * N5DataTypeByteSize.getNumBytesPerElement( dataType ) / 1000000.0F;
                 final float mbPerSecond = megaBytes / ( millis / 1000.0F );
-                log.info( pathName + " " + Arrays.toString( dataBlockIndices ) + " fetched " + numElements + " elements [" + dataType + "] in " + millis + " ms. MB/s = " + mbPerSecond );
+                log.info( pathName + " " + Arrays.toString( dataBlockIndices ) + ": " + "Read " + numElements + " " + dataType + " (" + String.format( "%.3f", megaBytes ) + " MB) in " + millis + " ms (" + String.format( "%.3f", mbPerSecond ) + " MB/s)." );
             }
             else
-                log.warn(pathName + " " + Arrays.toString(dataBlockIndices) + " is missing, returning zeros.");
+                log.warn(pathName + " " + Arrays.toString(dataBlockIndices) + ": Missing, returning zeros.");
         }
 
         if (block == null) {
