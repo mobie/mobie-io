@@ -72,7 +72,7 @@ public class N5S3Opener extends S3Opener {
                     channels.put(channelId, channel);
                 }
             } catch (NumberFormatException e) {
-                if (logChunkLoading) {
+                if (logging) {
                     log.warn("No channel specified");
                 }
             }
