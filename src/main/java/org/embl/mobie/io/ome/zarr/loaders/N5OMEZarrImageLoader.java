@@ -50,6 +50,7 @@ import net.imglib2.cache.volatiles.CacheHints;
 import net.imglib2.cache.volatiles.LoadingStrategy;
 import net.imglib2.img.cell.CellGrid;
 import net.imglib2.img.cell.CellImg;
+import net.imglib2.realtransform.AffineTransform;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.integer.*;
@@ -257,8 +258,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
      * @throws IOException
      */
     private OmeZarrMultiscales getMultiscale(String pathName) throws IOException {
-        final String key = "multiscales";
-        OmeZarrMultiscales[] multiscales = n5.getAttribute(pathName, key, OmeZarrMultiscales[].class);
+        OmeZarrMultiscales[] multiscales = n5.getAttribute(pathName, MULTI_SCALE_KEY, OmeZarrMultiscales[].class);
         if (multiscales == null) {
             String location = "";
             if (n5 instanceof N5S3OmeZarrReader) {
@@ -322,16 +322,20 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private ArrayList<ViewRegistration> createViewRegistrations(int setupId, int setupTimePoints) {
         OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
         AffineTransform3D transform = new AffineTransform3D();
-        if (multiscales.datasets[setupId].transformations != null && multiscales.datasets[setupId].transformations[0].scale != null) {
-            double[] scale = multiscales.datasets[setupId].transformations[0].scale;
-            if (scale.length > 2) {
-                transform.scale(scale[0] / 1000, scale[1] / 1000, scale[2] / 1000);
-            } else {
-                transform.scale(scale[0] / 1000, scale[1] / 1000, 1);
+        if (multiscales.datasets[setupId].coordinateTransformations != null) {
+            double[] scale = multiscales.datasets[setupId].coordinateTransformations[0].scale;
+            if (scale != null) {
+                int l = scale.length;
+                if (l > 2) {
+                    transform.scale(scale[l - 3], scale[l - 2], scale[l - 1]);
+                } else {
+                    transform.scale(scale[l - 2], scale[l - 1], 1);
+                }
             }
-        }
-        if (multiscales.transformations != null) {
-            transform.scale(multiscales.transformations[0].scale[0]);
+            double[] translation = multiscales.datasets[setupId].coordinateTransformations[0].translation;
+            if (translation != null) {
+                transform.translate(translation);
+            }
         }
         ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
         for (int t = 0; t < setupTimePoints; t++)

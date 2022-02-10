@@ -60,7 +60,6 @@ public interface N5ZarrImageReader extends N5Reader {
             for (JsonElement axis : axes) {
                 String name = axis.getAsJsonObject().get("name").getAsString();
                 String type = axis.getAsJsonObject().get("type").getAsString();
-                boolean nnn = AxesTypes.contains(type);
                 if (name.isEmpty() || type.isEmpty() || !AxesTypes.contains(type)) {
                     throw new IllegalArgumentException("Unsupported multiscales axes: " + name + ", " + type);
                 }
