@@ -23,6 +23,7 @@ public interface N5ZarrImageReader extends N5Reader {
     String zarrayFile = ".zarray";
     String zattrsFile = ".zattrs";
     String zgroupFile = ".zgroup";
+    List<ZarrAxis> zarrAxes = new ArrayList<>();
 
 
     static GsonBuilder initGsonBuilder(final GsonBuilder gsonBuilder) {
@@ -77,6 +78,7 @@ public interface N5ZarrImageReader extends N5Reader {
                 index++;
                 zarrAxes.add(zarrAxis);
             }
+            setAxes(zarrAxes);
             setAxes(ZarrAxis.convertToJson(zarrAxes));
         } else {
             JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
@@ -85,6 +87,8 @@ public interface N5ZarrImageReader extends N5Reader {
     }
 
     void setAxes(JsonElement axesJson);
+
+    void setAxes(List<ZarrAxis> axes);
 
     ZArrayAttributes getZArrayAttributes(final String pathName) throws IOException;
 
