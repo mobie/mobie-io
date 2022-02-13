@@ -39,7 +39,9 @@ import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -53,6 +55,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     private final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
     protected String dimensionSeparator;
     private ZarrAxes zarrAxes;
+    List<ZarrAxis> zarrAxesList = new ArrayList<>();
 
     public N5S3OmeZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
         super(s3, bucketName, containerPath, N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
@@ -66,6 +69,10 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
         return this.zarrAxes;
     }
 
+    public List<ZarrAxis> getZarrAxes() {
+        return this.zarrAxesList;
+    }
+
     @Override
     public void setAxes(JsonElement axesJson) {
         if (axesJson != null) {
@@ -73,6 +80,11 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
         } else {
             this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
         }
+    }
+
+    @Override
+    public void setAxes(List<ZarrAxis> axes) {
+        this.zarrAxesList = axes;
     }
 
     public void setDimensionSeparator(String dimensionSeparator) {

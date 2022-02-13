@@ -63,6 +63,7 @@ import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
 import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
 import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.ZarrAxis;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.jetbrains.annotations.NotNull;
@@ -70,6 +71,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
@@ -95,6 +97,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private FetcherThreads fetchers;
     private VolatileGlobalCellCache cache;
     private ZarrAxes zarrAxes;
+    List<ZarrAxis> zarrAxesList;
     private BlockingFetchQueues<Callable<?>> queue;
 
     /**
@@ -186,6 +189,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
         zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
                 n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
+        zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
+                n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
 
         long nC = 1;
         if (attributes.getNumDimensions() > 4) {
@@ -257,8 +262,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
      * @throws IOException
      */
     private OmeZarrMultiscales getMultiscale(String pathName) throws IOException {
-        final String key = "multiscales";
-        OmeZarrMultiscales[] multiscales = n5.getAttribute(pathName, key, OmeZarrMultiscales[].class);
+        OmeZarrMultiscales[] multiscales = n5.getAttribute(pathName, MULTI_SCALE_KEY, OmeZarrMultiscales[].class);
         if (multiscales == null) {
             String location = "";
             if (n5 instanceof N5S3OmeZarrReader) {
@@ -320,24 +324,35 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
     @NotNull
     private ArrayList<ViewRegistration> createViewRegistrations(int setupId, int setupTimePoints) {
-        OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
-        AffineTransform3D transform = new AffineTransform3D();
-        if (multiscales.datasets[setupId].transformations != null && multiscales.datasets[setupId].transformations[0].scale != null) {
-            double[] scale = multiscales.datasets[setupId].transformations[0].scale;
-            if (scale.length > 2) {
-                transform.scale(scale[0] / 1000, scale[1] / 1000, scale[2] / 1000);
-            } else {
-                transform.scale(scale[0] / 1000, scale[1] / 1000, 1);
-            }
-        }
-        if (multiscales.transformations != null) {
-            transform.scale(multiscales.transformations[0].scale[0]);
-        }
         ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
-        for (int t = 0; t < setupTimePoints; t++)
+        for (int t = 0; t < setupTimePoints; t++) {
+            AffineTransform3D transform = getAffineTransform3D(setupId, t);
             viewRegistrations.add(new ViewRegistration(t, setupId, transform));
+        }
 
         return viewRegistrations;
+    }
+
+    @NotNull
+    private AffineTransform3D getAffineTransform3D(int setupId, int datasetId) {
+        OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
+        AffineTransform3D transform = new AffineTransform3D();
+        if (multiscales.datasets[datasetId].coordinateTransformations != null) {
+            double[] scale = multiscales.datasets[datasetId].coordinateTransformations[0].scale;
+            if (scale != null && zarrAxesList != null) {
+                int scalesFirstIndexBackward = scale.length - 1;
+                if (zarrAxes.containsXYZCoordinats()) {
+                    transform.scale(scale[scalesFirstIndexBackward - 2], scale[scalesFirstIndexBackward-1], scale[scalesFirstIndexBackward]);
+                } else {
+                    transform.scale(scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward], 1.0);
+                }
+            }
+            double[] translation = multiscales.datasets[datasetId].coordinateTransformations[0].translation;
+            if (translation != null) {
+                transform.translate(translation);
+            }
+        }
+        return transform;
     }
 
     private ViewSetup createViewSetup(int setupId) {

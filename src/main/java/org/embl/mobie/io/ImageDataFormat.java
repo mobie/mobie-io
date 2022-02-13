@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
  * bdv.n5 and bdv.n5.s3
  * The data is stored in the n5 data format.
  * The bdv n5 format is used to store additional metadata about timepoints,
- * the multi-scale image pyramid and transformations.
+ * the multi-scale image pyramid and coordinateTransformations.
  * The xml is extended with custom fields that describe the s3 storage.
  * <p>
  * bdv.hdf5
