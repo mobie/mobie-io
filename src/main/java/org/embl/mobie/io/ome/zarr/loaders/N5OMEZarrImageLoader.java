@@ -324,10 +324,21 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
     @NotNull
     private ArrayList<ViewRegistration> createViewRegistrations(int setupId, int setupTimePoints) {
+        ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
+        for (int t = 0; t < setupTimePoints; t++) {
+            AffineTransform3D transform = getAffineTransform3D(setupId, t);
+            viewRegistrations.add(new ViewRegistration(t, setupId, transform));
+        }
+
+        return viewRegistrations;
+    }
+
+    @NotNull
+    private AffineTransform3D getAffineTransform3D(int setupId, int datasetId) {
         OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
         AffineTransform3D transform = new AffineTransform3D();
-        if (multiscales.datasets[setupId].coordinateTransformations != null) {
-            double[] scale = multiscales.datasets[setupId].coordinateTransformations[0].scale;
+        if (multiscales.datasets[datasetId].coordinateTransformations != null) {
+            double[] scale = multiscales.datasets[datasetId].coordinateTransformations[0].scale;
             if (scale != null && zarrAxesList != null) {
                 int scalesFirstIndexBackward = scale.length - 1;
                 if (zarrAxes.containsXYZCoordinats()) {
@@ -336,16 +347,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                     transform.scale(scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward], 1.0);
                 }
             }
-            double[] translation = multiscales.datasets[setupId].coordinateTransformations[0].translation;
+            double[] translation = multiscales.datasets[datasetId].coordinateTransformations[0].translation;
             if (translation != null) {
                 transform.translate(translation);
             }
         }
-        ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
-        for (int t = 0; t < setupTimePoints; t++)
-            viewRegistrations.add(new ViewRegistration(t, setupId, transform));
-
-        return viewRegistrations;
+        return transform;
     }
 
     private ViewSetup createViewSetup(int setupId) {
