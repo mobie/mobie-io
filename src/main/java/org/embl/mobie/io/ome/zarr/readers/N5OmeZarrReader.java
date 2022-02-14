@@ -42,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -55,6 +56,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
     final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
     protected String dimensionSeparator;
     private ZarrAxes zarrAxes;
+    private List<ZarrAxis> zarrAxesList;
 
     /**
      * Opens an {@link N5OmeZarrReader} at a given base path with a custom
@@ -71,7 +73,6 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      * @throws IOException
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
-
         super(basePath, N5ZarrImageReader.initGsonBuilder(gsonBuilder));
         this.dimensionSeparator = dimensionSeparator;
         this.mapN5DatasetAttributes = mapN5DatasetAttributes;
@@ -273,7 +274,11 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
             }
         }
 
-        getDimensions(attributes);
+        try {
+            getDimensions(attributes);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Error while getting datasets dimensions", e);
+        }
 
         if (mapN5DatasetAttributes && datasetExists(pathName)) {
             final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
@@ -292,6 +297,10 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         return this.zarrAxes;
     }
 
+    public List<ZarrAxis> getZarrAxes() {
+        return this.zarrAxesList;
+    }
+
     @Override
     public void setAxes(JsonElement axesJson) {
         if (axesJson != null) {
@@ -299,6 +308,11 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         } else {
             this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
         }
+    }
+
+    @Override
+    public void setAxes(List<ZarrAxis> axes) {
+        this.zarrAxesList = axes;
     }
 
     @Override

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class OmeZarrSpimDataTest {
     private static final String TRUE_PIXEL_VALUE = "131";
 
-    @Test
+//    @Test
     public void SpimDataTest() {
         try {
             SpimData spimData = OMEZarrOpener.openFile("/home/katerina/Documents/data/v0.3/zyx.ome.zarr");

@@ -1,9 +1,8 @@
-/*
+/*-
  * #%L
- * BigDataViewer core classes with minimal dependencies
+ * Various Java code for ImageJ
  * %%
- * Copyright (C) 2012 - 2016 Tobias Pietzsch, Stephan Saalfeld, Stephan Preibisch,
- * Jean-Yves Tinevez, HongKee Moon, Johannes Schindelin, Curtis Rueden, John Bogovic
+ * Copyright (C) 2018 - 2021 EMBL
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,30 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.n5.loaders;
+package org.embl.mobie.io.github;
 
-import bdv.util.volatiles.SharedQueue;
-import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
-import org.janelia.saalfeldlab.n5.N5FSReader;
-
-import java.io.File;
-import java.io.IOException;
-
-public class N5FSImageLoader extends N5ImageLoader {
-    private final File n5File;
-
-    public N5FSImageLoader(final File n5File, final AbstractSequenceDescription<?, ?, ?> sequenceDescription) throws IOException {
-        super(new N5FSReader(n5File.getAbsolutePath()), sequenceDescription);
-        this.n5File = n5File;
-    }
-
-    public N5FSImageLoader(final File n5File, final AbstractSequenceDescription<?, ?, ?> sequenceDescription, SharedQueue sharedQueue) throws IOException {
-        super(new N5FSReader(n5File.getAbsolutePath()), sequenceDescription, sharedQueue);
-        this.n5File = n5File;
-    }
-
-    public File getN5File() {
-        return n5File;
-    }
-
+public class GitLocation {
+    public String repoUrl;
+    public String path;
+    public String branch;
 }

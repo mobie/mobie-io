@@ -12,6 +12,7 @@ public class OmeZarrMultiscales {
     public String name;
     public String type;
     public N5Reader.Version version;
+    public CoordinateTransformations[] coordinateTransformations;
 
     public OmeZarrMultiscales() {
     }
@@ -35,6 +36,14 @@ public class OmeZarrMultiscales {
     }
 
     public static class Dataset {
+        public String path;
+        public CoordinateTransformations[] coordinateTransformations;
+    }
+
+    public static class CoordinateTransformations {
+        public String type;
+        public double[] scale;
+        public double[] translation;
         public String path;
     }
 }

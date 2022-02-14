@@ -54,8 +54,20 @@ public enum ZarrAxes {
         return this.axes.equals(TCZYX.axes) || this.axes.equals(NOT_SPECIFIED.axes);
     }
 
+    public boolean containsXYZCoordinats() {
+        return this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(ZYX.axes);
+    }
+
     public boolean is4D() {
         return this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TCYX.axes);
+    }
+
+    public boolean is3DWithTimepoints() {
+        return this.axes.equals(TYX.axes);
+    }
+
+    public boolean is3DWithChannels() {
+        return this.axes.equals(CYX.axes);
     }
 
     public boolean is4DWithTimepoints() {

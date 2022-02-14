@@ -17,7 +17,7 @@ public class OpenOrganelleHelaTest {
                 "https://janelia-cosem.s3.amazonaws.com",
                 "us-west-2",
                 "jrc_hela-2");
-        OpenOrganelleS3Opener.setLogChunkLoading(true);
+        OpenOrganelleS3Opener.setLogging(true);
         SpimData image = reader.readKey("jrc_hela-2.n5/em/fibsem-uint16");
         BdvFunctions.show(image);
     }

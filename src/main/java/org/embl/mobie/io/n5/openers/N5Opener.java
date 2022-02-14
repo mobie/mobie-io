@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class N5Opener extends BDVOpener
-{
+public class N5Opener extends BDVOpener {
     private final String filePath;
 
     public N5Opener(String filePath) {
@@ -33,40 +32,6 @@ public class N5Opener extends BDVOpener
     public static SpimData openFile(String filePath, SharedQueue sharedQueue) throws IOException {
         N5Opener omeZarrOpener = new N5Opener(filePath);
         return omeZarrOpener.setSettings(filePath, sharedQueue);
-    }
-
-    public SpimData setSettings(String url, SharedQueue sharedQueue) throws IOException {
-        final SAXBuilder sax = new SAXBuilder();
-        Document doc;
-        try {
-            doc = sax.build(url);
-            final Element root = doc.getRootElement();
-            final Element sequenceDescriptionElement = root.getChild("SequenceDescription");
-            final Element imageLoaderElement = sequenceDescriptionElement.getChild("ImageLoader");
-            final TimePoints timepoints = createTimepointsFromXml(sequenceDescriptionElement);
-            final Map<Integer, ViewSetup> setups = createViewSetupsFromXml(sequenceDescriptionElement);
-            final MissingViews missingViews = null;
-            final Element viewRegistrations = root.getChild("ViewRegistrations");
-            final ArrayList<ViewRegistration> regs = new ArrayList<>();
-            for (final Element vr : viewRegistrations.getChildren("ViewRegistration")) {
-                final int timepointId = Integer.parseInt(vr.getAttributeValue("timepoint"));
-                final int setupId = Integer.parseInt(vr.getAttributeValue("setup"));
-                final AffineTransform3D transform = new AffineTransform3D();
-                transform.set( XmlHelpers.getDoubleArray(vr.getChild("ViewTransform"), "affine"));
-                regs.add(new ViewRegistration(timepointId, setupId, transform));
-            }
-            SequenceDescription sequenceDescription = new SequenceDescription(timepoints, setups, null, missingViews);
-            File xmlFile = new File( filePath );
-            String  imageLoaderPath = xmlFile.getParent() + "/" + imageLoaderElement.getChildText( "n5" );
-            N5FSImageLoader imageLoader = new N5FSImageLoader(new File( imageLoaderPath ), sequenceDescription, sharedQueue);
-            sequenceDescription.setImgLoader(imageLoader);
-            imageLoader.setViewRegistrations(new ViewRegistrations(regs));
-            imageLoader.setSeq(sequenceDescription);
-            return new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
-        } catch ( JDOMException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     private static Map<Integer, ViewSetup> createViewSetupsFromXml(final Element sequenceDescription) {
@@ -122,5 +87,39 @@ public class N5Opener extends BDVOpener
         } else {
             throw new RuntimeException("unknown <Timepoints> type: " + type);
         }
+    }
+
+    public SpimData setSettings(String url, SharedQueue sharedQueue) throws IOException {
+        final SAXBuilder sax = new SAXBuilder();
+        Document doc;
+        try {
+            doc = sax.build(url);
+            final Element root = doc.getRootElement();
+            final Element sequenceDescriptionElement = root.getChild("SequenceDescription");
+            final Element imageLoaderElement = sequenceDescriptionElement.getChild("ImageLoader");
+            final TimePoints timepoints = createTimepointsFromXml(sequenceDescriptionElement);
+            final Map<Integer, ViewSetup> setups = createViewSetupsFromXml(sequenceDescriptionElement);
+            final MissingViews missingViews = null;
+            final Element viewRegistrations = root.getChild("ViewRegistrations");
+            final ArrayList<ViewRegistration> regs = new ArrayList<>();
+            for (final Element vr : viewRegistrations.getChildren("ViewRegistration")) {
+                final int timepointId = Integer.parseInt(vr.getAttributeValue("timepoint"));
+                final int setupId = Integer.parseInt(vr.getAttributeValue("setup"));
+                final AffineTransform3D transform = new AffineTransform3D();
+                transform.set(XmlHelpers.getDoubleArray(vr.getChild("ViewTransform"), "affine"));
+                regs.add(new ViewRegistration(timepointId, setupId, transform));
+            }
+            SequenceDescription sequenceDescription = new SequenceDescription(timepoints, setups, null, missingViews);
+            File xmlFile = new File(filePath);
+            String imageLoaderPath = xmlFile.getParent() + "/" + imageLoaderElement.getChildText("n5");
+            N5FSImageLoader imageLoader = new N5FSImageLoader(new File(imageLoaderPath), sequenceDescription, sharedQueue);
+            sequenceDescription.setImgLoader(imageLoader);
+            imageLoader.setViewRegistrations(new ViewRegistrations(regs));
+            imageLoader.setSeq(sequenceDescription);
+            return new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
+        } catch (JDOMException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
