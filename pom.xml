@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>30.0.0</version>
+        <version>31.1.0</version>
     </parent>
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
 
     <url>https://github.com/mobie/mobie-io</url>
     <name>BDV ImageLoaders</name>
@@ -78,13 +78,13 @@
         <enforcer.skip>true</enforcer.skip>
 
         <!-- Java 8	Update Site	-->
-        <imglib2.version>5.11.1</imglib2.version>
+<!--        <imglib2.version>5.11.1</imglib2.version>-->
         <imglib2-cache.version>1.0.0-beta-16</imglib2-cache.version>
-        <bigdataviewer-core.version>10.2.0</bigdataviewer-core.version>
+        <bigdataviewer-core.version>10.2.1</bigdataviewer-core.version>
         <bigdataviewer-vistools.version>1.0.0-beta-28</bigdataviewer-vistools.version>
 
         <!-- BIOP -->
-        <bigdataviewer-playground.version>0.3.8-SNAPSHOT</bigdataviewer-playground.version>
+        <bigdataviewer-playground.version>0.4.1</bigdataviewer-playground.version>
 
         <!-- EMBL CBA -->
         <imagej-utils.version>0.6.4-SNAPSHOT</imagej-utils.version>
@@ -147,7 +147,7 @@
         <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2</artifactId>
-            <version>${imglib2.version}</version>
+<!--            <version>${imglib2.version}</version>-->
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
