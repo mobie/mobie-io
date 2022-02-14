@@ -10,7 +10,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
 
     <url>https://github.com/mobie/mobie-io</url>
     <name>BDV ImageLoaders</name>
@@ -78,28 +78,12 @@
         <enforcer.skip>true</enforcer.skip>
 
         <!-- Java 8	Update Site	-->
-<!--        <imglib2.version>5.11.1</imglib2.version>-->
         <imglib2-cache.version>1.0.0-beta-16</imglib2-cache.version>
         <bigdataviewer-core.version>10.2.1</bigdataviewer-core.version>
         <bigdataviewer-vistools.version>1.0.0-beta-28</bigdataviewer-vistools.version>
 
-        <!-- BIOP -->
-        <bigdataviewer-playground.version>0.4.1</bigdataviewer-playground.version>
-
         <!-- EMBL CBA -->
-        <imagej-utils.version>0.6.4-SNAPSHOT</imagej-utils.version>
-
-        <!-- Version 1.6.0-scijava-3-SNAPSHOT of j3dcore addresses a minor issue
-        https://github.com/fiji/3D_Viewer/issues/26
-
-        1.6.0-scijava-3-SNAPSHOT is not released on any repository,
-        so you'd have to build it locally from https://github.com/scijava/java3d-core
-
-		Alternatively, as the fix included in 1.6.0-scijava-3-SNAPSHOT is not critical,
-		the easiest is to use version 1.6.0-scijava-2 instead, which is available
-		on a central repository, and which we will use here for the ome.zarr branch
-		-->
-        <j3dcore.version>1.6.0-scijava-2</j3dcore.version>
+        <imagej-utils.version>0.6.4</imagej-utils.version>
 
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -126,28 +110,12 @@
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>sc.fiji</groupId>
-            <artifactId>bigdataviewer-playground</artifactId>
-            <version>${bigdataviewer-playground.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
             <artifactId>n5-zarr</artifactId>
         </dependency>
         <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2</artifactId>
-<!--            <version>${imglib2.version}</version>-->
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -185,10 +153,6 @@
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
             <artifactId>n5-blosc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>sc.fiji</groupId>
-            <artifactId>3D_Viewer</artifactId>
         </dependency>
         <dependency>
             <groupId>org.scijava</groupId>
@@ -232,14 +196,8 @@
             <version>16.0.2</version>
         </dependency>
         <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.53d</version>
         </dependency>
         <dependency>
             <groupId>trove</groupId>
