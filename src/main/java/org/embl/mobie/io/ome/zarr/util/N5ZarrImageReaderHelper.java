@@ -35,7 +35,7 @@ public class N5ZarrImageReaderHelper extends N5FSReader {
                 gson.fromJson(attributes.get("chunks"), int[].class),
                 gson.fromJson(attributes.get("dtype"), DType.class),
                 gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
-                attributes.get("fill_value").getAsString(),
+                attributes.get("fill_value").getAsInt(),
                 attributes.get("order").getAsCharacter(),
                 gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
 

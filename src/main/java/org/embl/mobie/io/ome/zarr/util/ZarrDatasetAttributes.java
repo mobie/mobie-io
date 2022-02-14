@@ -29,7 +29,7 @@ import org.janelia.saalfeldlab.n5.Compression;
 import org.janelia.saalfeldlab.n5.zarr.DType;
 
 public class ZarrDatasetAttributes extends org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes {
-    private final transient String fillValue;
+    private final transient Integer fillValue;
 
     public ZarrDatasetAttributes(
             final long[] dimensions,
@@ -37,12 +37,12 @@ public class ZarrDatasetAttributes extends org.janelia.saalfeldlab.n5.zarr.ZarrD
             final DType dType,
             final Compression compression,
             final boolean isRowMajor,
-            final String fill_value) {
-        super(dimensions, blockSize, dType, compression, isRowMajor, fill_value);
+            final Integer fill_value) {
+        super(dimensions, blockSize, dType, compression, isRowMajor, fill_value.toString());
         this.fillValue = fill_value;
     }
 
-    public String getFillValue() {
+    public Integer getFillValue() {
         return fillValue;
     }
 }
