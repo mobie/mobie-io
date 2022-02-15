@@ -80,6 +80,8 @@ public class WriteSequenceToN5OmeZarr {
             final Map<Integer, ExportMipmapInfo> perSetupMipmapInfo,
             final DownsampleBlock.DownsamplingMethod downsamplingMethod,
             final Compression compression,
+            final String timeUnit,
+            final double frameInterval,
             final File zarrFile,
             final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
             final ExportScalePyramid.AfterEachPlane afterEachPlane,
@@ -125,7 +127,7 @@ public class WriteSequenceToN5OmeZarr {
         OmeZarrMultiscales[] multiscales = new OmeZarrMultiscales[1];
         multiscales[0] = new OmeZarrMultiscales(axes, zarrFile.getName().split("\\.")[0], downsamplingMethod.name(),
                 "0.4", seq.getViewSetupsOrdered().get(0).getVoxelSize(),
-                perSetupMipmapInfo.get(0).getResolutions(), "second");
+                perSetupMipmapInfo.get(0).getResolutions(), timeUnit, frameInterval );
 
         zarrWriter.createGroup("");
         zarrWriter.setAttribute("", MULTI_SCALE_KEY, multiscales);

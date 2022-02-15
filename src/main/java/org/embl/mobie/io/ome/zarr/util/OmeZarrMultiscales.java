@@ -26,24 +26,24 @@ public class OmeZarrMultiscales {
     }
 
     public OmeZarrMultiscales( ZarrAxes axes, String name, String type, String version,
-                              VoxelDimensions voxelDimensions, double[][] resolutions, String timeUnit ) {
+                              VoxelDimensions voxelDimensions, double[][] resolutions, String timeUnit,
+                               double frameInterval ) {
         this.version = version;
         this.name = name;
         this.type = type;
         this.axes = axes;
         this.zarrAxisList = axes.toAxesList( voxelDimensions.unit(), timeUnit );
-        generateDatasets( voxelDimensions, resolutions );
+        generateDatasets( voxelDimensions, frameInterval, resolutions );
     }
 
-    private void generateDatasets( VoxelDimensions voxelDimensions, double[][] resolutions ) {
+    private void generateDatasets( VoxelDimensions voxelDimensions, double frameInterval, double[][] resolutions ) {
 
         Dataset[] datasets = new Dataset[resolutions.length];
         for (int i = 0; i < resolutions.length; i++) {
             Dataset dataset = new Dataset();
 
             CoordinateTransformations coordinateTransformations = new CoordinateTransformations();
-            // TODO - sort adding time
-            coordinateTransformations.scale = getScale( voxelDimensions, resolutions[i]);
+            coordinateTransformations.scale = getScale( voxelDimensions, frameInterval, resolutions[i]);
             coordinateTransformations.type = "scale";
 
             dataset.path = "s" + i;
@@ -53,12 +53,11 @@ public class OmeZarrMultiscales {
         this.datasets = datasets;
     }
 
-    private double[] getScale( VoxelDimensions voxelDimensions, double[] xyzScale ){
+    private double[] getScale( VoxelDimensions voxelDimensions, double frameInterval, double[] xyzScale ){
         int nDimensions = zarrAxisList.size();
         double[] scale = new double[nDimensions];
         if ( axes.timeIndex() != -1 ) {
-            // TODO - put real time scale here
-            scale[axes.timeIndex()] = 1;
+            scale[axes.timeIndex()] = frameInterval;
         }
 
         if ( axes.channelIndex() != -1 ) {

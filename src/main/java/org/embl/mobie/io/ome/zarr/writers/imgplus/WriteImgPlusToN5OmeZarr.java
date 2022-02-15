@@ -7,7 +7,6 @@ import bdv.export.SubTaskProgressWriter;
 import bdv.spimdata.SequenceDescriptionMinimal;
 import ij.IJ;
 import ij.ImagePlus;
-import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.sequence.FinalVoxelDimensions;
 import net.imglib2.FinalDimensions;
@@ -26,7 +25,9 @@ import static org.embl.mobie.io.n5.writers.WriteImgPlusToN5Helper.getVoxelSize;
 
 public class WriteImgPlusToN5OmeZarr extends WriteImgPlusToN5 {
 
-    // TODO - deal with transforms properly - is there somewhere in ome-zarr this can be written?
+    // TODO - deal with transforms properly - here the voxel size is just taken directly from the imp for scaling.
+    // the sourceTransform is ignored. In next ome-zarr version, when affine is supported,
+    // need to properly add the provided affine.
 
     // export, generating default source transform, and default resolutions / subdivisions
     @Override
@@ -80,7 +81,8 @@ public class WriteImgPlusToN5OmeZarr extends WriteImgPlusToN5 {
         final File zarrFile = new File(zarrPath);
 
         Parameters exportParameters = new Parameters(resolutions, subdivisions, null, zarrFile, sourceTransform,
-                downsamplingMethod, compression, viewSetupNames);
+                downsamplingMethod, compression, viewSetupNames, imp.getCalibration().getTimeUnit(),
+                imp.getCalibration().frameInterval );
 
         export(imp, exportParameters);
     }
@@ -109,17 +111,18 @@ public class WriteImgPlusToN5OmeZarr extends WriteImgPlusToN5 {
         final File zarrFile = new File(zarrPath);
 
         return new Parameters(resolutions, subdivisions, null, zarrFile, sourceTransform,
-                downsamplingMethod, compression, viewSetupNames);
+                downsamplingMethod, compression, viewSetupNames, imp.getCalibration().getTimeUnit(),
+                imp.getCalibration().frameInterval );
     }
 
     @Override
     protected void writeFiles(SequenceDescriptionMinimal seq, Map<Integer, ExportMipmapInfo> perSetupExportMipmapInfo,
                               Parameters params, ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
                               ExportScalePyramid.AfterEachPlane afterEachPlane, int numCellCreatorThreads,
-                              ProgressWriter progressWriter, int numTimepoints, int numSetups) throws IOException, SpimDataException {
+                              ProgressWriter progressWriter, int numTimepoints, int numSetups) throws IOException {
         WriteSequenceToN5OmeZarr.writeOmeZarrFile(seq, perSetupExportMipmapInfo,
                 params.downsamplingMethod,
-                params.compression, params.n5File,
+                params.compression, params.timeUnit, params.frameInterval, params.n5File,
                 loopbackHeuristic, afterEachPlane, numCellCreatorThreads,
                 new SubTaskProgressWriter(progressWriter, 0, 0.95));
 

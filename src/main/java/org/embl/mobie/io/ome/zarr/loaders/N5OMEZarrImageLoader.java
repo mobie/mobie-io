@@ -327,8 +327,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     @NotNull
     private ArrayList<ViewRegistration> createViewRegistrations(int setupId, int setupTimePoints) {
         ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
+        // 3D transform of full resolution level
+        AffineTransform3D transform = getAffineTransform3D(setupId, 0);
         for (int t = 0; t < setupTimePoints; t++) {
-            AffineTransform3D transform = getAffineTransform3D(setupId, t);
             viewRegistrations.add(new ViewRegistration(t, setupId, transform));
         }
 
