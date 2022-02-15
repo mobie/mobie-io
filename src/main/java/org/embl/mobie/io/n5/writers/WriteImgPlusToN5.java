@@ -120,8 +120,6 @@ public class WriteImgPlusToN5 {
 
         final File n5File = WriteImgPlusToN5Helper.getN5FileFromXmlPath(seqFilename);
 
-        // TODO - check transform and downsampling mode
-
         Parameters exportParameters = new Parameters(resolutions, subdivisions, seqFile, n5File, sourceTransform,
                 downsamplingMethod, compression, viewSetupNames);
 

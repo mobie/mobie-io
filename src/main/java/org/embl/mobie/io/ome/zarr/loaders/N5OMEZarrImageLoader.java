@@ -343,10 +343,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             double[] scale = multiscales.datasets[datasetId].coordinateTransformations[0].scale;
             if (scale != null && zarrAxesList != null) {
                 int scalesFirstIndexBackward = scale.length - 1;
-                if (zarrAxes.containsXYZCoordinats()) {
-                    transform.scale(scale[scalesFirstIndexBackward - 2], scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward]);
+                if (zarrAxes.containsXYZCoordinates()) {
+                    transform.scale(scale[scalesFirstIndexBackward], scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward - 2]);
                 } else {
-                    transform.scale(scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward], 1.0);
+                    transform.scale(scale[scalesFirstIndexBackward], scale[scalesFirstIndexBackward - 1], 1.0);
                 }
             }
             double[] translation = multiscales.datasets[datasetId].coordinateTransformations[0].translation;

@@ -61,8 +61,6 @@ public class WriteImgPlusToN5BdvOmeZarr extends WriteImgPlusToN5 {
 
         final File zarrFile = getOmeZarrFileFromXmlPath(seqFilename);
 
-        // TODO - check transform and downsampling mode
-
         Parameters exportParameters = new Parameters(resolutions, subdivisions, seqFile, zarrFile, sourceTransform,
                 downsamplingMethod, compression, viewSetupNames);
 

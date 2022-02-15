@@ -37,9 +37,9 @@ public class WriteImgPlusToN5OmeZarr extends WriteImgPlusToN5 {
 
     // export, generating default resolutions / subdivisions
     @Override
-    public void export(ImagePlus imp, String zarPath, AffineTransform3D sourceTransform,
+    public void export(ImagePlus imp, String zarrPath, AffineTransform3D sourceTransform,
                        DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression) {
-        super.export(imp, zarPath, sourceTransform, downsamplingMethod, compression);
+        super.export(imp, zarrPath, sourceTransform, downsamplingMethod, compression);
     }
 
 
@@ -78,8 +78,6 @@ public class WriteImgPlusToN5OmeZarr extends WriteImgPlusToN5 {
         }
 
         final File zarrFile = new File(zarrPath);
-
-        // TODO - check transform and downsampling mode
 
         Parameters exportParameters = new Parameters(resolutions, subdivisions, null, zarrFile, sourceTransform,
                 downsamplingMethod, compression, viewSetupNames);
