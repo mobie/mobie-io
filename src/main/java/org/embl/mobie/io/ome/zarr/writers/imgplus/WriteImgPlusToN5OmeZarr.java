@@ -28,6 +28,8 @@ public class WriteImgPlusToN5OmeZarr extends WriteImgPlusToN5 {
     // TODO - deal with transforms properly - here the voxel size is just taken directly from the imp for scaling.
     // the sourceTransform is ignored. In next ome-zarr version, when affine is supported,
     // need to properly add the provided affine.
+    // Also, I think viewSetupNames are ignored, as they are only relevant for xml style files. Should re-write this
+    // so less redundant now that the bdv xml style is removed
 
     // export, generating default source transform, and default resolutions / subdivisions
     @Override

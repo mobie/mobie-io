@@ -212,7 +212,7 @@ public class WriteImgPlusToN5 {
         final HashMap<Integer, BasicViewSetup> setups = new HashMap<>(numSetups);
         if (params.viewSetupNames != null && params.viewSetupNames.length != numSetups) {
             throw new RuntimeException(params.viewSetupNames.length + " view setup names were given, " +
-                    "but there are " + numSetups + "setups");
+                    "but there are " + numSetups + " setups");
         }
         for (int s = 0; s < numSetups; ++s) {
             final BasicViewSetup setup;
