@@ -18,14 +18,19 @@ import org.embl.mobie.io.n5.util.DownsampleBlock;
 import org.embl.mobie.io.n5.writers.WriteImgPlusToN5;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
 import org.embl.mobie.io.ome.zarr.writers.imgplus.WriteImgPlusToN5OmeZarr;
+import org.embl.mobie.io.util.FileAndUrlUtils;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.loader.SchemaLoader;
 import org.janelia.saalfeldlab.n5.Compression;
 import org.janelia.saalfeldlab.n5.GzipCompression;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 
 import static org.apache.commons.io.FilenameUtils.removeExtension;
@@ -39,12 +44,21 @@ public class OmeZarrWithWriterTest {
     private File tempDir;
     private DownsampleBlock.DownsamplingMethod downsamplingMethod;
     private Compression compression;
+    private static JSONObject omeZarrSchema;
 
     private int defaultWidth;
     private int defaultHeight;
     private int defaultDepth;
     private int defaultNChannels;
     private int defaultNTimepoints;
+
+    @BeforeAll
+    static void downloadSchema() throws IOException {
+        try( InputStream schemaInputStream = FileAndUrlUtils.getInputStream(
+                "https://raw.githubusercontent.com/ome/ngff/main/0.4/schemas/image.schema") ) {
+            omeZarrSchema = new JSONObject(new JSONTokener(schemaInputStream));
+        }
+    }
 
     @BeforeEach
     void setUp( @TempDir Path tempDir ) throws IOException {
@@ -100,6 +114,24 @@ public class OmeZarrWithWriterTest {
         return viewSetupNames;
     }
 
+    void validateJSON( String zarrPath ) throws IOException {
+        String zattrsPath = new File(zarrPath, ".zattrs").getAbsolutePath();
+
+        try( InputStream zattrsInputStream = new FileInputStream( zattrsPath ) ) {
+            JSONObject jsonSubject = new JSONObject(new JSONTokener(zattrsInputStream));
+
+            // library only supports up to draft 7 json schema - specify here, otherwise errors when reads 2020-12 in
+            // the schema file
+            SchemaLoader loader = SchemaLoader.builder()
+                    .schemaJson(omeZarrSchema)
+                    .draftV7Support()
+                    .build();
+            Schema schema = loader.load().build();
+
+            schema.validate(jsonSubject);
+        }
+    }
+
     void spimDataAssertions( SpimData spimData, int nChannels, int nTimepoints ) {
         SequenceDescription sequenceDescription = spimData.getSequenceDescription();
         assertEquals( sequenceDescription.getTimePoints().size(), nTimepoints );
@@ -119,8 +151,9 @@ public class OmeZarrWithWriterTest {
         spimDataAssertions( spimData, nChannels, nTimepoints );
     }
 
-    void zarrAssertions( String zarrPath, int nChannels, int nTimepoints ) throws SpimDataException {
+    void zarrAssertions( String zarrPath, int nChannels, int nTimepoints ) throws SpimDataException, IOException {
         assertTrue( new File(zarrPath).exists() );
+        validateJSON( zarrPath );
 
         SpimData spimData = (SpimData) new SpimDataOpener().openSpimData( zarrPath, ImageDataFormat.OmeZarr );
         spimDataAssertions( spimData, nChannels, nTimepoints );
@@ -254,7 +287,7 @@ public class OmeZarrWithWriterTest {
     }
 
     @Test
-    void writeAndReadZYXImageOmeZarr() throws SpimDataException {
+    void writeAndReadZYXImageOmeZarr() throws SpimDataException, IOException {
         ImageDataFormat format = ImageDataFormat.OmeZarr;
         String zarrPath = writeImageAndGetPath( format, ZarrAxes.ZYX );
 
@@ -262,7 +295,7 @@ public class OmeZarrWithWriterTest {
     }
 
     @Test
-    void writeAndReadCZYXImageOmeZarr() throws SpimDataException {
+    void writeAndReadCZYXImageOmeZarr() throws SpimDataException, IOException {
         ImageDataFormat format = ImageDataFormat.OmeZarr;
         String zarrPath = writeImageAndGetPath( format, ZarrAxes.CZYX );
 
@@ -270,7 +303,7 @@ public class OmeZarrWithWriterTest {
     }
 
     @Test
-    void writeAndReadTZYXImageOmeZarr() throws SpimDataException {
+    void writeAndReadTZYXImageOmeZarr() throws SpimDataException, IOException {
         ImageDataFormat format = ImageDataFormat.OmeZarr;
         String zarrPath = writeImageAndGetPath( format, ZarrAxes.TZYX );
 
@@ -278,7 +311,7 @@ public class OmeZarrWithWriterTest {
     }
 
     @Test
-    void writeAndReadTCZYXImageOmeZarr() throws SpimDataException {
+    void writeAndReadTCZYXImageOmeZarr() throws SpimDataException, IOException {
         ImageDataFormat format = ImageDataFormat.OmeZarr;
         String zarrPath = writeImageAndGetPath( format, ZarrAxes.TCZYX );
 

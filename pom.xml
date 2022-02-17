@@ -217,5 +217,11 @@
             <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.erosb</groupId>
+            <artifactId>everit-json-schema</artifactId>
+            <version>1.14.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
