@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import java.util.List;
 
 public class ZarrAxis {
-    private final int index;
+    private transient final int index;
     private final String name;
     private final String type;
     private String unit;

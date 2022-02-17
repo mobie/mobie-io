@@ -120,8 +120,6 @@ public class WriteImgPlusToN5 {
 
         final File n5File = WriteImgPlusToN5Helper.getN5FileFromXmlPath(seqFilename);
 
-        // TODO - check transform and downsampling mode
-
         Parameters exportParameters = new Parameters(resolutions, subdivisions, seqFile, n5File, sourceTransform,
                 downsamplingMethod, compression, viewSetupNames);
 
@@ -214,7 +212,7 @@ public class WriteImgPlusToN5 {
         final HashMap<Integer, BasicViewSetup> setups = new HashMap<>(numSetups);
         if (params.viewSetupNames != null && params.viewSetupNames.length != numSetups) {
             throw new RuntimeException(params.viewSetupNames.length + " view setup names were given, " +
-                    "but there are " + numSetups + "setups");
+                    "but there are " + numSetups + " setups");
         }
         for (int s = 0; s < numSetups; ++s) {
             final BasicViewSetup setup;
@@ -334,18 +332,16 @@ public class WriteImgPlusToN5 {
 
         public final String[] viewSetupNames;
 
+        public final String timeUnit;
+
+        public final double frameInterval;
+
         public Parameters(
                 final int[][] resolutions, final int[][] subdivisions,
                 final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
                 final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression) {
-            this.resolutions = resolutions;
-            this.subdivisions = subdivisions;
-            this.seqFile = seqFile;
-            this.n5File = n5File;
-            this.sourceTransform = sourceTransform;
-            this.downsamplingMethod = downsamplingMethod;
-            this.compression = compression;
-            this.viewSetupNames = null;
+            this( resolutions, subdivisions, seqFile, n5File, sourceTransform, downsamplingMethod, compression,
+                    null );
         }
 
         public Parameters(
@@ -353,6 +349,15 @@ public class WriteImgPlusToN5 {
                 final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
                 final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression,
                 final String[] viewSetupNames) {
+            this( resolutions, subdivisions, seqFile, n5File, sourceTransform, downsamplingMethod, compression,
+                    null, null, 1 );
+        }
+
+        public Parameters(
+                final int[][] resolutions, final int[][] subdivisions,
+                final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
+                final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression,
+                final String[] viewSetupNames, String timeUnit, double frameInterval ) {
             this.resolutions = resolutions;
             this.subdivisions = subdivisions;
             this.seqFile = seqFile;
@@ -361,6 +366,8 @@ public class WriteImgPlusToN5 {
             this.downsamplingMethod = downsamplingMethod;
             this.compression = compression;
             this.viewSetupNames = viewSetupNames;
+            this.timeUnit = timeUnit;
+            this.frameInterval = frameInterval;
         }
     }
 
