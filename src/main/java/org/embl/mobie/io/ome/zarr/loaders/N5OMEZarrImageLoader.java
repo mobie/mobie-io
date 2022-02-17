@@ -327,8 +327,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     @NotNull
     private ArrayList<ViewRegistration> createViewRegistrations(int setupId, int setupTimePoints) {
         ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
+        // 3D transform of full resolution level
+        AffineTransform3D transform = getAffineTransform3D(setupId, 0);
         for (int t = 0; t < setupTimePoints; t++) {
-            AffineTransform3D transform = getAffineTransform3D(setupId, t);
             viewRegistrations.add(new ViewRegistration(t, setupId, transform));
         }
 
@@ -343,10 +344,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             double[] scale = multiscales.datasets[datasetId].coordinateTransformations[0].scale;
             if (scale != null && zarrAxesList != null) {
                 int scalesFirstIndexBackward = scale.length - 1;
-                if (zarrAxes.containsXYZCoordinats()) {
-                    transform.scale(scale[scalesFirstIndexBackward - 2], scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward]);
+                if (zarrAxes.containsXYZCoordinates()) {
+                    transform.scale(scale[scalesFirstIndexBackward], scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward - 2]);
                 } else {
-                    transform.scale(scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward], 1.0);
+                    transform.scale(scale[scalesFirstIndexBackward], scale[scalesFirstIndexBackward - 1], 1.0);
                 }
             }
             double[] translation = multiscales.datasets[datasetId].coordinateTransformations[0].translation;

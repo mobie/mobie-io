@@ -10,7 +10,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.2.2</version>
 
     <url>https://github.com/mobie/mobie-io</url>
     <name>BDV ImageLoaders</name>
@@ -90,13 +90,15 @@
         <enforcer.skip>true</enforcer.skip>
 
         <!-- Java 8	Update Site	-->
-        <imglib2.version>5.11.1</imglib2.version>
         <imglib2-cache.version>1.0.0-beta-16</imglib2-cache.version>
-        <bigdataviewer-core.version>10.2.0</bigdataviewer-core.version>
+        <bigdataviewer-core.version>10.2.1</bigdataviewer-core.version>
         <bigdataviewer-vistools.version>1.0.0-beta-28</bigdataviewer-vistools.version>
 
-        <!-- spim_data.version required for fix that closes xml files properly after creation - should soon be in main fiji	-->
+        <!-- spim_data.version required for writing tests to run properly -->
         <spim_data.version>2.2.5</spim_data.version>
+
+        <!-- EMBL CBA -->
+        <imagej-utils.version>0.6.4</imagej-utils.version>
 
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -130,7 +132,6 @@
         <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2</artifactId>
-            <version>${imglib2.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -175,11 +176,6 @@
             <artifactId>n5-imglib2</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.scijava</groupId>
-            <artifactId>j3dcore</artifactId>
-            <version>${j3dcore.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
         </dependency>
@@ -193,11 +189,6 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>16.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf</artifactId>
-            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
@@ -224,6 +215,12 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.erosb</groupId>
+            <artifactId>everit-json-schema</artifactId>
+            <version>1.14.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
