@@ -1,12 +1,9 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import bdv.export.ExportMipmapInfo;
 import com.google.gson.annotations.SerializedName;
 import mpicbg.spim.data.sequence.VoxelDimensions;
-import org.janelia.saalfeldlab.n5.N5Reader;
 
 import java.util.List;
-import java.util.Map;
 
 public class OmeZarrMultiscales {
 
@@ -14,7 +11,6 @@ public class OmeZarrMultiscales {
     public static final String MULTI_SCALE_KEY = "multiscales";
 
     public transient ZarrAxes axes;
-    @SerializedName(value = "axes")
     public List<ZarrAxis> zarrAxisList;
     public Dataset[] datasets;
     public String name;
