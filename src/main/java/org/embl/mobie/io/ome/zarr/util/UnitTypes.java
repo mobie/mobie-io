@@ -3,8 +3,6 @@ package org.embl.mobie.io.ome.zarr.util;
 import lombok.extern.slf4j.Slf4j;
 import ucar.units.*;
 
-import java.nio.charset.StandardCharsets;
-
 @Slf4j
 public enum UnitTypes {
     ANGSTROM("angstrom"),
