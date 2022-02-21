@@ -49,15 +49,30 @@ public enum ZarrAxes {
     public List<ZarrAxis> toAxesList( String spaceUnit, String timeUnit ) {
         List<ZarrAxis> zarrAxesList = new ArrayList<>();
         List<String> zarrAxesStrings = getAxesList();
+
+        String[] units = new String[]{spaceUnit, timeUnit};
+
+        // convert to valid ome-zarr units, if possible, otherwise just go ahead with
+        // given unit
+        for ( int i = 0; i< units.length; i++ ) {
+            String unit = units[i];
+            if ( !UnitTypes.contains(unit) ) {
+                UnitTypes unitType = UnitTypes.convertUnit(unit);
+                if (unitType != null) {
+                    units[i] = unitType.getTypeName();
+                }
+            }
+        }
+
         for ( int i = 0; i<zarrAxesStrings.size(); i++  ) {
             String axisString = zarrAxesStrings.get(i);
             AxesTypes axisType =  AxesTypes.getAxisType( axisString );
 
             String unit;
             if ( axisType == AxesTypes.SPACE ) {
-                unit = spaceUnit;
+                unit = units[0];
             } else if ( axisType == AxesTypes.TIME ) {
-                unit = timeUnit;
+                unit = units[1];
             } else {
                 unit = null;
             }
