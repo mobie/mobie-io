@@ -1,11 +1,8 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 
 import java.util.List;
-import java.util.Objects;
 
 public class OmeZarrMultiscales {
 
@@ -13,7 +10,6 @@ public class OmeZarrMultiscales {
     public static final String MULTI_SCALE_KEY = "multiscales";
 
     public transient ZarrAxes axes;
-    @JsonProperty(value="axes",access= JsonProperty.Access.WRITE_ONLY)
     public List<ZarrAxis> zarrAxisList;
     public Dataset[] datasets;
     public String name;
@@ -30,16 +26,9 @@ public class OmeZarrMultiscales {
         this.version = version;
         this.name = name;
         this.type = type;
-        setAxes(version);
         this.axes = axes;
         this.zarrAxisList = axes.toAxesList( voxelDimensions.unit(), timeUnit );
         generateDatasets( voxelDimensions, frameInterval, resolutions );
-    }
-
-    private void setAxes (String version) {
-        if (Objects.equals(version, "0.4")) {
-
-        }
     }
 
     private void generateDatasets( VoxelDimensions voxelDimensions, double frameInterval, double[][] resolutions ) {

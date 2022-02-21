@@ -5,13 +5,13 @@ import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterNull;
 import bdv.export.SubTaskProgressWriter;
 import bdv.img.cache.SimpleCacheArrayLoader;
-import bdv.img.n5.N5ImageLoader;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicSetupImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
-import mpicbg.spim.data.sequence.FinalVoxelDimensions;
 import mpicbg.spim.data.sequence.TimePoint;
 import mpicbg.spim.data.sequence.ViewId;
 import net.imglib2.RandomAccessibleInterval;
@@ -23,17 +23,19 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.util.DownsampleBlock;
 import org.embl.mobie.io.n5.util.ExportScalePyramid;
-import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
-import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
-import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
+import org.embl.mobie.io.ome.zarr.util.*;
 import org.embl.mobie.io.ome.zarr.writers.N5OMEZarrWriter;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -130,7 +132,10 @@ public class WriteSequenceToN5OmeZarr {
                 perSetupMipmapInfo.get(0).getResolutions(), timeUnit, frameInterval );
 
         zarrWriter.createGroup("");
-        zarrWriter.setAttribute("", MULTI_SCALE_KEY, multiscales);
+        if (zarrWriter instanceof N5OMEZarrWriter) {
+            zarrWriter.setAttributes(getMultiScalesMap(multiscales), "");
+        }
+//        zarrWriter.setAttribute("", MULTI_SCALE_KEY, multiscales);
 
         // calculate number of tasks for progressWriter
         int numTasks = 0; // first task is for writing mipmap descriptions etc...
@@ -176,6 +181,85 @@ public class WriteSequenceToN5OmeZarr {
         }
 
         progressWriter.setProgress(1.0);
+    }
+
+    private static HashMap<String, JsonElement> getMultiScalesMap(OmeZarrMultiscales[] omeZarrMultiscalesArray){
+        HashMap<String, JsonElement> map = new HashMap<>();
+            JsonObjectBuilder factory = Json.createObjectBuilder();
+            Gson gson = new Gson();
+            OmeZarrMultiscales omeZarrMultiscales = omeZarrMultiscalesArray[0];
+            String datasets = gson.toJson(omeZarrMultiscales.datasets);
+            String coordinateTransformations = gson.toJson(omeZarrMultiscales.coordinateTransformations);
+            factory
+                    .add("axes", createJsonArrayFromList(omeZarrMultiscales.zarrAxisList))
+                    .add("datasets", createJsonArrayFromList(omeZarrMultiscales.datasets))
+                    .add("name", omeZarrMultiscales.name)
+                    .add("type", omeZarrMultiscales.type)
+                    .add("version", omeZarrMultiscales.version);
+            if (omeZarrMultiscales.coordinateTransformations != null) {
+                    factory.add("coordinateTransformations", createJsonArrayFromList(omeZarrMultiscales.coordinateTransformations));
+            }
+         JsonArrayBuilder jsonArray = Json.createArrayBuilder();
+            jsonArray.add(factory.build());
+        JsonElement element = gson.fromJson(jsonArray.build().toString(), JsonElement.class);
+            map.put(MULTI_SCALE_KEY, element);
+         return map;
+    }
+
+    private static JsonArray createJsonArrayFromList(List<ZarrAxis> list) {
+        JsonArrayBuilder jsonArray = Json.createArrayBuilder();
+        for(ZarrAxis zarrAxis : list) {
+            String unit = zarrAxis.getUnit() == null ? "" : zarrAxis.getUnit();
+            String type = zarrAxis.getType() == null ? "" : zarrAxis.getType();
+            jsonArray.add(Json.createObjectBuilder()
+                    .add("name", zarrAxis.getName())
+                    .add("type", type)
+                    .add("unit", unit));
+        }
+        return jsonArray.build();
+    }
+
+    private static JsonArray createJsonArrayFromList(OmeZarrMultiscales.Dataset[] datasets) {
+        JsonArrayBuilder jsonArray = Json.createArrayBuilder();
+        for (OmeZarrMultiscales.Dataset dataset : datasets) {
+            jsonArray.add(Json.createObjectBuilder()
+                    .add("path", dataset.path)
+                    .add("coordinateTransformations", createJsonArrayFromList(dataset.coordinateTransformations)));
+        }
+        return jsonArray.build();
+    }
+
+    private static JsonArray createJsonArrayFromList(OmeZarrMultiscales.CoordinateTransformations[] coordinateTransformations) {
+        JsonArrayBuilder jsonArray = Json.createArrayBuilder();
+        for (OmeZarrMultiscales.CoordinateTransformations coordinateTransformation : coordinateTransformations) {
+            JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+            if (coordinateTransformation.type != null) {
+                jsonObjectBuilder.add("type", coordinateTransformation.type);
+            }
+            JsonArrayBuilder scale = Json.createArrayBuilder();
+            double[] scaleData = coordinateTransformation.scale;
+            if (scaleData != null) {
+                for (double scaleDatum : scaleData) {
+                    scale.add(scaleDatum);
+                }
+                jsonObjectBuilder.add("scale", scale);
+            }
+            JsonArrayBuilder translation = Json.createArrayBuilder();
+            double[] translationData = coordinateTransformation.translation;
+            if (translationData != null) {
+                for (double translationDatum : translationData) {
+                    translation.add(translationDatum);
+                }
+                jsonObjectBuilder.add("translation", translation);
+            }
+
+            if (coordinateTransformation.path != null) {
+                jsonObjectBuilder.add("path", coordinateTransformation.path);
+            }
+
+            jsonArray.add(jsonObjectBuilder);
+        }
+        return jsonArray.build();
     }
 
     static <T extends RealType<T> & NativeType<T>> void writeScalePyramid(
