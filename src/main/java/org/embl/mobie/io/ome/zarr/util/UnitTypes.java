@@ -3,6 +3,8 @@ package org.embl.mobie.io.ome.zarr.util;
 import lombok.extern.slf4j.Slf4j;
 import ucar.units.*;
 
+import java.nio.charset.StandardCharsets;
+
 @Slf4j
 public enum UnitTypes {
     ANGSTROM("angstrom"),
@@ -73,7 +75,7 @@ public enum UnitTypes {
 
     public static UnitTypes convertUnit(String unit) {
         // Convert the mu symbol into "u".
-        String unitString = unit.replace("\\u00B5", "u");
+        String unitString = unit.replace("\u00B5", "u");
 
         try {
             UnitFormat unitFormatter = UnitFormatManager.instance();
