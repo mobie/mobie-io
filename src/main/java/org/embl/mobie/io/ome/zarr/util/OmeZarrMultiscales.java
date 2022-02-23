@@ -1,12 +1,8 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import bdv.export.ExportMipmapInfo;
-import com.google.gson.annotations.SerializedName;
 import mpicbg.spim.data.sequence.VoxelDimensions;
-import org.janelia.saalfeldlab.n5.N5Reader;
 
 import java.util.List;
-import java.util.Map;
 
 public class OmeZarrMultiscales {
 
@@ -14,7 +10,6 @@ public class OmeZarrMultiscales {
     public static final String MULTI_SCALE_KEY = "multiscales";
 
     public transient ZarrAxes axes;
-    @SerializedName(value = "axes")
     public List<ZarrAxis> zarrAxisList;
     public Dataset[] datasets;
     public String name;
@@ -25,25 +20,25 @@ public class OmeZarrMultiscales {
     public OmeZarrMultiscales() {
     }
 
-    public OmeZarrMultiscales( ZarrAxes axes, String name, String type, String version,
+    public OmeZarrMultiscales(ZarrAxes axes, String name, String type, String version,
                               VoxelDimensions voxelDimensions, double[][] resolutions, String timeUnit,
-                               double frameInterval ) {
+                              double frameInterval) {
         this.version = version;
         this.name = name;
         this.type = type;
         this.axes = axes;
-        this.zarrAxisList = axes.toAxesList( voxelDimensions.unit(), timeUnit );
-        generateDatasets( voxelDimensions, frameInterval, resolutions );
+        this.zarrAxisList = axes.toAxesList(voxelDimensions.unit(), timeUnit);
+        generateDatasets(voxelDimensions, frameInterval, resolutions);
     }
 
-    private void generateDatasets( VoxelDimensions voxelDimensions, double frameInterval, double[][] resolutions ) {
+    private void generateDatasets(VoxelDimensions voxelDimensions, double frameInterval, double[][] resolutions) {
 
         Dataset[] datasets = new Dataset[resolutions.length];
         for (int i = 0; i < resolutions.length; i++) {
             Dataset dataset = new Dataset();
 
             CoordinateTransformations coordinateTransformations = new CoordinateTransformations();
-            coordinateTransformations.scale = getScale( voxelDimensions, frameInterval, resolutions[i]);
+            coordinateTransformations.scale = getScale(voxelDimensions, frameInterval, resolutions[i]);
             coordinateTransformations.type = "scale";
 
             dataset.path = "s" + i;
@@ -53,20 +48,20 @@ public class OmeZarrMultiscales {
         this.datasets = datasets;
     }
 
-    private double[] getScale( VoxelDimensions voxelDimensions, double frameInterval, double[] xyzScale ){
+    private double[] getScale(VoxelDimensions voxelDimensions, double frameInterval, double[] xyzScale) {
         int nDimensions = zarrAxisList.size();
         double[] scale = new double[nDimensions];
-        if ( axes.timeIndex() != -1 ) {
+        if (axes.timeIndex() != -1) {
             scale[axes.timeIndex()] = frameInterval;
         }
 
-        if ( axes.channelIndex() != -1 ) {
+        if (axes.channelIndex() != -1) {
             scale[axes.channelIndex()] = 1;
         }
 
-        for ( int i = 0; i<3; i++ ) {
+        for (int i = 0; i < 3; i++) {
             double dimension = voxelDimensions.dimension(i) * xyzScale[i];
-            scale[nDimensions - (i+1)] = dimension;
+            scale[nDimensions - (i + 1)] = dimension;
         }
 
         return scale;
