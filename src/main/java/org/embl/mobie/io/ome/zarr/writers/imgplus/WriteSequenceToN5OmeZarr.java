@@ -5,9 +5,7 @@ import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterNull;
 import bdv.export.SubTaskProgressWriter;
 import bdv.img.cache.SimpleCacheArrayLoader;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicSetupImgLoader;
@@ -23,19 +21,17 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.util.DownsampleBlock;
 import org.embl.mobie.io.n5.util.ExportScalePyramid;
-import org.embl.mobie.io.ome.zarr.util.*;
+import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
+import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
+import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
 import org.embl.mobie.io.ome.zarr.writers.N5OMEZarrWriter;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -132,11 +128,8 @@ public class WriteSequenceToN5OmeZarr {
                 perSetupMipmapInfo.get(0).getResolutions(), timeUnit, frameInterval );
 
         zarrWriter.createGroup("");
-        if (zarrWriter instanceof N5OMEZarrWriter) {
-            zarrWriter.setAttributes(OmeZarrMultiscales.getMultiScalesMap(multiscales), "");
-        } else {
-            zarrWriter.setAttribute("", MULTI_SCALE_KEY, multiscales);
-        }
+        zarrWriter.setAttribute("", MULTI_SCALE_KEY, multiscales);
+
         // calculate number of tasks for progressWriter
         int numTasks = 0; // first task is for writing mipmap descriptions etc...
         for (final int timepointIdSequence : timepointIds)
