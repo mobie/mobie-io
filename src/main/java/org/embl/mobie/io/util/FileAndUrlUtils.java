@@ -143,6 +143,30 @@ public class FileAndUrlUtils {
         }
     }
 
+    public static void write(String uri, String text) throws IOException {
+        FileAndUrlUtils.ResourceType type = getType(uri);
+        switch (type)
+        {
+            case FILE:
+                writeFile( uri, text );
+                return;
+            case S3:
+                AmazonS3 s3 = S3Utils.getS3Client( uri );
+                String[] bucketAndObject = S3Utils.getBucketAndObject( uri );
+                s3.putObject( bucketAndObject[ 0 ], bucketAndObject[ 1 ], text );
+            case HTTP:
+            default:
+                throw new IOException( "Could not save to URI: " + uri );
+        }
+    }
+
+    public static void writeFile( String path, String text ) throws IOException
+    {
+        BufferedWriter writer = new BufferedWriter(new FileWriter( path ));
+        writer.write( text );
+        writer.close();
+    }
+
     public static String getParentLocation(String uri) {
         FileAndUrlUtils.ResourceType type = getType(uri);
         switch (type) {
@@ -316,8 +340,8 @@ public class FileAndUrlUtils {
         }
     }
 
-    public static String getRelativePath(String tablePath) {
-        try (final BufferedReader reader = getReader(tablePath)) {
+    public static String getRelativePath(String path) {
+        try (final BufferedReader reader = getReader(path)) {
             String link = reader.readLine();
             return link;
         } catch (IOException e) {
