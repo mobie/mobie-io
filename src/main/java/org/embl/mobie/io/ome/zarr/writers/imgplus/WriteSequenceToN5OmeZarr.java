@@ -5,13 +5,11 @@ import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterNull;
 import bdv.export.SubTaskProgressWriter;
 import bdv.img.cache.SimpleCacheArrayLoader;
-import bdv.img.n5.N5ImageLoader;
 import com.google.gson.GsonBuilder;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicSetupImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
-import mpicbg.spim.data.sequence.FinalVoxelDimensions;
 import mpicbg.spim.data.sequence.TimePoint;
 import mpicbg.spim.data.sequence.ViewId;
 import net.imglib2.RandomAccessibleInterval;
@@ -177,6 +175,8 @@ public class WriteSequenceToN5OmeZarr {
 
         progressWriter.setProgress(1.0);
     }
+
+
 
     static <T extends RealType<T> & NativeType<T>> void writeScalePyramid(
             final N5OMEZarrWriter zarrWriter,
