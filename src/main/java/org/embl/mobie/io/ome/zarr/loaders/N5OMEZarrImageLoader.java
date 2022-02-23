@@ -336,20 +336,37 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return viewRegistrations;
     }
 
+    private double[] getXYZScale( OmeZarrMultiscales.CoordinateTransformations coordinateTransformations ) {
+        double[] scale = coordinateTransformations.scale;
+        double[] xyzScale = null;
+        if (scale != null && zarrAxesList != null) {
+            int scalesFirstIndexBackward = scale.length - 1;
+            if (zarrAxes.containsXYZCoordinates()) {
+                xyzScale = new double[]{
+                        scale[scalesFirstIndexBackward],
+                        scale[scalesFirstIndexBackward - 1],
+                        scale[scalesFirstIndexBackward - 2] };
+            } else {
+                xyzScale = new double[]{
+                        scale[scalesFirstIndexBackward],
+                        scale[scalesFirstIndexBackward - 1],
+                        1.0
+                };
+            }
+        }
+        return xyzScale;
+    }
+
     @NotNull
     private AffineTransform3D getAffineTransform3D(int setupId, int datasetId) {
         OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
         AffineTransform3D transform = new AffineTransform3D();
         if (multiscales.datasets[datasetId].coordinateTransformations != null) {
-            double[] scale = multiscales.datasets[datasetId].coordinateTransformations[0].scale;
-            if (scale != null && zarrAxesList != null) {
-                int scalesFirstIndexBackward = scale.length - 1;
-                if (zarrAxes.containsXYZCoordinates()) {
-                    transform.scale(scale[scalesFirstIndexBackward], scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward - 2]);
-                } else {
-                    transform.scale(scale[scalesFirstIndexBackward], scale[scalesFirstIndexBackward - 1], 1.0);
-                }
+            double[] scale = getXYZScale(multiscales.datasets[datasetId].coordinateTransformations[0]);
+            if (scale != null) {
+                transform.scale(scale[0], scale[1], scale[2]);
             }
+
             double[] translation = multiscales.datasets[datasetId].coordinateTransformations[0].translation;
             if (translation != null) {
                 transform.translate(translation);
@@ -358,11 +375,27 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return transform;
     }
 
+    private VoxelDimensions getVoxelDimensions3D( int setupId, int datasetId ) {
+        OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
+
+        if (multiscales.datasets[datasetId].coordinateTransformations != null && zarrAxesList != null) {
+            double[] scale = getXYZScale( multiscales.datasets[datasetId].coordinateTransformations[0] );
+            // get unit of last dimension, under assumption this is the X axis (i.e. a space axis)
+            String unit = zarrAxesList.get(zarrAxesList.size() - 1).getUnit();
+
+            if ( scale != null && unit != null ) {
+                return new FinalVoxelDimensions(unit, scale);
+            }
+        }
+
+        return new DefaultVoxelDimensions(3);
+    }
+
     private ViewSetup createViewSetup(int setupId) {
         final DatasetAttributes attributes = setupToAttributes.get(setupId);
         FinalDimensions dimensions = new FinalDimensions(attributes.getDimensions());
         OmeZarrMultiscales multiscale = setupToMultiscale.get(setupId);
-        VoxelDimensions voxelDimensions = new DefaultVoxelDimensions(3);
+        VoxelDimensions voxelDimensions = getVoxelDimensions3D(setupId, 0);
         Tile tile = new Tile(0);
 
         Channel channel;
