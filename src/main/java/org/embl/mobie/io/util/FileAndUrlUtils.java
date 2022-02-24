@@ -143,6 +143,7 @@ public class FileAndUrlUtils {
         }
     }
 
+    // overwrites existing uri
     public static void write(String uri, String text) throws IOException {
         FileAndUrlUtils.ResourceType type = getType(uri);
         switch (type)
@@ -151,15 +152,23 @@ public class FileAndUrlUtils {
                 writeFile( uri, text );
                 return;
             case S3:
-                AmazonS3 s3 = S3Utils.getS3Client( uri );
-                String[] bucketAndObject = S3Utils.getBucketAndObject( uri );
-                s3.putObject( bucketAndObject[ 0 ], bucketAndObject[ 1 ], text );
+                writeS3Object( uri, text );
+                return;
             case HTTP:
             default:
                 throw new IOException( "Could not save to URI: " + uri );
         }
     }
 
+    // overwrite existing object
+    public static void writeS3Object( String uri, String text )
+    {
+        AmazonS3 s3 = S3Utils.getS3Client( uri );
+        String[] bucketAndObject = S3Utils.getBucketAndObject( uri );
+        s3.putObject( bucketAndObject[ 0 ], bucketAndObject[ 1 ], text );
+    }
+
+    // overwrites existing file
     public static void writeFile( String path, String text ) throws IOException
     {
         BufferedWriter writer = new BufferedWriter(new FileWriter( path ));
