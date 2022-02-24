@@ -25,7 +25,8 @@ import static org.embl.mobie.io.util.S3Utils.getS3FileNames;
 import static org.embl.mobie.io.util.S3Utils.selectS3PathFromDirectory;
 
 public class FileAndUrlUtils {
-    public static ResourceType getType(String uri) {
+    public static ResourceType getType(String uri)
+    {
         if (uri.startsWith("https://s3") || uri.contains("s3.amazon.aws.com")) {
             return FileAndUrlUtils.ResourceType.S3;
         } else if (uri.startsWith("http")) {
@@ -62,7 +63,6 @@ public class FileAndUrlUtils {
             for (File file : fList) {
                 if (file.isFile()) {
                     final Matcher matcher = Pattern.compile(fileNameRegExp).matcher(file.getName());
-
                     if (matcher.matches())
                         files.add(file);
                 } else if (file.isDirectory() && recursive) {
@@ -73,8 +73,7 @@ public class FileAndUrlUtils {
     }
 
     public static List<String> getFiles(File inputDirectory, String filePattern) {
-        final List<File> fileList = getFileList(
-                inputDirectory, filePattern, false);
+        final List<File> fileList = getFileList( inputDirectory, filePattern, false);
 
         Collections.sort(fileList, new FileAndUrlUtils.SortFilesIgnoreCase());
 
@@ -85,19 +84,14 @@ public class FileAndUrlUtils {
 
     public static String getSeparator(String uri) {
         FileAndUrlUtils.ResourceType type = getType(uri);
-        String separator = null;
         switch (type) {
             case FILE:
-                separator = File.separator;
-                break;
+                return File.separator;
             case HTTP:
-                separator = "/";
-                break;
             case S3:
-                separator = "/";
-                break;
+            default:
+                return  "/";
         }
-        return separator;
     }
 
     public static String combinePath(String... paths) {
@@ -181,22 +175,23 @@ public class FileAndUrlUtils {
         switch (type) {
             case HTTP:
             case S3:
-                try {
-                    URI uri1 = new URI(uri);
-                    URI parent = uri1.getPath().endsWith("/") ? uri1.resolve("..") : uri1.resolve(".");
-                    return parent.toString();
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException("Invalid URL Syntax: " + uri);
-                }
+                return getHttpParentLocation( uri );
             case FILE:
                 return new File(uri).getParent();
             default:
                 throw new RuntimeException("Invalid ur: " + uri);
         }
+    }
 
-//		String tablesLocation = new File( path ).getParent();
-//		if ( tablesLocation.contains( ":/" ) && ! tablesLocation.contains( "://" ) )
-//			tablesLocation = tablesLocation.replace( ":/", "://" );
+    public static String getHttpParentLocation( String uri )
+    {
+        try {
+            URI uri1 = new URI( uri );
+            URI parent = uri1.getPath().endsWith("/") ? uri1.resolve("..") : uri1.resolve(".");
+            return parent.toString();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid URL Syntax: " + uri );
+        }
     }
 
     public static void openURI(String uri) {
