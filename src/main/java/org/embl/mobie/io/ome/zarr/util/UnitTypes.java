@@ -1,5 +1,9 @@
 package org.embl.mobie.io.ome.zarr.util;
 
+import lombok.extern.slf4j.Slf4j;
+import ucar.units.*;
+
+@Slf4j
 public enum UnitTypes {
     ANGSTROM("angstrom"),
     ATTOMETER("attometer"),
@@ -65,6 +69,29 @@ public enum UnitTypes {
             }
         }
         return false;
+    }
+
+    public static UnitTypes convertUnit(String unit) {
+        // Convert the mu symbol into "u".
+        String unitString = unit.replace("\u00B5", "u");
+
+        try {
+            UnitFormat unitFormatter = UnitFormatManager.instance();
+            Unit inputUnit = unitFormatter.parse(unitString);
+
+            for (UnitTypes unitType: UnitTypes.values()) {
+                Unit zarrUnit = unitFormatter.parse(unitType.typeName);
+                if (zarrUnit.getCanonicalString().equals(inputUnit.getCanonicalString())) {
+                    log.info("Converted unit: " + unit + " to recommended ome-zarr unit: " + unitType.getTypeName());
+                    return unitType;
+                }
+            }
+        } catch (SpecificationException | UnitDBException | PrefixDBException | UnitSystemException e) {
+            e.printStackTrace();
+        }
+
+        log.warn(unit + " is not one of the recommended units for ome-zarr");
+        return null;
     }
 
     public String getTypeName() {
