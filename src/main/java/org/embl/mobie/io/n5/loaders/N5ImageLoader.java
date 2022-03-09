@@ -176,9 +176,11 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
                     final List<? extends BasicViewSetup> setups = seq.getViewSetupsOrdered();
                     for (final BasicViewSetup setup : setups) {
                         final int setupId = setup.getId();
-                        final SetupImgLoader setupImgLoader = createSetupImgLoader(setupId);
+                        final SetupImgLoader<?, ?>  setupImgLoader = createSetupImgLoader(setupId);
                         setupImgLoaders.put(setupId, setupImgLoader);
-                        maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
+                        if (setupImgLoader != null) {
+                            maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
+                        }
                     }
                     if (queue == null) {
                         final int numFetcherThreads = Math.max(1, Runtime.getRuntime().availableProcessors());

@@ -108,6 +108,11 @@ public class N5S3Opener extends S3Opener {
             doc = sax.build(stream);
             final Element root = doc.getRootElement();
             final Element sequenceDescriptionElement = root.getChild("SequenceDescription");
+            final Element elem = sequenceDescriptionElement.getChild("ImageLoader");
+            final String serviceEndpoint = XmlHelpers.getText(elem, SERVICE_ENDPOINT);
+            final String signingRegion = XmlHelpers.getText(elem, SIGNING_REGION);
+            final String bucketName = XmlHelpers.getText(elem, BUCKET_NAME);
+            final String key = XmlHelpers.getText(elem, KEY);
             final TimePoints timepoints = createTimepointsFromXml(sequenceDescriptionElement);
             final Map<Integer, ViewSetup> setups = createViewSetupsFromXml(sequenceDescriptionElement);
             final MissingViews missingViews = null;
