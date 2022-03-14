@@ -69,8 +69,8 @@
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:git:git://github.com/mobie/mobie-io</connection>
-        <developerConnection>scm:git:git@github.com/mobie/mobie-io</developerConnection>
+        <connection>scm:git:https://github.com/mobie/mobie-io</connection>
+        <developerConnection>scm:git:git@github.com:mobie/mobie-io</developerConnection>
         <tag>HEAD</tag>
         <url>https://github.com/mobie/mobie-io</url>
     </scm>
