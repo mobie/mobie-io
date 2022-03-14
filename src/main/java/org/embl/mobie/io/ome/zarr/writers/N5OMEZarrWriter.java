@@ -450,6 +450,24 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
         setDatasetAttributes(pathName, datasetAttributes);
     }
 
+    public void setAttributes(HashMap<String, JsonElement> elements, String pathName) throws IOException {
+        final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zattrsFile);
+        try (final N5FSReader.LockedFileChannel lockedFileChannel = N5FSReader.LockedFileChannel.openForWriting(path)) {
+            elements.putAll(
+                    GsonAttributesParser.readAttributes(
+                            Channels.newReader(
+                                    lockedFileChannel.getFileChannel(),
+                                    StandardCharsets.UTF_8.name()),
+                            gson));
+
+            lockedFileChannel.getFileChannel().truncate(0);
+            GsonAttributesParser.writeAttributes(
+                    Channels.newWriter(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name()),
+                    elements,
+                    gson);
+        }
+    }
+
     @Override
     public void setAttributes(
             final String pathName,

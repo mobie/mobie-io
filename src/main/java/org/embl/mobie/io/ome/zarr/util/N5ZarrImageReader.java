@@ -32,6 +32,7 @@ public interface N5ZarrImageReader extends N5Reader {
         gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
         gsonBuilder.registerTypeAdapter(ZarrAxes.class, new ZarrAxesAdapter());
         gsonBuilder.registerTypeAdapter(N5Reader.Version.class, new VersionAdapter());
+        gsonBuilder.registerTypeAdapter(OmeZarrMultiscales.class, new OmeZarrMultiscalesAdapter());
         gsonBuilder.setPrettyPrinting();
         return gsonBuilder;
     }
@@ -67,11 +68,7 @@ public interface N5ZarrImageReader extends N5Reader {
                 ZarrAxis zarrAxis;
                 if (axis.getAsJsonObject().get("unit") != null && axis.getAsJsonObject().get("unit").isJsonPrimitive()) {
                     String unit = axis.getAsJsonObject().get("unit").getAsString();
-                    if (UnitTypes.contains(unit)) {
                         zarrAxis = new ZarrAxis(index, name, type, unit);
-                    } else {
-                        throw new IllegalArgumentException("Unsupported multiscales axes unit type" + unit);
-                    }
                 } else {
                     zarrAxis = new ZarrAxis(index, name, type);
                 }

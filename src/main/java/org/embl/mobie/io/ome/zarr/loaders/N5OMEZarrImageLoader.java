@@ -71,7 +71,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
@@ -110,15 +109,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     public N5OMEZarrImageLoader(N5Reader n5Reader, AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
         this.n5 = n5Reader;
         this.seq = sequenceDescription; // TODO: it is better to fetch from within Zarr
-		try
-		{
-			initSetups();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
+        try {
+            initSetups();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     public N5OMEZarrImageLoader(N5Reader n5Reader) {
@@ -184,34 +180,36 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         int setupId = -1;
 
 
-        OmeZarrMultiscales multiscale = getMultiscale(""); // returns multiscales[ 0 ]
-        DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
+        OmeZarrMultiscales[] multiscales = getMultiscale(""); // returns multiscales[ 0 ]
+        for (OmeZarrMultiscales multiscale : multiscales) {
+            DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
 
-        zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
-                n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
-        zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
-                n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
+            zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
+                    n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
+            zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
+                    n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
 
-        long nC = 1;
-        if (attributes.getNumDimensions() > 4) {
-            nC = attributes.getDimensions()[C];
-        }
-        if (zarrAxes.is4DWithChannels()) {
-            nC = attributes.getDimensions()[C];
-        }
-        if (zarrAxes.is4DWithTimepointsAndChannels()) {
-            nC = attributes.getDimensions()[2];
-        }
+            long nC = 1;
+            if (attributes.getNumDimensions() > 4) {
+                nC = attributes.getDimensions()[C];
+            }
+            if (zarrAxes.is4DWithChannels()) {
+                nC = attributes.getDimensions()[C];
+            }
+            if (zarrAxes.is4DWithTimepointsAndChannels()) {
+                nC = attributes.getDimensions()[2];
+            }
 
-        for (int c = 0; c < nC; c++) {
-            // each channel is one setup
-            setupId++;
-            setupToChannel.put(setupId, c);
+            for (int c = 0; c < nC; c++) {
+                // each channel is one setup
+                setupId++;
+                setupToChannel.put(setupId, c);
 
-            // all channels have the same multiscale and attributes
-            setupToMultiscale.put(setupId, multiscale);
-            setupToAttributes.put(setupId, attributes);
-            setupToPathname.put(setupId, "");
+                // all channels have the same multiscale and attributes
+                setupToMultiscale.put(setupId, multiscale);
+                setupToAttributes.put(setupId, attributes);
+                setupToPathname.put(setupId, "");
+            }
         }
 
         List<String> labels = n5.getAttribute("labels", "labels", List.class);
@@ -220,14 +218,18 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 setupId++;
                 setupToChannel.put(setupId, 0); // TODO: https://github.com/ome/ngff/issues/19
                 String pathName = "labels/" + label;
-                multiscale = getMultiscale(pathName);
-                attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
+                multiscales = getMultiscale(pathName);
+                for (OmeZarrMultiscales multiscale : multiscales) {
+                    DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
+                    attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
 
-                setupToMultiscale.put(setupId, multiscale);
-                setupToAttributes.put(setupId, attributes);
-                setupToPathname.put(setupId, pathName);
+                    setupToMultiscale.put(setupId, multiscale);
+                    setupToAttributes.put(setupId, attributes);
+                    setupToPathname.put(setupId, pathName);
+                }
             }
         }
+
     }
 
     /**
@@ -261,7 +263,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
      * @return
      * @throws IOException
      */
-    private OmeZarrMultiscales getMultiscale(String pathName) throws IOException {
+    private OmeZarrMultiscales[] getMultiscale(String pathName) throws IOException {
         OmeZarrMultiscales[] multiscales = n5.getAttribute(pathName, MULTI_SCALE_KEY, OmeZarrMultiscales[].class);
         if (multiscales == null) {
             String location = "";
@@ -276,7 +278,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             }
             throw new UnsupportedOperationException("Could not find multiscales at " + location);
         }
-        return multiscales[0];
+        return multiscales;
     }
 
     public AbstractSequenceDescription<?, ?, ?> getSequenceDescription() {
@@ -325,12 +327,34 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     @NotNull
     private ArrayList<ViewRegistration> createViewRegistrations(int setupId, int setupTimePoints) {
         ArrayList<ViewRegistration> viewRegistrations = new ArrayList<>();
+        // 3D transform of full resolution level
+        AffineTransform3D transform = getAffineTransform3D(setupId, 0);
         for (int t = 0; t < setupTimePoints; t++) {
-            AffineTransform3D transform = getAffineTransform3D(setupId, t);
             viewRegistrations.add(new ViewRegistration(t, setupId, transform));
         }
 
         return viewRegistrations;
+    }
+
+    private double[] getXYZScale( OmeZarrMultiscales.CoordinateTransformations coordinateTransformations ) {
+        double[] scale = coordinateTransformations.scale;
+        double[] xyzScale = null;
+        if (scale != null && zarrAxesList != null) {
+            int scalesFirstIndexBackward = scale.length - 1;
+            if (zarrAxes.containsXYZCoordinates()) {
+                xyzScale = new double[]{
+                        scale[scalesFirstIndexBackward],
+                        scale[scalesFirstIndexBackward - 1],
+                        scale[scalesFirstIndexBackward - 2] };
+            } else {
+                xyzScale = new double[]{
+                        scale[scalesFirstIndexBackward],
+                        scale[scalesFirstIndexBackward - 1],
+                        1.0
+                };
+            }
+        }
+        return xyzScale;
     }
 
     @NotNull
@@ -338,15 +362,11 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
         AffineTransform3D transform = new AffineTransform3D();
         if (multiscales.datasets[datasetId].coordinateTransformations != null) {
-            double[] scale = multiscales.datasets[datasetId].coordinateTransformations[0].scale;
-            if (scale != null && zarrAxesList != null) {
-                int scalesFirstIndexBackward = scale.length - 1;
-                if (zarrAxes.containsXYZCoordinats()) {
-                    transform.scale(scale[scalesFirstIndexBackward - 2], scale[scalesFirstIndexBackward-1], scale[scalesFirstIndexBackward]);
-                } else {
-                    transform.scale(scale[scalesFirstIndexBackward - 1], scale[scalesFirstIndexBackward], 1.0);
-                }
+            double[] scale = getXYZScale(multiscales.datasets[datasetId].coordinateTransformations[0]);
+            if (scale != null) {
+                transform.scale(scale[0], scale[1], scale[2]);
             }
+
             double[] translation = multiscales.datasets[datasetId].coordinateTransformations[0].translation;
             if (translation != null) {
                 transform.translate(translation);
@@ -355,11 +375,27 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return transform;
     }
 
+    private VoxelDimensions getVoxelDimensions3D( int setupId, int datasetId ) {
+        OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
+
+        if (multiscales.datasets[datasetId].coordinateTransformations != null && zarrAxesList != null) {
+            double[] scale = getXYZScale( multiscales.datasets[datasetId].coordinateTransformations[0] );
+            // get unit of last dimension, under assumption this is the X axis (i.e. a space axis)
+            String unit = zarrAxesList.get(zarrAxesList.size() - 1).getUnit();
+
+            if ( scale != null && unit != null ) {
+                return new FinalVoxelDimensions(unit, scale);
+            }
+        }
+
+        return new DefaultVoxelDimensions(3);
+    }
+
     private ViewSetup createViewSetup(int setupId) {
         final DatasetAttributes attributes = setupToAttributes.get(setupId);
         FinalDimensions dimensions = new FinalDimensions(attributes.getDimensions());
         OmeZarrMultiscales multiscale = setupToMultiscale.get(setupId);
-        VoxelDimensions voxelDimensions = new DefaultVoxelDimensions(3);
+        VoxelDimensions voxelDimensions = getVoxelDimensions3D(setupId, 0);
         Tile tile = new Tile(0);
 
         Channel channel;
@@ -579,7 +615,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 final String pathName = getPathName(setupId, level);
                 final DatasetAttributes attributes = getDatasetAttributes(pathName);
 
-                if ( logging ) {
+                if (logging) {
                     log.info("Preparing image " + pathName + " of data type " + attributes.getDataType());
                 }
                 long[] dimensions = getDimensions(attributes);

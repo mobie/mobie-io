@@ -5,7 +5,6 @@ import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterNull;
 import bdv.export.SubTaskProgressWriter;
 import bdv.img.cache.SimpleCacheArrayLoader;
-import bdv.img.n5.N5ImageLoader;
 import com.google.gson.GsonBuilder;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
@@ -79,6 +78,8 @@ public class WriteSequenceToN5OmeZarr {
             final Map<Integer, ExportMipmapInfo> perSetupMipmapInfo,
             final DownsampleBlock.DownsamplingMethod downsamplingMethod,
             final Compression compression,
+            final String timeUnit,
+            final double frameInterval,
             final File zarrFile,
             final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
             final ExportScalePyramid.AfterEachPlane afterEachPlane,
@@ -119,11 +120,12 @@ public class WriteSequenceToN5OmeZarr {
         }
 
         // create group for top directory & add multiscales
-        // Currently we write v0.3 ome-zarr
-        // Assumes persetupmipmapinfo is the same for every setup
+        // Currently we write v0.4 ome-zarr
+        // Assumes persetupmipmapinfo is the same for every setup, and unit same for every setup
         OmeZarrMultiscales[] multiscales = new OmeZarrMultiscales[1];
         multiscales[0] = new OmeZarrMultiscales(axes, zarrFile.getName().split("\\.")[0], downsamplingMethod.name(),
-                new N5Reader.Version(0, 3, 0), perSetupMipmapInfo.get(0).getNumLevels());
+                "0.4", seq.getViewSetupsOrdered().get(0).getVoxelSize(),
+                perSetupMipmapInfo.get(0).getResolutions(), timeUnit, frameInterval );
 
         zarrWriter.createGroup("");
         zarrWriter.setAttribute("", MULTI_SCALE_KEY, multiscales);
@@ -173,6 +175,8 @@ public class WriteSequenceToN5OmeZarr {
 
         progressWriter.setProgress(1.0);
     }
+
+
 
     static <T extends RealType<T> & NativeType<T>> void writeScalePyramid(
             final N5OMEZarrWriter zarrWriter,

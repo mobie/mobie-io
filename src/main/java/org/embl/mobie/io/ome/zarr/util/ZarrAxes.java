@@ -46,6 +46,43 @@ public enum ZarrAxes {
         return allMatches;
     }
 
+    public List<ZarrAxis> toAxesList( String spaceUnit, String timeUnit ) {
+        List<ZarrAxis> zarrAxesList = new ArrayList<>();
+        List<String> zarrAxesStrings = getAxesList();
+
+        String[] units = new String[]{spaceUnit, timeUnit};
+
+        // convert to valid ome-zarr units, if possible, otherwise just go ahead with
+        // given unit
+        for ( int i = 0; i< units.length; i++ ) {
+            String unit = units[i];
+            if ( !UnitTypes.contains(unit) ) {
+                UnitTypes unitType = UnitTypes.convertUnit(unit);
+                if (unitType != null) {
+                    units[i] = unitType.getTypeName();
+                }
+            }
+        }
+
+        for ( int i = 0; i<zarrAxesStrings.size(); i++  ) {
+            String axisString = zarrAxesStrings.get(i);
+            AxesTypes axisType =  AxesTypes.getAxisType( axisString );
+
+            String unit;
+            if ( axisType == AxesTypes.SPACE ) {
+                unit = units[0];
+            } else if ( axisType == AxesTypes.TIME ) {
+                unit = units[1];
+            } else {
+                unit = null;
+            }
+
+            zarrAxesList.add( new ZarrAxis( i, axisString, axisType.getTypeName(), unit) );
+        }
+
+        return zarrAxesList;
+    }
+
     public boolean is2D() {
         return this.axes.equals(YX.axes);
     }
@@ -54,7 +91,7 @@ public enum ZarrAxes {
         return this.axes.equals(TCZYX.axes) || this.axes.equals(NOT_SPECIFIED.axes);
     }
 
-    public boolean containsXYZCoordinats() {
+    public boolean containsXYZCoordinates() {
         return this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(ZYX.axes);
     }
 
@@ -80,5 +117,25 @@ public enum ZarrAxes {
 
     public boolean is4DWithTimepointsAndChannels() {
         return this.axes.equals(TCYX.axes);
+    }
+
+    public boolean hasTimepoints() {
+        return this.axes.equals(TCYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TYX.axes) ||
+                this.axes.equals(TCZYX.axes);
+    }
+
+    public boolean hasChannels() {
+        return this.axes.equals(CZYX.axes) || this.axes.equals(CYX.axes) || this.axes.equals(TCYX.axes) ||
+                this.axes.equals(TCZYX.axes);
+    }
+
+    public int timeIndex() {
+        List<String> zarrAxisList = getAxesList();
+        return zarrAxisList.indexOf("t");
+    }
+
+    public int channelIndex() {
+        List<String> zarrAxisList = getAxesList();
+        return zarrAxisList.indexOf("c");
     }
 }

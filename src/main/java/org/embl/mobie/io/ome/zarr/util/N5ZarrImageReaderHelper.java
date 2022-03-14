@@ -25,7 +25,10 @@ public class N5ZarrImageReaderHelper extends N5FSReader {
         super(basePath, gsonBuilder);
     }
 
-    public ZArrayAttributes getN5DatasetAttributes(@NotNull HashMap<String, JsonElement> attributes) {
+    public ZArrayAttributes getN5DatasetAttributes(@NotNull HashMap<String, JsonElement> attributes) throws IOException {
+        if (attributes.isEmpty()) {
+            throw new IOException("Empty ZArray attributes");
+        }
         return new ZArrayAttributes(
                 attributes.get("zarr_format").getAsInt(),
                 gson.fromJson(attributes.get("shape"), long[].class),

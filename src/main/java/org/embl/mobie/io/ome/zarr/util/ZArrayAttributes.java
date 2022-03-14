@@ -1,5 +1,6 @@
 package org.embl.mobie.io.ome.zarr.util;
 
+import org.janelia.saalfeldlab.n5.Compression;
 import org.janelia.saalfeldlab.n5.RawCompression;
 import org.janelia.saalfeldlab.n5.zarr.DType;
 import org.janelia.saalfeldlab.n5.zarr.Filter;
@@ -62,11 +63,13 @@ public class ZArrayAttributes {
             Utils.reorder(blockSize);
         }
 
+        Compression compression = compressor != null ? compressor.getCompression() : new ZarrCompressor.Raw().getCompression();
+
         return new ZarrDatasetAttributes(
                 dimensions,
                 blockSize,
                 dtype,
-                compressor.getCompression(),
+                compression,
                 isRowMajor,
                 fill_value);
     }
@@ -122,4 +125,6 @@ public class ZArrayAttributes {
     public Collection<Filter> getFilters() {
         return filters;
     }
+
+
 }
