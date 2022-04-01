@@ -8,7 +8,7 @@ import net.imglib2.realtransform.AffineTransform3D;
 
 import java.io.File;
 
-public class WriteImgPlusToN5Helper {
+public class WriteImagePlusToN5Helper {
     public static boolean isImageSuitable(ImagePlus imp) {
         // check the image type
         switch (imp.getType()) {
