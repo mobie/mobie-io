@@ -7,6 +7,7 @@ import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
 import mpicbg.spim.data.sequence.SequenceDescription;
+import mpicbg.spim.data.sequence.ViewSetup;
 import net.imglib2.Dimensions;
 import net.imglib2.RandomAccess;
 import net.imglib2.img.cell.CellLocalizingCursor;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.apache.commons.io.FilenameUtils.removeExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -99,15 +101,27 @@ public class OmeZarrWithWriterTest {
         return new File(tempDir, imageName + ".ome.zarr").getAbsolutePath();
     }
 
-    String[] getViewSetupNames( ImagePlus imp ) {
+    String[] getViewSetupNames( ImagePlus imp, ImageDataFormat imageDataFormat ) {
         int nChannels = imp.getNChannels();
+        return getViewSetupNames( nChannels, imageDataFormat );
+    }
+
+    String[] getViewSetupNames( int nChannels, ImageDataFormat imageDataFormat ) {
         String[] viewSetupNames = new String[nChannels];
 
         if ( nChannels == 1 ) {
             viewSetupNames[0] = imageName;
         } else {
-            for ( int i=0; i<nChannels; i++ ) {
-                viewSetupNames[i] = imageName + "-channel" + (i+1);
+            if ( imageDataFormat == ImageDataFormat.BdvN5 ) {
+                // N5 supports different names for each setup - so we name by channel
+                for ( int i = 0; i < nChannels; i++ ) {
+                    viewSetupNames[i] = imageName + "-channel" + (i + 1);
+                }
+            } else {
+                // Ome-Zarr uses the image name for every setup (doesn't support different names currently)
+                for ( int i = 0; i < nChannels; i++ ) {
+                    viewSetupNames[i] = imageName;
+                }
             }
         }
 
@@ -132,10 +146,17 @@ public class OmeZarrWithWriterTest {
         }
     }
 
-    void spimDataAssertions( SpimData spimData, int nChannels, int nTimepoints ) {
+    void spimDataAssertions( SpimData spimData, int nChannels, int nTimepoints, ImageDataFormat imageDataFormat ) {
         SequenceDescription sequenceDescription = spimData.getSequenceDescription();
         assertEquals( sequenceDescription.getTimePoints().size(), nTimepoints );
         assertEquals( sequenceDescription.getViewSetupsOrdered().size(), nChannels );
+
+        // check view setup names
+        String[] viewSetupNames = getViewSetupNames(nChannels, imageDataFormat);
+        List<ViewSetup> viewSetups = sequenceDescription.getViewSetupsOrdered();
+        for ( int i = 0; i<viewSetups.size(); i++ ) {
+            assertEquals( viewSetups.get(i).getName(), viewSetupNames[i] );
+        }
 
         Dimensions dimensions = sequenceDescription.getViewSetupsOrdered().get(0).getSize();
         assertEquals( dimensions.dimension(0), defaultWidth );
@@ -148,7 +169,7 @@ public class OmeZarrWithWriterTest {
         assertTrue( new File(removeExtension(xmlPath) + ".n5").exists() );
 
         SpimData spimData = (SpimData) new SpimDataOpener().openSpimData( xmlPath, ImageDataFormat.BdvN5 );
-        spimDataAssertions( spimData, nChannels, nTimepoints );
+        spimDataAssertions( spimData, nChannels, nTimepoints, ImageDataFormat.BdvN5 );
     }
 
     void zarrAssertions( String zarrPath, int nChannels, int nTimepoints ) throws SpimDataException, IOException {
@@ -156,7 +177,7 @@ public class OmeZarrWithWriterTest {
         validateJSON( zarrPath );
 
         SpimData spimData = (SpimData) new SpimDataOpener().openSpimData( zarrPath, ImageDataFormat.OmeZarr );
-        spimDataAssertions( spimData, nChannels, nTimepoints );
+        spimDataAssertions( spimData, nChannels, nTimepoints, ImageDataFormat.OmeZarr );
     }
 
     String writeImageAndGetPath( ImagePlus imp, ImageDataFormat imageDataFormat,
@@ -168,13 +189,13 @@ public class OmeZarrWithWriterTest {
             case BdvN5:
                 filePath = getXmlPath();
                 new WriteImgPlusToN5().export( imp, resolutions, subdivisions, filePath,
-                    sourceTransform, downsamplingMethod, compression, getViewSetupNames(imp) );
+                    sourceTransform, downsamplingMethod, compression, getViewSetupNames(imp, imageDataFormat) );
                 break;
 
             case OmeZarr:
                 filePath = getZarrPath();
                 new WriteImgPlusToN5OmeZarr().export( imp, resolutions, subdivisions, filePath,
-                        sourceTransform, downsamplingMethod, compression, getViewSetupNames(imp) );
+                        sourceTransform, downsamplingMethod, compression, getViewSetupNames(imp, imageDataFormat) );
                 break;
 
             default:
@@ -209,13 +230,13 @@ public class OmeZarrWithWriterTest {
             case BdvN5:
                 filePath = getXmlPath();
                 new WriteImgPlusToN5().export(imp, filePath, sourceTransform, downsamplingMethod,
-                        compression, getViewSetupNames(imp));
+                        compression, getViewSetupNames(imp, imageDataFormat));
                 break;
 
             case OmeZarr:
                 filePath = getZarrPath();
                 new WriteImgPlusToN5OmeZarr().export(imp, filePath, sourceTransform,
-                        downsamplingMethod, compression, getViewSetupNames(imp));
+                        downsamplingMethod, compression, getViewSetupNames(imp, imageDataFormat));
                 break;
 
             default:
