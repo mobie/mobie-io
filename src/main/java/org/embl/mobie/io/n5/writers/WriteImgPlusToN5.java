@@ -350,7 +350,7 @@ public class WriteImgPlusToN5 {
                 final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression,
                 final String[] viewSetupNames) {
             this( resolutions, subdivisions, seqFile, n5File, sourceTransform, downsamplingMethod, compression,
-                    null, null, 1 );
+                    viewSetupNames, null, 1 );
         }
 
         public Parameters(
