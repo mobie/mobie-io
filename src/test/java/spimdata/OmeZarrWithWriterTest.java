@@ -16,9 +16,9 @@ import net.imglib2.type.numeric.integer.GenericByteType;
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 import org.embl.mobie.io.n5.util.DownsampleBlock;
-import org.embl.mobie.io.n5.writers.WriteImgPlusToN5;
+import org.embl.mobie.io.n5.writers.WriteImagePlusToN5;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
-import org.embl.mobie.io.ome.zarr.writers.imgplus.WriteImgPlusToN5OmeZarr;
+import org.embl.mobie.io.ome.zarr.writers.imageplus.WriteImagePlusToN5OmeZarr;
 import org.embl.mobie.io.util.FileAndUrlUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -188,13 +188,13 @@ public class OmeZarrWithWriterTest {
         switch( imageDataFormat ) {
             case BdvN5:
                 filePath = getXmlPath();
-                new WriteImgPlusToN5().export( imp, resolutions, subdivisions, filePath,
+                new WriteImagePlusToN5().export( imp, resolutions, subdivisions, filePath,
                     sourceTransform, downsamplingMethod, compression, getViewSetupNames(imp, imageDataFormat) );
                 break;
 
             case OmeZarr:
                 filePath = getZarrPath();
-                new WriteImgPlusToN5OmeZarr().export( imp, resolutions, subdivisions, filePath,
+                new WriteImagePlusToN5OmeZarr().export( imp, resolutions, subdivisions, filePath,
                         sourceTransform, downsamplingMethod, compression, getViewSetupNames(imp, imageDataFormat) );
                 break;
 
@@ -229,13 +229,13 @@ public class OmeZarrWithWriterTest {
         switch( imageDataFormat ) {
             case BdvN5:
                 filePath = getXmlPath();
-                new WriteImgPlusToN5().export(imp, filePath, sourceTransform, downsamplingMethod,
+                new WriteImagePlusToN5().export(imp, filePath, sourceTransform, downsamplingMethod,
                         compression, getViewSetupNames(imp, imageDataFormat));
                 break;
 
             case OmeZarr:
                 filePath = getZarrPath();
-                new WriteImgPlusToN5OmeZarr().export(imp, filePath, sourceTransform,
+                new WriteImagePlusToN5OmeZarr().export(imp, filePath, sourceTransform,
                         downsamplingMethod, compression, getViewSetupNames(imp, imageDataFormat));
                 break;
 

@@ -1,4 +1,4 @@
-package org.embl.mobie.io.ome.zarr.writers.imgplus;
+package org.embl.mobie.io.ome.zarr.writers.imageplus;
 
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
@@ -13,17 +13,17 @@ import net.imglib2.FinalDimensions;
 import net.imglib2.realtransform.AffineTransform3D;
 import org.embl.mobie.io.n5.util.DownsampleBlock;
 import org.embl.mobie.io.n5.util.ExportScalePyramid;
-import org.embl.mobie.io.n5.writers.WriteImgPlusToN5;
+import org.embl.mobie.io.n5.writers.WriteImagePlusToN5;
 import org.janelia.saalfeldlab.n5.Compression;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.embl.mobie.io.n5.writers.WriteImgPlusToN5Helper.getSize;
-import static org.embl.mobie.io.n5.writers.WriteImgPlusToN5Helper.getVoxelSize;
+import static org.embl.mobie.io.n5.writers.WriteImagePlusToN5Helper.getSize;
+import static org.embl.mobie.io.n5.writers.WriteImagePlusToN5Helper.getVoxelSize;
 
-public class WriteImgPlusToN5OmeZarr extends WriteImgPlusToN5 {
+public class WriteImagePlusToN5OmeZarr extends WriteImagePlusToN5 {
 
     // TODO - deal with transforms properly - here the voxel size is just taken directly from the imp for scaling.
     // the sourceTransform is ignored. In next ome-zarr version, when affine is supported,
