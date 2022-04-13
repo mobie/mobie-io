@@ -31,7 +31,7 @@ public class OMEZarrS3Opener extends S3Opener {
 
     public SpimData readKey(String key, SharedQueue sharedQueue) throws IOException {
         N5OMEZarrImageLoader.logging = logging;
-        N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader(serviceEndpoint, signingRegion, bucketName, key, ".");
+        N5S3OMEZarrImageLoader imageLoader = new N5S3OMEZarrImageLoader(serviceEndpoint, signingRegion, bucketName, key, ".", sharedQueue);
         return new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
     }
 
