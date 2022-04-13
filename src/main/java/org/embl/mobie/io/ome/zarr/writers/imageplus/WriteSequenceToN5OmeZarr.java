@@ -1,4 +1,4 @@
-package org.embl.mobie.io.ome.zarr.writers.imgplus;
+package org.embl.mobie.io.ome.zarr.writers.imageplus;
 
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
