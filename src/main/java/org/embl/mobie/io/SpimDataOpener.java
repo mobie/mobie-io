@@ -21,6 +21,7 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,9 +52,9 @@ public class SpimDataOpener {
             case OmeZarrS3:
                 return openOmeZarrS3(imagePath);
             case BdvOmeZarr:
-                return openBdvOmeZarr(imagePath);
+                return openBdvOmeZarr(imagePath, null);
             case BdvOmeZarrS3:
-                return openBdvOmeZarrS3(imagePath);
+                return openBdvOmeZarrS3(imagePath, null);
             case OpenOrganelleS3:
                 return openOpenOrganelleS3(imagePath);
             default:
@@ -71,6 +72,10 @@ public class SpimDataOpener {
                 return openOmeZarr(imagePath, sharedQueue);
             case OmeZarrS3:
                 return openOmeZarrS3(imagePath, sharedQueue);
+            case BdvOmeZarr:
+                return openBdvOmeZarr(imagePath, sharedQueue);
+            case BdvOmeZarrS3:
+                return openBdvOmeZarrS3(imagePath, sharedQueue);
             default:
                 System.out.println("Shared queues for " + imageDataFormat + " are not yet supported; opening with own queue.");
                 return openSpimData(imagePath, imageDataFormat);
@@ -151,9 +156,9 @@ public class SpimDataOpener {
         }
     }
 
-    private SpimData openBdvOmeZarrS3(String path) throws SpimDataException {
+    private SpimData openBdvOmeZarrS3(String path, SharedQueue queue) throws SpimDataException {
         try {
-            N5S3OMEZarrImageLoader imageLoader = createN5S3OmeZarrImageLoader(path);
+            N5S3OMEZarrImageLoader imageLoader = createN5S3OmeZarrImageLoader(path, queue);
             SpimData spimData = openBdvXml(path);
             if (spimData != null) {
                 spimData.getSequenceDescription().setImgLoader(imageLoader);
@@ -166,9 +171,9 @@ public class SpimDataOpener {
         }
     }
 
-    private SpimData openBdvOmeZarr(String path) throws SpimDataException {
+    private SpimData openBdvOmeZarr(String path, @Nullable SharedQueue sharedQueue) throws SpimDataException {
         SpimData spimData = openBdvXml(path);
-        SpimData spimDataWithImageLoader = getSpimDataWithImageLoader(path);
+        SpimData spimDataWithImageLoader = getSpimDataWithImageLoader(path, sharedQueue);
         if (spimData != null && spimDataWithImageLoader != null) {
             spimData.getSequenceDescription().setImgLoader(spimDataWithImageLoader.getSequenceDescription().getImgLoader());
             spimData.getSequenceDescription().getAllChannels().putAll(spimDataWithImageLoader.getSequenceDescription().getAllChannels());
@@ -179,7 +184,7 @@ public class SpimDataOpener {
     }
 
     @NotNull
-    private N5S3OMEZarrImageLoader createN5S3OmeZarrImageLoader(String path) throws IOException, JDOMException {
+    private N5S3OMEZarrImageLoader createN5S3OmeZarrImageLoader(String path, @Nullable SharedQueue queue) throws IOException, JDOMException {
         final SAXBuilder sax = new SAXBuilder();
         InputStream stream = FileAndUrlUtils.getInputStream(path);
         final Document doc = sax.build(stream);
@@ -188,10 +193,14 @@ public class SpimDataOpener {
         final String[] split = bucketAndObject.split("/");
         String bucket = split[0];
         String object = Arrays.stream(split).skip(1).collect(Collectors.joining("/"));
-        return new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".");
+        if (queue == null) {
+            return new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".");
+        } else {
+            return new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".", queue);
+        }
     }
 
-    private SpimData getSpimDataWithImageLoader(String path) {
+    private SpimData getSpimDataWithImageLoader(String path, @Nullable SharedQueue sharedQueue) {
         try {
             final SAXBuilder sax = new SAXBuilder();
             InputStream stream = FileAndUrlUtils.getInputStream(path);
@@ -199,6 +208,9 @@ public class SpimDataOpener {
             final Element imgLoaderElem = doc.getRootElement().getChild(SEQUENCEDESCRIPTION_TAG).getChild(IMGLOADER_TAG);
             String imagesFile = XmlN5OmeZarrImageLoader.getDatasetsPathFromXml(imgLoaderElem, path);
             if (imagesFile != null && new File(imagesFile).exists()) {
+                if (sharedQueue != null) {
+                    return OMEZarrOpener.openFile(path, sharedQueue);
+                }
                 return OMEZarrOpener.openFile(imagesFile);
             }
         } catch (JDOMException | IOException e) {
