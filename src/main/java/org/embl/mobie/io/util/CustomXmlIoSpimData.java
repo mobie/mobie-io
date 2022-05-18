@@ -60,8 +60,7 @@ public class CustomXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDescripti
             throw new SpimDataIOException(exception);
         }
         final Element root = doc.getRootElement();
-
-        if (!Objects.equals(root.getName(), SPIMDATA_TAG))
+        if (!root.getName().equals(SPIMDATA_TAG))
             throw new RuntimeException("expected <" + SPIMDATA_TAG + "> root element. wrong file?");
 
         return fromXml(root, new File(xmlFilename));
