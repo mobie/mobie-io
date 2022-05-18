@@ -41,28 +41,27 @@ import org.jdom2.input.SAXBuilder;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Objects;
 
 import static mpicbg.spim.data.XmlKeys.SPIMDATA_TAG;
-
 
 public class CustomXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDescription, SpimData> {
     public CustomXmlIoSpimData() {
         super(SpimData.class, new XmlIoSequenceDescription(), new XmlIoViewRegistrations());
     }
 
-    // NOTE we still need to pass the xml filename here, so that bdv can determine the relative
-    // paths for local files.
     public SpimData loadFromStream(InputStream in, String xmlFilename) throws SpimDataException {
-        final SAXBuilder sax = new SAXBuilder();
+        SAXBuilder sax = new SAXBuilder();
+
         Document doc;
         try {
             doc = sax.build(in);
-        } catch (final Exception e) {
-            throw new SpimDataIOException(e);
+        } catch (Exception var6) {
+            throw new SpimDataIOException(var6);
         }
         final Element root = doc.getRootElement();
 
-        if (root.getName() != SPIMDATA_TAG)
+        if (!Objects.equals(root.getName(), SPIMDATA_TAG))
             throw new RuntimeException("expected <" + SPIMDATA_TAG + "> root element. wrong file?");
 
         return fromXml(root, new File(xmlFilename));

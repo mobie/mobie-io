@@ -25,6 +25,7 @@
  */
 package org.embl.mobie.io.ome.zarr.readers;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.google.gson.GsonBuilder;
@@ -266,18 +267,15 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
      *
      * @param objectPath
      * @return null if the object does not exist, otherwise the loaded attributes.
-     * @throws IOException
      */
-    public HashMap<String, JsonElement> readJson(String objectPath) throws IOException {
-        if (!this.s3.doesObjectExist(this.bucketName, objectPath)) {
-            return null;
-        } else {
+    public HashMap<String, JsonElement> readJson(String objectPath) {
+        try {
             InputStream in = this.readS3Object(objectPath);
             Throwable var4 = null;
 
-            HashMap<String, JsonElement> var5;
+            HashMap<String, JsonElement> hashMap;
             try {
-                var5 = GsonAttributesParser.readAttributes(new InputStreamReader(in), this.gson);
+                hashMap = GsonAttributesParser.readAttributes(new InputStreamReader(in), this.gson);
             } catch (Throwable var14) {
                 var4 = var14;
                 throw var14;
@@ -295,8 +293,10 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
                 }
 
             }
-
-            return var5;
+            return hashMap;
+        } catch (SdkClientException | IOException e) {
+            log.debug("Failed to readJson: object {} does not exist in bucket {}", objectPath, this.bucketName);
+            return null;
         }
     }
 
