@@ -275,6 +275,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 location += "; container path: " + s3ZarrReader.getContainerPath();
                 location += "; path: " + pathName;
                 location += "; attribute: " + MULTI_SCALE_KEY;
+            } else {
+                location += " path: " + pathName;
             }
             throw new UnsupportedOperationException("Could not find multiscales at " + location);
         }

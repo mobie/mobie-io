@@ -4,9 +4,11 @@ import bdv.img.imaris.Imaris;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.util.volatiles.SharedQueue;
 import ij.IJ;
+import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.generic.AbstractSpimData;
+import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.openers.N5Opener;
 import org.embl.mobie.io.n5.openers.N5S3Opener;
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_TAG;
 import static mpicbg.spim.data.XmlKeys.SEQUENCEDESCRIPTION_TAG;
 
+@Slf4j
 public class SpimDataOpener {
 
     public static final String ERROR_WHILE_TRYING_TO_READ_SPIM_DATA = "Error while trying to read spimData";
@@ -156,18 +159,39 @@ public class SpimDataOpener {
         }
     }
 
-    private SpimData openBdvOmeZarrS3(String path, SharedQueue queue) throws SpimDataException {
+    private SpimData openBdvOmeZarrS3(String path, SharedQueue queue) {
+        //Todo: finish bug fixing
         try {
-            N5S3OMEZarrImageLoader imageLoader = createN5S3OmeZarrImageLoader(path, queue);
-            SpimData spimData = openBdvXml(path);
-            if (spimData != null) {
-                spimData.getSequenceDescription().setImgLoader(imageLoader);
-                return spimData;
+            SAXBuilder sax = new SAXBuilder();
+            InputStream stream = FileAndUrlUtils.getInputStream(path);
+            Document doc = sax.build(stream);
+            Element imgLoaderElem = doc.getRootElement().getChild("SequenceDescription").getChild("ImageLoader");
+            String bucketAndObject = imgLoaderElem.getChild("BucketName").getText() + "/" + imgLoaderElem.getChild("Key").getText();
+            String[] split = bucketAndObject.split("/");
+            String bucket = split[0];
+            String object = Arrays.stream(split).skip(1L).collect(Collectors.joining("/"));
+            N5S3OMEZarrImageLoader imageLoader;
+            if (queue != null) {
+                imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".", queue);
             } else {
-                throw new SpimDataException("Error while trying to read spimData. SpimData is null");
+               imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".");
             }
-        } catch (IOException | JDOMException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
+            SpimData spim = new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
+            SpimData spimData;
+            try {
+                InputStream st = FileAndUrlUtils.getInputStream(path);
+                spimData = (new CustomXmlIoSpimData()).loadFromStream(st, path);
+            } catch (SpimDataException exception) {
+                log.debug("Failed to load stream from {}", path, exception);
+                return null;
+            }
+            spimData.setBasePath(null);
+            spimData.getSequenceDescription().setImgLoader(spim.getSequenceDescription().getImgLoader());
+            spimData.getSequenceDescription().getAllChannels().putAll(spim.getSequenceDescription().getAllChannels());
+            return spimData;
+        } catch (JDOMException | IOException e) {
+            log.debug("Failed to open openBdvOmeZarrS3", e);
+            return null;
         }
     }
 
@@ -207,12 +231,15 @@ public class SpimDataOpener {
             final Document doc = sax.build(stream);
             final Element imgLoaderElem = doc.getRootElement().getChild(SEQUENCEDESCRIPTION_TAG).getChild(IMGLOADER_TAG);
             String imagesFile = XmlN5OmeZarrImageLoader.getDatasetsPathFromXml(imgLoaderElem, path);
-            if (imagesFile != null && new File(imagesFile).exists()) {
-                if (sharedQueue != null) {
-                    return OMEZarrOpener.openFile(path, sharedQueue);
+            if (imagesFile != null) {
+                    if (new File(imagesFile).exists()) {
+                        return sharedQueue != null ? OMEZarrOpener.openFile(imagesFile, sharedQueue)
+                                : OMEZarrOpener.openFile(imagesFile);
+                    } else {
+                        return sharedQueue != null ? OMEZarrS3Opener.readURL(imagesFile, sharedQueue)
+                        : OMEZarrS3Opener.readURL(imagesFile);
+                    }
                 }
-                return OMEZarrOpener.openFile(imagesFile);
-            }
         } catch (JDOMException | IOException e) {
             IJ.log(e.getMessage());
         }

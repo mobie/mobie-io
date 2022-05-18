@@ -93,7 +93,7 @@
 
         <!-- Java 8	Update Site	-->
         <imglib2-cache.version>1.0.0-beta-16</imglib2-cache.version>
-        <bigdataviewer-core.version>10.2.1</bigdataviewer-core.version>
+        <bigdataviewer-core.version>10.2.2</bigdataviewer-core.version>
         <bigdataviewer-vistools.version>1.0.0-beta-28</bigdataviewer-vistools.version>
 
         <!-- spim_data.version required for writing tests to run properly -->
