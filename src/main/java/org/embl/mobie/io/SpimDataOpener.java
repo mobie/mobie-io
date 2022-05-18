@@ -177,20 +177,20 @@ public class SpimDataOpener {
                imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".");
             }
             SpimData spim = new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
-            SpimData sp1;
+            SpimData spimData;
             try {
                 InputStream st = FileAndUrlUtils.getInputStream(path);
-                sp1 = (new CustomXmlIoSpimData()).loadFromStream(st, path);
+                spimData = (new CustomXmlIoSpimData()).loadFromStream(st, path);
             } catch (SpimDataException exception) {
                 log.debug("Failed to load stream from {}", path, exception);
                 return null;
             }
-            sp1.setBasePath(null);
-            sp1.getSequenceDescription().setImgLoader(spim.getSequenceDescription().getImgLoader());
-            sp1.getSequenceDescription().getAllChannels().putAll(spim.getSequenceDescription().getAllChannels());
-            return sp1;
-        } catch (JDOMException | IOException var13) {
-            var13.printStackTrace();
+            spimData.setBasePath(null);
+            spimData.getSequenceDescription().setImgLoader(spim.getSequenceDescription().getImgLoader());
+            spimData.getSequenceDescription().getAllChannels().putAll(spim.getSequenceDescription().getAllChannels());
+            return spimData;
+        } catch (JDOMException | IOException e) {
+            log.debug("Failed to open openBdvOmeZarrS3", e);
             return null;
         }
     }

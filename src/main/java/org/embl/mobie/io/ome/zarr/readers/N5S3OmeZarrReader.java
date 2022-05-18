@@ -271,21 +271,21 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     public HashMap<String, JsonElement> readJson(String objectPath) {
         try {
             InputStream in = this.readS3Object(objectPath);
-            Throwable var4 = null;
+            Throwable throwable = null;
 
             HashMap<String, JsonElement> hashMap;
             try {
                 hashMap = GsonAttributesParser.readAttributes(new InputStreamReader(in), this.gson);
-            } catch (Throwable var14) {
-                var4 = var14;
-                throw var14;
+            } catch (Throwable error) {
+                throwable = error;
+                throw error;
             } finally {
                 if (in != null) {
-                    if (var4 != null) {
+                    if (throwable != null) {
                         try {
                             in.close();
-                        } catch (Throwable var13) {
-                            var4.addSuppressed(var13);
+                        } catch (Throwable exception) {
+                            throwable.addSuppressed(exception);
                         }
                     } else {
                         in.close();
