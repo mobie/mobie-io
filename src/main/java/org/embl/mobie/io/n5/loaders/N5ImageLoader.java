@@ -277,7 +277,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
         }
 
         @Override
-        public A loadArray(final long[] gridPosition) throws IOException {
+        public A loadArray(final long[] gridPosition, final int[] cellDimensions) throws IOException {
             DataBlock<?> block = null;
 
             try {
