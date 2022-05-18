@@ -269,15 +269,13 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
      * @throws IOException
      */
     public HashMap<String, JsonElement> readJson(String objectPath) throws IOException {
-        try {
-            try (final InputStream in = this.readS3Object(objectPath)) {
+        try (final InputStream in = this.readS3Object(objectPath)) {
                 return GsonAttributesParser.readAttributes(new InputStreamReader(in), gson);
-            }
         } catch (AmazonS3Exception ase) {
-            if ("NoSuchKey".equals(ase.getErrorCode())) {
+            if (ase.getErrorCode().equals("NoSuchKey"))
                 return null;
-            }
-            throw ase;
+            else
+                throw ase;
         }
     }
 
