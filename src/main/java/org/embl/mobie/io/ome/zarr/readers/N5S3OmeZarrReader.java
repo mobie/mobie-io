@@ -261,7 +261,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     }
 
     /**
-     * Copied from getAttributes but doesn't change the objectPath in anyway.
+     * Copied from getAttributes but doesn't change the objectPath in any way.
      * CHANGES: returns null rather than empty hash map
      *
      * @param objectPath
@@ -269,34 +269,15 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
      * @throws IOException
      */
     public HashMap<String, JsonElement> readJson(String objectPath) throws IOException {
-        if (!this.s3.doesObjectExist(this.bucketName, objectPath)) {
-            return null;
-        } else {
-            InputStream in = this.readS3Object(objectPath);
-            Throwable var4 = null;
-
-            HashMap<String, JsonElement> var5;
-            try {
-                var5 = GsonAttributesParser.readAttributes(new InputStreamReader(in), this.gson);
-            } catch (Throwable var14) {
-                var4 = var14;
-                throw var14;
-            } finally {
-                if (in != null) {
-                    if (var4 != null) {
-                        try {
-                            in.close();
-                        } catch (Throwable var13) {
-                            var4.addSuppressed(var13);
-                        }
-                    } else {
-                        in.close();
-                    }
-                }
-
+        try {
+            try (final InputStream in = this.readS3Object(objectPath)) {
+                return GsonAttributesParser.readAttributes(new InputStreamReader(in), gson);
             }
-
-            return var5;
+        } catch (AmazonS3Exception ase) {
+            if ("NoSuchKey".equals(ase.getErrorCode())) {
+                return null;
+            }
+            throw ase;
         }
     }
 

@@ -14,8 +14,8 @@
     <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update -->
 
     <url>https://github.com/mobie/mobie-io</url>
-    <name>BDV ImageLoaders</name>
-    <description>BDV ImageLoaders for MoBIE projects</description>
+    <name>MoBIE IO</name>
+    <description>Readers and writers for image data in MoBIE projects</description>
     <inceptionYear>2021</inceptionYear>
     <organization>
         <name>EMBL</name>
