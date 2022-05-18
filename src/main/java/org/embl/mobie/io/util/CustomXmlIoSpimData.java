@@ -56,8 +56,8 @@ public class CustomXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDescripti
         Document doc;
         try {
             doc = sax.build(in);
-        } catch (Exception var6) {
-            throw new SpimDataIOException(var6);
+        } catch (Exception exception) {
+            throw new SpimDataIOException(exception);
         }
         final Element root = doc.getRootElement();
 

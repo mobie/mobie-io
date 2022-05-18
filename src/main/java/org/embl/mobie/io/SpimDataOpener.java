@@ -4,6 +4,7 @@ import bdv.img.imaris.Imaris;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.util.volatiles.SharedQueue;
 import ij.IJ;
+import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.generic.AbstractSpimData;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_TAG;
 import static mpicbg.spim.data.XmlKeys.SEQUENCEDESCRIPTION_TAG;
 
+@Slf4j
 public class SpimDataOpener {
 
     public static final String ERROR_WHILE_TRYING_TO_READ_SPIM_DATA = "Error while trying to read spimData";
@@ -179,9 +181,8 @@ public class SpimDataOpener {
             try {
                 InputStream st = FileAndUrlUtils.getInputStream(path);
                 sp1 = (new CustomXmlIoSpimData()).loadFromStream(st, path);
-            } catch (SpimDataException var3) {
-                System.out.println(path);
-                var3.printStackTrace();
+            } catch (SpimDataException exception) {
+                log.debug("Failed to load stream from {}", path, exception);
                 return null;
             }
             sp1.setBasePath(null);
