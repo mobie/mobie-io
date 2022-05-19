@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>31.1.0</version>
+        <version>32.0.0-beta-4</version>
     </parent>
 
     <groupId>org.embl.mobie</groupId>
@@ -14,8 +14,8 @@
     <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update -->
 
     <url>https://github.com/mobie/mobie-io</url>
-    <name>BDV ImageLoaders</name>
-    <description>BDV ImageLoaders for MoBIE projects</description>
+    <name>MoBIE IO</name>
+    <description>Readers and writers for image data in MoBIE projects</description>
     <inceptionYear>2021</inceptionYear>
     <organization>
         <name>EMBL</name>
@@ -167,7 +167,6 @@
         <dependency>
             <groupId>sc.fiji</groupId>
             <artifactId>spim_data</artifactId>
-            <version>${spim_data.version}</version>
         </dependency>
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>

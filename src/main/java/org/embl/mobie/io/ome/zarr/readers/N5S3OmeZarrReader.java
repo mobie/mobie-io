@@ -262,41 +262,20 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     }
 
     /**
-     * Copied from getAttributes but doesn't change the objectPath in anyway.
+     * Copied from getAttributes but doesn't change the objectPath in any way.
      * CHANGES: returns null rather than empty hash map
      *
      * @param objectPath
      * @return null if the object does not exist, otherwise the loaded attributes.
      */
-    public HashMap<String, JsonElement> readJson(String objectPath) {
-        try {
-            InputStream in = this.readS3Object(objectPath);
-            Throwable throwable = null;
-
-            HashMap<String, JsonElement> hashMap;
-            try {
-                hashMap = GsonAttributesParser.readAttributes(new InputStreamReader(in), this.gson);
-            } catch (Throwable error) {
-                throwable = error;
-                throw error;
-            } finally {
-                if (in != null) {
-                    if (throwable != null) {
-                        try {
-                            in.close();
-                        } catch (Throwable exception) {
-                            throwable.addSuppressed(exception);
-                        }
-                    } else {
-                        in.close();
-                    }
-                }
-
-            }
-            return hashMap;
-        } catch (SdkClientException | IOException e) {
-            log.debug("Failed to readJson: object {} does not exist in bucket {}", objectPath, this.bucketName);
-            return null;
+    public HashMap<String, JsonElement> readJson(String objectPath) throws IOException {
+        try (final InputStream in = this.readS3Object(objectPath)) {
+                return GsonAttributesParser.readAttributes(new InputStreamReader(in), gson);
+        } catch (AmazonS3Exception ase) {
+            if (ase.getErrorCode().equals("NoSuchKey"))
+                return null;
+            else
+                throw ase;
         }
     }
 
