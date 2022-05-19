@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>32.0.0-beta-4</version>
+        <version>31.1.0</version>
     </parent>
 
     <groupId>org.embl.mobie</groupId>
@@ -91,8 +91,7 @@
         <license.copyrightOwners>EMBL</license.copyrightOwners>
         <enforcer.skip>true</enforcer.skip>
 
-        <!-- EMBL CBA -->
-        <imagej-utils.version>0.6.4</imagej-utils.version>
+        <bigdataviewer-core.version>10.2.1</bigdataviewer-core.version>
 
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -144,6 +143,7 @@
         <dependency>
             <groupId>sc.fiji</groupId>
             <artifactId>bigdataviewer-core</artifactId>
+            <version>${bigdataviewer-core.version}</version>
         </dependency>
         <dependency>
             <groupId>sc.fiji</groupId>

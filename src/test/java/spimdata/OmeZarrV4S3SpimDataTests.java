@@ -16,9 +16,10 @@ public class OmeZarrV4S3SpimDataTests {
         SpimData spimData = OMEZarrS3Opener.readURL(ZYX_FILE_KEY);
 
         final String unit = spimData.getSequenceDescription().getViewSetupsOrdered().get( 0 ).getVoxelSize().unit();
-        final double[] voxelSize = spimData.getSequenceDescription().getViewSetupsOrdered().get( 0 ).getVoxelSize().dimensionsAsDoubleArray();
+        final double[] dimensions = new double[ 3 ];
+        spimData.getSequenceDescription().getViewSetupsOrdered().get( 0 ).getVoxelSize().dimensions( dimensions );
 
         assertEquals("nanometer", unit);
-        assertArrayEquals( voxelSize, new double[]{64.0, 64.0, 64.0});
+        assertArrayEquals( dimensions, new double[]{64.0, 64.0, 64.0});
     }
 }
