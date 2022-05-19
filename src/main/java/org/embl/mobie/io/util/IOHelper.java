@@ -24,15 +24,16 @@ import static org.embl.mobie.io.github.GitHubUtils.selectGitHubPathFromDirectory
 import static org.embl.mobie.io.util.S3Utils.getS3FileNames;
 import static org.embl.mobie.io.util.S3Utils.selectS3PathFromDirectory;
 
-public class FileAndUrlUtils {
+public class IOHelper
+{
     public static ResourceType getType(String uri)
     {
         if (uri.startsWith("https://s3") || uri.contains("s3.amazon.aws.com")) {
-            return FileAndUrlUtils.ResourceType.S3;
+            return IOHelper.ResourceType.S3;
         } else if (uri.startsWith("http")) {
-            return FileAndUrlUtils.ResourceType.HTTP;
+            return IOHelper.ResourceType.HTTP;
         } else {
-            return FileAndUrlUtils.ResourceType.FILE;
+            return IOHelper.ResourceType.FILE;
         }
     }
 
@@ -75,7 +76,7 @@ public class FileAndUrlUtils {
     public static List<String> getFiles(File inputDirectory, String filePattern) {
         final List<File> fileList = getFileList( inputDirectory, filePattern, false);
 
-        Collections.sort(fileList, new FileAndUrlUtils.SortFilesIgnoreCase());
+        Collections.sort(fileList, new IOHelper.SortFilesIgnoreCase());
 
         final List<String> paths = fileList.stream().map(x -> x.toString()).collect(Collectors.toList());
 
@@ -83,7 +84,7 @@ public class FileAndUrlUtils {
     }
 
     public static String getSeparator(String uri) {
-        FileAndUrlUtils.ResourceType type = getType(uri);
+        IOHelper.ResourceType type = getType(uri);
         switch (type) {
             case FILE:
                 return File.separator;
@@ -114,7 +115,7 @@ public class FileAndUrlUtils {
     }
 
     public static InputStream getInputStream(String uri) throws IOException {
-        FileAndUrlUtils.ResourceType type = getType(uri);
+        IOHelper.ResourceType type = getType(uri);
         switch (type) {
             case HTTP:
                 URL url = new URL(uri);
@@ -131,7 +132,7 @@ public class FileAndUrlUtils {
     }
 
     public static String read(String uri) throws IOException {
-        try (final InputStream inputStream = FileAndUrlUtils.getInputStream(uri)) {
+        try (final InputStream inputStream = IOHelper.getInputStream(uri)) {
             final String s = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
             return s;
         }
@@ -139,7 +140,7 @@ public class FileAndUrlUtils {
 
     // overwrites existing uri
     public static void write(String uri, String text) throws IOException {
-        FileAndUrlUtils.ResourceType type = getType(uri);
+        IOHelper.ResourceType type = getType(uri);
         switch (type)
         {
             case FILE:
@@ -171,7 +172,7 @@ public class FileAndUrlUtils {
     }
 
     public static String getParentLocation(String uri) {
-        FileAndUrlUtils.ResourceType type = getType(uri);
+        IOHelper.ResourceType type = getType(uri);
         switch (type) {
             case HTTP:
             case S3:
@@ -205,7 +206,7 @@ public class FileAndUrlUtils {
     }
 
     public static boolean exists(String uri) {
-        FileAndUrlUtils.ResourceType type = getType(uri);
+        IOHelper.ResourceType type = getType(uri);
         switch (type) {
             case HTTP:
                 try {
@@ -232,7 +233,7 @@ public class FileAndUrlUtils {
             return null;
         }
 
-        FileAndUrlUtils.ResourceType type = getType(uri);
+        IOHelper.ResourceType type = getType(uri);
         switch (type) {
             case HTTP:
                 if (isGithub(uri)) {
@@ -266,7 +267,7 @@ public class FileAndUrlUtils {
             return null;
         }
 
-        FileAndUrlUtils.ResourceType type = getType(uri);
+        IOHelper.ResourceType type = getType(uri);
         String filePath = null;
         switch (type) {
             case HTTP:

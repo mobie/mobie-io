@@ -137,7 +137,7 @@ public abstract class S3Utils {
         gd.showDialog();
         if (gd.wasCanceled()) return null;
         final String fileName = gd.getNextChoice();
-        String newFilePath = FileAndUrlUtils.combinePath(directory, fileName);
+        String newFilePath = IOHelper.combinePath(directory, fileName);
 
         return newFilePath;
     }

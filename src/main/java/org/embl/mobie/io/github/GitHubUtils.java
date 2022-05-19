@@ -31,7 +31,7 @@ package org.embl.mobie.io.github;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.LinkedTreeMap;
 import ij.gui.GenericDialog;
-import org.embl.mobie.io.util.FileAndUrlUtils;
+import org.embl.mobie.io.util.IOHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +75,7 @@ public abstract class GitHubUtils {
         gd.showDialog();
         if (gd.wasCanceled()) return null;
         final String fileName = gd.getNextChoice();
-        String newFilePath = FileAndUrlUtils.combinePath(directory, fileName);
+        String newFilePath = IOHelper.combinePath(directory, fileName);
 
         return newFilePath;
     }

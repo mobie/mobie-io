@@ -12,14 +12,12 @@ import net.imglib2.FinalDimensions;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.loaders.N5S3ImageLoader;
-import org.embl.mobie.io.util.FileAndUrlUtils;
-import org.embl.mobie.io.util.S3Utils;
+import org.embl.mobie.io.util.IOHelper;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -101,7 +99,7 @@ public class N5S3Opener extends S3Opener {
     }
 
     public SpimData readURLData(String url, SharedQueue sharedQueue) throws IOException {
-        InputStream stream = FileAndUrlUtils.getInputStream(url);
+        InputStream stream = IOHelper.getInputStream(url);
         final SAXBuilder sax = new SAXBuilder();
         Document doc;
         try {

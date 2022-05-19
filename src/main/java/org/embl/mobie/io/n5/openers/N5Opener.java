@@ -11,7 +11,7 @@ import net.imglib2.FinalDimensions;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.loaders.N5FSImageLoader;
-import org.embl.mobie.io.util.FileAndUrlUtils;
+import org.embl.mobie.io.util.IOHelper;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -94,7 +94,7 @@ public class N5Opener extends BDVOpener {
         final SAXBuilder sax = new SAXBuilder();
         Document doc;
         try {
-            doc = sax.build(FileAndUrlUtils.getInputStream(url));
+            doc = sax.build( IOHelper.getInputStream(url));
             final Element root = doc.getRootElement();
             final Element sequenceDescriptionElement = root.getChild("SequenceDescription");
             final Element imageLoaderElement = sequenceDescriptionElement.getChild("ImageLoader");

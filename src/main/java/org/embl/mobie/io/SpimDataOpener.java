@@ -17,7 +17,7 @@ import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
 import org.embl.mobie.io.util.CustomXmlIoSpimData;
-import org.embl.mobie.io.util.FileAndUrlUtils;
+import org.embl.mobie.io.util.IOHelper;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -96,7 +96,7 @@ public class SpimDataOpener {
 
     private SpimData openBdvXml(String path) throws SpimDataException {
         try {
-            InputStream stream = FileAndUrlUtils.getInputStream(path);
+            InputStream stream = IOHelper.getInputStream(path);
             return new CustomXmlIoSpimData().loadFromStream(stream, path);
         } catch (SpimDataException | IOException e) {
             throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
@@ -163,7 +163,7 @@ public class SpimDataOpener {
         //Todo: finish bug fixing
         try {
             SAXBuilder sax = new SAXBuilder();
-            InputStream stream = FileAndUrlUtils.getInputStream(path);
+            InputStream stream = IOHelper.getInputStream(path);
             Document doc = sax.build(stream);
             Element imgLoaderElem = doc.getRootElement().getChild("SequenceDescription").getChild("ImageLoader");
             String bucketAndObject = imgLoaderElem.getChild("BucketName").getText() + "/" + imgLoaderElem.getChild("Key").getText();
@@ -179,7 +179,7 @@ public class SpimDataOpener {
             SpimData spim = new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
             SpimData spimData;
             try {
-                InputStream st = FileAndUrlUtils.getInputStream(path);
+                InputStream st = IOHelper.getInputStream(path);
                 spimData = (new CustomXmlIoSpimData()).loadFromStream(st, path);
             } catch (SpimDataException exception) {
                 log.debug("Failed to load stream from {}", path, exception);
@@ -210,7 +210,7 @@ public class SpimDataOpener {
     @NotNull
     private N5S3OMEZarrImageLoader createN5S3OmeZarrImageLoader(String path, @Nullable SharedQueue queue) throws IOException, JDOMException {
         final SAXBuilder sax = new SAXBuilder();
-        InputStream stream = FileAndUrlUtils.getInputStream(path);
+        InputStream stream = IOHelper.getInputStream(path);
         final Document doc = sax.build(stream);
         final Element imgLoaderElem = doc.getRootElement().getChild(SEQUENCEDESCRIPTION_TAG).getChild(IMGLOADER_TAG);
         String bucketAndObject = imgLoaderElem.getChild("BucketName").getText() + "/" + imgLoaderElem.getChild("Key").getText();
@@ -227,7 +227,7 @@ public class SpimDataOpener {
     private SpimData getSpimDataWithImageLoader(String path, @Nullable SharedQueue sharedQueue) {
         try {
             final SAXBuilder sax = new SAXBuilder();
-            InputStream stream = FileAndUrlUtils.getInputStream(path);
+            InputStream stream = IOHelper.getInputStream(path);
             final Document doc = sax.build(stream);
             final Element imgLoaderElem = doc.getRootElement().getChild(SEQUENCEDESCRIPTION_TAG).getChild(IMGLOADER_TAG);
             String imagesFile = XmlN5OmeZarrImageLoader.getDatasetsPathFromXml(imgLoaderElem, path);

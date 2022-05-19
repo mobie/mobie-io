@@ -19,7 +19,7 @@ import org.embl.mobie.io.n5.util.DownsampleBlock;
 import org.embl.mobie.io.n5.writers.WriteImagePlusToN5;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
 import org.embl.mobie.io.ome.zarr.writers.imageplus.WriteImagePlusToN5OmeZarr;
-import org.embl.mobie.io.util.FileAndUrlUtils;
+import org.embl.mobie.io.util.IOHelper;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.janelia.saalfeldlab.n5.Compression;
@@ -56,7 +56,7 @@ public class OmeZarrWithWriterTest {
 
     @BeforeAll
     static void downloadSchema() throws IOException {
-        try( InputStream schemaInputStream = FileAndUrlUtils.getInputStream(
+        try( InputStream schemaInputStream = IOHelper.getInputStream(
                 "https://raw.githubusercontent.com/ome/ngff/main/0.4/schemas/image.schema") ) {
             omeZarrSchema = new JSONObject(new JSONTokener(schemaInputStream));
         }
