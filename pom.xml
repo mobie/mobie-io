@@ -11,7 +11,7 @@
     <artifactId>mobie-io</artifactId>
     <version>1.2.11-SNAPSHOT</version>
 
-    <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update -->
+    <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update - -skip-branch-check -->
 
     <url>https://github.com/mobie/mobie-io</url>
     <name>MoBIE IO</name>
