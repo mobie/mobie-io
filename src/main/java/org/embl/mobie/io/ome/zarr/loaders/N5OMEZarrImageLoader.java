@@ -177,7 +177,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     private void initSetups() throws IOException {
-        int setupId = -1;
+         int setupId = -1;
 
 
         OmeZarrMultiscales[] multiscales = getMultiscale(""); // returns multiscales[ 0 ]
@@ -189,6 +189,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
                     n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
 
+            multiscale.axes = zarrAxes;
+            multiscale.zarrAxisList = zarrAxesList;
+
             long nC = 1;
             if (attributes.getNumDimensions() > 4) {
                 nC = attributes.getDimensions()[C];
@@ -197,6 +200,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 nC = attributes.getDimensions()[C];
             }
             if (zarrAxes.is4DWithTimepointsAndChannels()) {
+                nC = attributes.getDimensions()[2];
+            }
+            if (zarrAxes.is3DWithChannels()) {
                 nC = attributes.getDimensions()[2];
             }
 
@@ -343,17 +349,32 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         double[] xyzScale = null;
         if (scale != null && zarrAxesList != null) {
             int scalesFirstIndexBackward = scale.length - 1;
-            if (zarrAxes.containsXYZCoordinates()) {
-                xyzScale = new double[]{
-                        scale[scalesFirstIndexBackward],
-                        scale[scalesFirstIndexBackward - 1],
-                        scale[scalesFirstIndexBackward - 2] };
+            if (zarrAxes.hasChannels()) {
+                if (zarrAxes.is3DWithChannels() || zarrAxes.is2D()) {
+                    xyzScale = new double[]{
+                            scale[scalesFirstIndexBackward],
+                            scale[scalesFirstIndexBackward - 1],
+                            1.0
+                    };
+                } else {
+                    xyzScale = new double[]{
+                            scale[scalesFirstIndexBackward],
+                            scale[scalesFirstIndexBackward - 1],
+                            scale[scalesFirstIndexBackward - 2]};
+                }
             } else {
-                xyzScale = new double[]{
-                        scale[scalesFirstIndexBackward],
-                        scale[scalesFirstIndexBackward - 1],
-                        1.0
-                };
+                if (zarrAxes.containsXYZCoordinates()) {
+                    xyzScale = new double[]{
+                            scale[scalesFirstIndexBackward],
+                            scale[scalesFirstIndexBackward - 1],
+                            scale[scalesFirstIndexBackward - 2]};
+                } else {
+                    xyzScale = new double[]{
+                            scale[scalesFirstIndexBackward],
+                            scale[scalesFirstIndexBackward - 1],
+                            1.0
+                    };
+                }
             }
         }
         return xyzScale;
@@ -385,19 +406,42 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             // get unit of last dimension, under assumption this is the X axis (i.e. a space axis)
             String unit = zarrAxesList.get(zarrAxesList.size() - 1).getUnit();
 
-            if ( scale != null && unit != null ) {
-                return new FinalVoxelDimensions(unit, scale);
+            if (scale != null && unit != null) {
+                if (zarrAxes.is2D() || zarrAxes.is3DWithChannels() ) {
+                    return new FinalVoxelDimensions(unit, new double[]{scale[0], scale[1], 1.0});
+                } else {
+                    return new FinalVoxelDimensions(unit, scale);
+                }
             }
         }
 
         return new DefaultVoxelDimensions(3);
     }
 
+    private FinalDimensions getFinalDimensions3D( int setupId ) {
+        final DatasetAttributes attributes = setupToAttributes.get(setupId);
+        if ( zarrAxes != null) {
+            if ( zarrAxes.hasChannels() ) {
+                long[] dims = attributes.getDimensions();
+                if ( zarrAxes.is3DWithChannels() ) {
+                    return new FinalDimensions(dims[0], dims[1], 1);
+                } else {
+                    return new FinalDimensions(dims[0], dims[1], dims[2]);
+                }
+            }
+        }
+
+        return new FinalDimensions(setupToAttributes.get(setupId).getDimensions());
+    }
+
     private ViewSetup createViewSetup(int setupId) {
         final DatasetAttributes attributes = setupToAttributes.get(setupId);
-        FinalDimensions dimensions = new FinalDimensions(attributes.getDimensions());
         OmeZarrMultiscales multiscale = setupToMultiscale.get(setupId);
+
+
+        FinalDimensions dimensions = getFinalDimensions3D(setupId);
         VoxelDimensions voxelDimensions = getVoxelDimensions3D(setupId, 0);
+
         Tile tile = new Tile(0);
 
         Channel channel;
@@ -548,7 +592,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             for (int level = 1; level < mipmapResolutions.length; level++) {
                 long[] dimensions = getDatasetAttributes(getPathName(setupId, level)).getDimensions();
                 mipmapResolutions[level] = new double[3];
-                if (dimensions.length < 3 && dimensionsOfLevel0.length < 3) {
+                if (multiscale.axes.is2D() || multiscale.axes.is3DWithChannels()) {
                     for (int d = 0; d < 2; d++) {
                         mipmapResolutions[level][d] = Math.round(1.0 * dimensionsOfLevel0[d] / dimensions[d]);
                     }
