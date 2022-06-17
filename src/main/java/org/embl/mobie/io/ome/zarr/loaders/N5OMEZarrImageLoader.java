@@ -566,7 +566,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
         @Override
         public RandomAccessibleInterval<V> getVolatileImage(final int timepointId, final int level, final ImgLoaderHint... hints) {
-            return prepareCachedImage(timepointId, level, LoadingStrategy.BUDGETED, volatileType);
+            return prepareCachedImage(timepointId, level, LoadingStrategy.VOLATILE, volatileType);
         }
 
         @Override
