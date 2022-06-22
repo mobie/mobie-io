@@ -41,7 +41,7 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
         final int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
         for ( int setupId = 0; setupId < numSetups; setupId++ )
         {
-            final MinMax minMax = getMinMax( spimData, 0 );
+            final MinMax minMax = getMinMax( spimData, setupId );
             System.out.println( "setup="+setupId);
             System.out.println( "min="+minMax.min);
             System.out.println( "max="+minMax.max);
