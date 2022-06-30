@@ -50,6 +50,22 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
         //BdvFunctions.show( spimData );
     }
 
+    @Test
+    public void SpimDataV4MultiChannelTest2() throws IOException {
+        SpimData spimData = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/spatial-transcriptomics-example/pos42/images/ome-zarr/MMStack_Pos42.ome.zarr");
+
+        final int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
+        for ( int setupId = 0; setupId < numSetups; setupId++ )
+        {
+            final MinMax minMax = getMinMax( spimData, setupId );
+            System.out.println( "setup="+setupId);
+            System.out.println( "min="+minMax.min);
+            System.out.println( "max="+minMax.max);
+        }
+
+        //BdvFunctions.show( spimData );
+    }
+
     @NotNull
     private MinMax getMinMax( SpimData spimData, int setupId )
     {
