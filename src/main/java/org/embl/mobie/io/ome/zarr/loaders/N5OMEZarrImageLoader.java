@@ -422,11 +422,13 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return new DefaultVoxelDimensions(3);
     }
 
-    private FinalDimensions getFinalDimensions3D( int setupId ) {
-        final DatasetAttributes attributes = setupToAttributes.get(setupId);
+    // TODO: Why not call it getSpatialDimensions() ?!
+    private Dimensions getDimensions3D( DatasetAttributes attributes ) {
         if ( zarrAxes != null) {
-            if ( zarrAxes.hasChannels() ) {
+            if ( zarrAxes.hasChannels() ) { // TODO: why here .hasChannels()?
                 long[] dims = attributes.getDimensions();
+                // TODO: why not also .is3DwithTimepoints()?
+                //   generally, why not .hasTwoSpatialDimensions()
                 if ( zarrAxes.is3DWithChannels() ) {
                     return new FinalDimensions(dims[0], dims[1], 1);
                 } else {
@@ -435,12 +437,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             }
         }
 
-        return new FinalDimensions(setupToAttributes.get(setupId).getDimensions());
+        return new FinalDimensions( attributes.getDimensions() );
     }
 
     private ViewSetup createViewSetup(int setupId) {
         OmeZarrMultiscales multiscale = setupToMultiscale.get(setupId);
-        FinalDimensions dimensions = getFinalDimensions3D(setupId);
+        Dimensions dimensions = getDimensions3D( setupToAttributes.get( setupId ) );
         VoxelDimensions voxelDimensions = getVoxelDimensions3D(setupId, 0);
 
         Tile tile = new Tile(0);
@@ -540,11 +542,16 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return tmp;
     }
 
+    // TODO: Add description
     private int[] getBlockSize(DatasetAttributes attributes) {
+        // TODO: Should below be something like "has2SpatialDimensions()"
+        //   There is zarrAxes.is2D(): what does that mean? 2D in space or generally 2D?
         if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
             return fillBlockSize(attributes);
         }
-        return Arrays.stream(attributes.getBlockSize()).limit(3).toArray();
+        else {
+            return Arrays.stream(attributes.getBlockSize()).limit( 3 ).toArray();
+        }
     }
 
     private int[] fillBlockSize(DatasetAttributes attributes) {
@@ -665,7 +672,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 if (logging) {
                     log.info("Preparing image " + pathName + " of data type " + attributes.getDataType());
                 }
-                long[] dimensions = getDimensions(attributes);
+
+                // The below dimensions refer to one time point and one channel.
+                // That means they are either 2D or 3D.
+                long[] dimensions = getDimensions3D(attributes).dimensionsAsLongArray();
                 final int[] cellDimensions = getBlockSize(attributes);
                 final CellGrid grid = new CellGrid(dimensions, cellDimensions);
 
