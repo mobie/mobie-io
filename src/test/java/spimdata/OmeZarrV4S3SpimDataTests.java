@@ -1,21 +1,22 @@
 package spimdata;
 
-import bdv.util.BdvFunctions;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Util;
 import net.imglib2.view.Views;
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import sun.lwawt.macosx.CSystemTray;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N > >
 {
@@ -52,7 +53,8 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
 
     @Test
     public void SpimDataV4MultiChannelTest2() throws IOException {
-        SpimData spimData = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/spatial-transcriptomics-example/pos42/images/ome-zarr/MMStack_Pos42.ome.zarr");
+        //SpimData spimData = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/spatial-transcriptomics-example/pos42/images/ome-zarr/MMStack_Pos42.ome.zarr");
+        final SpimData spimData = OMEZarrOpener.openFile( "/Volumes/kreshuk/pape/Work/playground/mobie-projects/spatial-trans/test.ome.zarr" );
 
         final int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
         for ( int setupId = 0; setupId < numSetups; setupId++ )
@@ -72,6 +74,7 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
         final MultiResolutionSetupImgLoader< N > setupImgLoader = ( MultiResolutionSetupImgLoader ) spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( setupId );
         final int numMipmapLevels = setupImgLoader.numMipmapLevels();
         final RandomAccessibleInterval< N > image = setupImgLoader.getImage( 0, numMipmapLevels - 1 );
+        final N type = Util.getTypeFromInterval( image );
         final Cursor< N > cursor = Views.iterable( image ).cursor();
         final MinMax minMax = new MinMax();
         while ( cursor.hasNext() )

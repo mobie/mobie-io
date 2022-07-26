@@ -30,7 +30,8 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         this.channel = channel;
         this.timepoint = timepoint;
         this.attributes = attributes;
-        this.zarrArrayCreator = new ZarrArrayCreator<>(grid, attributes.getDataType(), zarrAxes);
+        final DataType dataType = attributes.getDataType();
+        this.zarrArrayCreator = new ZarrArrayCreator<>(grid, dataType, zarrAxes);
         this.zarrAxes = zarrAxes;
     }
 
@@ -64,7 +65,8 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         }
 
         if (block == null) {
-            return (A) zarrArrayCreator.createEmptyArray(gridPosition);
+            final Object emptyArray = zarrArrayCreator.createEmptyArray( gridPosition );
+            return (A) emptyArray;
         } else {
             return zarrArrayCreator.createArray(block, gridPosition);
         }

@@ -177,9 +177,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     private void initSetups() throws IOException {
-         int setupId = -1;
-
-
+        int setupId = -1;
         OmeZarrMultiscales[] multiscales = getMultiscale(""); // returns multiscales[ 0 ]
         for (OmeZarrMultiscales multiscale : multiscales) {
             DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
@@ -226,8 +224,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 String pathName = "labels/" + label;
                 multiscales = getMultiscale(pathName);
                 for (OmeZarrMultiscales multiscale : multiscales) {
-                    DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
-                    attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
+                    DatasetAttributes attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
 
                     zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
                             n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;

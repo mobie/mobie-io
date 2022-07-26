@@ -9,7 +9,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.2.12-SNAPSHOT</version>
+    <version>1.2.12-multi-channel-fix-SNAPSHOT</version>
 
     <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update - -skip-branch-check -->
 
