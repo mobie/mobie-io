@@ -240,7 +240,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 }
             }
         }
-
     }
 
     /**
@@ -440,10 +439,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     private ViewSetup createViewSetup(int setupId) {
-        final DatasetAttributes attributes = setupToAttributes.get(setupId);
         OmeZarrMultiscales multiscale = setupToMultiscale.get(setupId);
-
-
         FinalDimensions dimensions = getFinalDimensions3D(setupId);
         VoxelDimensions voxelDimensions = getVoxelDimensions3D(setupId, 0);
 

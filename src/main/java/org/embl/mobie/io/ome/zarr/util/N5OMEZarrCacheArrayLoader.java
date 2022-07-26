@@ -65,8 +65,7 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
         }
 
         if (block == null) {
-            final Object emptyArray = zarrArrayCreator.createEmptyArray( gridPosition );
-            return (A) emptyArray;
+            return (A) zarrArrayCreator.createEmptyArray( gridPosition );
         } else {
             return zarrArrayCreator.createArray(block, gridPosition);
         }
