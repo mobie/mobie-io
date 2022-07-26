@@ -1,12 +1,12 @@
 package spimdata;
 
+import ij.IJ;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Util;
 import net.imglib2.view.Views;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,44 +38,27 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
 
     @Test
     public void SpimDataV4MultiChannelTest() throws IOException {
-        SpimData spimData = OMEZarrS3Opener.readURL(CZYX_FILE_KEY);
+        //SpimData spimData = OMEZarrS3Opener.readURL(CZYX_FILE_KEY);
+        SpimData spimData = OMEZarrOpener.openFile( "/Users/tischer/Desktop/tischi-debug/data/Round1/images/ome-zarr/plate_01.ome.zarr/B/02/0" );
 
         final int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
+        System.out.println(CZYX_FILE_KEY);
         for ( int setupId = 0; setupId < numSetups; setupId++ )
         {
-            final MinMax minMax = getMinMax( spimData, setupId );
-            System.out.println( "setup="+setupId);
-            System.out.println( "min="+minMax.min);
-            System.out.println( "max="+minMax.max);
+            printInfo( spimData, setupId );
         }
 
         //BdvFunctions.show( spimData );
     }
 
-    @Test
-    public void SpimDataV4MultiChannelTest2() throws IOException {
-        //SpimData spimData = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/spatial-transcriptomics-example/pos42/images/ome-zarr/MMStack_Pos42.ome.zarr");
-        final SpimData spimData = OMEZarrOpener.openFile( "/Volumes/kreshuk/pape/Work/playground/mobie-projects/spatial-trans/test.ome.zarr" );
-
-        final int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
-        for ( int setupId = 0; setupId < numSetups; setupId++ )
-        {
-            final MinMax minMax = getMinMax( spimData, setupId );
-            System.out.println( "setup="+setupId);
-            System.out.println( "min="+minMax.min);
-            System.out.println( "max="+minMax.max);
-        }
-
-        //BdvFunctions.show( spimData );
-    }
 
     @NotNull
-    private MinMax getMinMax( SpimData spimData, int setupId )
+    private void printInfo( SpimData spimData, int setupId )
     {
         final MultiResolutionSetupImgLoader< N > setupImgLoader = ( MultiResolutionSetupImgLoader ) spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( setupId );
         final int numMipmapLevels = setupImgLoader.numMipmapLevels();
-        final RandomAccessibleInterval< N > image = setupImgLoader.getImage( 0, numMipmapLevels - 1 );
-        final N type = Util.getTypeFromInterval( image );
+        final int level = numMipmapLevels - 1;
+        final RandomAccessibleInterval< N > image = setupImgLoader.getImage( 0, level );
         final Cursor< N > cursor = Views.iterable( image ).cursor();
         final MinMax minMax = new MinMax();
         while ( cursor.hasNext() )
@@ -85,7 +69,11 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
             if ( next.getRealDouble() < minMax.min )
                 minMax.min = next.getRealDouble();;
         }
-        return minMax;
+        System.out.println("SetupId: " + setupId);
+        System.out.println("Level: " + level);
+        System.out.println("Min: " + minMax.min);
+        System.out.println("Max: " + minMax.max);
+        System.out.println("Dimensions: " + Arrays.toString( image.dimensionsAsLongArray()) );
     }
 
     class MinMax {
