@@ -1,6 +1,5 @@
 package spimdata;
 
-import ij.IJ;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
 import net.imglib2.Cursor;
@@ -8,9 +7,7 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
-import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -38,46 +35,66 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
 
     @Test
     public void SpimDataV4MultiChannelTest() throws IOException {
-        //SpimData spimData = OMEZarrS3Opener.readURL(CZYX_FILE_KEY);
-        SpimData spimData = OMEZarrOpener.openFile( "/Users/tischer/Desktop/tischi-debug/data/Round1/images/ome-zarr/plate_01.ome.zarr/B/02/0" );
+        System.out.println( CZYX_FILE_KEY );
+        SpimData spimData = OMEZarrS3Opener.readURL( CZYX_FILE_KEY );
+        //SpimData spimData = OMEZarrOpener.openFile( "/Users/tischer/Desktop/tischi-debug/data/Round1/images/ome-zarr/plate_01.ome.zarr/B/02/0" );
 
         final int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
-        System.out.println(CZYX_FILE_KEY);
+        assertEquals( 2, numSetups );
+
         for ( int setupId = 0; setupId < numSetups; setupId++ )
         {
-            printInfo( spimData, setupId );
+            System.out.println("setup: " + setupId);
+            final Info info = getImgInfo( spimData, setupId );
+            info.print();
+            assertArrayEquals( new long[]{ 128, 66, 122}, info.dimensions );
+            assertEquals( 3, info.levels );
+            if ( setupId == 0 )
+                assertEquals( 5115.0, info.max );
+            else if ( setupId == 1 )
+                assertEquals( 280.0, info.max );
         }
-
-        //BdvFunctions.show( spimData );
     }
 
-
-    @NotNull
-    private void printInfo( SpimData spimData, int setupId )
+    private Info getImgInfo( SpimData spimData, int setupId )
     {
         final MultiResolutionSetupImgLoader< N > setupImgLoader = ( MultiResolutionSetupImgLoader ) spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( setupId );
-        final int numMipmapLevels = setupImgLoader.numMipmapLevels();
-        final int level = numMipmapLevels - 1;
+        final int numMipMapLevels = setupImgLoader.numMipmapLevels();
+        final int level = numMipMapLevels - 1;
+
         final RandomAccessibleInterval< N > image = setupImgLoader.getImage( 0, level );
         final Cursor< N > cursor = Views.iterable( image ).cursor();
-        final MinMax minMax = new MinMax();
+        final Info info = new Info();
         while ( cursor.hasNext() )
         {
             final N next = cursor.next();
-            if ( next.getRealDouble() > minMax.max )
-                minMax.max = next.getRealDouble();;
-            if ( next.getRealDouble() < minMax.min )
-                minMax.min = next.getRealDouble();;
+            if ( next.getRealDouble() > info.max )
+                info.max = next.getRealDouble();;
+            if ( next.getRealDouble() < info.min )
+                info.min = next.getRealDouble();;
         }
-        System.out.println("SetupId: " + setupId);
-        System.out.println("Level: " + level);
-        System.out.println("Min: " + minMax.min);
-        System.out.println("Max: " + minMax.max);
-        System.out.println("Dimensions: " + Arrays.toString( image.dimensionsAsLongArray()) );
+        info.dimensions = image.dimensionsAsLongArray();
+        info.level = level;
+        info.levels = numMipMapLevels;
+
+        return info;
     }
 
-    class MinMax {
+    class Info
+    {
+        public int level; // lowest resolution level
+        public int levels;
         double min = Double.MAX_VALUE;
-        double max  = - Double.MAX_VALUE;
+        double max = - Double.MAX_VALUE;
+        long[] dimensions;
+
+        public void print()
+        {
+            System.out.println("Levels: " + levels );
+            System.out.println("Lowest level: " + level);
+            System.out.println("Min: " + min);
+            System.out.println("Max: " + max);
+            System.out.println("Dimensions: " + Arrays.toString( dimensions ) );
+        }
     }
 }
