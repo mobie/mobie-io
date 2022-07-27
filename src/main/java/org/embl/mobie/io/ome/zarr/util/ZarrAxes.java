@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -18,9 +20,9 @@ public enum ZarrAxes {
     CZYX("[\"c\",\"z\",\"y\",\"x\"]"),
     TZYX("[\"t\",\"z\",\"y\",\"x\"]"),
     TCYX("[\"t\",\"c\",\"y\",\"x\"]"),
-    TCZYX("[\"t\",\"c\",\"z\",\"y\",\"x\"]"),
+    TCZYX("[\"t\",\"c\",\"z\",\"y\",\"x\"]"),  // v0.2
 
-    NOT_SPECIFIED("");
+    NOT_SPECIFIED(""); // TODO: remove and use TCZYX instead
 
     private final String axes;
 
@@ -84,7 +86,7 @@ public enum ZarrAxes {
     }
 
     public boolean is2D() {
-        return this.axes.equals(YX.axes);
+        return this.axes.equals(YX.axes); // XYT XYC
     }
 
     public boolean is5D() {
@@ -115,6 +117,7 @@ public enum ZarrAxes {
         return this.axes.equals(CZYX.axes);
     }
 
+    // not used anymore
     public boolean is4DWithTimepointsAndChannels() {
         return this.axes.equals(TCYX.axes);
     }
@@ -137,5 +140,28 @@ public enum ZarrAxes {
     public int channelIndex() {
         List<String> zarrAxisList = getAxesList();
         return zarrAxisList.indexOf("c");
+    }
+
+    // spatial: 0,1,2 (x,y,z)
+    public Map< Integer, Integer > spatialToZarr()
+    {
+        // TODO implement for all cases
+        final HashMap< Integer, Integer > map = new HashMap<>();
+        if ( this.axes.equals(TCYX.axes) )
+        {
+            map.put( 0, 0 );
+            map.put( 1, 1 );
+        }
+        return map;
+    }
+
+    public boolean hasZAxis()
+    {
+        return spatialToZarr().size() == 3;
+    }
+
+    public int getNumDimension()
+    {
+
     }
 }

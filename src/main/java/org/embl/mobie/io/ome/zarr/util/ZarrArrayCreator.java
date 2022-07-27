@@ -31,6 +31,7 @@ public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
         long[] cellMin = new long[3];
         int[] cellDims = new int[3];
 
+        // TODO: do something like in: private long[] toZarrChunkIndices( long[] gridPosition )
         if (zarrAxes.is4DWithChannels() || zarrAxes.is4DWithTimepoints()) {
             cellMin = new long[4];
             cellDims = new int[4];
@@ -43,6 +44,7 @@ public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
             cellDims[2] = 1; // channel
             cellDims[3] = 1; // timepoint
         }
+
         if (zarrAxes.is5D()) {
             cellMin = new long[5];
             cellDims = new int[5];
