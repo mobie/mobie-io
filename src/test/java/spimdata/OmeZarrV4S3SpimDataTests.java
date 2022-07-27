@@ -36,24 +36,26 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
 
     @Test
     public void SpimDataV4MultiChannelTestCZYX() throws IOException {
-        System.out.println( CZYX_FILE_KEY );
-        SpimData spimData = OMEZarrS3Opener.readURL( CZYX_FILE_KEY );
+        System.out.println(CZYX_FILE_KEY);
+        SpimData spimData = OMEZarrS3Opener.readURL(CZYX_FILE_KEY);
         //SpimData spimData = OMEZarrOpener.openFile( "/Users/tischer/Desktop/tischi-debug/data/Round1/images/ome-zarr/plate_01.ome.zarr/B/02/0" );
 
-        final int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
-        assertEquals( 2, numSetups );
 
-        for ( int setupId = 0; setupId < numSetups; setupId++ )
+        // TODO: tricky: numTimepoints
+        final int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
+        assertEquals(2, numSetups);
+
+        for (int setupId = 0; setupId < numSetups; setupId++)
         {
             System.out.println("setup: " + setupId);
-            final Info info = getImgInfo( spimData, setupId );
+            final Info info = getImgInfo(spimData, setupId);
             info.print();
-            assertArrayEquals( new long[]{128, 66, 122}, info.dimensions );
-            assertEquals( 3, info.levels );
-            if ( setupId == 0 )
-                assertEquals( 5115.0, info.max );
-            else if ( setupId == 1 )
-                assertEquals( 280.0, info.max );
+            assertArrayEquals(new long[]{128, 66, 122}, info.dimensions);
+            assertEquals(3, info.levels);
+            if (setupId == 0)
+                assertEquals(5115.0, info.max);
+            else if (setupId == 1)
+                assertEquals(280.0, info.max);
         }
     }
 
@@ -80,6 +82,8 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
 
     private Info getImgInfo( SpimData spimData, int setupId )
     {
+        // TODO we could add a method getNumTimepoints() to our ImageLoader?
+        //   Then we could use this in the tests
         final MultiResolutionSetupImgLoader< N > setupImgLoader = ( MultiResolutionSetupImgLoader ) spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( setupId );
         final int numMipMapLevels = setupImgLoader.numMipmapLevels();
         final int level = numMipMapLevels - 1;
@@ -102,13 +106,13 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
         return info;
     }
 
-    class Info
+    class Info // for one setup
     {
-        public int level; // lowest resolution level
         public int levels;
-        double min = Double.MAX_VALUE;
-        double max = - Double.MAX_VALUE;
-        long[] dimensions;
+        public int level; // lowest resolution level
+        double min = Double.MAX_VALUE; // at lowest resolution level
+        double max = -Double.MAX_VALUE; // at lowest resolution level
+        long[] dimensions; // at lowest resolution level
 
         public void print()
         {
