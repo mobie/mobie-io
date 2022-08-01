@@ -48,7 +48,12 @@ public abstract class GitHubUtils {
         }
 
         String rawUrl = url.replace("github.com", "raw.githubusercontent.com");
-        if (branch != null) rawUrl += "/" + branch;
+        if (branch != null)
+            if ( rawUrl.endsWith( "/" ) )
+                rawUrl += branch;
+            else
+                rawUrl += "/" + branch;
+
         return rawUrl;
     }
 
