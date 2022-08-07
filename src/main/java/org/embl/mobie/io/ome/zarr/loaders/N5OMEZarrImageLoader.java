@@ -173,7 +173,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
             // TODO: Maybe AbstractOmeZarrReader which has .getAxes()
             zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
-                    n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
+                    n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.TCZYX;
             zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
                     n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
 
@@ -208,7 +208,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                     DatasetAttributes attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
 
                     zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
-                            n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
+                            n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.TCZYX;
                     zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
                             n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
 
@@ -521,7 +521,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
     // TODO: Add description
     private int[] getBlockSize(DatasetAttributes attributes) {
-        if (zarrAxes.hasZAxis()) {
+        if (!zarrAxes.hasZAxis()) {
             return fillBlockSize(attributes);
         }
         else {

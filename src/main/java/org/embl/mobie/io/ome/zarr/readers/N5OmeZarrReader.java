@@ -306,7 +306,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         if (axesJson != null) {
             this.zarrAxes = ZarrAxes.decode(axesJson.toString());
         } else {
-            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
+            this.zarrAxes = ZarrAxes.TCZYX;
         }
     }
 

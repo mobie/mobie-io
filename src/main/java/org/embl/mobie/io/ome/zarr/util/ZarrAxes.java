@@ -20,9 +20,7 @@ public enum ZarrAxes {
     CZYX("[\"c\",\"z\",\"y\",\"x\"]"),
     TZYX("[\"t\",\"z\",\"y\",\"x\"]"),
     TCYX("[\"t\",\"c\",\"y\",\"x\"]"),
-    TCZYX("[\"t\",\"c\",\"z\",\"y\",\"x\"]"),  // v0.2
-
-    NOT_SPECIFIED(""); // TODO: remove and use TCZYX instead
+    TCZYX("[\"t\",\"c\",\"z\",\"y\",\"x\"]");  // v0.2
 
     private final String axes;
 
@@ -33,7 +31,7 @@ public enum ZarrAxes {
     @JsonCreator
     public static ZarrAxes decode(final String axes) {
         return Stream.of(ZarrAxes.values()).filter(targetEnum ->
-                targetEnum.axes.equals(axes)).findFirst().orElse(NOT_SPECIFIED);
+                targetEnum.axes.equals(axes)).findFirst().orElse(TCZYX);
     }
 
     public List<String> getAxesList() {
@@ -90,7 +88,7 @@ public enum ZarrAxes {
     }
 
     public boolean is5D() {
-        return this.axes.equals(TCZYX.axes) || this.axes.equals(NOT_SPECIFIED.axes);
+        return this.axes.equals(TCZYX.axes);
     }
 
     public boolean containsXYZCoordinates() {
@@ -147,21 +145,22 @@ public enum ZarrAxes {
     {
         // TODO implement for all cases
         final HashMap< Integer, Integer > map = new HashMap<>();
-        if ( this.axes.equals(TCYX.axes) )
+        map.put( 0, 0 );
+        map.put( 1, 1 );
+        if ( hasZAxis() )
         {
-            map.put( 0, 0 );
-            map.put( 1, 1 );
+            map.put( 2, 2 );
         }
         return map;
     }
 
     public boolean hasZAxis()
     {
-        return spatialToZarr().size() == 3;
+        return this.axes.equals(TCZYX.axes) || this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(ZYX.axes);
     }
 
     public int getNumDimension()
     {
-
+      return getAxesList().size();
     }
 }

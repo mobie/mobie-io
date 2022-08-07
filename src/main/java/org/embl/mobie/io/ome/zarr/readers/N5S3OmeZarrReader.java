@@ -79,7 +79,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
         if (axesJson != null) {
             this.zarrAxes = ZarrAxes.decode(axesJson.toString());
         } else {
-            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
+            this.zarrAxes = ZarrAxes.TCZYX;
         }
     }
 
