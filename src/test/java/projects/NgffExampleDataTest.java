@@ -31,7 +31,10 @@ package projects;
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Order;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
@@ -41,7 +44,9 @@ import mpicbg.spim.data.SpimDataException;
 public class NgffExampleDataTest extends BaseTest {
     @Test
     public void showYX() throws SpimDataException {
+
         this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/yx.ome.zarr", ImageDataFormat.OmeZarrS3);
+        baseTest(this.spimData);
         Assertions.assertEquals(1, getTimePointsSize());
     }
 }

@@ -1,10 +1,5 @@
 package projects;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Order;
-
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 
@@ -28,11 +23,21 @@ public abstract class BaseTest {
     public void setSpimData(SpimData spimData) {
         this.spimData = spimData;
     }
-//
-//    @Test
-//    @Order(1)
-//    public void tryTest(){
-//        System.out.println(spimData.getSequenceDescription());
-//        log.debug("BASE TEST");
-//    }
+
+    public void baseTest(SpimData spimData){
+        System.out.println(spimData.getSequenceDescription().getImgLoader().getClass().getName());
+    }
 }
+/*
+TODO: add tests for:
+/Volumes/schwab/Karel/MOBIE/MOBIE1_bc"
+/Volumes/cba/exchange/marianne-beckwidth/220509_MSB26_sample2_MoBIE".view("clem-registered"));
+https://github.com/mobie/arabidopsis-root-lm-datasets
+https://github.com/mobie/clem-example-project/ .view("Figure2a"));
+https://github.com/mobie/covid-if-project .view("default"));
+https://github.com/mobie/plankton-fibsem-project .dataset("micromonas"));
+https://github.com/platybrowser/platybrowser");
+https://github.com/mobie/platybrowser-datasets" .gitProjectBranch("normal-vie"));
+ 1) check the data format
+ 2) add similarly to the LocalAutophagosomesEMTest
+ */
