@@ -15,16 +15,23 @@ public abstract class BaseTest {
         return spimData.getSequenceDescription().getTimePoints().size();
     }
 
+    protected int getAllChannelsSize() {
+        if (spimData == null) {
+            log.warn("SpimData is null");
+            return 0;
+        }
+        return spimData.getSequenceDescription().getAllChannels().size();
+    }
 
-    public SpimData getSpimData() {
+    protected SpimData getSpimData() {
         return spimData;
     }
 
-    public void setSpimData(SpimData spimData) {
+    protected void setSpimData(SpimData spimData) {
         this.spimData = spimData;
     }
 
-    public void baseTest(SpimData spimData){
+    protected void baseTest(SpimData spimData){
         System.out.println(spimData.getSequenceDescription().getImgLoader().getClass().getName());
     }
 }
