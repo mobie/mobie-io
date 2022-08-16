@@ -2,6 +2,7 @@ package org.embl.mobie.io.ome.zarr.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,13 +132,13 @@ public enum ZarrAxes {
     }
 
     public int timeIndex() {
-        List<String> zarrAxisList = getAxesList();
-        return zarrAxisList.indexOf("t");
+        List<String> reverseAxesList = Lists.reverse(getAxesList());
+        return reverseAxesList.indexOf("t");
     }
 
     public int channelIndex() {
-        List<String> zarrAxisList = getAxesList();
-        return zarrAxisList.indexOf("c");
+        List<String> reverseAxesList = Lists.reverse(getAxesList());
+        return reverseAxesList.indexOf("c");
     }
 
     // spatial: 0,1,2 (x,y,z)

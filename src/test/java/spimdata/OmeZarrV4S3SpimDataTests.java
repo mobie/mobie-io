@@ -59,27 +59,6 @@ public class OmeZarrV4S3SpimDataTests < N extends NumericType< N > & RealType< N
         }
     }
 
-    @Test
-    public void SpimDataV4MultiChannelTestCYX() throws IOException {
-        System.out.println( CYX_FILE_KEY );
-        SpimData spimData = OMEZarrS3Opener.readURL( CYX_FILE_KEY );
-        final int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
-        //assertEquals( 2, numSetups );
-
-        for ( int setupId = 0; setupId < numSetups; setupId++ )
-        {
-            System.out.println("setup: " + setupId);
-            final Info info = getImgInfo( spimData, setupId );
-            info.print();
-            //assertArrayEquals( new long[]{128, 66, 122}, info.dimensions );
-            //assertEquals( 3, info.levels );
-//            if ( setupId == 0 )
-//                assertEquals( 5115.0, info.max );
-//            else if ( setupId == 1 )
-//                assertEquals( 280.0, info.max );
-        }
-    }
-
     private Info getImgInfo( SpimData spimData, int setupId )
     {
         // TODO we could add a method getNumTimepoints() to our ImageLoader?
