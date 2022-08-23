@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects;
+package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
@@ -36,13 +36,15 @@ import org.junit.jupiter.api.Assertions;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
+import projects.BaseTest;
 
 @Slf4j
-public class OpenLocalGiuliaMartinCLEM extends BaseTest {
+public class LocalCovidEmDatasets extends BaseTest {
 
     @Test
     public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/emcf/pape/clem-example-project", ImageDataFormat.BdvN5);
+        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/home/katerina/Documents/embl/mnt/kreshuk/pape/Work/mobie/covid-em-datasets/ngff-example/data", ImageDataFormat.BdvOmeZarr);
         Assertions.assertEquals(1, getTimePointsSize());
     }
+
 }

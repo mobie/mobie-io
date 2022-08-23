@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects;
+package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
@@ -36,13 +36,14 @@ import org.junit.jupiter.api.Assertions;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
+import projects.BaseTest;
 
 @Slf4j
-public class OpenLocalPlatynereis extends BaseTest {
-
+public class OpenRemoteAutophagosomesCLEM extends BaseTest {
     @Test
     public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/arendt/EM_6dpf_segmentation/platy-browser-data/data/", ImageDataFormat.BdvN5);
+        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie-org/autophagosomes-clem-datasets",
+            ImageDataFormat.BdvN5S3);
         Assertions.assertEquals(1, getTimePointsSize());
     }
 }

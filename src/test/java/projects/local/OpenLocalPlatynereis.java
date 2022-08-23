@@ -26,27 +26,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects;
+package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Order;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
+import projects.BaseTest;
 
 @Slf4j
-public class NgffExampleDataTest extends BaseTest {
+public class OpenLocalPlatynereis extends BaseTest {
+
     @Test
     public void showYX() throws SpimDataException {
-
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/yx.ome.zarr", ImageDataFormat.OmeZarrS3);
-        baseTest(this.spimData);
+        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/arendt/EM_6dpf_segmentation/platy-browser-data/data/", ImageDataFormat.BdvN5);
         Assertions.assertEquals(1, getTimePointsSize());
     }
 }

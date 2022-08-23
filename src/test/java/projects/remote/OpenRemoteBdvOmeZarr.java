@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects;
+package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
@@ -36,12 +36,13 @@ import org.junit.jupiter.api.Assertions;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
+import projects.BaseTest;
 
 @Slf4j
-public class LocalAutophagosomesEMTest extends BaseTest {
+public class OpenRemoteBdvOmeZarr extends BaseTest {
     @Test
-    public void open() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/kreshuk/pape/work/my_projects/autophagosoms-clem/data", ImageDataFormat.BdvN5);
+    public void showYX() throws SpimDataException {
+        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://s3.embl.de/i2k-2020/project-bdv-ome-zarr", ImageDataFormat.BdvOmeZarr);
         Assertions.assertEquals(1, getTimePointsSize());
     }
 }

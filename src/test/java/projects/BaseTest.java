@@ -5,7 +5,7 @@ import mpicbg.spim.data.SpimData;
 
 @Slf4j
 public abstract class BaseTest {
-    SpimData spimData;
+    protected SpimData spimData;
 
     protected int getTimePointsSize() {
         if (spimData == null) {

@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects;
+package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
@@ -36,12 +36,14 @@ import org.junit.jupiter.api.Assertions;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
+import projects.BaseTest;
 
 @Slf4j
-public class OpenRemoteOpenOrganelle extends BaseTest {
+public class OmeNgffPrototypesTest extends BaseTest {
     @Test
     public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie/open-organelle-test", ImageDataFormat.OpenOrganelleS3);
+        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/home/katerina/Documents/embl/mnt/kreshuk2/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4/yx.ome.zarr",
+            ImageDataFormat.OmeZarr);
         Assertions.assertEquals(1, getTimePointsSize());
     }
 }

@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects;
+package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
@@ -36,13 +36,14 @@ import org.junit.jupiter.api.Assertions;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
+import projects.BaseTest;
 
 @Slf4j
-public class OpenLocalTest extends BaseTest {
+public class OpenRemoteCOMULIS extends BaseTest {
     @Test
     public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/Users/tischer/Desktop/mobie/MartinFloat", ImageDataFormat.OmeZarr);
+        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://s3.embl.de/comulis", ImageDataFormat.BdvOmeZarrS3);
         Assertions.assertEquals(1, getTimePointsSize());
     }
-
+//.s3AccessAndSecretKey(new String[]{"UYP3FNN3V5F0P86DR2O3", "3EL7Czzg0vVwx2L4v27GQiX0Ct1GkMHS+tbcJR3D"}));
 }

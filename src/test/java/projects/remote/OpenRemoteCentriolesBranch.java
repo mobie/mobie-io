@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects;
+package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
@@ -36,12 +36,13 @@ import org.junit.jupiter.api.Assertions;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
+import projects.BaseTest;
 
 @Slf4j
-public class OpenLocalCovidTomos extends BaseTest {
+public class OpenRemoteCentriolesBranch extends BaseTest {
     @Test
     public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/Volumes/kreshuk/pape/Work/mobie/covid-tomo-datasets", ImageDataFormat.BdvN5);
+        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie/centrioles-tomo-datasets/tree/grid-test-tomo", ImageDataFormat.BdvN5S3);
         Assertions.assertEquals(1, getTimePointsSize());
     }
 }
