@@ -1,38 +1,41 @@
 package projects;
 
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.runners.Parameterized;
+
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 
 @Slf4j
-public abstract class BaseTest {
-    protected SpimData spimData;
+public abstract class BaseTest extends BaseSpimDataChecker {
+    protected int expectedTimePoints = 0;
+    protected int expectedChannelsNumber = 1;
 
-    protected int getTimePointsSize() {
-        if (spimData == null) {
-            log.warn("SpimData is null");
-            return 0;
-        }
-        return spimData.getSequenceDescription().getTimePoints().size();
+    protected BaseTest(SpimData spimData) {
+        super(spimData);
     }
 
-    protected int getAllChannelsSize() {
-        if (spimData == null) {
-            log.warn("SpimData is null");
-            return 0;
-        }
-        return spimData.getSequenceDescription().getAllChannels().size();
+    @Test
+    public void baseTest() {
+        Assertions.assertEquals(expectedTimePoints, getTimePointsSize());
+        Assertions.assertEquals(expectedChannelsNumber, getAllChannelsSize());
     }
 
-    protected SpimData getSpimData() {
-        return spimData;
+    public int getExpectedTimePoints() {
+        return expectedTimePoints;
     }
 
-    protected void setSpimData(SpimData spimData) {
-        this.spimData = spimData;
+    public void setExpectedTimePoints(int expectedTimePoints) {
+        this.expectedTimePoints = expectedTimePoints;
     }
 
-    protected void baseTest(SpimData spimData){
-        System.out.println(spimData.getSequenceDescription().getImgLoader().getClass().getName());
+    public int getExpectedChannelsNumber() {
+        return expectedChannelsNumber;
+    }
+
+    public void setExpectedChannelsNumber(int expectedChannelsNumber) {
+        this.expectedChannelsNumber = expectedChannelsNumber;
     }
 }
 /*

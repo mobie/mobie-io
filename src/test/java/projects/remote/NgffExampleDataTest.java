@@ -31,10 +31,9 @@ package projects.remote;
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
@@ -43,11 +42,16 @@ import projects.BaseTest;
 
 @Slf4j
 public class NgffExampleDataTest extends BaseTest {
-    @Test
-    public void showYX() throws SpimDataException {
 
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/yx.ome.zarr", ImageDataFormat.OmeZarrS3);
-        baseTest(this.spimData);
-        Assertions.assertEquals(1, getTimePointsSize());
+    public NgffExampleDataTest() throws SpimDataException {
+        super((SpimData) new SpimDataOpener().openSpimData("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/yx.ome.zarr", ImageDataFormat.OmeZarrS3));
+        //set values for base test
+        setExpectedTimePoints(1);
+    }
+
+    @Test
+    public void checkDataset() {
+        //non-base test code
+        Assertions.assertEquals(getExpectedTimePoints(), getTimePointsSize());
     }
 }
