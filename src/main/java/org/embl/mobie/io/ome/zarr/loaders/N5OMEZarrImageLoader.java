@@ -71,6 +71,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
@@ -98,6 +99,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private ZarrAxes zarrAxes;
     List<ZarrAxis> zarrAxesList;
     private BlockingFetchQueues<Callable<?>> queue;
+    private ConcurrentHashMap< String, DatasetAttributes > pathToAttributes = new ConcurrentHashMap<>();
 
     /**
      * The sequenceDescription and viewRegistrations are known already, typically read from xml.
@@ -220,8 +222,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 String pathName = "labels/" + label;
                 multiscales = getMultiscale(pathName);
                 for (OmeZarrMultiscales multiscale : multiscales) {
-                    DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
-                    attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
+                    DatasetAttributes attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
 
                     setupToMultiscale.put(setupId, multiscale);
                     setupToAttributes.put(setupId, attributes);
@@ -244,8 +245,13 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
      * @return
      * @throws IOException
      */
-    private DatasetAttributes getDatasetAttributes(String pathName) throws IOException {
-        return n5.getDatasetAttributes(pathName);
+    private synchronized DatasetAttributes getDatasetAttributes(String pathName) throws IOException {
+        if ( ! pathToAttributes.containsKey( pathName ) )
+        {
+            final DatasetAttributes attributes = n5.getDatasetAttributes( pathName );
+            pathToAttributes.put( pathName, attributes );
+        }
+        return pathToAttributes.get( pathName );
     }
 
     /**
@@ -510,11 +516,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return tmp;
     }
 
-    private SimpleCacheArrayLoader<?> createCacheArrayLoader(final N5Reader n5, final String pathName, int channel, int timepointId, CellGrid grid) throws IOException {
-        final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
-        return new N5OMEZarrCacheArrayLoader<>(n5, pathName, channel, timepointId, attributes, grid, zarrAxes);
-    }
-
     private class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & NativeType<V>>
             extends AbstractViewerSetupImgLoader<T, V>
             implements MultiResolutionSetupImgLoader<T> {
@@ -565,7 +566,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
         @Override
         public RandomAccessibleInterval<V> getVolatileImage(final int timepointId, final int level, final ImgLoaderHint... hints) {
-            return prepareCachedImage(timepointId, level, LoadingStrategy.BUDGETED, volatileType);
+            return prepareCachedImage(timepointId, level, LoadingStrategy.VOLATILE, volatileType);
         }
 
         @Override
@@ -627,7 +628,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 final int priority = numMipmapLevels() - 1 - level;
                 final CacheHints cacheHints = new CacheHints(loadingStrategy, priority, false);
 
-                final SimpleCacheArrayLoader<?> loader = createCacheArrayLoader(n5, pathName, setupToChannel.get(setupId), timepointId, grid);
+                final SimpleCacheArrayLoader<?> loader = new N5OMEZarrCacheArrayLoader<>(n5, pathName, setupToChannel.get(setupId), timepointId, attributes, grid, zarrAxes);
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
                 log.error(String.format(
