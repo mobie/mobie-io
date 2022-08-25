@@ -32,8 +32,6 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;

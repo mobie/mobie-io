@@ -40,10 +40,13 @@ import projects.BaseTest;
 
 @Slf4j
 public class OpenRemoteAutophagosomesCLEM extends BaseTest {
+    public OpenRemoteAutophagosomesCLEM() throws SpimDataException {
+        super((SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie-org/autophagosomes-clem-datasets",
+            ImageDataFormat.BdvN5S3));
+    }
+
     @Test
     public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie-org/autophagosomes-clem-datasets",
-            ImageDataFormat.BdvN5S3);
         Assertions.assertEquals(1, getTimePointsSize());
     }
 }

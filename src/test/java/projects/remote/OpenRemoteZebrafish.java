@@ -30,8 +30,6 @@ package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
@@ -40,9 +38,10 @@ import projects.BaseTest;
 
 @Slf4j
 public class OpenRemoteZebrafish extends BaseTest {
-    @Test
-    public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie/zebrafish-lm-datasets/tree/main", ImageDataFormat.BdvN5S3);
-        Assertions.assertEquals(1, getTimePointsSize());
+    //mpicbg.spim.data.SpimDataException: Error while trying to read spimDataorg.jdom2.input.JDOMParseException:
+    // Error on line 16: Attribute name "crossorigin" associated with an element type "link" must be followed by the
+    // ' = ' character.
+    public OpenRemoteZebrafish() throws SpimDataException {
+        super((SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie/zebrafish-lm-datasets/tree/main", ImageDataFormat.BdvN5S3));
     }
 }

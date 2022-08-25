@@ -30,8 +30,6 @@ package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
@@ -39,10 +37,15 @@ import mpicbg.spim.data.SpimDataException;
 import projects.BaseTest;
 
 @Slf4j
-public class OpenRemoteTomograms extends BaseTest {
-    @Test
-    public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie/covid-tomo-datasets", ImageDataFormat.BdvN5S3);
-        Assertions.assertEquals(1, getTimePointsSize());
+public class OpenRemoteCovidTomoBranch extends BaseTest {
+    //mpicbg.spim.data.SpimDataException: Error while trying to read spimDataorg.jdom2.input.JDOMParseException:
+    // Error on line 16: Attribute name "crossorigin" associated with an element type "link" must be followed by the
+    // ' = ' character.
+    public OpenRemoteCovidTomoBranch() throws SpimDataException {
+        super((SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie/covid-tomo-datasets/tree/new-spec", ImageDataFormat.BdvN5S3));
     }
+//
+//    public OpenRemoteCovidTomoBranch() throws SpimDataException {
+//        super((SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie/covid-tomo-datasets", ImageDataFormat.BdvN5S3));
+//    }
 }

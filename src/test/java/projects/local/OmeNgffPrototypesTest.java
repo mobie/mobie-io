@@ -38,12 +38,16 @@ import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import projects.BaseTest;
 
-@Slf4j
-public class OmeNgffPrototypesTest extends BaseTest {
-    @Test
-    public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/home/katerina/Documents/embl/mnt/kreshuk2/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4/yx.ome.zarr",
-            ImageDataFormat.OmeZarr);
-        Assertions.assertEquals(1, getTimePointsSize());
-    }
-}
+//@Slf4j
+//public class OmeNgffPrototypesTest extends BaseTest {
+//    public OmeNgffPrototypesTest() {
+//        super(spimData);
+//    }
+//
+//    @Test
+//    public void showYX() throws SpimDataException {
+//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/home/katerina/Documents/embl/mnt/kreshuk2/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4/yx.ome.zarr",
+//            ImageDataFormat.OmeZarr);
+//        Assertions.assertEquals(1, getTimePointsSize());
+//    }
+//}
