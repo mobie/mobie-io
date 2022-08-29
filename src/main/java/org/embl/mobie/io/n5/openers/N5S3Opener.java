@@ -101,9 +101,8 @@ public class N5S3Opener extends S3Opener {
     public SpimData readURLData(String url, SharedQueue sharedQueue) throws IOException {
         InputStream stream = IOHelper.getInputStream(url);
         final SAXBuilder sax = new SAXBuilder();
-        Document doc;
         try {
-            doc = sax.build(stream);
+            Document doc = sax.build(stream);
             final Element root = doc.getRootElement();
             final Element sequenceDescriptionElement = root.getChild("SequenceDescription");
             final Element elem = sequenceDescriptionElement.getChild("ImageLoader");
@@ -123,7 +122,7 @@ public class N5S3Opener extends S3Opener {
                 transform.set(XmlHelpers.getDoubleArray(vr.getChild("ViewTransform"), "affine"));
                 regs.add(new ViewRegistration(timepointId, setupId, transform));
             }
-            SequenceDescription sequenceDescription = new SequenceDescription(timepoints, setups, null, missingViews);
+            SequenceDescription sequenceDescription = new SequenceDescription(timepoints, setups, null, (MissingViews) missingViews);
             N5S3ImageLoader imageLoader = new N5S3ImageLoader(serviceEndpoint, signingRegion, bucketName, key, sequenceDescription, sharedQueue);
             sequenceDescription.setImgLoader(imageLoader);
             imageLoader.setViewRegistrations(new ViewRegistrations(regs));

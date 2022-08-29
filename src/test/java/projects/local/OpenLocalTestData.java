@@ -38,12 +38,16 @@ import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import projects.BaseTest;
 
-@Slf4j
-public class OpenLocalTestData extends BaseTest {
-
-    @Test
-    public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/emcf/pape/mobie-test-projects", ImageDataFormat.BdvN5);
-        Assertions.assertEquals(1, getTimePointsSize());
-    }
-}
+//@Slf4j
+//public class OpenLocalTestData extends BaseTest {
+//
+//    public OpenLocalTestData() {
+//        super(spimData);
+//    }
+//
+//    @Test
+//    public void showYX() throws SpimDataException {
+//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/emcf/pape/mobie-test-projects", ImageDataFormat.BdvN5);
+//        Assertions.assertEquals(1, getTimePointsSize());
+//    }
+//}

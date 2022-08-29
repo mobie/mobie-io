@@ -38,12 +38,16 @@ import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import projects.BaseTest;
 
-@Slf4j
-public class OpenLocalGiuliaMartinCLEM extends BaseTest {
-
-    @Test
-    public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/emcf/pape/clem-example-project", ImageDataFormat.BdvN5);
-        Assertions.assertEquals(1, getTimePointsSize());
-    }
-}
+//@Slf4j
+//public class OpenLocalGiuliaMartinCLEM extends BaseTest {
+//
+//    public OpenLocalGiuliaMartinCLEM() {
+//        super(spimData);
+//    }
+//
+//    @Test
+//    public void showYX() throws SpimDataException {
+//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/emcf/pape/clem-example-project", ImageDataFormat.BdvN5);
+//        Assertions.assertEquals(1, getTimePointsSize());
+//    }
+//}

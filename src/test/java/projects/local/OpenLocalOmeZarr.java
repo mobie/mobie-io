@@ -39,12 +39,16 @@ import mpicbg.spim.data.SpimDataException;
 import projects.BaseTest;
 
 
-@Slf4j
-public class OpenLocalOmeZarr extends BaseTest {
-
-    @Test
-    public void showYX() throws SpimDataException {
-        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/kreshuk/pape/Work/mobie/covid-if-project/data", ImageDataFormat.OmeZarr);
-        Assertions.assertEquals(1, getTimePointsSize());
-    }
-}
+//@Slf4j
+//public class OpenLocalOmeZarr extends BaseTest {
+//
+//    public OpenLocalOmeZarr() {
+//        super(spimData);
+//    }
+//
+//    @Test
+//    public void showYX() throws SpimDataException {
+//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/kreshuk/pape/Work/mobie/covid-if-project/data", ImageDataFormat.OmeZarr);
+//        Assertions.assertEquals(1, getTimePointsSize());
+//    }
+//}
