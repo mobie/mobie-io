@@ -63,6 +63,6 @@ public class CustomXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDescripti
         if (!root.getName().equals(SPIMDATA_TAG))
             throw new RuntimeException("expected <" + SPIMDATA_TAG + "> root element. wrong file?");
 
-        return (SpimData) this.fromXml(root, new File(xmlFilename));
+        return fromXml(root, new File(xmlFilename));
     }
 }
