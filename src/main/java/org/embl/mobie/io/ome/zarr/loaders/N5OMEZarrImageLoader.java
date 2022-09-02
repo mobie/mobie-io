@@ -501,24 +501,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return cache;
     }
 
-    // TODO: remove
-    private long[] getDimensions(DatasetAttributes attributes) {
-        if (zarrAxes != null) {
-            if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
-                return fillDimensions(attributes);
-            }
-        }
-        return Arrays.stream(attributes.getDimensions()).limit(3).toArray();
-    }
-
-    private long[] fillDimensions(DatasetAttributes attributes) {
-        long[] tmp = new long[3];
-        tmp[0] = Arrays.stream(attributes.getDimensions()).toArray()[0];
-        tmp[1] = Arrays.stream(attributes.getDimensions()).toArray()[1];
-        tmp[2] = 1;
-        return tmp;
-    }
-
     // TODO: Add description
     private int[] getBlockSize(DatasetAttributes attributes) {
         if (!zarrAxes.hasZAxis()) {
