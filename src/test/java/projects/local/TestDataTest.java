@@ -29,7 +29,6 @@
 package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
@@ -37,13 +36,17 @@ import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenLocalConstantinNoTables extends BaseLocalTest {
-    public OpenLocalConstantinNoTables() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("/Volumes/emcf/pape/jil", ImageDataFormat.BdvN5));
+public class TestDataTest extends BaseLocalTest {
+    private static final String PATH = "/g/emcf/pape/mobie-test-projects";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5;
+
+    public TestDataTest() throws SpimDataException {
+        super(PATH, FORMAT);
+        setExpectedTimePoints(1);
     }
 
     @Test
-    public void generalTest() throws SpimDataException {
+    public void generalTest() {
         Assertions.assertEquals(1, getTimePointsSize());
     }
 }

@@ -29,7 +29,6 @@
 package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -38,9 +37,11 @@ import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
 public class NgffExampleDataTest extends BaseTest {
+    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/yx.ome.zarr";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
     public NgffExampleDataTest() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/yx.ome.zarr", ImageDataFormat.OmeZarrS3));
+        super(URL, FORMAT);
         //set values for base test
         setExpectedTimePoints(1);
     }

@@ -29,7 +29,6 @@
 package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
@@ -37,15 +36,18 @@ import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class LocalAutophagosomesEMTest extends BaseLocalTest {
-    public LocalAutophagosomesEMTest() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("/g/kreshuk/pape/work/my_projects/autophagosoms-clem/data",
-            ImageDataFormat.BdvN5));
+public class CovidEmDatasetsTest extends BaseLocalTest {
+    private static final String PATH = "/pape/Work/mobie/covid-em-datasets/ngff-example/data";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.BdvOmeZarr;
+
+    public CovidEmDatasetsTest() throws SpimDataException {
+        super(PATH, FORMAT);
         setExpectedTimePoints(1);
     }
 
     @Test
-    public void open() throws SpimDataException {
+    public void generalTest() throws SpimDataException {
         Assertions.assertEquals(1, getTimePointsSize());
     }
+
 }

@@ -29,23 +29,24 @@
 package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenLocalCovidEMCF extends BaseLocalTest {
-    protected OpenLocalCovidEMCF(SpimData spimData) throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("/Volumes/emcf/common/5792_Sars-Cov-2/covid-em/data",
-            ImageDataFormat.BdvN5));
+public class PlatynereisTest extends BaseLocalTest {
+    private static final String PATH = "/g/arendt/EM_6dpf_segmentation/platy-browser-data/data/";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5;
+
+    public PlatynereisTest() throws SpimDataException {
+        super(PATH, FORMAT);
+        setExpectedTimePoints(1);
     }
 
     @Test
-    public void generalTest() throws SpimDataException {
+    public void generalTest() {
         Assertions.assertEquals(1, getTimePointsSize());
     }
 }

@@ -26,27 +26,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.local;
-
+package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 
+import bdv.util.volatiles.SharedQueue;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenLocalJulianNoTables extends BaseLocalTest {
+public class ZebrafishTest extends BaseTest {
+    private static final String URL = "https://raw.githubusercontent.com/mobie/zebrafish-lm-datasets/main/data/membrane/images/remote/membrane-056F63395C_lynEGFP.xml";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5S3;
 
-    public OpenLocalJulianNoTables() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("/Volumes/emcf/hennies/for_constantin/mobie_no_table_test/",
-            ImageDataFormat.BdvN5));
-    }
-
-    @Test
-    public void generalTest() {
-        Assertions.assertEquals(1, getTimePointsSize());
+    public ZebrafishTest() throws SpimDataException {
+        super(URL, FORMAT, new SharedQueue(4));
+        setExpectedTimePoints(1);
     }
 }

@@ -26,19 +26,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.remote;
+package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenRemoteBdvOmeZarr extends BaseTest {
-    //    The specified key does not exist.
-    public OpenRemoteBdvOmeZarr() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("https://s3.embl.de/i2k-2020/project-bdv-ome-zarr",
-            ImageDataFormat.BdvOmeZarr));
+public class GiuliaMartinCLEMTest extends BaseLocalTest {
+    private static final String PATH = "/g/emcf/pape/clem-example-project";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5;
+
+    public GiuliaMartinCLEMTest() throws SpimDataException {
+        super(PATH, FORMAT);
+        setExpectedTimePoints(1);
+    }
+
+    @Test
+    public void generalTest() {
+        Assertions.assertEquals(1, getTimePointsSize());
     }
 }

@@ -29,7 +29,6 @@
 package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
@@ -37,10 +36,13 @@ import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenLocalPlatynereis extends BaseLocalTest {
+public class CovidTomosTest extends BaseLocalTest {
+    private static final String PATH = "/Volumes/kreshuk/pape/Work/mobie/covid-tomo-datasets";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5;
 
-    public OpenLocalPlatynereis() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("/g/arendt/EM_6dpf_segmentation/platy-browser-data/data/", ImageDataFormat.BdvN5));
+    public CovidTomosTest() throws SpimDataException {
+        super(PATH, FORMAT);
+        setExpectedTimePoints(1);
     }
 
     @Test

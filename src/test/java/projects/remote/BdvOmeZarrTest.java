@@ -26,25 +26,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.local;
+package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenLocalCovidTomos extends BaseLocalTest {
-    public OpenLocalCovidTomos() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("/Volumes/kreshuk/pape/Work/mobie/covid-tomo-datasets",
-            ImageDataFormat.BdvN5));
-    }
+public class BdvOmeZarrTest extends BaseTest {
+    private static final String URL = "https://s3.embl.de/i2k-2020/project-bdv-ome-zarr";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.BdvOmeZarr;
 
-    @Test
-    public void generalTest() {
-        Assertions.assertEquals(1, getTimePointsSize());
+    //    The specified key does not exist.
+    public BdvOmeZarrTest() throws SpimDataException {
+        super(URL, FORMAT);
     }
 }

@@ -26,19 +26,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.remote;
+package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenRemoteOpenOrganelle extends BaseTest {
-    //AWS error
-    public OpenRemoteOpenOrganelle() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("https://github.com/mobie/open-organelle-test",
-            ImageDataFormat.OpenOrganelleS3));
+public class TobiasTest extends BaseLocalTest {
+    private static final String PATH = "/g/schwab/Tobias/MoBIE";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5;
+
+    public TobiasTest() throws SpimDataException {
+        super(PATH, FORMAT);
+        setExpectedTimePoints(1);
+    }
+
+    @Test
+    public void generalTest() {
+        Assertions.assertEquals(1, getTimePointsSize());
     }
 }

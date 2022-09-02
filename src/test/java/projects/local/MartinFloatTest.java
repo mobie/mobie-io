@@ -26,22 +26,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.remote;
+package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
-import bdv.util.volatiles.SharedQueue;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenRemoteZebrafish extends BaseTest {
-    //mpicbg.spim.data.SpimDataException: Error while trying to read spimDataorg.jdom2.input.JDOMParseException:
-    // Error on line 16: Attribute name "crossorigin" associated with an element type "link" must be followed by the
-    // ' = ' character.
-    public OpenRemoteZebrafish() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("https://raw.githubusercontent.com/mobie/zebrafish-lm-datasets/main/data/membrane/images/remote/membrane-056F63395C_lynEGFP.xml", ImageDataFormat.BdvN5S3, new SharedQueue(4)));
+public class MartinFloatTest extends BaseLocalTest {
+    private static final String PATH = "/Users/tischer/Desktop/mobie/MartinFloat";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarr;
+
+    public MartinFloatTest() throws SpimDataException {
+        super(PATH, FORMAT);
         setExpectedTimePoints(1);
     }
+
+    @Test
+    public void generalTest() throws SpimDataException {
+        Assertions.assertEquals(1, getTimePointsSize());
+    }
+
 }

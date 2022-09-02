@@ -1,10 +1,13 @@
 package projects.remote;
 
+import org.embl.mobie.io.ImageDataFormat;
+import org.embl.mobie.io.SpimDataOpener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import bdv.util.volatiles.SharedQueue;
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.generic.AbstractSpimData;
+import mpicbg.spim.data.SpimDataException;
 import projects.BaseSpimDataChecker;
 
 @Slf4j
@@ -12,8 +15,12 @@ public abstract class BaseTest extends BaseSpimDataChecker {
     protected int expectedTimePoints = 0;
     protected int expectedChannelsNumber = 1;
 
-    protected BaseTest(AbstractSpimData spimData) {
-        super(spimData);
+    protected BaseTest(String path, ImageDataFormat format) throws SpimDataException {
+        super(new SpimDataOpener().openSpimData(path, format));
+    }
+
+    protected BaseTest(String path, ImageDataFormat format, SharedQueue sharedQueue) throws SpimDataException {
+        super(new SpimDataOpener().openSpimData(path, format, sharedQueue));
     }
 
     @Test
@@ -49,5 +56,5 @@ https://github.com/mobie/plankton-fibsem-project .dataset("micromonas"));
 https://github.com/platybrowser/platybrowser");
 https://github.com/mobie/platybrowser-datasets" .gitProjectBranch("normal-vie"));
  1) check the data format
- 2) add similarly to the LocalAutophagosomesEMTest
+ 2) add similarly to the AutophagosomesEMTest
  */

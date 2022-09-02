@@ -26,19 +26,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.remote;
+package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenRemoteCOMULIS extends BaseTest {
-    public OpenRemoteCOMULIS() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("https://s3.embl.de/comulis",
-            ImageDataFormat.BdvOmeZarrS3));
+public class OmeZarrTest extends BaseLocalTest {
+    private static final String PATH = "/g/kreshuk/pape/Work/mobie/covid-if-project/data";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarr;
+
+    public OmeZarrTest() throws SpimDataException {
+        super(PATH, FORMAT);
+        setExpectedTimePoints(1);
     }
-//.s3AccessAndSecretKey(new String[]{"UYP3FNN3V5F0P86DR2O3", "3EL7Czzg0vVwx2L4v27GQiX0Ct1GkMHS+tbcJR3D"}));
+
+    @Test
+    public void generalTest() {
+        Assertions.assertEquals(1, getTimePointsSize());
+    }
 }

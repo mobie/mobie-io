@@ -29,7 +29,6 @@
 package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
@@ -37,10 +36,13 @@ import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenLocalTobias extends BaseLocalTest {
+public class CovidPlateTest extends BaseLocalTest {
+    private static final String PATH = "/g/kreshuk/pape/Work/mobie/covid-if-project/data";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarr;
 
-    public OpenLocalTobias() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("/g/schwab/Tobias/MoBIE", ImageDataFormat.BdvN5));
+    public CovidPlateTest() throws SpimDataException {
+        super(PATH, FORMAT);
+        setExpectedTimePoints(1);
     }
 
     @Test

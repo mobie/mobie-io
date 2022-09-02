@@ -29,7 +29,6 @@
 package projects.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
@@ -37,15 +36,19 @@ import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class OpenLocalOmeZarr extends BaseLocalTest {
+public class PlanktonTest extends BaseLocalTest {
+    private static final String PATH = "/Volumes/emcf/pape/plankton-fibsem-project";
+    private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5;
 
-    public OpenLocalOmeZarr() throws SpimDataException {
-        super(new SpimDataOpener().openSpimData("/g/kreshuk/pape/Work/mobie/covid-if-project/data",
-            ImageDataFormat.OmeZarr));
+    public PlanktonTest() throws SpimDataException {
+        super(PATH, FORMAT);
+        setExpectedTimePoints(1);
     }
 
     @Test
     public void generalTest() {
         Assertions.assertEquals(1, getTimePointsSize());
     }
+//dataset("galdieria"));
+
 }

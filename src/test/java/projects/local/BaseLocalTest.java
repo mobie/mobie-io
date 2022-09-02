@@ -1,17 +1,19 @@
 package projects.local;
 
+import org.embl.mobie.io.ImageDataFormat;
+import org.embl.mobie.io.SpimDataOpener;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
-import mpicbg.spim.data.generic.AbstractSpimData;
+import mpicbg.spim.data.SpimDataException;
 import projects.BaseSpimDataChecker;
 
 public class BaseLocalTest extends BaseSpimDataChecker {
     protected int expectedTimePoints = 0;
     protected int expectedChannelsNumber = 1;
 
-    protected BaseLocalTest(AbstractSpimData spimData) {
-        super(spimData);
+    protected BaseLocalTest(String path, ImageDataFormat format) throws SpimDataException {
+        super(new SpimDataOpener().openSpimData(path, format));
     }
 
     @Test
