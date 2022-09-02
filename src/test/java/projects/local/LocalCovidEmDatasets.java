@@ -38,17 +38,16 @@ import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import projects.BaseTest;
 
-//@Slf4j
-//public class LocalCovidEmDatasets extends BaseTest {
-//
-//    public LocalCovidEmDatasets() {
-//        super(spimData);
-//    }
-//
-//    @Test
-//    public void showYX() throws SpimDataException {
-//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/home/katerina/Documents/embl/mnt/kreshuk/pape/Work/mobie/covid-em-datasets/ngff-example/data", ImageDataFormat.BdvOmeZarr);
-//        Assertions.assertEquals(1, getTimePointsSize());
-//    }
-//
-//}
+@Slf4j
+public class LocalCovidEmDatasets extends BaseTest {
+
+    public LocalCovidEmDatasets() throws SpimDataException {
+        super((SpimData) new SpimDataOpener().openSpimData("/pape/Work/mobie/covid-em-datasets/ngff-example/data", ImageDataFormat.BdvOmeZarr));
+    }
+
+    @Test
+    public void generalTest() throws SpimDataException {
+        Assertions.assertEquals(1, getTimePointsSize());
+    }
+
+}

@@ -1,8 +1,7 @@
 package projects;
 
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;

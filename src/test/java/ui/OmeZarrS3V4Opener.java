@@ -1,33 +1,30 @@
 package ui;
 
-import bdv.util.BdvFunctions;
-import mpicbg.spim.data.SpimData;
-import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
-import net.imglib2.Dimensions;
-import net.imglib2.RandomAccessibleInterval;
-
-import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 
-public class OmeZarrS3V4Opener {
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 
-    @Test
-    public void showYX() throws IOException, InterruptedException {
+import bdv.util.BdvFunctions;
+import mpicbg.spim.data.SpimData;
+import net.imglib2.Dimensions;
+
+public class OmeZarrS3V4Opener {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        showCYX();
+    }
+
+    public static void showYX() throws IOException, InterruptedException {
         SpimData image = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/yx.ome.zarr");
         BdvFunctions.show(image);
         Thread.sleep(10000);
     }
 
-    @Test
-    public void showZYX() throws IOException {
+    public static void showZYX() throws IOException {
         SpimData image = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/zyx.ome.zarr");
         BdvFunctions.show(image);
     }
 
-    @Test
-    public void showCYX() throws IOException {
+    public static void showCYX() throws IOException {
         SpimData image = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/cyx.ome.zarr");
         Dimensions dimensions = image.getSequenceDescription().getViewSetupsOrdered().get(0).getSize();
         System.out.println(image.getSequenceDescription().getViewSetupsOrdered().size());
@@ -41,15 +38,14 @@ public class OmeZarrS3V4Opener {
         BdvFunctions.show(image);
     }
 
-    @Test
-    public void showTYX() throws IOException {
+    public static void showTYX() throws IOException {
         SpimData image = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/tyx.ome.zarr");
         Dimensions dimensions = image.getSequenceDescription().getViewSetupsOrdered().get(0).getSize();
         System.out.println(dimensions.toString());
-        BdvFunctions.show(image);    }
+        BdvFunctions.show(image);
+    }
 
-    @Test
-    public void showTCYX() throws IOException {
+    public static void showTCYX() throws IOException {
         SpimData image = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/tcyx.ome.zarr");
         Dimensions dimensions = image.getSequenceDescription().getViewSetupsOrdered().get(0).getSize();
         System.out.println(image.getSequenceDescription().getViewSetupsOrdered().size());
@@ -59,14 +55,12 @@ public class OmeZarrS3V4Opener {
         BdvFunctions.show(image);
     }
 
-    @Test
-    public void showTCZYX() throws IOException {
+    public static void showTCZYX() throws IOException {
         SpimData image = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/tczyx.ome.zarr");
         BdvFunctions.show(image);
     }
 
-    @Test
-    public void multiImg() throws IOException {
+    public static void multiImg() throws IOException {
         SpimData image = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/multi-image.ome.zarr");
         BdvFunctions.show(image);
     }

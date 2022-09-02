@@ -38,15 +38,14 @@ import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import projects.BaseTest;
 
-//@Slf4j
-//public class LocalAutophagosomesEMTest extends BaseTest {
-//    public LocalAutophagosomesEMTest() {
-//        super(spimData);
-//    }
-//
-//    @Test
-//    public void open() throws SpimDataException {
-//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/kreshuk/pape/work/my_projects/autophagosoms-clem/data", ImageDataFormat.BdvN5);
-//        Assertions.assertEquals(1, getTimePointsSize());
-//    }
-//}
+@Slf4j
+public class LocalAutophagosomesEMTest extends BaseTest {
+    public LocalAutophagosomesEMTest() throws SpimDataException {
+        super((SpimData) new SpimDataOpener().openSpimData("/g/kreshuk/pape/work/my_projects/autophagosoms-clem/data", ImageDataFormat.BdvN5));
+    }
+
+    @Test
+    public void open() throws SpimDataException {
+        Assertions.assertEquals(1, getTimePointsSize());
+    }
+}

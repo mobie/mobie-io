@@ -1,15 +1,20 @@
 package spimdata;
 
-import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.util.*;
+import lombok.extern.slf4j.Slf4j;
+import mpicbg.spim.data.SpimData;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
@@ -28,7 +33,7 @@ public class OmeZarrS3SpimDataTests {
     public void init() {
         log.info("Before init() method called");
         try {
-            OMEZarrS3Opener.setLogging( true );
+            OMEZarrS3Opener.setLogging(true);
             SpimData spimData = OMEZarrS3Opener.readURL(ZYX_FILE_KEY);
             long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).dimensionsAsLongArray();
             for (int i = 0; i <= N; i++) {
