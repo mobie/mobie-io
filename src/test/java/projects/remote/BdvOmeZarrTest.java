@@ -29,11 +29,13 @@
 package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
+import org.junit.jupiter.api.Disabled;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
+@Disabled
 public class BdvOmeZarrTest extends BaseTest {
     private static final String URL = "https://s3.embl.de/i2k-2020/project-bdv-ome-zarr";
     private static final ImageDataFormat FORMAT = ImageDataFormat.BdvOmeZarr;

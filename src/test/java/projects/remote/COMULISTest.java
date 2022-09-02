@@ -29,11 +29,13 @@
 package projects.remote;
 
 import org.embl.mobie.io.ImageDataFormat;
+import org.junit.jupiter.api.Disabled;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
+@Disabled
 public class COMULISTest extends BaseTest {
     private static final String URL = "https://s3.embl.de/comulis";
     private static final ImageDataFormat FORMAT = ImageDataFormat.BdvOmeZarrS3;
