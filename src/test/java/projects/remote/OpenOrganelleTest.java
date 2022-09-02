@@ -35,11 +35,12 @@ import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
 public class OpenOrganelleTest extends BaseTest {
-    private static final String URL = "https://github.com/mobie/open-organelle-test";
+    private static final String URL = "https://janelia-cosem.s3.amazonaws.com/jrc_hela-2/jrc_hela-2.n5/em/fibsem-uint16";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OpenOrganelleS3;
 
     //AWS error
     public OpenOrganelleTest() throws SpimDataException {
         super(URL, FORMAT);
+        setExpectedTimePoints(1);
     }
 }
