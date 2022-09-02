@@ -32,14 +32,13 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
-import projects.BaseTest;
 
 @Slf4j
 public class OpenRemoteOpenOrganelle extends BaseTest {
     //AWS error
     public OpenRemoteOpenOrganelle() throws SpimDataException {
-        super((SpimData) new SpimDataOpener().openSpimData("https://github.com/mobie/open-organelle-test", ImageDataFormat.OpenOrganelleS3));
+        super(new SpimDataOpener().openSpimData("https://github.com/mobie/open-organelle-test",
+            ImageDataFormat.OpenOrganelleS3));
     }
 }

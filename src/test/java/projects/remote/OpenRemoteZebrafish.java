@@ -33,9 +33,7 @@ import org.embl.mobie.io.SpimDataOpener;
 
 import bdv.util.volatiles.SharedQueue;
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
-import projects.BaseTest;
 
 @Slf4j
 public class OpenRemoteZebrafish extends BaseTest {
@@ -43,7 +41,7 @@ public class OpenRemoteZebrafish extends BaseTest {
     // Error on line 16: Attribute name "crossorigin" associated with an element type "link" must be followed by the
     // ' = ' character.
     public OpenRemoteZebrafish() throws SpimDataException {
-        super((SpimData) new SpimDataOpener().openSpimData("https://raw.githubusercontent.com/mobie/zebrafish-lm-datasets/main/data/membrane/images/remote/membrane-056F63395C_lynEGFP.xml", ImageDataFormat.BdvN5S3, new SharedQueue(4)));
+        super(new SpimDataOpener().openSpimData("https://raw.githubusercontent.com/mobie/zebrafish-lm-datasets/main/data/membrane/images/remote/membrane-056F63395C_lynEGFP.xml", ImageDataFormat.BdvN5S3, new SharedQueue(4)));
         setExpectedTimePoints(1);
     }
 }

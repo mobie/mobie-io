@@ -2,13 +2,14 @@ package projects;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
+import mpicbg.spim.data.generic.AbstractSpimData;
 
 @Slf4j
 public class BaseSpimDataChecker {
     protected final SpimData spimData;
 
-    public BaseSpimDataChecker(SpimData spimData) {
-        this.spimData = spimData;
+    public BaseSpimDataChecker(AbstractSpimData spimData) throws ClassCastException {
+        this.spimData = (SpimData) spimData;
     }
 
     protected SpimData getSpimData() {

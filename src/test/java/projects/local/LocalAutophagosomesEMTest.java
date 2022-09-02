@@ -34,14 +34,14 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
-import projects.BaseTest;
 
 @Slf4j
-public class LocalAutophagosomesEMTest extends BaseTest {
+public class LocalAutophagosomesEMTest extends BaseLocalTest {
     public LocalAutophagosomesEMTest() throws SpimDataException {
-        super((SpimData) new SpimDataOpener().openSpimData("/g/kreshuk/pape/work/my_projects/autophagosoms-clem/data", ImageDataFormat.BdvN5));
+        super(new SpimDataOpener().openSpimData("/g/kreshuk/pape/work/my_projects/autophagosoms-clem/data",
+            ImageDataFormat.BdvN5));
+        setExpectedTimePoints(1);
     }
 
     @Test

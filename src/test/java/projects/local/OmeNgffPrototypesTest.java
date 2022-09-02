@@ -34,14 +34,12 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
-import projects.BaseTest;
 
 @Slf4j
-public class OmeNgffPrototypesTest extends BaseTest {
+public class OmeNgffPrototypesTest extends BaseLocalTest {
     public OmeNgffPrototypesTest() throws SpimDataException {
-        super((SpimData) new SpimDataOpener().openSpimData("/home/katerina/Documents/embl/mnt/kreshuk2/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4/yx.ome.zarr",
+        super(new SpimDataOpener().openSpimData("/home/katerina/Documents/embl/mnt/kreshuk2/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4/yx.ome.zarr",
             ImageDataFormat.OmeZarr));
     }
 

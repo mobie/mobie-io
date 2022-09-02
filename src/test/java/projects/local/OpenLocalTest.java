@@ -28,16 +28,24 @@
  */
 package projects.local;
 
-//@Slf4j
-//public class OpenLocalTest extends BaseTest {
-//    public OpenLocalTest() {
-//        super(spimData);
-//    }
-//
-//    @Test
-//    public void generalTest() throws SpimDataException {
-//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/Users/tischer/Desktop/mobie/MartinFloat", ImageDataFormat.OmeZarr);
-//        Assertions.assertEquals(1, getTimePointsSize());
-//    }
-//
-//}
+import org.embl.mobie.io.ImageDataFormat;
+import org.embl.mobie.io.SpimDataOpener;
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+
+import lombok.extern.slf4j.Slf4j;
+import mpicbg.spim.data.SpimDataException;
+
+@Slf4j
+public class OpenLocalTest extends BaseLocalTest {
+    public OpenLocalTest() throws SpimDataException {
+        super(new SpimDataOpener().openSpimData("/Users/tischer/Desktop/mobie/MartinFloat",
+            ImageDataFormat.OmeZarr));
+    }
+
+    @Test
+    public void generalTest() throws SpimDataException {
+        Assertions.assertEquals(1, getTimePointsSize());
+    }
+
+}

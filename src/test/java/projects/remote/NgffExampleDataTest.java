@@ -34,15 +34,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
-import projects.BaseTest;
 
 @Slf4j
 public class NgffExampleDataTest extends BaseTest {
 
     public NgffExampleDataTest() throws SpimDataException {
-        super((SpimData) new SpimDataOpener().openSpimData("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/yx.ome.zarr", ImageDataFormat.OmeZarrS3));
+        super(new SpimDataOpener().openSpimData("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/yx.ome.zarr", ImageDataFormat.OmeZarrS3));
         //set values for base test
         setExpectedTimePoints(1);
     }

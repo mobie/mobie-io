@@ -28,15 +28,23 @@
  */
 package projects.local;
 
-//@Slf4j
-//public class OpenLocalCovidTomos extends BaseTest {
-//    public OpenLocalCovidTomos() {
-//        super(spimData);
-//    }
-//
-//    @Test
-//    public void generalTest() throws SpimDataException {
-//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/Volumes/kreshuk/pape/Work/mobie/covid-tomo-datasets", ImageDataFormat.BdvN5);
-//        Assertions.assertEquals(1, getTimePointsSize());
-//    }
-//}
+import org.embl.mobie.io.ImageDataFormat;
+import org.embl.mobie.io.SpimDataOpener;
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+
+import lombok.extern.slf4j.Slf4j;
+import mpicbg.spim.data.SpimDataException;
+
+@Slf4j
+public class OpenLocalCovidTomos extends BaseLocalTest {
+    public OpenLocalCovidTomos() throws SpimDataException {
+        super(new SpimDataOpener().openSpimData("/Volumes/kreshuk/pape/Work/mobie/covid-tomo-datasets",
+            ImageDataFormat.BdvN5));
+    }
+
+    @Test
+    public void generalTest() {
+        Assertions.assertEquals(1, getTimePointsSize());
+    }
+}

@@ -28,15 +28,22 @@
  */
 package projects.local;
 
-//@Slf4j
-//public class OpenLocalConstantinNoTables extends BaseTest {
-//    public OpenLocalConstantinNoTables() {
-//        super(spimData);
-//    }
-//
-//    @Test
-//    public void generalTest() throws SpimDataException {
-//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/Volumes/emcf/pape/jil", ImageDataFormat.BdvN5);
-//        Assertions.assertEquals(1, getTimePointsSize());
-//    }
-//}
+import org.embl.mobie.io.ImageDataFormat;
+import org.embl.mobie.io.SpimDataOpener;
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+
+import lombok.extern.slf4j.Slf4j;
+import mpicbg.spim.data.SpimDataException;
+
+@Slf4j
+public class OpenLocalConstantinNoTables extends BaseLocalTest {
+    public OpenLocalConstantinNoTables() throws SpimDataException {
+        super(new SpimDataOpener().openSpimData("/Volumes/emcf/pape/jil", ImageDataFormat.BdvN5));
+    }
+
+    @Test
+    public void generalTest() throws SpimDataException {
+        Assertions.assertEquals(1, getTimePointsSize());
+    }
+}

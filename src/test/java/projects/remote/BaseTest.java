@@ -1,17 +1,18 @@
-package projects;
+package projects.remote;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
+import mpicbg.spim.data.generic.AbstractSpimData;
+import projects.BaseSpimDataChecker;
 
 @Slf4j
 public abstract class BaseTest extends BaseSpimDataChecker {
     protected int expectedTimePoints = 0;
     protected int expectedChannelsNumber = 1;
 
-    protected BaseTest(SpimData spimData) {
+    protected BaseTest(AbstractSpimData spimData) {
         super(spimData);
     }
 

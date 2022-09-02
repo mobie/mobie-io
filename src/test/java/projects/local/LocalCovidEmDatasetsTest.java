@@ -34,15 +34,14 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
-import projects.BaseTest;
 
 @Slf4j
-public class LocalCovidEmDatasets extends BaseTest {
+public class LocalCovidEmDatasetsTest extends BaseLocalTest {
 
-    public LocalCovidEmDatasets() throws SpimDataException {
-        super((SpimData) new SpimDataOpener().openSpimData("/pape/Work/mobie/covid-em-datasets/ngff-example/data", ImageDataFormat.BdvOmeZarr));
+    public LocalCovidEmDatasetsTest() throws SpimDataException {
+        super(new SpimDataOpener().openSpimData("/pape/Work/mobie/covid-em-datasets/ngff-example/data",
+            ImageDataFormat.BdvOmeZarr));
     }
 
     @Test

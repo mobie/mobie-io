@@ -28,16 +28,23 @@
  */
 package projects.local;
 
-//@Slf4j
-//public class OpenLocalTobias extends BaseTest {
-//
-//    public OpenLocalTobias() {
-//        super(spimData);
-//    }
-//
-//    @Test
-//    public void generalTest() throws SpimDataException {
-//        this.spimData = (SpimData) new SpimDataOpener().openSpimData("/g/schwab/Tobias/MoBIE", ImageDataFormat.BdvN5);
-//        Assertions.assertEquals(1, getTimePointsSize());
-//    }
-//}
+import org.embl.mobie.io.ImageDataFormat;
+import org.embl.mobie.io.SpimDataOpener;
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+
+import lombok.extern.slf4j.Slf4j;
+import mpicbg.spim.data.SpimDataException;
+
+@Slf4j
+public class OpenLocalTobias extends BaseLocalTest {
+
+    public OpenLocalTobias() throws SpimDataException {
+        super(new SpimDataOpener().openSpimData("/g/schwab/Tobias/MoBIE", ImageDataFormat.BdvN5));
+    }
+
+    @Test
+    public void generalTest() {
+        Assertions.assertEquals(1, getTimePointsSize());
+    }
+}

@@ -32,14 +32,13 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 
 import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
-import projects.BaseTest;
 
 @Slf4j
 public class OpenRemoteCOMULIS extends BaseTest {
     public OpenRemoteCOMULIS() throws SpimDataException {
-        super((SpimData) new SpimDataOpener().openSpimData("https://s3.embl.de/comulis", ImageDataFormat.BdvOmeZarrS3));
+        super(new SpimDataOpener().openSpimData("https://s3.embl.de/comulis",
+            ImageDataFormat.BdvOmeZarrS3));
     }
 //.s3AccessAndSecretKey(new String[]{"UYP3FNN3V5F0P86DR2O3", "3EL7Czzg0vVwx2L4v27GQiX0Ct1GkMHS+tbcJR3D"}));
 }
