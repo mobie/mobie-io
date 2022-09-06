@@ -1,4 +1,4 @@
-package projects.ngff;
+package projects.ngff.v04;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Assertions;
@@ -13,16 +13,15 @@ import net.imglib2.img.cell.CellGrid;
 import projects.remote.BaseTest;
 
 @Slf4j
-public class CYXNgffDataTest extends BaseTest {
-    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/cyx.ome.zarr";
+public class MultiImageNgffDataTest extends BaseTest {
+    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/multi-image.ome.zarr";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public CYXNgffDataTest() throws SpimDataException {
+    public MultiImageNgffDataTest() throws SpimDataException {
         super(URL, FORMAT);
         //set values for base test
         setExpectedTimePoints(1);
-        setExpectedChannelsNumber(4);
-        setExpectedShape(new FinalDimensions(1024, 930, 4));
+        setExpectedShape(new FinalDimensions(1024, 930));
         setExpectedDType("uint16");
     }
 

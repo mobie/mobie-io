@@ -1,4 +1,4 @@
-package projects.ngff;
+package projects.ngff.v04;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Assertions;
@@ -13,16 +13,16 @@ import net.imglib2.img.cell.CellGrid;
 import projects.remote.BaseTest;
 
 @Slf4j
-public class ZYXNgffDataTest extends BaseTest {
-    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/zyx.ome.zarr";
+public class TYXNgffDataTest extends BaseTest {
+    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/tyx.ome.zarr";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public ZYXNgffDataTest() throws SpimDataException {
+    public TYXNgffDataTest() throws SpimDataException {
         super(URL, FORMAT);
         //set values for base test
-        setExpectedTimePoints(1);
-        setExpectedShape(new FinalDimensions(483, 393, 603));
-        setExpectedDType("uint8");
+        setExpectedTimePoints(3);
+        setExpectedShape(new FinalDimensions(512, 262, 3));
+        setExpectedDType("int16");
     }
 
     @Test
@@ -38,8 +38,8 @@ public class ZYXNgffDataTest extends BaseTest {
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
         VolatileCachedCellImg volatileCachedCellImg = (VolatileCachedCellImg) randomAccessibleInterval;
         CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
-        long[] dims = new long[]{483, 393, 603};
-        int[] cellDims = new int[]{64, 64, 64};
+        long[] dims = new long[]{512, 262, 1};
+        int[] cellDims = new int[]{256, 256, 1};
         CellGrid expected = new CellGrid(dims, cellDims);
         Assertions.assertEquals(expected, cellGrid);
     }

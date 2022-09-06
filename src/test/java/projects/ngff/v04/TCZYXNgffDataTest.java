@@ -1,4 +1,4 @@
-package projects.ngff;
+package projects.ngff.v04;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Assertions;
@@ -13,16 +13,17 @@ import net.imglib2.img.cell.CellGrid;
 import projects.remote.BaseTest;
 
 @Slf4j
-public class MultiImageNgffDataTest extends BaseTest {
-    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/multi-image.ome.zarr";
+public class TCZYXNgffDataTest extends BaseTest {
+    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/tczyx.ome.zarr";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public MultiImageNgffDataTest() throws SpimDataException {
+    public TCZYXNgffDataTest() throws SpimDataException {
         super(URL, FORMAT);
         //set values for base test
-        setExpectedTimePoints(1);
-        setExpectedShape(new FinalDimensions(1024, 930));
-        setExpectedDType("uint16");
+        setExpectedTimePoints(3);
+        setExpectedChannelsNumber(2);
+        setExpectedShape(new FinalDimensions(512, 262, 486, 2, 3));
+        setExpectedDType("int16");
     }
 
     @Test
@@ -38,8 +39,8 @@ public class MultiImageNgffDataTest extends BaseTest {
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
         VolatileCachedCellImg volatileCachedCellImg = (VolatileCachedCellImg) randomAccessibleInterval;
         CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
-        long[] dims = new long[]{1024, 930, 1};
-        int[] cellDims = new int[]{256, 256, 1};
+        long[] dims = new long[]{512, 262, 486};
+        int[] cellDims = new int[]{64, 64, 64};
         CellGrid expected = new CellGrid(dims, cellDims);
         Assertions.assertEquals(expected, cellGrid);
     }
