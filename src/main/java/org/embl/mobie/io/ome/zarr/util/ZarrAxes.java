@@ -144,7 +144,6 @@ public enum ZarrAxes {
     // spatial: 0,1,2 (x,y,z)
     public Map< Integer, Integer > spatialToZarr()
     {
-        // TODO implement for all cases
         final HashMap< Integer, Integer > map = new HashMap<>();
         map.put( 0, 0 );
         map.put( 1, 1 );

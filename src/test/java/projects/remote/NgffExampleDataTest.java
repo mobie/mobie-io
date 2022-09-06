@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
+import net.imglib2.FinalDimensions;
 
 @Slf4j
 public class NgffExampleDataTest extends BaseTest {
@@ -44,6 +45,8 @@ public class NgffExampleDataTest extends BaseTest {
         super(URL, FORMAT);
         //set values for base test
         setExpectedTimePoints(1);
+        setExpectedShape(new FinalDimensions(1024, 930));
+        setExpectedDType("uint16");
     }
 
     @Test
