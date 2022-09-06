@@ -35,8 +35,8 @@ public class ZYXNgffDataTest extends BaseTest {
             throw new RuntimeException("Coordinates out of bounds");
         }
 
-        RandomAccessibleInterval<?> realPixelValue = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
-        VolatileCachedCellImg volatileCachedCellImg = (VolatileCachedCellImg) realPixelValue;
+        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
+        VolatileCachedCellImg volatileCachedCellImg = (VolatileCachedCellImg) randomAccessibleInterval;
         CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
         long[] dims = new long[]{483, 393, 603};
         int[] cellDims = new int[]{64, 64, 64};
