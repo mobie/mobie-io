@@ -32,15 +32,17 @@ import org.embl.mobie.io.ImageDataFormat;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
+import net.imglib2.FinalDimensions;
 
 @Slf4j
 public class OpenOrganelleTest extends BaseTest {
     private static final String URL = "https://janelia-cosem.s3.amazonaws.com/jrc_hela-2/jrc_hela-2.n5/em/fibsem-uint16";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OpenOrganelleS3;
 
-    //AWS error
     public OpenOrganelleTest() throws SpimDataException {
         super(URL, FORMAT);
         setExpectedTimePoints(1);
+        setExpectedShape(new FinalDimensions(12000, 1600, 6368));
+        setExpectedDType("uint16");
     }
 }

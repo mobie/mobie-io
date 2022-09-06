@@ -8,12 +8,15 @@ import org.junit.jupiter.api.Test;
 import bdv.util.volatiles.SharedQueue;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
+import net.imglib2.Dimensions;
 import projects.BaseSpimDataChecker;
 
 @Slf4j
 public abstract class BaseTest extends BaseSpimDataChecker {
     protected int expectedTimePoints = 0;
     protected int expectedChannelsNumber = 1;
+    protected Dimensions expectedShape;
+    protected String expectedDType;
 
     protected BaseTest(String path, ImageDataFormat format) throws SpimDataException {
         super(new SpimDataOpener().openSpimData(path, format));
@@ -27,6 +30,8 @@ public abstract class BaseTest extends BaseSpimDataChecker {
     public void baseTest() {
         Assertions.assertEquals(expectedTimePoints, getTimePointsSize());
         Assertions.assertEquals(expectedChannelsNumber, getAllChannelsSize());
+        Assertions.assertEquals(expectedShape, getShape());
+        Assertions.assertEquals(expectedDType, getDType());
     }
 
     public int getExpectedTimePoints() {
@@ -43,6 +48,22 @@ public abstract class BaseTest extends BaseSpimDataChecker {
 
     public void setExpectedChannelsNumber(int expectedChannelsNumber) {
         this.expectedChannelsNumber = expectedChannelsNumber;
+    }
+
+    public Dimensions getExpectedShape() {
+        return expectedShape;
+    }
+
+    public void setExpectedShape(Dimensions expectedShape) {
+        this.expectedShape = expectedShape;
+    }
+
+    public String getExpectedDType() {
+        return expectedDType;
+    }
+
+    public void setExpectedDType(String expectedDType) {
+        this.expectedDType = expectedDType;
     }
 }
 /*

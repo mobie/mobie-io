@@ -1,8 +1,9 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5FSReader;
@@ -11,9 +12,9 @@ import org.janelia.saalfeldlab.n5.zarr.Filter;
 import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 
 public class N5ZarrImageReaderHelper extends N5FSReader {
 
@@ -30,14 +31,14 @@ public class N5ZarrImageReaderHelper extends N5FSReader {
             throw new IOException("Empty ZArray attributes");
         }
         return new ZArrayAttributes(
-                attributes.get("zarr_format").getAsInt(),
-                gson.fromJson(attributes.get("shape"), long[].class),
-                gson.fromJson(attributes.get("chunks"), int[].class),
-                gson.fromJson(attributes.get("dtype"), DType.class),
-                gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
-                attributes.get("fill_value").getAsString(),
-                attributes.get("order").getAsCharacter(),
-                gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
+            attributes.get("zarr_format").getAsInt(),
+            gson.fromJson(attributes.get("shape"), long[].class),
+            gson.fromJson(attributes.get("chunks"), int[].class),
+            gson.fromJson(attributes.get("dtype"), DType.class),
+            gson.fromJson(attributes.get("compressor"), ZarrCompressor.class),
+            attributes.get("fill_value").getAsString(),
+            attributes.get("order").getAsCharacter(),
+            gson.fromJson(attributes.get("filters"), TypeToken.getParameterized(Collection.class, Filter.class).getType()));
 
     }
 

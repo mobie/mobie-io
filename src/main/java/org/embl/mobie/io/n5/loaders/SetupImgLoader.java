@@ -1,5 +1,10 @@
 package org.embl.mobie.io.n5.loaders;
 
+import java.io.IOException;
+
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.N5Reader;
+
 import bdv.AbstractViewerSetupImgLoader;
 import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
@@ -9,7 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
 import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
 import mpicbg.spim.data.sequence.VoxelDimensions;
-import net.imglib2.*;
+import net.imglib2.Dimensions;
+import net.imglib2.FinalDimensions;
+import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.Volatile;
 import net.imglib2.cache.volatiles.CacheHints;
 import net.imglib2.cache.volatiles.LoadingStrategy;
 import net.imglib2.img.cell.CellGrid;
@@ -17,18 +26,14 @@ import net.imglib2.img.cell.CellImg;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
 import net.imglib2.view.Views;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
-import org.janelia.saalfeldlab.n5.N5Reader;
-
-import java.io.IOException;
 
 import static bdv.img.n5.BdvN5Format.DOWNSAMPLING_FACTORS_KEY;
 import static bdv.img.n5.BdvN5Format.getPathName;
 
 @Slf4j
 public class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & NativeType<V>>
-        extends AbstractViewerSetupImgLoader<T, V>
-        implements MultiResolutionSetupImgLoader<T> {
+    extends AbstractViewerSetupImgLoader<T, V>
+    implements MultiResolutionSetupImgLoader<T> {
     private final int setupId;
     private final double[][] mipmapResolutions;
     private final AffineTransform3D[] mipmapTransforms;
@@ -106,11 +111,11 @@ public class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & Nat
             return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
         } catch (IOException e) {
             log.error(String.format(
-                    "image data for timepoint %d setup %d level %d could not be found.%n",
-                    timepointId, setupId, level));
+                "image data for timepoint %d setup %d level %d could not be found.%n",
+                timepointId, setupId, level));
             return Views.interval(
-                    new ConstantRandomAccessible<>(type.createVariable(), 3),
-                    new FinalInterval(1, 1, 1));
+                new ConstantRandomAccessible<>(type.createVariable(), 3),
+                new FinalInterval(1, 1, 1));
         }
     }
 }

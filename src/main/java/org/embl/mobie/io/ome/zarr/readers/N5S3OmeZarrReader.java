@@ -25,24 +25,30 @@
  */
 package org.embl.mobie.io.ome.zarr.readers;
 
-import com.amazonaws.SdkClientException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import lombok.extern.slf4j.Slf4j;
-import org.embl.mobie.io.ome.zarr.util.*;
-import org.janelia.saalfeldlab.n5.DataBlock;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
-import org.janelia.saalfeldlab.n5.GsonAttributesParser;
-import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReader;
+import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReaderHelper;
+import org.embl.mobie.io.ome.zarr.util.ZArrayAttributes;
+import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.ZarrAxis;
+import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
+import org.janelia.saalfeldlab.n5.DataBlock;
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.GsonAttributesParser;
+import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -55,8 +61,8 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     private final String serviceEndpoint;
     private final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
     protected String dimensionSeparator;
-    private ZarrAxes zarrAxes;
     List<ZarrAxis> zarrAxesList = new ArrayList<>();
+    private ZarrAxes zarrAxes;
 
     public N5S3OmeZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
         super(s3, bucketName, containerPath, N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
@@ -68,10 +74,6 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
 
     public ZarrAxes getAxes() {
         return this.zarrAxes;
-    }
-
-    public List<ZarrAxis> getZarrAxes() {
-        return this.zarrAxesList;
     }
 
     @Override
@@ -86,6 +88,10 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     @Override
     public void setAxes(List<ZarrAxis> axes) {
         this.zarrAxesList = axes;
+    }
+
+    public List<ZarrAxis> getZarrAxes() {
+        return this.zarrAxesList;
     }
 
     public void setDimensionSeparator(String dimensionSeparator) {
@@ -142,10 +148,10 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
         if (meta != null) {
 
             final Integer zarr_format = GsonAttributesParser.parseAttribute(
-                    meta,
-                    "zarr_format",
-                    Integer.class,
-                    gson);
+                meta,
+                "zarr_format",
+                Integer.class,
+                gson);
 
             if (zarr_format != null)
                 return new Version(zarr_format, 0, 0);
@@ -229,9 +235,9 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
 
     @Override
     public DataBlock<?> readBlock(
-            final String pathName,
-            final DatasetAttributes datasetAttributes,
-            final long... gridPosition) throws IOException {
+        final String pathName,
+        final DatasetAttributes datasetAttributes,
+        final long... gridPosition) throws IOException {
         final ZarrDatasetAttributes zarrDatasetAttributes;
         if (datasetAttributes instanceof ZarrDatasetAttributes)
             zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
@@ -239,11 +245,11 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
             zarrDatasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
 
         final String dataBlockKey =
-                objectFile(pathName,
-                        getZarrDataBlockString(
-                                gridPosition,
-                                dimensionSeparator,
-                                zarrDatasetAttributes.isRowMajor()));
+            objectFile(pathName,
+                getZarrDataBlockString(
+                    gridPosition,
+                    dimensionSeparator,
+                    zarrDatasetAttributes.isRowMajor()));
 
         // Currently exists() appends "/"
         //		if (!exists(dataBlockKey))
@@ -270,7 +276,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
      */
     public HashMap<String, JsonElement> readJson(String objectPath) throws IOException {
         try (final InputStream in = this.readS3Object(objectPath)) {
-                return GsonAttributesParser.readAttributes(new InputStreamReader(in), gson);
+            return GsonAttributesParser.readAttributes(new InputStreamReader(in), gson);
         } catch (AmazonS3Exception ase) {
             if (ase.getErrorCode().equals("NoSuchKey"))
                 return null;
