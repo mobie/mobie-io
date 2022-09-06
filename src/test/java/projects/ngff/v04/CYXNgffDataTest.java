@@ -66,5 +66,16 @@ public class CYXNgffDataTest extends BaseTest {
         value = o.get();
         expectedValue = 1835;
         Assertions.assertEquals(expectedValue, value);
+        
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(3).getImage(0);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(934, 929, 0);
+        value = o.get();
+        expectedValue = 1724;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(770, 343, 0);
+        value = o.get();
+        expectedValue = 2871;
+        Assertions.assertEquals(expectedValue, value);
     }
 }

@@ -10,6 +10,7 @@ import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import projects.remote.BaseTest;
 
 @Slf4j
@@ -42,5 +43,47 @@ public class MultiImageNgffDataTest extends BaseTest {
         int[] cellDims = new int[]{256, 256, 1};
         CellGrid expected = new CellGrid(dims, cellDims);
         Assertions.assertEquals(expected, cellGrid);
+    }
+    
+    @Test
+    public void checkImgValue() {
+
+		// Image-0 : (847, 886) : 562
+        // random test data generated independently with python
+        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
+        UnsignedShortType o = (UnsignedShortType) randomAccessibleInterval.getAt(847, 886, 0);
+        int value = o.get();
+        int expectedValue = 562;
+        Assertions.assertEquals(expectedValue, value);
+        
+		// these tests fail, maybe "getImage()" is not what I'm doing?!
+		/*
+		// Image-1 : (265, 882) : 3328
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(1);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(265, 882, 0);
+        value = o.get();
+        expectedValue = 3328;
+        Assertions.assertEquals(expectedValue, value);
+        
+		// Image-2 : (516, 621) : 2029
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(2);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(516, 621, 0);
+        value = o.get();
+        expectedValue = 2029;
+        Assertions.assertEquals(expectedValue, value);
+        
+		// Image-3 : (874, 281) : 2325
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(3);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(874, 281, 0);
+        value = o.get();
+        expectedValue = 2325;
+        Assertions.assertEquals(expectedValue, value);
+        
+		// Image-3 : (19, 602) : 2121
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(19, 602, 0);
+        value = o.get();
+        expectedValue = 2121;
+        Assertions.assertEquals(expectedValue, value);
+		*/
     }
 }

@@ -10,19 +10,20 @@ import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
-import projects.remote.BaseTest;
 import net.imglib2.type.numeric.integer.ShortType;
+import projects.remote.BaseTest;
 
 @Slf4j
-public class TYXNgffDataTest extends BaseTest {
-    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/tyx.ome.zarr";
+public class CZYXNgffDataTest extends BaseTest {
+    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/czyx.ome.zarr";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public TYXNgffDataTest() throws SpimDataException {
+    public CZYXNgffDataTest() throws SpimDataException {
         super(URL, FORMAT);
         //set values for base test
-        setExpectedTimePoints(3);
-        setExpectedShape(new FinalDimensions(512, 262, 3));
+        setExpectedTimePoints(1);
+        setExpectedChannelsNumber(2);
+        setExpectedShape(new FinalDimensions(512, 262, 486, 2));
         setExpectedDType("int16");
     }
 
@@ -39,8 +40,8 @@ public class TYXNgffDataTest extends BaseTest {
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
         VolatileCachedCellImg volatileCachedCellImg = (VolatileCachedCellImg) randomAccessibleInterval;
         CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
-        long[] dims = new long[]{512, 262, 1};
-        int[] cellDims = new int[]{256, 256, 1};
+        long[] dims = new long[]{512, 262, 486};
+        int[] cellDims = new int[]{64, 64, 64};
         CellGrid expected = new CellGrid(dims, cellDims);
         Assertions.assertEquals(expected, cellGrid);
     }
@@ -50,29 +51,30 @@ public class TYXNgffDataTest extends BaseTest {
 
         // random test data generated independently with python
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
-        ShortType o = (ShortType) randomAccessibleInterval.getAt(339, 211, 0);
+        ShortType o = (ShortType) randomAccessibleInterval.getAt(141, 27, 326);
         int value = o.get();
-        int expectedValue = 37;
+        int expectedValue = 6;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (ShortType) randomAccessibleInterval.getAt(338, 96, 0);
+        o = (ShortType) randomAccessibleInterval.getAt(120, 112, 326);
         value = o.get();
-        expectedValue = 92;
+        expectedValue = 339;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (ShortType) randomAccessibleInterval.getAt(64, 203, 0);
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
+        o = (ShortType) randomAccessibleInterval.getAt(70, 21, 303);
         value = o.get();
-        expectedValue = 24;
+        expectedValue = 6;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (ShortType) randomAccessibleInterval.getAt(273, 218, 0);
+        o = (ShortType) randomAccessibleInterval.getAt(219, 253, 291);
         value = o.get();
-        expectedValue = 43;
+        expectedValue = 5;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (ShortType) randomAccessibleInterval.getAt(99, 234, 0);
+        o = (ShortType) randomAccessibleInterval.getAt(355, 54, 251);
         value = o.get();
-        expectedValue = 7;
+        expectedValue = 6;
         Assertions.assertEquals(expectedValue, value);
     }
 }

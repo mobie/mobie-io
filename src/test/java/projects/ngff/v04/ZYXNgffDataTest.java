@@ -11,6 +11,7 @@ import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
 import projects.remote.BaseTest;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 @Slf4j
 public class ZYXNgffDataTest extends BaseTest {
@@ -42,5 +43,36 @@ public class ZYXNgffDataTest extends BaseTest {
         int[] cellDims = new int[]{64, 64, 64};
         CellGrid expected = new CellGrid(dims, cellDims);
         Assertions.assertEquals(expected, cellGrid);
+    }
+    
+    @Test
+    public void checkImgValue() {
+        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
+
+        // random test data generated independently with python
+        UnsignedByteType o = (UnsignedByteType) randomAccessibleInterval.getAt(232, 73, 503);
+        int value = o.get();
+        int expectedValue = 137;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (UnsignedByteType) randomAccessibleInterval.getAt(139, 180, 136);
+        value = o.get();
+        expectedValue = 104;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (UnsignedByteType) randomAccessibleInterval.getAt(165, 37, 581);
+        value = o.get();
+        expectedValue = 156;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (UnsignedByteType) randomAccessibleInterval.getAt(399, 45, 594);
+        value = o.get();
+        expectedValue = 138;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (UnsignedByteType) randomAccessibleInterval.getAt(116, 381, 281);
+        value = o.get();
+        expectedValue = 156;
+        Assertions.assertEquals(expectedValue, value);
     }
 }
