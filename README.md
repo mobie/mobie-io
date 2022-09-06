@@ -14,3 +14,8 @@ format. Currently supports:
 Makes use of the [saalfeldlab n5 stack](https://github.com/saalfeldlab). For a Fiji plugin to open ome.zarr files in
 BigDataViewer, please [install MoBIE](https://github.com/mobie/mobie-viewer-fiji#install), which will
 install `Plugins->BigDataViewer->OME ZARR` in your Fiji.
+
+
+## Citation
+
+If you use mobie.io as a library and use it in your research, please cite [the MoBIE preprint](https://www.biorxiv.org/content/10.1101/2022.05.27.493763v1).
