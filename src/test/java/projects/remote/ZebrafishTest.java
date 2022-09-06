@@ -33,6 +33,7 @@ import org.embl.mobie.io.ImageDataFormat;
 import bdv.util.volatiles.SharedQueue;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
+import net.imglib2.FinalDimensions;
 
 @Slf4j
 public class ZebrafishTest extends BaseTest {
@@ -42,5 +43,7 @@ public class ZebrafishTest extends BaseTest {
     public ZebrafishTest() throws SpimDataException {
         super(URL, FORMAT, new SharedQueue(4));
         setExpectedTimePoints(1);
+        setExpectedShape(new FinalDimensions(1636, 816, 156));
+        setExpectedDType("uint8");
     }
 }
