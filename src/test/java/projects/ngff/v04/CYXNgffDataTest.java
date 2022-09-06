@@ -10,6 +10,7 @@ import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import projects.remote.BaseTest;
 
 @Slf4j
@@ -43,5 +44,27 @@ public class CYXNgffDataTest extends BaseTest {
         int[] cellDims = new int[]{256, 256, 1};
         CellGrid expected = new CellGrid(dims, cellDims);
         Assertions.assertEquals(expected, cellGrid);
+    }
+    
+    @Test
+    public void checkImgValue() {
+
+        // random test data generated independently with python
+        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
+        UnsignedShortType o = (UnsignedShortType) randomAccessibleInterval.getAt(647, 482, 0);
+        int value = o.get();
+        int expectedValue = 4055;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(649, 346, 0);
+        value = o.get();
+        expectedValue = 4213;
+        Assertions.assertEquals(expectedValue, value);
+        
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(2).getImage(0);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(559, 920, 0);
+        value = o.get();
+        expectedValue = 1835;
+        Assertions.assertEquals(expectedValue, value);
     }
 }
