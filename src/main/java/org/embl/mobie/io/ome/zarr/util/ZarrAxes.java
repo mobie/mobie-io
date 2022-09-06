@@ -1,9 +1,5 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +7,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.collect.Lists;
 
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public enum ZarrAxes {
@@ -32,21 +32,21 @@ public enum ZarrAxes {
     @JsonCreator
     public static ZarrAxes decode(final String axes) {
         return Stream.of(ZarrAxes.values()).filter(targetEnum ->
-                targetEnum.axes.equals(axes)).findFirst().orElse(TCZYX);
+            targetEnum.axes.equals(axes)).findFirst().orElse(TCZYX);
     }
 
     public List<String> getAxesList() {
         String pattern = "([a-z])";
         List<String> allMatches = new ArrayList<>();
         Matcher m = Pattern.compile(pattern)
-                .matcher(axes);
+            .matcher(axes);
         while (m.find()) {
             allMatches.add(m.group());
         }
         return allMatches;
     }
 
-    public List<ZarrAxis> toAxesList( String spaceUnit, String timeUnit ) {
+    public List<ZarrAxis> toAxesList(String spaceUnit, String timeUnit) {
         List<ZarrAxis> zarrAxesList = new ArrayList<>();
         List<String> zarrAxesStrings = getAxesList();
 
@@ -54,9 +54,9 @@ public enum ZarrAxes {
 
         // convert to valid ome-zarr units, if possible, otherwise just go ahead with
         // given unit
-        for ( int i = 0; i< units.length; i++ ) {
+        for (int i = 0; i < units.length; i++) {
             String unit = units[i];
-            if ( !UnitTypes.contains(unit) ) {
+            if (!UnitTypes.contains(unit)) {
                 UnitTypes unitType = UnitTypes.convertUnit(unit);
                 if (unitType != null) {
                     units[i] = unitType.getTypeName();
@@ -64,20 +64,20 @@ public enum ZarrAxes {
             }
         }
 
-        for ( int i = 0; i<zarrAxesStrings.size(); i++  ) {
+        for (int i = 0; i < zarrAxesStrings.size(); i++) {
             String axisString = zarrAxesStrings.get(i);
-            AxesTypes axisType =  AxesTypes.getAxisType( axisString );
+            AxesTypes axisType = AxesTypes.getAxisType(axisString);
 
             String unit;
-            if ( axisType == AxesTypes.SPACE ) {
+            if (axisType == AxesTypes.SPACE) {
                 unit = units[0];
-            } else if ( axisType == AxesTypes.TIME ) {
+            } else if (axisType == AxesTypes.TIME) {
                 unit = units[1];
             } else {
                 unit = null;
             }
 
-            zarrAxesList.add( new ZarrAxis( i, axisString, axisType.getTypeName(), unit) );
+            zarrAxesList.add(new ZarrAxis(i, axisString, axisType.getTypeName(), unit));
         }
 
         return zarrAxesList;
@@ -118,12 +118,12 @@ public enum ZarrAxes {
 
     public boolean hasTimepoints() {
         return this.axes.equals(TCYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TYX.axes) ||
-                this.axes.equals(TCZYX.axes);
+            this.axes.equals(TCZYX.axes);
     }
 
     public boolean hasChannels() {
         return this.axes.equals(CZYX.axes) || this.axes.equals(CYX.axes) || this.axes.equals(TCYX.axes) ||
-                this.axes.equals(TCZYX.axes);
+            this.axes.equals(TCZYX.axes);
     }
 
     public int timeIndex() {
@@ -137,25 +137,21 @@ public enum ZarrAxes {
     }
 
     // spatial: 0,1,2 (x,y,z)
-    public Map< Integer, Integer > spatialToZarr()
-    {
-        final HashMap< Integer, Integer > map = new HashMap<>();
-        map.put( 0, 0 );
-        map.put( 1, 1 );
-        if ( hasZAxis() )
-        {
-            map.put( 2, 2 );
+    public Map<Integer, Integer> spatialToZarr() {
+        final HashMap<Integer, Integer> map = new HashMap<>();
+        map.put(0, 0);
+        map.put(1, 1);
+        if (hasZAxis()) {
+            map.put(2, 2);
         }
         return map;
     }
 
-    public boolean hasZAxis()
-    {
+    public boolean hasZAxis() {
         return this.axes.equals(TCZYX.axes) || this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(ZYX.axes);
     }
 
-    public int getNumDimension()
-    {
-      return getAxesList().size();
+    public int getNumDimension() {
+        return getAxesList().size();
     }
 }

@@ -29,13 +29,15 @@
  */
 package org.embl.mobie.io.n5.loaders;
 
-import bdv.util.volatiles.SharedQueue;
-import com.amazonaws.services.s3.AmazonS3;
-import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
+import java.io.IOException;
+
 import org.embl.mobie.io.util.S3Utils;
 import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
-import java.io.IOException;
+import com.amazonaws.services.s3.AmazonS3;
+
+import bdv.util.volatiles.SharedQueue;
+import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 
 public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader {
     private final String serviceEndpoint;

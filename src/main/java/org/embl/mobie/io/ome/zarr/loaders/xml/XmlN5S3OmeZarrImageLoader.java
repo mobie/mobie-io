@@ -1,14 +1,15 @@
 package org.embl.mobie.io.ome.zarr.loaders.xml;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
+import org.jdom2.Element;
+
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
-import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
-import org.jdom2.Element;
-
-import java.io.File;
-import java.io.IOException;
 
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
 
@@ -24,11 +25,11 @@ public class XmlN5S3OmeZarrImageLoader implements XmlIoBasicImgLoader<N5S3OMEZar
         final Element elem = new Element("ImageLoader");
         elem.setAttribute(IMGLOADER_FORMAT_ATTRIBUTE_NAME, "bdv.ome.zarr.s3");
         elem.setAttribute("version", "0.2");
-		elem.addContent(XmlHelpers.textElement(SERVICE_ENDPOINT, imgLoader.getServiceEndpoint()));
-		elem.addContent(XmlHelpers.textElement(SIGNING_REGION, imgLoader.getSigningRegion()));
-		elem.addContent(XmlHelpers.textElement(BUCKET_NAME, imgLoader.getBucketName()));
-		elem.addContent(XmlHelpers.textElement(KEY, imgLoader.getKey()));
-		return elem;
+        elem.addContent(XmlHelpers.textElement(SERVICE_ENDPOINT, imgLoader.getServiceEndpoint()));
+        elem.addContent(XmlHelpers.textElement(SIGNING_REGION, imgLoader.getSigningRegion()));
+        elem.addContent(XmlHelpers.textElement(BUCKET_NAME, imgLoader.getBucketName()));
+        elem.addContent(XmlHelpers.textElement(KEY, imgLoader.getKey()));
+        return elem;
     }
 
     public Element toXml(String serviceEndpoint, String signingRegion, String bucketName, String key) {
@@ -44,17 +45,14 @@ public class XmlN5S3OmeZarrImageLoader implements XmlIoBasicImgLoader<N5S3OMEZar
 
     @Override
     public N5S3OMEZarrImageLoader fromXml(Element elem, File basePath, AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
-		final String serviceEndpoint = XmlHelpers.getText(elem, SERVICE_ENDPOINT);
-		final String signingRegion = XmlHelpers.getText(elem, SIGNING_REGION);
-		final String bucketName = XmlHelpers.getText( elem, BUCKET_NAME);
-		final String key = XmlHelpers.getText(elem, KEY);
-		try
-		{
-			return new N5S3OMEZarrImageLoader(serviceEndpoint, signingRegion, bucketName, key, "/", sequenceDescription);
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
+        final String serviceEndpoint = XmlHelpers.getText(elem, SERVICE_ENDPOINT);
+        final String signingRegion = XmlHelpers.getText(elem, SIGNING_REGION);
+        final String bucketName = XmlHelpers.getText(elem, BUCKET_NAME);
+        final String key = XmlHelpers.getText(elem, KEY);
+        try {
+            return new N5S3OMEZarrImageLoader(serviceEndpoint, signingRegion, bucketName, key, "/", sequenceDescription);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

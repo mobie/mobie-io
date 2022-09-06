@@ -1,10 +1,11 @@
 package org.embl.mobie.io.openorganelle;
 
-import mpicbg.spim.data.SpimData;
-import net.imglib2.util.Cast;
+import java.io.IOException;
+
 import org.embl.mobie.io.n5.openers.S3Opener;
 
-import java.io.IOException;
+import mpicbg.spim.data.SpimData;
+import net.imglib2.util.Cast;
 
 public class OpenOrganelleS3Opener extends S3Opener {
 

@@ -29,7 +29,20 @@ package org.embl.mobie.io.n5.util;
  * #L%
  */
 
-import bdv.export.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import bdv.export.CopyBlock;
+import bdv.export.ExportMipmapInfo;
+import bdv.export.ProgressWriter;
+import bdv.export.ProgressWriterNull;
+import bdv.export.SubTaskProgressWriter;
 import net.imglib2.FinalInterval;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
@@ -43,15 +56,6 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Cast;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Write an image to a chunked mipmap representation.
@@ -81,16 +85,16 @@ public class ExportScalePyramid {
      * @throws IOException
      */
     public static <T extends RealType<T> & NativeType<T>, D> void writeScalePyramid(
-            final RandomAccessibleInterval<T> img,
-            final T type,
-            final ExportMipmapInfo mipmapInfo,
-            final DownsampleBlock.DownsamplingMethod downsamplingMethod,
-            final DatasetIO<D, T> io,
-            final ExecutorService executorService,
-            final int numThreads,
-            final LoopbackHeuristic loopbackHeuristic,
-            final AfterEachPlane afterEachPlane,
-            ProgressWriter progressWriter) throws IOException {
+        final RandomAccessibleInterval<T> img,
+        final T type,
+        final ExportMipmapInfo mipmapInfo,
+        final DownsampleBlock.DownsamplingMethod downsamplingMethod,
+        final DatasetIO<D, T> io,
+        final ExecutorService executorService,
+        final int numThreads,
+        final LoopbackHeuristic loopbackHeuristic,
+        final AfterEachPlane afterEachPlane,
+        ProgressWriter progressWriter) throws IOException {
         final BlockCreator<T> blockCreator = BlockCreator.forType(type);
 
         if (progressWriter == null)
@@ -187,8 +191,8 @@ public class ExportScalePyramid {
             final D dataset = io.createDataset(level, dimensions, cellDimensions);
 
             final ProgressWriter subProgressWriter = new SubTaskProgressWriter(
-                    progressWriter, (double) numCompletedTasks / numTasks,
-                    (double) (numCompletedTasks + 1) / numTasks);
+                progressWriter, (double) numCompletedTasks / numTasks,
+                (double) (numCompletedTasks + 1) / numTasks);
             // generate one "plane" of cells after the other to avoid cache thrashing when exporting from virtual stacks
             final CellGrid grid = new CellGrid(dimensions, cellDimensions);
             final long[] numCells = grid.getGridDimensions();
@@ -273,11 +277,11 @@ public class ExportScalePyramid {
          * original image.
          */
         boolean decide(
-                final RandomAccessibleInterval<?> originalImg,
-                final int[] factorsToOriginalImg,
-                final int previousLevel,
-                final int[] factorsToPreviousLevel,
-                final int[] chunkSize);
+            final RandomAccessibleInterval<?> originalImg,
+            final int[] factorsToOriginalImg,
+            final int previousLevel,
+            final int[] factorsToPreviousLevel,
+            final int[] chunkSize);
     }
 
     /**
@@ -308,16 +312,16 @@ public class ExportScalePyramid {
          * @return a handle to the dataset.
          */
         D createDataset(
-                final int level,
-                final long[] dimensions,
-                final int[] blockSize) throws IOException;
+            final int level,
+            final long[] dimensions,
+            final int[] blockSize) throws IOException;
 
         /**
          * Write the given {@code dataBlock} to the {@code dataset}.
          */
         void writeBlock(
-                final D dataset,
-                final Block<T> dataBlock) throws IOException;
+            final D dataset,
+            final Block<T> dataBlock) throws IOException;
 
         /**
          * Blocks until all pending data was written to {@code dataset}.

@@ -1,9 +1,9 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import bdv.img.cache.SimpleCacheArrayLoader;
-import com.amazonaws.SdkClientException;
-import lombok.extern.slf4j.Slf4j;
-import net.imglib2.img.cell.CellGrid;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+
 import org.embl.mobie.io.n5.util.N5DataTypeSize;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.janelia.saalfeldlab.n5.DataBlock;
@@ -11,9 +11,11 @@ import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
+import com.amazonaws.SdkClientException;
+
+import bdv.img.cache.SimpleCacheArrayLoader;
+import lombok.extern.slf4j.Slf4j;
+import net.imglib2.img.cell.CellGrid;
 
 @Slf4j
 public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
@@ -52,40 +54,38 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
             log.error(e.getMessage()); // this happens sometimes, not sure yet why...
         }
         if (N5OMEZarrImageLoader.logging) {
-            if (block != null)
-            {
+            if (block != null) {
                 final long millis = System.currentTimeMillis() - start;
                 final int numElements = block.getNumElements();
                 final DataType dataType = attributes.getDataType();
-                final float megaBytes = (float) numElements * N5DataTypeSize.getNumBytesPerElement( dataType ) / 1000000.0F;
-                final float mbPerSecond = megaBytes / ( millis / 1000.0F );
-                log.info( pathName + " " + Arrays.toString( dataBlockIndices ) + ": " + "Read " + numElements + " " + dataType + " (" + String.format( "%.3f", megaBytes ) + " MB) in " + millis + " ms (" + String.format( "%.3f", mbPerSecond ) + " MB/s)." );
-            }
-            else
+                final float megaBytes = (float) numElements * N5DataTypeSize.getNumBytesPerElement(dataType) / 1000000.0F;
+                final float mbPerSecond = megaBytes / (millis / 1000.0F);
+                log.info(pathName + " " + Arrays.toString(dataBlockIndices) + ": " + "Read " + numElements + " " + dataType + " (" + String.format("%.3f", megaBytes) + " MB) in " + millis + " ms (" + String.format("%.3f", mbPerSecond) + " MB/s).");
+            } else
                 log.warn(pathName + " " + Arrays.toString(dataBlockIndices) + ": Missing, returning zeros.");
         }
 
         if (block == null) {
-            return (A) zarrArrayCreator.createEmptyArray( gridPosition );
+            return (A) zarrArrayCreator.createEmptyArray(gridPosition);
         } else {
             return zarrArrayCreator.createArray(block, gridPosition);
         }
     }
 
-    private long[] toZarrChunkIndices( long[] gridPosition) {
+    private long[] toZarrChunkIndices(long[] gridPosition) {
 
-        long[] chunkInZarr = new long[ zarrAxes.getNumDimension() ];
+        long[] chunkInZarr = new long[zarrAxes.getNumDimension()];
 
         // fill in the spatial dimensions
-        final Map< Integer, Integer > spatialToZarr = zarrAxes.spatialToZarr();
-        for ( Map.Entry< Integer, Integer > entry : spatialToZarr.entrySet() )
-            chunkInZarr[ entry.getValue() ] = gridPosition[ entry.getKey() ];
+        final Map<Integer, Integer> spatialToZarr = zarrAxes.spatialToZarr();
+        for (Map.Entry<Integer, Integer> entry : spatialToZarr.entrySet())
+            chunkInZarr[entry.getValue()] = gridPosition[entry.getKey()];
 
-        if ( zarrAxes.hasChannels() )
-            chunkInZarr[ zarrAxes.channelIndex() ] = channel;
+        if (zarrAxes.hasChannels())
+            chunkInZarr[zarrAxes.channelIndex()] = channel;
 
-        if ( zarrAxes.hasTimepoints() )
-            chunkInZarr[ zarrAxes.timeIndex() ] = timepoint;
+        if (zarrAxes.hasTimepoints())
+            chunkInZarr[zarrAxes.timeIndex()] = timepoint;
 
         return chunkInZarr;
     }

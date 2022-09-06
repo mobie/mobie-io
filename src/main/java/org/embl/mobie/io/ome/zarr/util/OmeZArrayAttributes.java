@@ -1,12 +1,13 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import com.google.gson.annotations.SerializedName;
+import java.util.Collection;
+import java.util.HashMap;
+
 import org.janelia.saalfeldlab.n5.zarr.DType;
 import org.janelia.saalfeldlab.n5.zarr.Filter;
 import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
 
-import java.util.Collection;
-import java.util.HashMap;
+import com.google.gson.annotations.SerializedName;
 
 public class OmeZArrayAttributes extends ZArrayAttributes {
     protected static final String dimensionSeparatorKey = "dimension_separator";

@@ -1,17 +1,23 @@
 package org.embl.mobie.io.n5.util;
 
-import net.imglib2.img.array.ArrayImg;
-import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.img.basictypeaccess.volatiles.array.*;
-import net.imglib2.img.cell.CellGrid;
-import net.imglib2.type.NativeType;
-import net.imglib2.util.Cast;
+import java.util.function.BiConsumer;
+
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.imglib2.N5CellLoader;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.BiConsumer;
+import net.imglib2.img.array.ArrayImg;
+import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileByteArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileDoubleArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileFloatArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileIntArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileLongArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileShortArray;
+import net.imglib2.img.cell.CellGrid;
+import net.imglib2.type.NativeType;
+import net.imglib2.util.Cast;
 
 public abstract class ArrayCreator<A, T extends NativeType<T>> {
     protected final CellGrid cellGrid;

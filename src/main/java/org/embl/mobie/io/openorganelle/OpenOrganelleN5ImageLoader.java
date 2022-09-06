@@ -29,6 +29,18 @@
  */
 package org.embl.mobie.io.openorganelle;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.N5Reader;
+import org.jetbrains.annotations.NotNull;
+
 import bdv.AbstractViewerSetupImgLoader;
 import bdv.ViewerImgLoader;
 import bdv.cache.CacheControl;
@@ -42,8 +54,24 @@ import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
 import mpicbg.spim.data.registration.ViewRegistration;
 import mpicbg.spim.data.registration.ViewRegistrations;
-import mpicbg.spim.data.sequence.*;
-import net.imglib2.*;
+import mpicbg.spim.data.sequence.Angle;
+import mpicbg.spim.data.sequence.Channel;
+import mpicbg.spim.data.sequence.DefaultVoxelDimensions;
+import mpicbg.spim.data.sequence.FinalVoxelDimensions;
+import mpicbg.spim.data.sequence.Illumination;
+import mpicbg.spim.data.sequence.MultiResolutionImgLoader;
+import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
+import mpicbg.spim.data.sequence.SequenceDescription;
+import mpicbg.spim.data.sequence.Tile;
+import mpicbg.spim.data.sequence.TimePoint;
+import mpicbg.spim.data.sequence.TimePoints;
+import mpicbg.spim.data.sequence.ViewSetup;
+import mpicbg.spim.data.sequence.VoxelDimensions;
+import net.imglib2.Dimensions;
+import net.imglib2.FinalDimensions;
+import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.Volatile;
 import net.imglib2.cache.queue.BlockingFetchQueues;
 import net.imglib2.cache.queue.FetcherThreads;
 import net.imglib2.cache.volatiles.CacheHints;
@@ -52,19 +80,28 @@ import net.imglib2.img.cell.CellGrid;
 import net.imglib2.img.cell.CellImg;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.integer.*;
+import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.type.numeric.integer.LongType;
+import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.integer.UnsignedIntType;
+import net.imglib2.type.numeric.integer.UnsignedLongType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.type.volatiles.*;
+import net.imglib2.type.volatiles.VolatileByteType;
+import net.imglib2.type.volatiles.VolatileDoubleType;
+import net.imglib2.type.volatiles.VolatileFloatType;
+import net.imglib2.type.volatiles.VolatileIntType;
+import net.imglib2.type.volatiles.VolatileLongType;
+import net.imglib2.type.volatiles.VolatileShortType;
+import net.imglib2.type.volatiles.VolatileUnsignedByteType;
+import net.imglib2.type.volatiles.VolatileUnsignedIntType;
+import net.imglib2.type.volatiles.VolatileUnsignedLongType;
+import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.util.Cast;
 import net.imglib2.view.Views;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
-import org.janelia.saalfeldlab.n5.N5Reader;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.Callable;
 
 @Slf4j
 public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
@@ -386,8 +423,8 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
     }
 
     private class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & NativeType<V>>
-            extends AbstractViewerSetupImgLoader<T, V>
-            implements MultiResolutionSetupImgLoader<T> {
+        extends AbstractViewerSetupImgLoader<T, V>
+        implements MultiResolutionSetupImgLoader<T> {
         private final int setupId;
 
         private final double[][] mipmapResolutions;
@@ -480,10 +517,10 @@ public class OpenOrganelleN5ImageLoader implements ViewerImgLoader, MultiResolut
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
                 log.error(String.format("image data for timepoint %d setup %d level %d could not be found.%n",
-                        timepointId, setupId, level));
+                    timepointId, setupId, level));
                 return Views.interval(
-                        new ConstantRandomAccessible<>(type.createVariable(), 3),
-                        new FinalInterval(1, 1, 1));
+                    new ConstantRandomAccessible<>(type.createVariable(), 3),
+                    new FinalInterval(1, 1, 1));
             }
         }
     }
