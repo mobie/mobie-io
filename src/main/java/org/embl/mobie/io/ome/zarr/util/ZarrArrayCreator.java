@@ -20,7 +20,7 @@ public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
         long[] cellDims = getCellDims(gridPosition);
         int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
 
-        if (zarrAxes.is2D())
+        if (zarrAxes.getNumDimension() == 2)
             cellDims = Arrays.stream(cellDims).limit(2).toArray();
 
         return (A) VolatileDoubleArray(dataBlock, cellDims, n);

@@ -43,7 +43,6 @@ public enum ZarrAxes {
         while (m.find()) {
             allMatches.add(m.group());
         }
-
         return allMatches;
     }
 
@@ -85,14 +84,14 @@ public enum ZarrAxes {
     }
 
     public boolean is2D() {
-        return this.axes.equals(YX.axes); // XYT XYC
+        return this.axes.equals(YX.axes) || this.axes.equals(CYX.axes); // XYT XYC
     }
 
     public boolean is5D() {
         return this.axes.equals(TCZYX.axes);
     }
 
-    public boolean containsXYZCoordinates() {
+    public boolean isSpatial3D() {
         return this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(ZYX.axes);
     }
 
@@ -102,10 +101,6 @@ public enum ZarrAxes {
 
     public boolean is3DWithTimepoints() {
         return this.axes.equals(TYX.axes);
-    }
-
-    public boolean is3DWithChannels() {
-        return this.axes.equals(CYX.axes);
     }
 
     public boolean is4DWithTimepoints() {

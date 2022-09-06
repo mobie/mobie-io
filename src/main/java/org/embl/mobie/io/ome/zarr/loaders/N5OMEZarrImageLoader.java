@@ -335,7 +335,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         if (scale != null && zarrAxesList != null) {
             int scalesFirstIndexBackward = scale.length - 1;
             if (zarrAxes.hasChannels()) {
-                if (zarrAxes.is3DWithChannels() || zarrAxes.is2D()) {
+                if (zarrAxes.is2D()) {
                     xyzScale = new double[]{
                             scale[scalesFirstIndexBackward],
                             scale[scalesFirstIndexBackward - 1],
@@ -348,7 +348,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                             scale[scalesFirstIndexBackward - 2]};
                 }
             } else {
-                if (zarrAxes.containsXYZCoordinates()) {
+                if (zarrAxes.isSpatial3D()) {
                     xyzScale = new double[]{
                             scale[scalesFirstIndexBackward],
                             scale[scalesFirstIndexBackward - 1],
@@ -392,7 +392,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             String unit = zarrAxesList.get(zarrAxesList.size() - 1).getUnit();
 
             if (scale != null && unit != null) {
-                if (zarrAxes.is2D() || zarrAxes.is3DWithChannels() ) {
+                if (zarrAxes.is2D()) {
                     return new FinalVoxelDimensions(unit, new double[]{scale[0], scale[1], 1.0});
                 } else {
                     return new FinalVoxelDimensions(unit, scale);
@@ -557,7 +557,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             for (int level = 1; level < mipmapResolutions.length; level++) {
                 long[] dimensions = getDatasetAttributes(getPathName(setupId, level)).getDimensions();
                 mipmapResolutions[level] = new double[3];
-                if (multiscale.axes.is2D() || multiscale.axes.is3DWithChannels()) {
+                if (multiscale.axes.is2D()) {
                     for (int d = 0; d < 2; d++) {
                         mipmapResolutions[level][d] = Math.round(1.0 * dimensionsOfLevel0[d] / dimensions[d]);
                     }
