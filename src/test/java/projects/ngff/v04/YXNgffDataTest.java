@@ -51,16 +51,5 @@ public class YXNgffDataTest extends BaseTest {
 
     @Test
     public void checkImgValue() {
-        long x = 0;
-        long y = 0;
-        long z = 1;
-        long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).dimensionsAsLongArray();
-        if (x > imageDimensions[0] || y > imageDimensions[1] || z > imageDimensions[2]) {
-            throw new RuntimeException("Coordinates out of bounds");
-        }
-        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
-        UnsignedShortType o = (UnsignedShortType)  randomAccessibleInterval.getAt(0, 0, 0);
-        int value = o.get();
-        Assertions.assertEquals(538, value);
     }
 }

@@ -1,5 +1,7 @@
 package projects.remote;
 
+import java.util.ArrayList;
+
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 import org.junit.jupiter.api.Assertions;
@@ -17,6 +19,8 @@ public abstract class BaseTest extends BaseSpimDataChecker {
     protected int expectedChannelsNumber = 1;
     protected Dimensions expectedShape;
     protected String expectedDType;
+    protected ArrayList<Integer[]> coordinates;
+    protected ArrayList<Integer> expectedValues;
 
     protected BaseTest(String path, ImageDataFormat format) throws SpimDataException {
         super(new SpimDataOpener().openSpimData(path, format));
@@ -32,6 +36,22 @@ public abstract class BaseTest extends BaseSpimDataChecker {
         Assertions.assertEquals(expectedChannelsNumber, getAllChannelsSize());
         Assertions.assertEquals(expectedShape, getShape());
         Assertions.assertEquals(expectedDType, getDType());
+        checkExpectedValues();
+    }
+    
+    protected void checkExpectedValues() {
+        final int nValues = this.expectedValues.size();
+        Assertions.assertEquals(this.coordinates.size(), nValues);
+        
+        for(int i = 0; i < nValues; i++) {
+            int expectedValue = this.expectedValues.get(i);
+            Integer[] coordinates = this.coordinates.get(i); 
+            // TODO set timepoint and channel here
+            RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
+        // UnsignedShortType o = (UnsignedShortType)  randomAccessibleInterval.getAt(0, 0, 0);
+        }
+        // int value = o.get();
+        // Assertions.assertEquals(538, value);
     }
 
     public int getExpectedTimePoints() {
@@ -64,6 +84,22 @@ public abstract class BaseTest extends BaseSpimDataChecker {
 
     public void setExpectedDType(String expectedDType) {
         this.expectedDType = expectedDType;
+    }
+
+    public void setCoordinates(ArrayList<Integer[]> coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    public ArrayList<Integer[]> getCoordinates() {
+        return this.coordinates;
+    }
+    
+    public void setExpectedValues(ArrayList<Integer> expectedValues) {
+        this.expectedValues = expectedValues;
+    }
+
+    public ArrayList<Integer> getExpectedValues() {
+        return this.expectedValues;
     }
 }
 /*
