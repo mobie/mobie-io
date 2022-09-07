@@ -49,30 +49,39 @@ public class TCYXNgffDataTest extends BaseTest {
     @Test
     public void checkImgValue() {
 
-        // random test data generated independently with python
+        // random test data generated independently with python (coordinates are givn as tcxy)
+        // channel 0, tp 0
+        // (0, 0, 508, 200) : 82
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
-        ShortType o = (ShortType) randomAccessibleInterval.getAt(196, 136, 0);
+        ShortType o = (ShortType) randomAccessibleInterval.getAt(508, 200, 0);
         int value = o.get();
-        int expectedValue = 495;
+        int expectedValue = 82;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (ShortType) randomAccessibleInterval.getAt(367, 5, 0);
+        // (0, 0, 84, 255) : 8
+        o = (ShortType) randomAccessibleInterval.getAt(84, 255, 0);
+        value = o.get();
+        expectedValue = 8;
+        Assertions.assertEquals(expectedValue, value);
+        
+        // (0, 0, 386, 168) : 228
+        o = (ShortType) randomAccessibleInterval.getAt(386, 168, 0);
+        value = o.get();
+        expectedValue = 228;
+        Assertions.assertEquals(expectedValue, value);
+        
+        // channel 0, tp 1
+        // (1, 0, 380, 118) : 21
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(1);
+        o = (ShortType) randomAccessibleInterval.getAt(380, 118, 0);
         value = o.get();
         expectedValue = 7;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (ShortType) randomAccessibleInterval.getAt(384, 90, 0);
-        value = o.get();
-        expectedValue = 33;
-        Assertions.assertEquals(expectedValue, value);
-        
-        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
-        o = (ShortType) randomAccessibleInterval.getAt(480, 196, 0);
-        value = o.get();
-        expectedValue = 7;
-        Assertions.assertEquals(expectedValue, value);
-        
-        o = (ShortType) randomAccessibleInterval.getAt(37, 227, 0);
+        // channel 1, tp 2
+        // (2, 1, 243, 255) : 7
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(2);
+        o = (ShortType) randomAccessibleInterval.getAt(243, 255, 0);
         value = o.get();
         expectedValue = 6;
         Assertions.assertEquals(expectedValue, value);
