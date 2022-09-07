@@ -50,39 +50,39 @@ public class TYXNgffDataTest extends BaseTest {
 
         // random test data generated independently with python (coordinates = txy)
         // timepoint 0
-        //(0, 369, 246) : 8
+        //(0, 183, 238) : 8
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
-        ShortType o = (ShortType) randomAccessibleInterval.getAt(369, 246, 0);
+        ShortType o = (ShortType) randomAccessibleInterval.getAt(183, 238, 0);
         int value = o.get();
         int expectedValue = 8;
         Assertions.assertEquals(expectedValue, value);
         
         // timepoint 1
-        //(1, 358, 228) : 21
+        //(1, 325, 207) : 32
         randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(1);
-        o = (ShortType) randomAccessibleInterval.getAt(358, 288, 0);
+        o = (ShortType) randomAccessibleInterval.getAt(325, 207, 0);
         value = o.get();
-        expectedValue = 21;
+        expectedValue = 32;
         Assertions.assertEquals(expectedValue, value);
         
-        //(1, 102, 5) : 6
-        o = (ShortType) randomAccessibleInterval.getAt(102, 5, 0);
+        //(1, 409, 175) : 133
+        o = (ShortType) randomAccessibleInterval.getAt(409, 175, 0);
         value = o.get();
-        expectedValue = 6;
+        expectedValue = 133;
         Assertions.assertEquals(expectedValue, value);
         
-        //(1, 280, 166) : 207
-        o = (ShortType) randomAccessibleInterval.getAt(280, 166, 0);
+        //(1, 109, 144) : 415
+        o = (ShortType) randomAccessibleInterval.getAt(109, 144, 0);
         value = o.get();
-        expectedValue = 207;
+        expectedValue = 415;
         Assertions.assertEquals(expectedValue, value);
         
         // timepoint 2
-        //(2, 363, 107) : 32
+        //(2, 447, 132) : 64
         randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(2);
-        o = (ShortType) randomAccessibleInterval.getAt(363, 107, 0);
+        o = (ShortType) randomAccessibleInterval.getAt(447, 132, 0);
         value = o.get();
-        expectedValue = 32;
+        expectedValue = 64;
         Assertions.assertEquals(expectedValue, value);
     }
 }

@@ -75,7 +75,7 @@ public class TCYXNgffDataTest extends BaseTest {
         randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(1);
         o = (ShortType) randomAccessibleInterval.getAt(380, 118, 0);
         value = o.get();
-        expectedValue = 7;
+        expectedValue = 21;
         Assertions.assertEquals(expectedValue, value);
         
         // channel 1, tp 2
@@ -83,7 +83,7 @@ public class TCYXNgffDataTest extends BaseTest {
         randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(2);
         o = (ShortType) randomAccessibleInterval.getAt(243, 255, 0);
         value = o.get();
-        expectedValue = 6;
+        expectedValue = 7;
         Assertions.assertEquals(expectedValue, value);
     }
 }
