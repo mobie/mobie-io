@@ -1,4 +1,4 @@
-package projects.ngff.v04;
+package projects.ngff.base;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Assertions;
@@ -14,12 +14,11 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import projects.remote.BaseTest;
 
 @Slf4j
-public class MultiImageNgffDataTest extends BaseTest {
-    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/multi-image.ome.zarr";
+public abstract class MultiImageNgffBaseTest extends BaseTest {
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public MultiImageNgffDataTest() throws SpimDataException {
-        super(URL, FORMAT);
+    protected MultiImageNgffBaseTest(String url) throws SpimDataException {
+        super(url, FORMAT);
         //set values for base test
         setExpectedTimePoints(1);
         setExpectedShape(new FinalDimensions(1024, 930));

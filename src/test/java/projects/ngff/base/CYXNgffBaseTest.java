@@ -1,4 +1,4 @@
-package projects.ngff.v04;
+package projects.ngff.base;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Assertions;
@@ -10,20 +10,20 @@ import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import projects.remote.BaseTest;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 @Slf4j
-public class ZYXNgffDataTest extends BaseTest {
-    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/zyx.ome.zarr";
+public abstract class CYXNgffBaseTest extends BaseTest {
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public ZYXNgffDataTest() throws SpimDataException {
-        super(URL, FORMAT);
+    protected CYXNgffBaseTest(String url) throws SpimDataException {
+        super(url, FORMAT);
         //set values for base test
         setExpectedTimePoints(1);
-        setExpectedShape(new FinalDimensions(483, 393, 603));
-        setExpectedDType("uint8");
+        setExpectedChannelsNumber(4);
+        setExpectedShape(new FinalDimensions(1024, 930, 4));
+        setExpectedDType("uint16");
     }
 
     @Test
@@ -39,40 +39,42 @@ public class ZYXNgffDataTest extends BaseTest {
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
         VolatileCachedCellImg volatileCachedCellImg = (VolatileCachedCellImg) randomAccessibleInterval;
         CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
-        long[] dims = new long[]{483, 393, 603};
-        int[] cellDims = new int[]{64, 64, 64};
+        long[] dims = new long[]{1024, 930, 1};
+        int[] cellDims = new int[]{256, 256, 1};
         CellGrid expected = new CellGrid(dims, cellDims);
         Assertions.assertEquals(expected, cellGrid);
     }
     
     @Test
     public void checkImgValue() {
-        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
 
         // random test data generated independently with python
-        UnsignedByteType o = (UnsignedByteType) randomAccessibleInterval.getAt(232, 73, 503);
+        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
+        UnsignedShortType o = (UnsignedShortType) randomAccessibleInterval.getAt(647, 482, 0);
         int value = o.get();
-        int expectedValue = 137;
+        int expectedValue = 4055;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (UnsignedByteType) randomAccessibleInterval.getAt(139, 180, 136);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(649, 346, 0);
         value = o.get();
-        expectedValue = 104;
+        expectedValue = 4213;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (UnsignedByteType) randomAccessibleInterval.getAt(165, 37, 581);
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(2).getImage(0);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(559, 920, 0);
         value = o.get();
-        expectedValue = 156;
+        expectedValue = 1835;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (UnsignedByteType) randomAccessibleInterval.getAt(399, 45, 594);
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(3).getImage(0);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(934, 929, 0);
         value = o.get();
-        expectedValue = 138;
+        expectedValue = 1724;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (UnsignedByteType) randomAccessibleInterval.getAt(116, 381, 281);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(770, 343, 0);
         value = o.get();
-        expectedValue = 156;
+        expectedValue = 2871;
         Assertions.assertEquals(expectedValue, value);
     }
 }
