@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import bdv.img.cache.VolatileCachedCellImg;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
+import mpicbg.spim.data.sequence.SetupImgLoader;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
@@ -56,24 +57,22 @@ public class MultiImageNgffDataTest extends BaseTest {
         int expectedValue = 562;
         Assertions.assertEquals(expectedValue, value);
         
-		// these tests fail, maybe "getImage()" is not what I'm doing?!
-		/*
 		// Image-1 : (265, 882) : 3328
-        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(1);
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
         o = (UnsignedShortType) randomAccessibleInterval.getAt(265, 882, 0);
         value = o.get();
         expectedValue = 3328;
         Assertions.assertEquals(expectedValue, value);
         
 		// Image-2 : (516, 621) : 2029
-        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(2);
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(2).getImage(0);
         o = (UnsignedShortType) randomAccessibleInterval.getAt(516, 621, 0);
         value = o.get();
         expectedValue = 2029;
         Assertions.assertEquals(expectedValue, value);
         
 		// Image-3 : (874, 281) : 2325
-        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(3);
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(3).getImage(0);
         o = (UnsignedShortType) randomAccessibleInterval.getAt(874, 281, 0);
         value = o.get();
         expectedValue = 2325;
@@ -84,6 +83,5 @@ public class MultiImageNgffDataTest extends BaseTest {
         value = o.get();
         expectedValue = 2121;
         Assertions.assertEquals(expectedValue, value);
-		*/
     }
 }
