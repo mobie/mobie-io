@@ -1,4 +1,4 @@
-package projects.ngff.v04;
+package projects.ngff.base;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Assertions;
@@ -10,27 +10,25 @@ import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
-import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import projects.remote.BaseTest;
 
 @Slf4j
-public class CZYXNgffDataTest extends BaseTest {
-    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/czyx.ome.zarr";
+public abstract class YXNgffBaseTest extends BaseTest {
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public CZYXNgffDataTest() throws SpimDataException {
-        super(URL, FORMAT);
+    protected YXNgffBaseTest(String url) throws SpimDataException {
+        super(url, FORMAT);
         //set values for base test
         setExpectedTimePoints(1);
-        setExpectedChannelsNumber(2);
-        setExpectedShape(new FinalDimensions(512, 262, 486, 2));
-        setExpectedDType("int16");
+        setExpectedShape(new FinalDimensions(1024, 930));
+        setExpectedDType("uint16");
     }
 
     @Test
     public void checkDataset() {
-        long x = 1;
-        long y = 1;
+        long x = 0;
+        long y = 0;
         long z = 1;
         long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).dimensionsAsLongArray();
         if (x > imageDimensions[0] || y > imageDimensions[1] || z > imageDimensions[2]) {
@@ -40,41 +38,45 @@ public class CZYXNgffDataTest extends BaseTest {
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
         VolatileCachedCellImg volatileCachedCellImg = (VolatileCachedCellImg) randomAccessibleInterval;
         CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
-        long[] dims = new long[]{512, 262, 486};
-        int[] cellDims = new int[]{64, 64, 64};
+        long[] dims = new long[]{1024, 930, 1};
+        int[] cellDims = new int[]{256, 256, 1};
         CellGrid expected = new CellGrid(dims, cellDims);
         Assertions.assertEquals(expected, cellGrid);
     }
-    
+
     @Test
     public void checkImgValue() {
-
-        // random test data generated independently with python
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
-        ShortType o = (ShortType) randomAccessibleInterval.getAt(141, 27, 326);
+
+        UnsignedShortType o = (UnsignedShortType) randomAccessibleInterval.getAt(0, 0, 0);
         int value = o.get();
-        int expectedValue = 6;
+        int expectedValue = 538;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (ShortType) randomAccessibleInterval.getAt(120, 112, 326);
+        // random test data generated independently with python
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(294, 233, 0);
         value = o.get();
-        expectedValue = 339;
+        expectedValue = 627;
         Assertions.assertEquals(expectedValue, value);
         
-        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
-        o = (ShortType) randomAccessibleInterval.getAt(70, 21, 303);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(970, 719, 0);
         value = o.get();
-        expectedValue = 6;
+        expectedValue = 611;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (ShortType) randomAccessibleInterval.getAt(219, 253, 291);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(962, 828, 0);
         value = o.get();
-        expectedValue = 5;
+        expectedValue = 688;
         Assertions.assertEquals(expectedValue, value);
         
-        o = (ShortType) randomAccessibleInterval.getAt(355, 54, 251);
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(219, 841, 0);
         value = o.get();
-        expectedValue = 6;
+        expectedValue = 580;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(588, 710, 0);
+        value = o.get();
+        expectedValue = 594;
         Assertions.assertEquals(expectedValue, value);
     }
 }

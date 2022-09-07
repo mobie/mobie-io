@@ -1,4 +1,4 @@
-package projects.ngff.v04;
+package projects.ngff.base;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Assertions;
@@ -14,12 +14,11 @@ import projects.remote.BaseTest;
 import net.imglib2.type.numeric.integer.ShortType;
 
 @Slf4j
-public class TCYXNgffDataTest extends BaseTest {
-    private static final String URL= "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/tcyx.ome.zarr";
+public abstract class TCYXNgffBaseTest extends BaseTest {
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public TCYXNgffDataTest() throws SpimDataException {
-        super(URL, FORMAT);
+    protected TCYXNgffBaseTest(String url) throws SpimDataException {
+        super(url, FORMAT);
         //set values for base test
         setExpectedTimePoints(3);
         setExpectedChannelsNumber(2);
