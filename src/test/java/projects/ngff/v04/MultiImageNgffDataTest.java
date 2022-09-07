@@ -48,7 +48,6 @@ public class MultiImageNgffDataTest extends BaseTest {
     @Test
     public void checkImgValue() {
 
-		// Image-0 : (847, 886) : 562
         // random test data generated independently with python
         RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
         UnsignedShortType o = (UnsignedShortType) randomAccessibleInterval.getAt(847, 886, 0);
@@ -56,28 +55,24 @@ public class MultiImageNgffDataTest extends BaseTest {
         int expectedValue = 562;
         Assertions.assertEquals(expectedValue, value);
         
-		// Image-1 : (265, 882) : 3328
         randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
         o = (UnsignedShortType) randomAccessibleInterval.getAt(265, 882, 0);
         value = o.get();
         expectedValue = 3328;
         Assertions.assertEquals(expectedValue, value);
         
-		// Image-2 : (516, 621) : 2029
         randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(2).getImage(0);
         o = (UnsignedShortType) randomAccessibleInterval.getAt(516, 621, 0);
         value = o.get();
         expectedValue = 2029;
         Assertions.assertEquals(expectedValue, value);
         
-		// Image-3 : (874, 281) : 2325
         randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(3).getImage(0);
         o = (UnsignedShortType) randomAccessibleInterval.getAt(874, 281, 0);
         value = o.get();
         expectedValue = 2325;
         Assertions.assertEquals(expectedValue, value);
         
-		// Image-3 : (19, 602) : 2121
         o = (UnsignedShortType) randomAccessibleInterval.getAt(19, 602, 0);
         value = o.get();
         expectedValue = 2121;
