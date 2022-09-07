@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import bdv.img.cache.VolatileCachedCellImg;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
-import mpicbg.spim.data.sequence.SetupImgLoader;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
