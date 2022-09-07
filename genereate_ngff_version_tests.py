@@ -19,7 +19,13 @@ def generate_ngff_version_tests(version):
     }
 
     for name, url_name in test_names.items():
+
+        # multi-image is only there for v>=0.4
         if name == "MultiImage" and version < 4:
+            continue
+
+        # czyx is only there for v>=0.3
+        if name == "CZYX" and version < 3:
             continue
 
         test = f"""package projects.ngff.v0{version};
