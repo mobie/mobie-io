@@ -64,6 +64,7 @@ import net.imglib2.type.numeric.RealType;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.janelia.saalfeldlab.n5.zarr.N5ZarrReader;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,38 +78,25 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 	/**
 	 * Number of resolutions pyramid levels
 	 */
-	private final int numResolutions;
+	private int numResolutions;
 
-	private final AxisOrder axisOrder;
+	private AxisOrder axisOrder;
 
-	/**
-	 * Dimensions of the resolution pyramid images.
-	 * {@code dimensions[level][d]}.
-	 */
-	// TODO local variable
-	private final long[][] dimensions;
+	private T type;
 
-	/**
-	 * Cell sizes of the resolution pyramid images.
-	 * {@code cellDimensions[level][d]}.
-	 * C, and T cell size are always {@code = 1}.
-	 */
-	// TODO local variable
-	private final int[][] cellDimensions;
-
-	private final T type;
-
-	private final V volatileType;
+	private V volatileType;
 
 	private final SharedQueue queue;
+
+	private final boolean writable;
 
 	private RandomAccessibleInterval< T >[] imgs;
 
 	private RandomAccessibleInterval< V >[] vimgs;
 
-	private final int numChannels;
+	private int numChannels;
 
-	private final int numTimepoints;
+	private int numTimepoints;
 
 	private final String zArrayPath;
 
@@ -116,36 +104,33 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 	 * TODO
 	 */
 	public ZarrImagePyramid(
-			final T type,
 			final String zArrayPath,
-			final long[][] dimensions,
-			final int[] mapDimensions,
-			final SharedQueue queue,
-			final boolean writable,
-			final boolean isEmptyDataset ) throws Error
+			@Nullable final SharedQueue queue,
+			final boolean writable // TODO ??
+	) throws Error
 	{
 		this.zArrayPath = zArrayPath;
-
-		this.axisOrder = axisOrder;
-		numResolutions = dimensions.length;
-		this.dimensions = dimensions;
-		this.cellDimensions = cellDimensions;
-
-		numChannels = axisOrder.hasChannels() ? ( int ) dimensions[ 0 ][ axisOrder.channelDimension() ] : 1;
-		numTimepoints = axisOrder.hasTimepoints() ? ( int ) dimensions[ 0 ][ axisOrder.timeDimension() ] : 1;
-
-		this.type = type;
-		volatileType = ( V ) VolatileTypeMatcher.getVolatileTypeForType( type );
-
 		this.queue = queue;
+		this.writable = writable; // TODO ??
 	}
+
+	// TODO: Getter
+	//  - resolutions
+	//  - either images or paths
+
+	// TODO: Getter for axis metadata
 
 	private void initImgs() throws IOException
 	{
 		if ( imgs != null ) return;
 
-		// TODO fetch numResolutions
+		// TODO fetch metadata such as numResolutions
 		//   and other metadata from zArrayPath
+		numResolutions;
+		numChannels;
+		numTimepoints;
+		this.type = type;
+		volatileType = ( V ) VolatileTypeMatcher.getVolatileTypeForType( type );
 
 		imgs = new CachedCellImg[ numResolutions ];
 		vimgs = new VolatileCachedCellImg[ numResolutions ];
@@ -154,8 +139,12 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 		{
 			// TODO handle S3
 			final N5ZarrReader reader = new N5ZarrReader( zArrayPath );
-			imgs[ resolution ] = N5Utils.open( reader, zArrayPath );
-			vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ] );
+			imgs[ resolution ] = N5Utils.openVolatile( reader, zArrayPath );
+
+			if ( queue != null )
+				vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ], queue );
+			else
+				vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ] );
 		}
 
 	}

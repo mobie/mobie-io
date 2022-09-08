@@ -29,51 +29,54 @@
 package org.embl.mobie.io.ome.zarr;
 
 import Imaris.IDataSetPrx;
+import bdv.util.volatiles.SharedQueue;
 import com.bitplane.xt.util.ColorTableUtils;
 import org.scijava.Context;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 
 public class OMEZarrData
 {
 	private final Context context;
 	private final String omeZarrPath;
-	private String[] zArrayPaths;
-	private Map< String, OMEZarrDataset< ? > > datasets;
+	private String[] imagePyramidPaths;
+	private Map< String, ZarrImagePyramid< ?, ? > > imagePyramids;
 
 	OMEZarrData(
 			final Context context,
-			final String omeZarrPath ) throws Error
+			final String omeZarrPath,
+			@Nullable final SharedQueue queue  ) throws Error
 	{
 		this.context = context;
 		this.omeZarrPath = omeZarrPath;
-		this.zArrayPaths = fetchZArrayPaths( omeZarrPath );
-		this.datasets = new HashMap<>();
-		for ( String zArrayPath : zArrayPaths )
-			datasets.put( zArrayPath, new OMEZarrDataset( context, zArrayPath ) );
+		this.imagePyramidPaths = fetchImagePyramidPaths( omeZarrPath );
+		this.imagePyramids = new HashMap<>();
+		for ( String zArrayPath : imagePyramidPaths )
+			imagePyramids.put( zArrayPath, new ZarrImagePyramid( zArrayPath, queue, false ) );
 	}
 
-	private String[] fetchZArrayPaths( String omeZarrPath )
+	private String[] fetchImagePyramidPaths( String omeZarrPath )
 	{
 		// TODO
 		return new String[ 0 ];
 	}
 
-	public OMEZarrDataset< ? > getDataset()
+	public OMEZarrDataset< ?, ? > getDataset()
 	{
-		final String firstDataset = datasets.keySet().iterator().next();
-		return datasets.get( firstDataset );
+		final String firstPyramidName = imagePyramids.keySet().iterator().next();
+		final OMEZarrDataset< ?, ? > dataset = new OMEZarrDataset<>( context, firstPyramidName, imagePyramids.get( firstPyramidName ) );
+		return dataset;
 	}
 
-	public OMEZarrDataset< ? > getDataset( String name )
-	{
-		return datasets.get( name );
-	}
+	// TODO: add methods for creating a dataset by
+	//  combining and/or slicing one or several imagePyramids
 
-	public Set< String > getDatasetNames()
+	public Set< String > getPyramidNames()
 	{
-		return datasets.keySet();
+		return imagePyramids.keySet();
 	}
 }

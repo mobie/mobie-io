@@ -30,10 +30,10 @@ package org.embl.mobie.io.ome.zarr;
 
 import Imaris.IDataSetPrx;
 import bdv.util.AxisOrder;
-import bdv.util.ChannelSources;
 import bdv.util.volatiles.SharedQueue;
 import bdv.viewer.SourceAndConverter;
 import com.bitplane.xt.util.ColorTableUtils;
+import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
@@ -42,6 +42,7 @@ import net.imagej.axis.Axes;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imglib2.EuclideanSpace;
+import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
 import net.imglib2.display.ColorTable8;
 import net.imglib2.img.Img;
@@ -51,14 +52,24 @@ import net.imglib2.type.numeric.RealType;
 import org.scijava.Context;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class OMEZarrDataset< T extends NativeType< T > & RealType< T > > implements EuclideanSpace, ChannelSources< T >
+/**
+ * An OME-Zarr backed image dataset
+ * that can be visualised in ImageJ.
+ *
+ * @param <T> Type of the pixels
+ * @param <V> Volatile type of the pixels
+ */
+public class OMEZarrDataset< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements EuclideanSpace
 {
 	/**
 	 * The scijava context. This is needed (only) for creating {@link #ijDataset}.
 	 */
 	private final Context context;
+	private final ZarrImagePyramid< T, V > imagePyramid;
 
 	/**
 	 * Dimensions of the Imaris dataset, and how they map to ImgLib2 dimensions.
@@ -85,12 +96,6 @@ public class OMEZarrDataset< T extends NativeType< T > & RealType< T > > impleme
 	private boolean writable;
 
 	/**
-	 * Non-volatile and volatile images for each resolution, backed by a joint cache which loads blocks from a zArray.
-	 * Lazily initialized.
-	 */
-	private ZarrImagePyramid< T, ? > imagePyramid;
-
-	/**
 	 * ImgPlus wrapping full resolution image.
 	 * Metadata and color tables are set up according to TODO
 	 * Lazily initialized.
@@ -110,21 +115,38 @@ public class OMEZarrDataset< T extends NativeType< T > & RealType< T > > impleme
 	 */
 	private List< SourceAndConverter< T > > sources;
 
+	/**
+	 * SpimData.
+	 * Lazily initialized.
+	 */
+	private SpimData spimData;
 
-	private String[] zArrayPaths;
+	/**
+	 * The imagePyramids that are serving the data
+	 * to construct this dataset.
+	 */
+	private final Map< String, ZarrImagePyramid< T, V > > imagePyramids;
 
+	/**
+	 * Build a dataset from a single image pyramid.
+	 * This constructor requires that the pyramid only contains
+	 * a subset of the axes: X,Y,Z,C,T
+	 *
+	 * TODO add constructors for combining several pyramids
+	 * TODO add constructors for slicing a pyramid
+	 *
+	 * @param context The SciJava context for building the SciJava dataset
+	 * @param imagePyramid The imagePyramid that contains all data.
+	 * @throws Error
+	 */
 	OMEZarrDataset(
 			final Context context,
-			final String zArrayPath ) throws Error
+			final String name,
+			final ZarrImagePyramid< T, V > imagePyramid ) throws Error
 	{
 		this.context = context;
-		this.zArrayPath = zArrayPath;
-	}
-
-	private String[] fetchZArrayPaths( String omeZarrPath )
-	{
-		// TODO
-		return new String[ 0 ];
+		this.imagePyramids = new HashMap<>();
+		imagePyramids.put( name, imagePyramid );
 	}
 
 	/**
@@ -301,11 +323,6 @@ public class OMEZarrDataset< T extends NativeType< T > & RealType< T > > impleme
 		zArrayPath.SetModified( modified );
 	}
 
-	public CachedCellImg< T, ? > asImg()
-	{
-		return asImg( zArrayPaths[ 0 ] );
-	}
-
 	private CachedCellImg< T, ? > asImg( String zArrayPath )
 	{
 		final Img< T > img = asImg();
@@ -325,7 +342,8 @@ public class OMEZarrDataset< T extends NativeType< T > & RealType< T > > impleme
 	 */
 	public ImgPlus< T > asImgPlus()
 	{
-		return imp;
+		initImg();
+		return img;
 	}
 
 	/**
@@ -336,17 +354,26 @@ public class OMEZarrDataset< T extends NativeType< T > & RealType< T > > impleme
 	 */
 	public Dataset asDataset()
 	{
-		synchronized ( imp )
+		initImg();
+
+		synchronized ( img )
 		{
 			if ( ijDataset == null )
 			{
 				final DatasetService datasetService = context.getService( DatasetService.class );
-				ijDataset = datasetService.create( imp );
-				ijDataset.setName( imp.getName() );
+				ijDataset = datasetService.create( img );
+				ijDataset.setName( img.getName() );
 				ijDataset.setRGBMerged( false );
 			}
 			return ijDataset;
 		}
+	}
+
+	private void initImg()
+	{
+		if ( img != null ) return;
+
+		// TODO
 	}
 
 	/**
