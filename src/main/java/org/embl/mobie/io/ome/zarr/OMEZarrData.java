@@ -49,7 +49,7 @@ public class OMEZarrData
 	OMEZarrData(
 			final Context context,
 			final String omeZarrPath,
-			@Nullable final SharedQueue queue  ) throws Error
+			@Nullable final SharedQueue queue  )
 	{
 		this.context = context;
 		this.omeZarrPath = omeZarrPath;
@@ -57,6 +57,7 @@ public class OMEZarrData
 		this.imagePyramids = new HashMap<>();
 		for ( String zArrayPath : imagePyramidPaths )
 			imagePyramids.put( zArrayPath, new ZarrImagePyramid( zArrayPath, queue, false ) );
+		// TODO we could fetch some other (collection) metadata, once specified
 	}
 
 	private String[] fetchImagePyramidPaths( String omeZarrPath )
@@ -65,11 +66,13 @@ public class OMEZarrData
 		return new String[ 0 ];
 	}
 
-	public OMEZarrDataset< ?, ? > getDataset()
+	public OMEZarrDataset getDataset()
 	{
 		final String firstPyramidName = imagePyramids.keySet().iterator().next();
-		final OMEZarrDataset< ?, ? > dataset = new OMEZarrDataset<>( context, firstPyramidName, imagePyramids.get( firstPyramidName ) );
-		return dataset;
+		return new SinglePyramidOMEZarrDataset<>(
+				context,
+				firstPyramidName,
+				imagePyramids.get( firstPyramidName ) );
 	}
 
 	// TODO: add methods for creating a dataset by
