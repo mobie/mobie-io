@@ -51,8 +51,4 @@ public class OmeZarrV4S3SpimDataTests {
                 assertEquals(280.0, info.max);
         }
     }
-
-
-
-
 }
