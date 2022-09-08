@@ -29,7 +29,6 @@
 package org.embl.mobie.io.ome.zarr;
 
 import Imaris.IDataSetPrx;
-import bdv.img.cache.CreateInvalidVolatileCell;
 import bdv.img.cache.VolatileCachedCellImg;
 import bdv.util.AxisOrder;
 import bdv.util.volatiles.SharedQueue;
@@ -39,28 +38,12 @@ import com.bitplane.xt.util.ImarisDirtyLoaderRemover;
 import com.bitplane.xt.util.ImarisLoader;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
-import net.imglib2.cache.Cache;
-import net.imglib2.cache.CacheLoader;
-import net.imglib2.cache.IoSync;
-import net.imglib2.cache.LoaderCache;
-import net.imglib2.cache.LoaderRemoverCache;
 import net.imglib2.cache.img.CachedCellImg;
-import net.imglib2.cache.img.EmptyCellCacheLoader;
-import net.imglib2.cache.ref.GuardedStrongRefLoaderRemoverCache;
-import net.imglib2.cache.ref.SoftRefLoaderCache;
-import net.imglib2.cache.ref.SoftRefLoaderRemoverCache;
-import net.imglib2.cache.ref.WeakRefVolatileCache;
-import net.imglib2.cache.util.KeyBimap;
-import net.imglib2.cache.volatiles.CacheHints;
-import net.imglib2.cache.volatiles.VolatileCache;
-import net.imglib2.img.basictypeaccess.AccessFlags;
-import net.imglib2.img.basictypeaccess.ArrayDataAccessFactory;
-import net.imglib2.img.basictypeaccess.volatiles.VolatileArrayDataAccess;
-import net.imglib2.img.cell.Cell;
-import net.imglib2.img.cell.CellGrid;
 import net.imglib2.type.NativeType;
-import net.imglib2.type.NativeTypeFactory;
 import net.imglib2.type.numeric.RealType;
+import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
+import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
+import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.janelia.saalfeldlab.n5.zarr.N5ZarrReader;
 
@@ -69,9 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.imglib2.cache.volatiles.LoadingStrategy.BUDGETED;
-import static net.imglib2.img.basictypeaccess.AccessFlags.DIRTY;
-import static net.imglib2.img.basictypeaccess.AccessFlags.VOLATILE;
+import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
 class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements ImagePyramid< T, V >
 {
@@ -98,18 +79,19 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 
 	private int numTimepoints;
 
-	private final String zArrayPath;
+	private final String imagePyramidPath;
+	private ZarrAxes zarrAxes;
 
 	/**
 	 * TODO
 	 */
 	public ZarrImagePyramid(
-			final String zArrayPath,
+			final String imagePyramidPath,
 			@Nullable final SharedQueue queue,
 			final boolean writable // TODO ??
 	) throws Error
 	{
-		this.zArrayPath = zArrayPath;
+		this.imagePyramidPath = imagePyramidPath;
 		this.queue = queue;
 		this.writable = writable; // TODO ??
 	}
@@ -124,8 +106,13 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 	{
 		if ( imgs != null ) return;
 
+		final N5ZarrReader n5ZarrReader = new N5ZarrReader( imagePyramidPath );
+
 		// TODO fetch metadata such as numResolutions
 		//   and other metadata from zArrayPath
+		OmeZarrMultiscales[] multiscales = n5ZarrReader.getAttribute( imagePyramidPath, MULTI_SCALE_KEY, OmeZarrMultiscales[].class);
+		zarrAxes = multiscales[ 0 ].axes;
+		zarrAxes.is4DWithTimepointsAndChannels()
 		numResolutions;
 		numChannels;
 		numTimepoints;
@@ -138,8 +125,7 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 		for ( int resolution = 0; resolution < numResolutions; ++resolution )
 		{
 			// TODO handle S3
-			final N5ZarrReader reader = new N5ZarrReader( zArrayPath );
-			imgs[ resolution ] = N5Utils.openVolatile( reader, zArrayPath );
+			imgs[ resolution ] = N5Utils.openVolatile( n5ZarrReader, imagePyramidPath );
 
 			if ( queue != null )
 				vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ], queue );
