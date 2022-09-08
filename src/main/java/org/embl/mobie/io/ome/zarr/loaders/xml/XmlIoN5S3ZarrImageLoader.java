@@ -30,15 +30,16 @@
 package org.embl.mobie.io.ome.zarr.loaders.xml;
 
 
+import java.io.File;
+import java.io.IOException;
+
+import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
+import org.jdom2.Element;
+
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
-import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
-import org.jdom2.Element;
-
-import java.io.File;
-import java.io.IOException;
 
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
 
@@ -54,10 +55,10 @@ public class XmlIoN5S3ZarrImageLoader implements XmlIoBasicImgLoader<N5S3OMEZarr
         final Element elem = new Element("ImageLoader");
         elem.setAttribute(IMGLOADER_FORMAT_ATTRIBUTE_NAME, "ome.n5.zarr.s3");
         elem.setAttribute("version", "1.0");
-		elem.addContent(XmlHelpers.textElement(SERVICE_ENDPOINT, imgLoader.getServiceEndpoint()));
-		elem.addContent(XmlHelpers.textElement(SIGNING_REGION, imgLoader.getSigningRegion()));
-		elem.addContent(XmlHelpers.textElement(BUCKET_NAME, imgLoader.getBucketName()));
-		elem.addContent(XmlHelpers.textElement(KEY, imgLoader.getKey()));
+        elem.addContent(XmlHelpers.textElement(SERVICE_ENDPOINT, imgLoader.getServiceEndpoint()));
+        elem.addContent(XmlHelpers.textElement(SIGNING_REGION, imgLoader.getSigningRegion()));
+        elem.addContent(XmlHelpers.textElement(BUCKET_NAME, imgLoader.getBucketName()));
+        elem.addContent(XmlHelpers.textElement(KEY, imgLoader.getKey()));
 
         return elem;
     }

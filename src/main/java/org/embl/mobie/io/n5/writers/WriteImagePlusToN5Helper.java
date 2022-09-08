@@ -1,12 +1,12 @@
 package org.embl.mobie.io.n5.writers;
 
+import java.io.File;
+
 import ij.IJ;
 import ij.ImagePlus;
 import mpicbg.spim.data.sequence.FinalVoxelDimensions;
 import net.imglib2.FinalDimensions;
 import net.imglib2.realtransform.AffineTransform3D;
-
-import java.io.File;
 
 public class WriteImagePlusToN5Helper {
     public static boolean isImageSuitable(ImagePlus imp) {
@@ -63,7 +63,7 @@ public class WriteImagePlusToN5Helper {
         // create SourceTransform from the images calibration
         final AffineTransform3D sourceTransform = new AffineTransform3D();
         sourceTransform.set(voxelSize.dimension(0), 0, 0, 0, 0, voxelSize.dimension(1),
-                0, 0, 0, 0, voxelSize.dimension(2), 0);
+            0, 0, 0, 0, voxelSize.dimension(2), 0);
         return sourceTransform;
     }
 

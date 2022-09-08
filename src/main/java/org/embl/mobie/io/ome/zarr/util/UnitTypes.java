@@ -1,7 +1,13 @@
 package org.embl.mobie.io.ome.zarr.util;
 
 import lombok.extern.slf4j.Slf4j;
-import ucar.units.*;
+import ucar.units.PrefixDBException;
+import ucar.units.SpecificationException;
+import ucar.units.Unit;
+import ucar.units.UnitDBException;
+import ucar.units.UnitFormat;
+import ucar.units.UnitFormatManager;
+import ucar.units.UnitSystemException;
 
 @Slf4j
 public enum UnitTypes {
@@ -79,7 +85,7 @@ public enum UnitTypes {
             UnitFormat unitFormatter = UnitFormatManager.instance();
             Unit inputUnit = unitFormatter.parse(unitString);
 
-            for (UnitTypes unitType: UnitTypes.values()) {
+            for (UnitTypes unitType : UnitTypes.values()) {
                 Unit zarrUnit = unitFormatter.parse(unitType.typeName);
                 if (zarrUnit.getCanonicalString().equals(inputUnit.getCanonicalString())) {
                     log.info("Converted unit: " + unit + " to recommended ome-zarr unit: " + unitType.getTypeName());

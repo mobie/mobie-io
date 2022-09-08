@@ -32,12 +32,12 @@ public class ZarrDatasetAttributes extends org.janelia.saalfeldlab.n5.zarr.ZarrD
     private final transient String fillValue;
 
     public ZarrDatasetAttributes(
-            final long[] dimensions,
-            final int[] blockSize,
-            final DType dType,
-            final Compression compression,
-            final boolean isRowMajor,
-            final String fill_value) {
+        final long[] dimensions,
+        final int[] blockSize,
+        final DType dType,
+        final Compression compression,
+        final boolean isRowMajor,
+        final String fill_value) {
         super(dimensions, blockSize, dType, compression, isRowMajor, fill_value);
         this.fillValue = fill_value;
     }

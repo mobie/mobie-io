@@ -29,6 +29,24 @@
  */
 package org.embl.mobie.io.ome.zarr.loaders;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
+import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
+import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
+import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
+import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
+import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.ZarrAxis;
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.N5Reader;
+import org.jetbrains.annotations.NotNull;
+
 import bdv.AbstractViewerSetupImgLoader;
 import bdv.ViewerImgLoader;
 import bdv.cache.CacheControl;
@@ -42,8 +60,24 @@ import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
 import mpicbg.spim.data.registration.ViewRegistration;
 import mpicbg.spim.data.registration.ViewRegistrations;
-import mpicbg.spim.data.sequence.*;
-import net.imglib2.*;
+import mpicbg.spim.data.sequence.Angle;
+import mpicbg.spim.data.sequence.Channel;
+import mpicbg.spim.data.sequence.DefaultVoxelDimensions;
+import mpicbg.spim.data.sequence.FinalVoxelDimensions;
+import mpicbg.spim.data.sequence.Illumination;
+import mpicbg.spim.data.sequence.MultiResolutionImgLoader;
+import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
+import mpicbg.spim.data.sequence.SequenceDescription;
+import mpicbg.spim.data.sequence.Tile;
+import mpicbg.spim.data.sequence.TimePoint;
+import mpicbg.spim.data.sequence.TimePoints;
+import mpicbg.spim.data.sequence.ViewSetup;
+import mpicbg.spim.data.sequence.VoxelDimensions;
+import net.imglib2.Dimensions;
+import net.imglib2.FinalDimensions;
+import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.Volatile;
 import net.imglib2.cache.queue.BlockingFetchQueues;
 import net.imglib2.cache.queue.FetcherThreads;
 import net.imglib2.cache.volatiles.CacheHints;
@@ -52,25 +86,28 @@ import net.imglib2.img.cell.CellGrid;
 import net.imglib2.img.cell.CellImg;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.integer.*;
+import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.type.numeric.integer.LongType;
+import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.integer.UnsignedIntType;
+import net.imglib2.type.numeric.integer.UnsignedLongType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.type.volatiles.*;
+import net.imglib2.type.volatiles.VolatileByteType;
+import net.imglib2.type.volatiles.VolatileDoubleType;
+import net.imglib2.type.volatiles.VolatileFloatType;
+import net.imglib2.type.volatiles.VolatileIntType;
+import net.imglib2.type.volatiles.VolatileLongType;
+import net.imglib2.type.volatiles.VolatileShortType;
+import net.imglib2.type.volatiles.VolatileUnsignedByteType;
+import net.imglib2.type.volatiles.VolatileUnsignedIntType;
+import net.imglib2.type.volatiles.VolatileUnsignedLongType;
+import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.util.Cast;
 import net.imglib2.view.Views;
-import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
-import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
-import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
-import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxis;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
-import org.janelia.saalfeldlab.n5.N5Reader;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.Callable;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
@@ -91,12 +128,12 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private final Map<Integer, Integer> setupToChannel = new HashMap<>();
     protected AbstractSequenceDescription<?, ?, ?> seq;
     protected ViewRegistrations viewRegistrations;
+    List<ZarrAxis> zarrAxesList;
     private volatile boolean isOpen = false;
     private int sequenceTimepoints = 0;
     private FetcherThreads fetchers;
     private VolatileGlobalCellCache cache;
     private ZarrAxes zarrAxes;
-    List<ZarrAxis> zarrAxesList;
     private BlockingFetchQueues<Callable<?>> queue;
 
     /**
@@ -140,19 +177,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             for (int setupId = 0; setupId < numSetups; setupId++) {
                 ViewSetup viewSetup = createViewSetup(setupId);
                 int setupTimepoints = 1;
-
-                if (setupToAttributes.get(setupId).getNumDimensions() > 4) {
-                    setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[T];
-                }
-
-                if (setupToAttributes.get(setupId).getNumDimensions() == 4 && zarrAxes.is4DWithTimepoints() || zarrAxes.is4DWithTimepointsAndChannels()) {
-                    setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[3];
-                }
-
-                if (setupToAttributes.get(setupId).getNumDimensions() == 3 && zarrAxes.is3DWithTimepoints()) {
-                    setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[2];
-                }
-
+                if (zarrAxes.hasTimepoints())
+                    setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[zarrAxes.timeIndex()];
                 sequenceTimepoints = Math.max(setupTimepoints, sequenceTimepoints);
                 viewSetups.add(viewSetup);
                 viewRegistrationList.addAll(createViewRegistrations(setupId, setupTimepoints));
@@ -178,26 +204,22 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
     private void initSetups() throws IOException {
         int setupId = -1;
-
-
         OmeZarrMultiscales[] multiscales = getMultiscale(""); // returns multiscales[ 0 ]
         for (OmeZarrMultiscales multiscale : multiscales) {
             DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
 
+            // TODO: Maybe AbstractOmeZarrReader which has .getAxes()
             zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
-                    n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.NOT_SPECIFIED;
+                n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.TCZYX;
             zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
-                    n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
+                n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
+
+            multiscale.axes = zarrAxes;
+            multiscale.zarrAxisList = zarrAxesList;
 
             long nC = 1;
-            if (attributes.getNumDimensions() > 4) {
-                nC = attributes.getDimensions()[C];
-            }
-            if (zarrAxes.is4DWithChannels()) {
-                nC = attributes.getDimensions()[C];
-            }
-            if (zarrAxes.is4DWithTimepointsAndChannels()) {
-                nC = attributes.getDimensions()[2];
+            if (zarrAxes.hasChannels()) {
+                nC = attributes.getDimensions()[zarrAxes.channelIndex()];
             }
 
             for (int c = 0; c < nC; c++) {
@@ -220,8 +242,15 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 String pathName = "labels/" + label;
                 multiscales = getMultiscale(pathName);
                 for (OmeZarrMultiscales multiscale : multiscales) {
-                    DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
-                    attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
+                    DatasetAttributes attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
+
+                    zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
+                        n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.TCZYX;
+                    zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
+                        n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
+
+                    multiscale.axes = zarrAxes;
+                    multiscale.zarrAxisList = zarrAxesList;
 
                     setupToMultiscale.put(setupId, multiscale);
                     setupToAttributes.put(setupId, attributes);
@@ -229,7 +258,6 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 }
             }
         }
-
     }
 
     /**
@@ -338,22 +366,37 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return viewRegistrations;
     }
 
-    private double[] getXYZScale( OmeZarrMultiscales.CoordinateTransformations coordinateTransformations ) {
+    private double[] getXYZScale(OmeZarrMultiscales.CoordinateTransformations coordinateTransformations) {
         double[] scale = coordinateTransformations.scale;
         double[] xyzScale = null;
         if (scale != null && zarrAxesList != null) {
             int scalesFirstIndexBackward = scale.length - 1;
-            if (zarrAxes.containsXYZCoordinates()) {
-                xyzScale = new double[]{
-                        scale[scalesFirstIndexBackward],
-                        scale[scalesFirstIndexBackward - 1],
-                        scale[scalesFirstIndexBackward - 2] };
-            } else {
-                xyzScale = new double[]{
+            if (zarrAxes.hasChannels()) {
+                if (zarrAxes.is2D()) {
+                    xyzScale = new double[]{
                         scale[scalesFirstIndexBackward],
                         scale[scalesFirstIndexBackward - 1],
                         1.0
-                };
+                    };
+                } else {
+                    xyzScale = new double[]{
+                        scale[scalesFirstIndexBackward],
+                        scale[scalesFirstIndexBackward - 1],
+                        scale[scalesFirstIndexBackward - 2]};
+                }
+            } else {
+                if (zarrAxes.isSpatial3D()) {
+                    xyzScale = new double[]{
+                        scale[scalesFirstIndexBackward],
+                        scale[scalesFirstIndexBackward - 1],
+                        scale[scalesFirstIndexBackward - 2]};
+                } else {
+                    xyzScale = new double[]{
+                        scale[scalesFirstIndexBackward],
+                        scale[scalesFirstIndexBackward - 1],
+                        1.0
+                    };
+                }
             }
         }
         return xyzScale;
@@ -377,27 +420,42 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return transform;
     }
 
-    private VoxelDimensions getVoxelDimensions3D( int setupId, int datasetId ) {
+    private VoxelDimensions getVoxelDimensions3D(int setupId, int datasetId) {
         OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
 
         if (multiscales.datasets[datasetId].coordinateTransformations != null && zarrAxesList != null) {
-            double[] scale = getXYZScale( multiscales.datasets[datasetId].coordinateTransformations[0] );
+            double[] scale = getXYZScale(multiscales.datasets[datasetId].coordinateTransformations[0]);
             // get unit of last dimension, under assumption this is the X axis (i.e. a space axis)
             String unit = zarrAxesList.get(zarrAxesList.size() - 1).getUnit();
 
-            if ( scale != null && unit != null ) {
-                return new FinalVoxelDimensions(unit, scale);
+            if (scale != null && unit != null) {
+                if (zarrAxes.is2D()) {
+                    return new FinalVoxelDimensions(unit, new double[]{scale[0], scale[1], 1.0});
+                } else {
+                    return new FinalVoxelDimensions(unit, scale);
+                }
             }
         }
 
         return new DefaultVoxelDimensions(3);
     }
 
+    private Dimensions getSpatialDimensions(DatasetAttributes attributes) {
+        final long[] spatialDimensions = new long[3];
+        long[] attributeDimensions = attributes.getDimensions();
+        Arrays.fill(spatialDimensions, 1);
+        final Map<Integer, Integer> spatialToZarr = zarrAxes.spatialToZarr();
+        for (Map.Entry<Integer, Integer> entry : spatialToZarr.entrySet()) {
+            spatialDimensions[entry.getKey()] = attributeDimensions[entry.getValue()];
+        }
+        return new FinalDimensions(spatialDimensions);
+    }
+
     private ViewSetup createViewSetup(int setupId) {
-        final DatasetAttributes attributes = setupToAttributes.get(setupId);
-        FinalDimensions dimensions = new FinalDimensions(attributes.getDimensions());
         OmeZarrMultiscales multiscale = setupToMultiscale.get(setupId);
+        Dimensions dimensions = getSpatialDimensions(setupToAttributes.get(setupId));
         VoxelDimensions voxelDimensions = getVoxelDimensions3D(setupId, 0);
+
         Tile tile = new Tile(0);
 
         Channel channel;
@@ -478,28 +536,13 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return cache;
     }
 
-    private long[] getDimensions(DatasetAttributes attributes) {
-        if (zarrAxes != null) {
-            if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
-                return fillDimensions(attributes);
-            }
-        }
-        return Arrays.stream(attributes.getDimensions()).limit(3).toArray();
-    }
-
-    private long[] fillDimensions(DatasetAttributes attributes) {
-        long[] tmp = new long[3];
-        tmp[0] = Arrays.stream(attributes.getDimensions()).toArray()[0];
-        tmp[1] = Arrays.stream(attributes.getDimensions()).toArray()[1];
-        tmp[2] = 1;
-        return tmp;
-    }
-
+    // TODO: Add description
     private int[] getBlockSize(DatasetAttributes attributes) {
-        if ((zarrAxes.equals(ZarrAxes.YX)) || (zarrAxes.is4DWithTimepointsAndChannels())) {
+        if (!zarrAxes.hasZAxis()) {
             return fillBlockSize(attributes);
+        } else {
+            return Arrays.stream(attributes.getBlockSize()).limit(3).toArray();
         }
-        return Arrays.stream(attributes.getBlockSize()).limit(3).toArray();
     }
 
     private int[] fillBlockSize(DatasetAttributes attributes) {
@@ -516,8 +559,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     private class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & NativeType<V>>
-            extends AbstractViewerSetupImgLoader<T, V>
-            implements MultiResolutionSetupImgLoader<T> {
+        extends AbstractViewerSetupImgLoader<T, V>
+        implements MultiResolutionSetupImgLoader<T> {
         private final int setupId;
 
         private final double[][] mipmapResolutions;
@@ -548,7 +591,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             for (int level = 1; level < mipmapResolutions.length; level++) {
                 long[] dimensions = getDatasetAttributes(getPathName(setupId, level)).getDimensions();
                 mipmapResolutions[level] = new double[3];
-                if (dimensions.length < 3 && dimensionsOfLevel0.length < 3) {
+                if (multiscale.axes.is2D()) {
                     for (int d = 0; d < 2; d++) {
                         mipmapResolutions[level][d] = Math.round(1.0 * dimensionsOfLevel0[d] / dimensions[d]);
                     }
@@ -620,7 +663,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 if (logging) {
                     log.info("Preparing image " + pathName + " of data type " + attributes.getDataType());
                 }
-                long[] dimensions = getDimensions(attributes);
+
+                // The below dimensions refer to one time point and one channel.
+                // That means they are either 2D or 3D.
+                long[] dimensions = getSpatialDimensions(attributes).dimensionsAsLongArray();
                 final int[] cellDimensions = getBlockSize(attributes);
                 final CellGrid grid = new CellGrid(dimensions, cellDimensions);
 
@@ -631,11 +677,11 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
                 log.error(String.format(
-                        "image data for timepoint %d setup %d level %d could not be found.%n",
-                        timepointId, setupId, level));
+                    "image data for timepoint %d setup %d level %d could not be found.%n",
+                    timepointId, setupId, level));
                 return Views.interval(
-                        new ConstantRandomAccessible<>(type.createVariable(), 3),
-                        new FinalInterval(1, 1, 1));
+                    new ConstantRandomAccessible<>(type.createVariable(), 3),
+                    new FinalInterval(1, 1, 1));
             }
         }
     }

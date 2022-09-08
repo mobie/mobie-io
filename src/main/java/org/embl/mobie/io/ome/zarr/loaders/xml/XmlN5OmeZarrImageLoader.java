@@ -1,14 +1,15 @@
 package org.embl.mobie.io.ome.zarr.loaders.xml;
 
-import mpicbg.spim.data.XmlHelpers;
-import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
-import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
-import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
+import java.io.File;
+
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
 import org.jdom2.Element;
 
-import java.io.File;
+import mpicbg.spim.data.XmlHelpers;
+import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
+import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
+import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
 
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
 

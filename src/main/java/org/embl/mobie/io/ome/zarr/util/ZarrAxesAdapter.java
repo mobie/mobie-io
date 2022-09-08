@@ -1,9 +1,15 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import com.google.gson.*;
-
 import java.lang.reflect.Type;
 import java.util.List;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 public class ZarrAxesAdapter implements JsonDeserializer<ZarrAxes>, JsonSerializer<ZarrAxes> {
 
