@@ -29,6 +29,28 @@
  */
 package org.embl.mobie.io.n5.loaders;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
+
+import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
+import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
+import org.janelia.saalfeldlab.n5.DataBlock;
+import org.janelia.saalfeldlab.n5.DataType;
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.DoubleArrayDataBlock;
+import org.janelia.saalfeldlab.n5.FloatArrayDataBlock;
+import org.janelia.saalfeldlab.n5.IntArrayDataBlock;
+import org.janelia.saalfeldlab.n5.LongArrayDataBlock;
+import org.janelia.saalfeldlab.n5.N5Reader;
+import org.janelia.saalfeldlab.n5.ShortArrayDataBlock;
+import org.jdom2.Element;
+
 import bdv.AbstractViewerSetupImgLoader;
 import bdv.ViewerImgLoader;
 import bdv.cache.CacheControl;
@@ -46,36 +68,51 @@ import mpicbg.spim.data.sequence.MultiResolutionImgLoader;
 import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
 import mpicbg.spim.data.sequence.SequenceDescription;
 import mpicbg.spim.data.sequence.VoxelDimensions;
-import net.imglib2.*;
+import net.imglib2.Dimensions;
+import net.imglib2.FinalDimensions;
+import net.imglib2.FinalInterval;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.Volatile;
 import net.imglib2.cache.queue.BlockingFetchQueues;
 import net.imglib2.cache.queue.FetcherThreads;
 import net.imglib2.cache.volatiles.CacheHints;
 import net.imglib2.cache.volatiles.LoadingStrategy;
-import net.imglib2.img.basictypeaccess.volatiles.array.*;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileByteArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileDoubleArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileFloatArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileIntArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileLongArray;
+import net.imglib2.img.basictypeaccess.volatiles.array.VolatileShortArray;
 import net.imglib2.img.cell.CellGrid;
 import net.imglib2.img.cell.CellImg;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.integer.*;
+import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.type.numeric.integer.LongType;
+import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.integer.UnsignedIntType;
+import net.imglib2.type.numeric.integer.UnsignedLongType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.type.volatiles.*;
+import net.imglib2.type.volatiles.VolatileByteType;
+import net.imglib2.type.volatiles.VolatileDoubleType;
+import net.imglib2.type.volatiles.VolatileFloatType;
+import net.imglib2.type.volatiles.VolatileIntType;
+import net.imglib2.type.volatiles.VolatileLongType;
+import net.imglib2.type.volatiles.VolatileShortType;
+import net.imglib2.type.volatiles.VolatileUnsignedByteType;
+import net.imglib2.type.volatiles.VolatileUnsignedIntType;
+import net.imglib2.type.volatiles.VolatileUnsignedLongType;
+import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.util.Cast;
 import net.imglib2.view.Views;
-import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
-import org.janelia.saalfeldlab.n5.*;
-import org.jdom2.Element;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
-
-import static bdv.img.n5.BdvN5Format.*;
+import static bdv.img.n5.BdvN5Format.DATA_TYPE_KEY;
+import static bdv.img.n5.BdvN5Format.DOWNSAMPLING_FACTORS_KEY;
+import static bdv.img.n5.BdvN5Format.getPathName;
 import static mpicbg.spim.data.XmlKeys.BASEPATH_TAG;
 
 @Slf4j
@@ -119,25 +156,25 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
             case UINT8:
             case INT8:
                 return new N5CacheArrayLoader<>(n5, pathName, attributes,
-                        dataBlock -> new VolatileByteArray(Cast.unchecked(dataBlock.getData()), true));
+                    dataBlock -> new VolatileByteArray(Cast.unchecked(dataBlock.getData()), true));
             case UINT16:
             case INT16:
                 return new N5CacheArrayLoader<>(n5, pathName, attributes,
-                        dataBlock -> new VolatileShortArray(Cast.unchecked(dataBlock.getData()), true));
+                    dataBlock -> new VolatileShortArray(Cast.unchecked(dataBlock.getData()), true));
             case UINT32:
             case INT32:
                 return new N5CacheArrayLoader<>(n5, pathName, attributes,
-                        dataBlock -> new VolatileIntArray(Cast.unchecked(dataBlock.getData()), true));
+                    dataBlock -> new VolatileIntArray(Cast.unchecked(dataBlock.getData()), true));
             case UINT64:
             case INT64:
                 return new N5CacheArrayLoader<>(n5, pathName, attributes,
-                        dataBlock -> new VolatileLongArray(Cast.unchecked(dataBlock.getData()), true));
+                    dataBlock -> new VolatileLongArray(Cast.unchecked(dataBlock.getData()), true));
             case FLOAT32:
                 return new N5CacheArrayLoader<>(n5, pathName, attributes,
-                        dataBlock -> new VolatileFloatArray(Cast.unchecked(dataBlock.getData()), true));
+                    dataBlock -> new VolatileFloatArray(Cast.unchecked(dataBlock.getData()), true));
             case FLOAT64:
                 return new N5CacheArrayLoader<>(n5, pathName, attributes,
-                        dataBlock -> new VolatileDoubleArray(Cast.unchecked(dataBlock.getData()), true));
+                    dataBlock -> new VolatileDoubleArray(Cast.unchecked(dataBlock.getData()), true));
             default:
                 throw new IllegalArgumentException();
         }
@@ -176,7 +213,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
                     final List<? extends BasicViewSetup> setups = seq.getViewSetupsOrdered();
                     for (final BasicViewSetup setup : setups) {
                         final int setupId = setup.getId();
-                        final SetupImgLoader<?, ?>  setupImgLoader = createSetupImgLoader(setupId);
+                        final SetupImgLoader<?, ?> setupImgLoader = createSetupImgLoader(setupId);
                         setupImgLoaders.put(setupId, setupImgLoader);
                         if (setupImgLoader != null) {
                             maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
@@ -322,8 +359,8 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
     }
 
     public class SetupImgLoader<T extends NativeType<T>, V extends Volatile<T> & NativeType<V>>
-            extends AbstractViewerSetupImgLoader<T, V>
-            implements MultiResolutionSetupImgLoader<T> {
+        extends AbstractViewerSetupImgLoader<T, V>
+        implements MultiResolutionSetupImgLoader<T> {
         private final int setupId;
 
         private final double[][] mipmapResolutions;
@@ -400,11 +437,11 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
                 log.error(String.format(
-                        "image data for timepoint %d setup %d level %d could not be found.",
-                        timepointId, setupId, level));
+                    "image data for timepoint %d setup %d level %d could not be found.",
+                    timepointId, setupId, level));
                 return Views.interval(
-                        new ConstantRandomAccessible<>(type.createVariable(), 3),
-                        new FinalInterval(1, 1, 1));
+                    new ConstantRandomAccessible<>(type.createVariable(), 3),
+                    new FinalInterval(1, 1, 1));
             }
         }
     }

@@ -1,16 +1,16 @@
 package org.embl.mobie.io.ome.zarr.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+
 import org.janelia.saalfeldlab.n5.Compression;
 import org.janelia.saalfeldlab.n5.RawCompression;
 import org.janelia.saalfeldlab.n5.zarr.DType;
 import org.janelia.saalfeldlab.n5.zarr.Filter;
 import org.janelia.saalfeldlab.n5.zarr.Utils;
 import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 
 public class ZArrayAttributes {
 
@@ -33,14 +33,14 @@ public class ZArrayAttributes {
     private final List<Filter> filters = new ArrayList<>();
 
     public ZArrayAttributes(
-            final int zarr_format,
-            final long[] shape,
-            final int[] chunks,
-            final DType dtype,
-            final ZarrCompressor compressor,
-            final String fill_value,
-            final char order,
-            final Collection<Filter> filters) {
+        final int zarr_format,
+        final long[] shape,
+        final int[] chunks,
+        final DType dtype,
+        final ZarrCompressor compressor,
+        final String fill_value,
+        final char order,
+        final Collection<Filter> filters) {
 
         this.zarr_format = zarr_format;
         this.shape = shape;
@@ -66,12 +66,12 @@ public class ZArrayAttributes {
         Compression compression = compressor != null ? compressor.getCompression() : new ZarrCompressor.Raw().getCompression();
 
         return new ZarrDatasetAttributes(
-                dimensions,
-                blockSize,
-                dtype,
-                compression,
-                isRowMajor,
-                fill_value);
+            dimensions,
+            blockSize,
+            dtype,
+            compression,
+            isRowMajor,
+            fill_value);
     }
 
     public long[] getShape() {

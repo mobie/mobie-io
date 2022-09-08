@@ -1,11 +1,13 @@
 package org.embl.mobie.io.util;
 
-import com.amazonaws.services.s3.AmazonS3;
-import org.apache.commons.io.IOUtils;
-import org.embl.mobie.io.github.GitHubUtils;
-
-import javax.swing.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,15 +21,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.swing.JFileChooser;
+
+import org.apache.commons.io.IOUtils;
+import org.embl.mobie.io.github.GitHubUtils;
+
+import com.amazonaws.services.s3.AmazonS3;
+
 import static org.embl.mobie.io.github.GitHubUtils.isGithub;
 import static org.embl.mobie.io.github.GitHubUtils.selectGitHubPathFromDirectory;
 import static org.embl.mobie.io.util.S3Utils.getS3FileNames;
 import static org.embl.mobie.io.util.S3Utils.selectS3PathFromDirectory;
 
-public class IOHelper
-{
-    public static ResourceType getType(String uri)
-    {
+public class IOHelper {
+    public static ResourceType getType(String uri) {
         if (uri.startsWith("https://s3") || uri.contains("s3.amazon.aws.com")) {
             return IOHelper.ResourceType.S3;
         } else if (uri.startsWith("http")) {
@@ -74,7 +81,7 @@ public class IOHelper
     }
 
     public static List<String> getFiles(File inputDirectory, String filePattern) {
-        final List<File> fileList = getFileList( inputDirectory, filePattern, false);
+        final List<File> fileList = getFileList(inputDirectory, filePattern, false);
 
         Collections.sort(fileList, new IOHelper.SortFilesIgnoreCase());
 
@@ -91,7 +98,7 @@ public class IOHelper
             case HTTP:
             case S3:
             default:
-                return  "/";
+                return "/";
         }
     }
 
@@ -141,33 +148,30 @@ public class IOHelper
     // overwrites existing uri
     public static void write(String uri, String text) throws IOException {
         IOHelper.ResourceType type = getType(uri);
-        switch (type)
-        {
+        switch (type) {
             case FILE:
-                writeFile( uri, text );
+                writeFile(uri, text);
                 return;
             case S3:
-                writeS3Object( uri, text );
+                writeS3Object(uri, text);
                 return;
             case HTTP:
             default:
-                throw new IOException( "Could not save to URI: " + uri );
+                throw new IOException("Could not save to URI: " + uri);
         }
     }
 
     // overwrite existing object
-    public static void writeS3Object( String uri, String text )
-    {
-        AmazonS3 s3 = S3Utils.getS3Client( uri );
-        String[] bucketAndObject = S3Utils.getBucketAndObject( uri );
-        s3.putObject( bucketAndObject[ 0 ], bucketAndObject[ 1 ], text );
+    public static void writeS3Object(String uri, String text) {
+        AmazonS3 s3 = S3Utils.getS3Client(uri);
+        String[] bucketAndObject = S3Utils.getBucketAndObject(uri);
+        s3.putObject(bucketAndObject[0], bucketAndObject[1], text);
     }
 
     // overwrites existing file
-    public static void writeFile( String path, String text ) throws IOException
-    {
-        BufferedWriter writer = new BufferedWriter(new FileWriter( path ));
-        writer.write( text );
+    public static void writeFile(String path, String text) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+        writer.write(text);
         writer.close();
     }
 
@@ -176,7 +180,7 @@ public class IOHelper
         switch (type) {
             case HTTP:
             case S3:
-                return getHttpParentLocation( uri );
+                return getHttpParentLocation(uri);
             case FILE:
                 return new File(uri).getParent();
             default:
@@ -184,14 +188,13 @@ public class IOHelper
         }
     }
 
-    public static String getHttpParentLocation( String uri )
-    {
+    public static String getHttpParentLocation(String uri) {
         try {
-            URI uri1 = new URI( uri );
+            URI uri1 = new URI(uri);
             URI parent = uri1.getPath().endsWith("/") ? uri1.resolve("..") : uri1.resolve(".");
             return parent.toString();
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Invalid URL Syntax: " + uri );
+            throw new RuntimeException("Invalid URL Syntax: " + uri);
         }
     }
 

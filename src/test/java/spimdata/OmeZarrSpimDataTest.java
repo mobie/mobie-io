@@ -1,10 +1,10 @@
 package spimdata;
 
-import mpicbg.spim.data.SpimData;
-import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
+
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
+
+import mpicbg.spim.data.SpimData;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class OmeZarrSpimDataTest {
     private static final String TRUE_PIXEL_VALUE = "131";
 
-//    @Test
+    //    @Test
     public void SpimDataTest() {
         try {
             SpimData spimData = OMEZarrOpener.openFile("/home/katerina/Documents/data/v0.3/zyx.ome.zarr");

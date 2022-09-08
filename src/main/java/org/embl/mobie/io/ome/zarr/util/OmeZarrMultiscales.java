@@ -1,8 +1,8 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import mpicbg.spim.data.sequence.VoxelDimensions;
-
 import java.util.List;
+
+import mpicbg.spim.data.sequence.VoxelDimensions;
 
 public class OmeZarrMultiscales {
 
