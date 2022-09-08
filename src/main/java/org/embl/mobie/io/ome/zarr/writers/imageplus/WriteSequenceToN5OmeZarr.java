@@ -1,41 +1,11 @@
 package org.embl.mobie.io.ome.zarr.writers.imageplus;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.embl.mobie.io.n5.util.DownsampleBlock;
-import org.embl.mobie.io.n5.util.ExportScalePyramid;
-import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
-import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
-import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
-import org.embl.mobie.io.ome.zarr.writers.N5OMEZarrWriter;
-import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
-import org.janelia.saalfeldlab.n5.Compression;
-import org.janelia.saalfeldlab.n5.DataBlock;
-import org.janelia.saalfeldlab.n5.DataType;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
-import org.janelia.saalfeldlab.n5.DoubleArrayDataBlock;
-import org.janelia.saalfeldlab.n5.FloatArrayDataBlock;
-import org.janelia.saalfeldlab.n5.IntArrayDataBlock;
-import org.janelia.saalfeldlab.n5.LongArrayDataBlock;
-import org.janelia.saalfeldlab.n5.ShortArrayDataBlock;
-import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
-
-import com.google.gson.GsonBuilder;
-
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterNull;
 import bdv.export.SubTaskProgressWriter;
 import bdv.img.cache.SimpleCacheArrayLoader;
+import com.google.gson.GsonBuilder;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicSetupImgLoader;
@@ -49,6 +19,25 @@ import net.imglib2.img.cell.CellGrid;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Cast;
+import org.embl.mobie.io.n5.util.DownsampleBlock;
+import org.embl.mobie.io.n5.util.ExportScalePyramid;
+import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
+import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
+import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
+import org.embl.mobie.io.ome.zarr.writers.N5OMEZarrWriter;
+import org.janelia.saalfeldlab.n5.*;
+import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static net.imglib2.cache.img.ReadOnlyCachedCellImgOptions.options;
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
@@ -85,17 +74,17 @@ public class WriteSequenceToN5OmeZarr {
      * @param progressWriter        completion ratio and status output will be directed here.
      */
     public static void writeOmeZarrFile(
-        final AbstractSequenceDescription<?, ?, ?> seq,
-        final Map<Integer, ExportMipmapInfo> perSetupMipmapInfo,
-        final DownsampleBlock.DownsamplingMethod downsamplingMethod,
-        final Compression compression,
-        final String timeUnit,
-        final double frameInterval,
-        final File zarrFile,
-        final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
-        final ExportScalePyramid.AfterEachPlane afterEachPlane,
-        final int numCellCreatorThreads,
-        ProgressWriter progressWriter) throws IOException {
+            final AbstractSequenceDescription<?, ?, ?> seq,
+            final Map<Integer, ExportMipmapInfo> perSetupMipmapInfo,
+            final DownsampleBlock.DownsamplingMethod downsamplingMethod,
+            final Compression compression,
+            final String timeUnit,
+            final double frameInterval,
+            final File zarrFile,
+            final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
+            final ExportScalePyramid.AfterEachPlane afterEachPlane,
+            final int numCellCreatorThreads,
+            ProgressWriter progressWriter) throws IOException {
         if (progressWriter == null)
             progressWriter = new ProgressWriterNull();
         progressWriter.setProgress(0);
@@ -105,17 +94,17 @@ public class WriteSequenceToN5OmeZarr {
         for (final BasicViewSetup setup : seq.getViewSetupsOrdered()) {
             final Object type = imgLoader.getSetupImgLoader(setup.getId()).getImageType();
             if (!(type instanceof RealType &&
-                type instanceof NativeType &&
-                N5Utils.dataType(Cast.unchecked(type)) != null))
+                    type instanceof NativeType &&
+                    N5Utils.dataType(Cast.unchecked(type)) != null))
                 throw new IllegalArgumentException("Unsupported pixel type: " + type.getClass().getSimpleName());
         }
 
         final List<Integer> timepointIds = seq.getTimePoints().getTimePointsOrdered().stream()
-            .map(TimePoint::getId)
-            .collect(Collectors.toList());
+                .map(TimePoint::getId)
+                .collect(Collectors.toList());
         final List<Integer> setupIds = seq.getViewSetupsOrdered().stream()
-            .map(BasicViewSetup::getId)
-            .collect(Collectors.toList());
+                .map(BasicViewSetup::getId)
+                .collect(Collectors.toList());
 
         N5OMEZarrWriter zarrWriter = new N5OMEZarrWriter(zarrFile.getAbsolutePath(), new GsonBuilder(), "/");
 
@@ -135,8 +124,8 @@ public class WriteSequenceToN5OmeZarr {
         // Assumes persetupmipmapinfo is the same for every setup, and unit same for every setup
         OmeZarrMultiscales[] multiscales = new OmeZarrMultiscales[1];
         multiscales[0] = new OmeZarrMultiscales(axes, zarrFile.getName().split("\\.")[0], downsamplingMethod.name(),
-            "0.4", seq.getViewSetupsOrdered().get(0).getVoxelSize(),
-            perSetupMipmapInfo.get(0).getResolutions(), timeUnit, frameInterval);
+                "0.4", seq.getViewSetupsOrdered().get(0).getVoxelSize(),
+                perSetupMipmapInfo.get(0).getResolutions(), timeUnit, frameInterval );
 
         zarrWriter.createGroup("");
         zarrWriter.setAttribute("", MULTI_SCALE_KEY, multiscales);
@@ -173,11 +162,11 @@ public class WriteSequenceToN5OmeZarr {
                     final double endCompletionRatio = (double) numCompletedTasks / numTasks;
                     final ProgressWriter subProgressWriter = new SubTaskProgressWriter(progressWriter, startCompletionRatio, endCompletionRatio);
                     writeScalePyramid(
-                        zarrWriter, compression, downsamplingMethod,
-                        imgLoader, setupId, timepointId, numSetups, numTimepoints, axes,
-                        mipmapInfo,
-                        executorService, numCellCreatorThreads,
-                        loopbackHeuristic, afterEachPlane, subProgressWriter);
+                            zarrWriter, compression, downsamplingMethod,
+                            imgLoader, setupId, timepointId, numSetups, numTimepoints, axes,
+                            mipmapInfo,
+                            executorService, numCellCreatorThreads,
+                            loopbackHeuristic, afterEachPlane, subProgressWriter);
                 }
             }
         } finally {
@@ -188,31 +177,32 @@ public class WriteSequenceToN5OmeZarr {
     }
 
 
+
     static <T extends RealType<T> & NativeType<T>> void writeScalePyramid(
-        final N5OMEZarrWriter zarrWriter,
-        final Compression compression,
-        final DownsampleBlock.DownsamplingMethod downsamplingMethod,
-        final BasicImgLoader imgLoader,
-        final int setupId,
-        final int timepointId,
-        final int totalNSetups,
-        final int totalNTimepoints,
-        final ZarrAxes axes,
-        final ExportMipmapInfo mipmapInfo,
-        final ExecutorService executorService,
-        final int numThreads,
-        final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
-        final ExportScalePyramid.AfterEachPlane afterEachPlane,
-        ProgressWriter progressWriter) throws IOException {
+            final N5OMEZarrWriter zarrWriter,
+            final Compression compression,
+            final DownsampleBlock.DownsamplingMethod downsamplingMethod,
+            final BasicImgLoader imgLoader,
+            final int setupId,
+            final int timepointId,
+            final int totalNSetups,
+            final int totalNTimepoints,
+            final ZarrAxes axes,
+            final ExportMipmapInfo mipmapInfo,
+            final ExecutorService executorService,
+            final int numThreads,
+            final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
+            final ExportScalePyramid.AfterEachPlane afterEachPlane,
+            ProgressWriter progressWriter) throws IOException {
         final BasicSetupImgLoader<T> setupImgLoader = Cast.unchecked(imgLoader.getSetupImgLoader(setupId));
         final RandomAccessibleInterval<T> img = setupImgLoader.getImage(timepointId);
         final T type = setupImgLoader.getImageType();
         final OmeZarrDatasetIO<T> io = new OmeZarrDatasetIO<>(zarrWriter, compression, setupId, timepointId, type,
-            totalNSetups, totalNTimepoints, axes);
+                totalNSetups, totalNTimepoints, axes);
         ExportScalePyramid.writeScalePyramid(
-            img, type, mipmapInfo, downsamplingMethod, io,
-            executorService, numThreads,
-            loopbackHeuristic, afterEachPlane, progressWriter);
+                img, type, mipmapInfo, downsamplingMethod, io,
+                executorService, numThreads,
+                loopbackHeuristic, afterEachPlane, progressWriter);
     }
 
     static class OmeZarrDataset {
@@ -352,7 +342,7 @@ public class WriteSequenceToN5OmeZarr {
             return shape;
         }
 
-        private long[] removeSetupAndTimeFromShape(long[] shape) {
+        private long[] removeSetupAndTimeFromShape( long[] shape ) {
             long[] xyzShape = new long[3];
             for (int i = 0; i < 3; i++) {
                 xyzShape[i] = shape[i];
@@ -360,7 +350,7 @@ public class WriteSequenceToN5OmeZarr {
             return xyzShape;
         }
 
-        private int[] removeSetupAndTimeFromShape(int[] shape) {
+        private int[] removeSetupAndTimeFromShape( int[] shape ) {
             int[] xyzShape = new int[3];
             for (int i = 0; i < 3; i++) {
                 xyzShape[i] = shape[i];
@@ -373,7 +363,7 @@ public class WriteSequenceToN5OmeZarr {
             // create dataset directory + metadata
             final String pathName = "s" + level;
             zarrWriter.createDataset(pathName, addSetupAndTimeToShape(zyxDimensions),
-                addSingletonDimensionsToChunks(zyxBlockSize), dataType, compression);
+                    addSingletonDimensionsToChunks(zyxBlockSize), dataType, compression);
 
             // TODO - ideally this would go inside zarrWriter.createDataset(), but it's a bit complicated to get it there
             zarrWriter.setAttribute(pathName, ARRAY_DIMENSIONS_KEY, axes);
@@ -382,9 +372,9 @@ public class WriteSequenceToN5OmeZarr {
             // all the chunking etc operates only in 3D
             final ZarrDatasetAttributes zarrDatasetAttributes = (ZarrDatasetAttributes) zarrWriter.getDatasetAttributes(pathName);
             final DatasetAttributes datasetAttributes = new ZarrDatasetAttributes(zyxDimensions, zyxBlockSize,
-                zarrDatasetAttributes.getDType(), compression,
-                zarrDatasetAttributes.isRowMajor(),
-                zarrDatasetAttributes.getFillValue());
+                    zarrDatasetAttributes.getDType(), compression,
+                    zarrDatasetAttributes.isRowMajor(),
+                    zarrDatasetAttributes.getFillValue());
 
             // we provide the full path, including any time or channels to actually write blocks
             return new OmeZarrDataset(getPathName(level), datasetAttributes);
@@ -403,24 +393,24 @@ public class WriteSequenceToN5OmeZarr {
         public RandomAccessibleInterval<T> getImage(final int level) throws IOException {
             // this needs to return the zyx image for the current timepoint and channel (as we are only chunking in zyx)
             final String pathName = String.format("s%d", level); // only include level as rest is handled by N5OmeZarrCacheArrayLoader
-            final DatasetAttributes attributes = zarrWriter.getDatasetAttributes(pathName);
-            final long[] dimensions = removeSetupAndTimeFromShape(attributes.getDimensions());
-            final int[] cellDimensions = removeSetupAndTimeFromShape(attributes.getBlockSize());
+            final DatasetAttributes attributes = zarrWriter.getDatasetAttributes( pathName );
+            final long[] dimensions = removeSetupAndTimeFromShape( attributes.getDimensions() );
+            final int[] cellDimensions = removeSetupAndTimeFromShape( attributes.getBlockSize() );
             final CellGrid grid = new CellGrid(dimensions, cellDimensions);
             final SimpleCacheArrayLoader<?> cacheArrayLoader =
-                new N5OMEZarrCacheArrayLoader<>(zarrWriter, pathName, setupId, timepointId, attributes, grid, axes);
+                    new N5OMEZarrCacheArrayLoader<>( zarrWriter, pathName, setupId, timepointId, attributes, grid, axes );
             return new ReadOnlyCachedCellImgFactory().createWithCacheLoader(
-                dimensions, type,
-                key -> {
-                    final int n = grid.numDimensions();
-                    final long[] cellMin = new long[n];
-                    final int[] cellDims = new int[n];
-                    final long[] cellGridPosition = new long[n];
-                    grid.getCellDimensions(key, cellMin, cellDims);
-                    grid.getCellGridPositionFlat(key, cellGridPosition);
-                    return new Cell<>(cellDims, cellMin, cacheArrayLoader.loadArray(cellGridPosition));
-                },
-                options().cellDimensions(cellDimensions));
+                    dimensions, type,
+                    key -> {
+                        final int n = grid.numDimensions();
+                        final long[] cellMin = new long[n];
+                        final int[] cellDims = new int[n];
+                        final long[] cellGridPosition = new long[n];
+                        grid.getCellDimensions(key, cellMin, cellDims);
+                        grid.getCellGridPositionFlat(key, cellGridPosition);
+                        return new Cell<>(cellDims, cellMin, cacheArrayLoader.loadArray(cellGridPosition));
+                    },
+                    options().cellDimensions(cellDimensions));
         }
     }
 }

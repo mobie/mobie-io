@@ -28,32 +28,6 @@ package org.embl.mobie.io.n5.writers;
  * #L%
  */
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.embl.mobie.io.n5.util.DownsampleBlock;
-import org.embl.mobie.io.n5.util.ExportScalePyramid;
-import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
-import org.janelia.saalfeldlab.n5.Compression;
-import org.janelia.saalfeldlab.n5.DataBlock;
-import org.janelia.saalfeldlab.n5.DataType;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
-import org.janelia.saalfeldlab.n5.DoubleArrayDataBlock;
-import org.janelia.saalfeldlab.n5.FloatArrayDataBlock;
-import org.janelia.saalfeldlab.n5.IntArrayDataBlock;
-import org.janelia.saalfeldlab.n5.LongArrayDataBlock;
-import org.janelia.saalfeldlab.n5.N5FSWriter;
-import org.janelia.saalfeldlab.n5.N5Writer;
-import org.janelia.saalfeldlab.n5.ShortArrayDataBlock;
-import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
-
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterNull;
@@ -74,10 +48,22 @@ import net.imglib2.img.cell.CellGrid;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Cast;
+import org.embl.mobie.io.n5.util.DownsampleBlock;
+import org.embl.mobie.io.n5.util.ExportScalePyramid;
+import org.janelia.saalfeldlab.n5.*;
+import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 
-import static bdv.img.n5.BdvN5Format.DATA_TYPE_KEY;
-import static bdv.img.n5.BdvN5Format.DOWNSAMPLING_FACTORS_KEY;
-import static bdv.img.n5.BdvN5Format.getPathName;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static bdv.img.n5.BdvN5Format.*;
 import static net.imglib2.cache.img.ReadOnlyCachedCellImgOptions.options;
 
 /**
@@ -116,15 +102,15 @@ public class WriteSequenceToN5 {
      * @param progressWriter        completion ratio and status output will be directed here.
      */
     public static void writeN5File(
-        final AbstractSequenceDescription<?, ?, ?> seq,
-        final Map<Integer, ExportMipmapInfo> perSetupMipmapInfo,
-        final DownsampleBlock.DownsamplingMethod downsamplingMethod,
-        final Compression compression,
-        final File n5File,
-        final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
-        final ExportScalePyramid.AfterEachPlane afterEachPlane,
-        final int numCellCreatorThreads,
-        ProgressWriter progressWriter) throws IOException {
+            final AbstractSequenceDescription<?, ?, ?> seq,
+            final Map<Integer, ExportMipmapInfo> perSetupMipmapInfo,
+            final DownsampleBlock.DownsamplingMethod downsamplingMethod,
+            final Compression compression,
+            final File n5File,
+            final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
+            final ExportScalePyramid.AfterEachPlane afterEachPlane,
+            final int numCellCreatorThreads,
+            ProgressWriter progressWriter) throws IOException {
         if (progressWriter == null)
             progressWriter = new ProgressWriterNull();
         progressWriter.setProgress(0);
@@ -134,17 +120,17 @@ public class WriteSequenceToN5 {
         for (final BasicViewSetup setup : seq.getViewSetupsOrdered()) {
             final Object type = imgLoader.getSetupImgLoader(setup.getId()).getImageType();
             if (!(type instanceof RealType &&
-                type instanceof NativeType &&
-                N5Utils.dataType(Cast.unchecked(type)) != null))
+                    type instanceof NativeType &&
+                    N5Utils.dataType(Cast.unchecked(type)) != null))
                 throw new IllegalArgumentException("Unsupported pixel type: " + type.getClass().getSimpleName());
         }
 
         final List<Integer> timepointIds = seq.getTimePoints().getTimePointsOrdered().stream()
-            .map(TimePoint::getId)
-            .collect(Collectors.toList());
+                .map(TimePoint::getId)
+                .collect(Collectors.toList());
         final List<Integer> setupIds = seq.getViewSetupsOrdered().stream()
-            .map(BasicViewSetup::getId)
-            .collect(Collectors.toList());
+                .map(BasicViewSetup::getId)
+                .collect(Collectors.toList());
 
         N5Writer n5 = new N5FSWriter(n5File.getAbsolutePath());
 
@@ -191,10 +177,10 @@ public class WriteSequenceToN5 {
                     final double endCompletionRatio = (double) numCompletedTasks / numTasks;
                     final ProgressWriter subProgressWriter = new SubTaskProgressWriter(progressWriter, startCompletionRatio, endCompletionRatio);
                     writeScalePyramid(
-                        n5, compression, downsamplingMethod,
-                        imgLoader, setupId, timepointId, mipmapInfo,
-                        executorService, numCellCreatorThreads,
-                        loopbackHeuristic, afterEachPlane, subProgressWriter);
+                            n5, compression, downsamplingMethod,
+                            imgLoader, setupId, timepointId, mipmapInfo,
+                            executorService, numCellCreatorThreads,
+                            loopbackHeuristic, afterEachPlane, subProgressWriter);
 
 
                     // additional attributes for paintera compatibility
@@ -220,26 +206,26 @@ public class WriteSequenceToN5 {
     }
 
     static <T extends RealType<T> & NativeType<T>> void writeScalePyramid(
-        final N5Writer n5,
-        final Compression compression,
-        final DownsampleBlock.DownsamplingMethod downsamplingMethod,
-        final BasicImgLoader imgLoader,
-        final int setupId,
-        final int timepointId,
-        final ExportMipmapInfo mipmapInfo,
-        final ExecutorService executorService,
-        final int numThreads,
-        final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
-        final ExportScalePyramid.AfterEachPlane afterEachPlane,
-        ProgressWriter progressWriter) throws IOException {
+            final N5Writer n5,
+            final Compression compression,
+            final DownsampleBlock.DownsamplingMethod downsamplingMethod,
+            final BasicImgLoader imgLoader,
+            final int setupId,
+            final int timepointId,
+            final ExportMipmapInfo mipmapInfo,
+            final ExecutorService executorService,
+            final int numThreads,
+            final ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
+            final ExportScalePyramid.AfterEachPlane afterEachPlane,
+            ProgressWriter progressWriter) throws IOException {
         final BasicSetupImgLoader<T> setupImgLoader = Cast.unchecked(imgLoader.getSetupImgLoader(setupId));
         final RandomAccessibleInterval<T> img = setupImgLoader.getImage(timepointId);
         final T type = setupImgLoader.getImageType();
         final N5DatasetIO<T> io = new N5DatasetIO<>(n5, compression, setupId, timepointId, type);
         ExportScalePyramid.writeScalePyramid(
-            img, type, mipmapInfo, downsamplingMethod, io,
-            executorService, numThreads,
-            loopbackHeuristic, afterEachPlane, progressWriter);
+                img, type, mipmapInfo, downsamplingMethod, io,
+                executorService, numThreads,
+                loopbackHeuristic, afterEachPlane, progressWriter);
     }
 
     static class N5Dataset {
@@ -331,17 +317,17 @@ public class WriteSequenceToN5 {
             final CellGrid grid = new CellGrid(dimensions, cellDimensions);
             final SimpleCacheArrayLoader<?> cacheArrayLoader = N5ImageLoader.createCacheArrayLoader(n5, pathName);
             return new ReadOnlyCachedCellImgFactory().createWithCacheLoader(
-                dimensions, type,
-                key -> {
-                    final int n = grid.numDimensions();
-                    final long[] cellMin = new long[n];
-                    final int[] cellDims = new int[n];
-                    final long[] cellGridPosition = new long[n];
-                    grid.getCellDimensions(key, cellMin, cellDims);
-                    grid.getCellGridPositionFlat(key, cellGridPosition);
-                    return new Cell<>(cellDims, cellMin, cacheArrayLoader.loadArray(cellGridPosition));
-                },
-                options().cellDimensions(cellDimensions));
+                    dimensions, type,
+                    key -> {
+                        final int n = grid.numDimensions();
+                        final long[] cellMin = new long[n];
+                        final int[] cellDims = new int[n];
+                        final long[] cellGridPosition = new long[n];
+                        grid.getCellDimensions(key, cellMin, cellDims);
+                        grid.getCellGridPositionFlat(key, cellGridPosition);
+                        return new Cell<>(cellDims, cellMin, cacheArrayLoader.loadArray(cellGridPosition));
+                    },
+                    options().cellDimensions(cellDimensions));
         }
     }
 }

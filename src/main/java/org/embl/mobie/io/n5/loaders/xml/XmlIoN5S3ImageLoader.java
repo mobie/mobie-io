@@ -29,16 +29,15 @@
  */
 package org.embl.mobie.io.n5.loaders.xml;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.embl.mobie.io.n5.loaders.N5S3ImageLoader;
-import org.jdom2.Element;
-
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
+import org.embl.mobie.io.n5.loaders.N5S3ImageLoader;
+import org.jdom2.Element;
+
+import java.io.File;
+import java.io.IOException;
 
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
 
@@ -53,7 +52,7 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader<N5S3ImageLoader
     @Override
     public Element toXml(final N5S3ImageLoader imgLoader, final File basePath) {
         return toXml(imgLoader.getServiceEndpoint(), imgLoader.getSigningRegion(), imgLoader.getBucketName(),
-            imgLoader.getKey());
+                imgLoader.getKey());
     }
 
     public Element toXml(String serviceEndpoint, String signingRegion, String bucketName, String key) {

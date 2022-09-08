@@ -1,17 +1,15 @@
 package org.embl.mobie.io.ome.zarr.openers;
 
-import java.io.File;
-import java.io.IOException;
-
+import bdv.util.volatiles.SharedQueue;
+import com.google.gson.GsonBuilder;
+import mpicbg.spim.data.SpimData;
+import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.openers.BDVOpener;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
 
-import com.google.gson.GsonBuilder;
-
-import bdv.util.volatiles.SharedQueue;
-import mpicbg.spim.data.SpimData;
-import net.imglib2.util.Cast;
+import java.io.File;
+import java.io.IOException;
 
 public class OMEZarrOpener extends BDVOpener {
     private final String filePath;
@@ -36,9 +34,9 @@ public class OMEZarrOpener extends BDVOpener {
         N5OmeZarrReader reader = new N5OmeZarrReader(this.filePath, new GsonBuilder());
         N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader, sharedQueue);
         return new SpimData(
-            new File(this.filePath),
-            Cast.unchecked(imageLoader.getSequenceDescription()),
-            imageLoader.getViewRegistrations());
+                new File(this.filePath),
+                Cast.unchecked(imageLoader.getSequenceDescription()),
+                imageLoader.getViewRegistrations());
     }
 
     private SpimData readFile() throws IOException {
@@ -46,9 +44,9 @@ public class OMEZarrOpener extends BDVOpener {
         N5OmeZarrReader reader = new N5OmeZarrReader(this.filePath, new GsonBuilder());
         N5OMEZarrImageLoader imageLoader = new N5OMEZarrImageLoader(reader);
         return new SpimData(
-            new File(this.filePath),
-            Cast.unchecked(imageLoader.getSequenceDescription()),
-            imageLoader.getViewRegistrations());
+                new File(this.filePath),
+                Cast.unchecked(imageLoader.getSequenceDescription()),
+                imageLoader.getViewRegistrations());
     }
 
 }

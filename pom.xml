@@ -9,7 +9,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.2.13-SNAPSHOT</version>
+    <version>1.2.12-SNAPSHOT</version>
 
     <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update - -skip-branch-check -->
 
@@ -90,7 +90,7 @@
         <license.licenseName>bsd_2</license.licenseName>
         <license.copyrightOwners>EMBL</license.copyrightOwners>
         <enforcer.skip>true</enforcer.skip>
-        <someModule.test.excludes>src/test/java/projects/local</someModule.test.excludes>
+
         <bigdataviewer-core.version>10.2.1</bigdataviewer-core.version>
 
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
@@ -104,9 +104,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.0</version>
                 <configuration>
-                    <excludes>
-                        <exclude>${someModule.test.excludes}</exclude>
-                    </excludes>
                     <argLine>-Xmx4024m</argLine>
                 </configuration>
             </plugin>

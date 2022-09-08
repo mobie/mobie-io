@@ -1,13 +1,12 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import java.util.Arrays;
-
+import net.imglib2.img.cell.CellGrid;
+import net.imglib2.type.NativeType;
 import org.embl.mobie.io.n5.util.ArrayCreator;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DataType;
 
-import net.imglib2.img.cell.CellGrid;
-import net.imglib2.type.NativeType;
+import java.util.Arrays;
 
 public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
     private final ZarrAxes zarrAxes;
@@ -21,7 +20,7 @@ public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
         long[] cellDims = getCellDims(gridPosition);
         int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
 
-        if (zarrAxes.getNumDimension() == 2)
+        if (zarrAxes.is2D())
             cellDims = Arrays.stream(cellDims).limit(2).toArray();
 
         return (A) VolatileDoubleArray(dataBlock, cellDims, n);
@@ -32,7 +31,6 @@ public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
         long[] cellMin = new long[3];
         int[] cellDims = new int[3];
 
-        // TODO: do something like in: private long[] toZarrChunkIndices( long[] gridPosition )
         if (zarrAxes.is4DWithChannels() || zarrAxes.is4DWithTimepoints()) {
             cellMin = new long[4];
             cellDims = new int[4];
@@ -45,7 +43,6 @@ public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
             cellDims[2] = 1; // channel
             cellDims[3] = 1; // timepoint
         }
-
         if (zarrAxes.is5D()) {
             cellMin = new long[5];
             cellDims = new int[5];

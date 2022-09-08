@@ -29,16 +29,15 @@
  */
 package org.embl.mobie.io.n5.loaders.xml;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.embl.mobie.io.n5.loaders.N5FSImageLoader;
-import org.jdom2.Element;
-
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
+import org.embl.mobie.io.n5.loaders.N5FSImageLoader;
+import org.jdom2.Element;
+
+import java.io.File;
+import java.io.IOException;
 
 import static mpicbg.spim.data.XmlHelpers.loadPath;
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;

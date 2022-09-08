@@ -29,29 +29,20 @@
 package org.embl.mobie.io.util;
 
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.*;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.*;
+import com.google.api.client.http.HttpStatusCodes;
+import ij.gui.GenericDialog;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.HeadBucketRequest;
-import com.amazonaws.services.s3.model.HeadBucketResult;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.google.api.client.http.HttpStatusCodes;
-
-import ij.gui.GenericDialog;
 
 public abstract class S3Utils {
     private static String[] s3AccessAndSecretKey;
@@ -66,11 +57,11 @@ public abstract class S3Utils {
         // first we create a client with anonymous credentials and see if we can access the bucket like this
         AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(new AnonymousAWSCredentials());
         AmazonS3 s3 = AmazonS3ClientBuilder
-            .standard()
-            .withPathStyleAccessEnabled(true)
-            .withEndpointConfiguration(endpointConfiguration)
-            .withCredentials(credentialsProvider)
-            .build();
+                .standard()
+                .withPathStyleAccessEnabled(true)
+                .withEndpointConfiguration(endpointConfiguration)
+                .withCredentials(credentialsProvider)
+                .build();
 
         // check if we can access the access
         HeadBucketRequest headBucketRequest = new HeadBucketRequest(bucket);
@@ -91,11 +82,11 @@ public abstract class S3Utils {
                         checkCredentialsExistence(credentialsProvider);
                     }
                     s3 = AmazonS3ClientBuilder
-                        .standard()
-                        .withPathStyleAccessEnabled(true)
-                        .withEndpointConfiguration(endpointConfiguration)
-                        .withCredentials(credentialsProvider)
-                        .build();
+                            .standard()
+                            .withPathStyleAccessEnabled(true)
+                            .withEndpointConfiguration(endpointConfiguration)
+                            .withCredentials(credentialsProvider)
+                            .build();
                     // check if we have access permissions now
                     try {
                         HeadBucketResult headBucketResult = s3.headBucket(headBucketRequest);
@@ -164,9 +155,9 @@ public abstract class S3Utils {
         final String prefix = (bucketAndObject[1] == "") ? "" : (bucketAndObject[1] + "/");
 
         ListObjectsV2Request request = new ListObjectsV2Request()
-            .withBucketName(bucket)
-            .withPrefix(prefix)
-            .withDelimiter("/");
+                .withBucketName(bucket)
+                .withPrefix(prefix)
+                .withDelimiter("/");
         ListObjectsV2Result files = s3.listObjectsV2(request);
         final ArrayList<String> paths = new ArrayList<>();
         for (S3ObjectSummary summary : files.getObjectSummaries()) {

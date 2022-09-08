@@ -1,15 +1,5 @@
 package org.embl.mobie.io.n5.writers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.embl.mobie.io.n5.util.DownsampleBlock;
-import org.embl.mobie.io.n5.util.ExportScalePyramid;
-import org.janelia.saalfeldlab.n5.Compression;
-
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
 import bdv.export.ProposeMipmaps;
@@ -37,6 +27,15 @@ import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.Intervals;
+import org.embl.mobie.io.n5.util.DownsampleBlock;
+import org.embl.mobie.io.n5.util.ExportScalePyramid;
+import org.janelia.saalfeldlab.n5.Compression;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 // splits functionality from https://github.com/bigdataviewer/bigdataviewer_fiji/blob/master/src/main/java/bdv/ij/ExportImagePlusAsN5PlugIn.java
@@ -55,7 +54,7 @@ public class WriteImagePlusToN5 {
         final AffineTransform3D sourceTransform = WriteImagePlusToN5Helper.generateSourceTransform(voxelSize);
 
         Parameters defaultParameters = generateDefaultParameters(imp, xmlPath, sourceTransform, downsamplingMethod,
-            compression, null);
+                compression, null);
 
         export(imp, defaultParameters);
     }
@@ -68,7 +67,7 @@ public class WriteImagePlusToN5 {
         }
 
         Parameters defaultParameters = generateDefaultParameters(imp, xmlPath, sourceTransform,
-            downsamplingMethod, compression, null);
+                downsamplingMethod, compression, null);
 
         export(imp, defaultParameters);
     }
@@ -82,7 +81,7 @@ public class WriteImagePlusToN5 {
         }
 
         Parameters defaultParameters = generateDefaultParameters(imp, xmlPath, sourceTransform,
-            downsamplingMethod, compression, viewSetupNames);
+                downsamplingMethod, compression, viewSetupNames);
 
         export(imp, defaultParameters);
     }
@@ -122,7 +121,7 @@ public class WriteImagePlusToN5 {
         final File n5File = WriteImagePlusToN5Helper.getN5FileFromXmlPath(seqFilename);
 
         Parameters exportParameters = new Parameters(resolutions, subdivisions, seqFile, n5File, sourceTransform,
-            downsamplingMethod, compression, viewSetupNames);
+                downsamplingMethod, compression, viewSetupNames);
 
         export(imp, exportParameters);
     }
@@ -136,8 +135,8 @@ public class WriteImagePlusToN5 {
         // propose reasonable mipmap settings
         final int maxNumElements = 64 * 64 * 64;
         final ExportMipmapInfo autoMipmapSettings = ProposeMipmaps.proposeMipmaps(
-            new BasicViewSetup(0, "", size, voxelSize),
-            maxNumElements);
+                new BasicViewSetup(0, "", size, voxelSize),
+                maxNumElements);
 
         int[][] resolutions = autoMipmapSettings.getExportResolutions();
         int[][] subdivisions = autoMipmapSettings.getSubdivisions();
@@ -158,7 +157,7 @@ public class WriteImagePlusToN5 {
         final File n5File = WriteImagePlusToN5Helper.getN5FileFromXmlPath(seqFilename);
 
         return new Parameters(resolutions, subdivisions, seqFile, n5File, sourceTransform,
-            downsamplingMethod, compression, viewSetupNames);
+                downsamplingMethod, compression, viewSetupNames);
     }
 
     protected void export(ImagePlus imp, Parameters params) {
@@ -213,7 +212,7 @@ public class WriteImagePlusToN5 {
         final HashMap<Integer, BasicViewSetup> setups = new HashMap<>(numSetups);
         if (params.viewSetupNames != null && params.viewSetupNames.length != numSetups) {
             throw new RuntimeException(params.viewSetupNames.length + " view setup names were given, " +
-                "but there are " + numSetups + " setups");
+                    "but there are " + numSetups + " setups");
         }
         for (int s = 0; s < numSetups; ++s) {
             final BasicViewSetup setup;
@@ -283,7 +282,7 @@ public class WriteImagePlusToN5 {
 
         try {
             writeFiles(seq, perSetupExportMipmapInfo, params, loopbackHeuristic, afterEachPlane, numCellCreatorThreads,
-                progressWriter, numTimepoints, numSetups);
+                    progressWriter, numTimepoints, numSetups);
         } catch (final SpimDataException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -295,10 +294,10 @@ public class WriteImagePlusToN5 {
                               ExportScalePyramid.AfterEachPlane afterEachPlane, int numCellCreatorThreads,
                               ProgressWriter progressWriter, int numTimepoints, int numSetups) throws IOException, SpimDataException {
         WriteSequenceToN5.writeN5File(seq, perSetupExportMipmapInfo,
-            params.downsamplingMethod,
-            params.compression, params.n5File,
-            loopbackHeuristic, afterEachPlane, numCellCreatorThreads,
-            new SubTaskProgressWriter(progressWriter, 0, 0.95));
+                params.downsamplingMethod,
+                params.compression, params.n5File,
+                loopbackHeuristic, afterEachPlane, numCellCreatorThreads,
+                new SubTaskProgressWriter(progressWriter, 0, 0.95));
 
         // write xml sequence description
         final N5ImageLoader n5Loader = new N5ImageLoader(params.n5File, null);
@@ -338,27 +337,27 @@ public class WriteImagePlusToN5 {
         public final double frameInterval;
 
         public Parameters(
-            final int[][] resolutions, final int[][] subdivisions,
-            final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
-            final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression) {
-            this(resolutions, subdivisions, seqFile, n5File, sourceTransform, downsamplingMethod, compression,
-                null);
+                final int[][] resolutions, final int[][] subdivisions,
+                final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
+                final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression) {
+            this( resolutions, subdivisions, seqFile, n5File, sourceTransform, downsamplingMethod, compression,
+                    null );
         }
 
         public Parameters(
-            final int[][] resolutions, final int[][] subdivisions,
-            final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
-            final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression,
-            final String[] viewSetupNames) {
-            this(resolutions, subdivisions, seqFile, n5File, sourceTransform, downsamplingMethod, compression,
-                viewSetupNames, null, 1);
+                final int[][] resolutions, final int[][] subdivisions,
+                final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
+                final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression,
+                final String[] viewSetupNames) {
+            this( resolutions, subdivisions, seqFile, n5File, sourceTransform, downsamplingMethod, compression,
+                    viewSetupNames, null, 1 );
         }
 
         public Parameters(
-            final int[][] resolutions, final int[][] subdivisions,
-            final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
-            final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression,
-            final String[] viewSetupNames, String timeUnit, double frameInterval) {
+                final int[][] resolutions, final int[][] subdivisions,
+                final File seqFile, final File n5File, final AffineTransform3D sourceTransform,
+                final DownsampleBlock.DownsamplingMethod downsamplingMethod, final Compression compression,
+                final String[] viewSetupNames, String timeUnit, double frameInterval ) {
             this.resolutions = resolutions;
             this.subdivisions = subdivisions;
             this.seqFile = seqFile;

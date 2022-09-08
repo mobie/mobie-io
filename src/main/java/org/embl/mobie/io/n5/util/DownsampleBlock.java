@@ -29,28 +29,24 @@ package org.embl.mobie.io.n5.util;
  * #L%
  */
 
-import java.util.Arrays;
-
 import gnu.trove.iterator.TLongLongIterator;
 import gnu.trove.map.hash.TLongLongHashMap;
-import net.imglib2.AbstractLocalizableInt;
-import net.imglib2.Cursor;
-import net.imglib2.Localizable;
-import net.imglib2.RandomAccess;
-import net.imglib2.Sampler;
+import net.imglib2.*;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.loops.ClassCopyProvider;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.util.Intervals;
 
+import java.util.Arrays;
+
 public interface DownsampleBlock<T extends RealType<T>> {
     static <T extends RealType<T>> DownsampleBlock<T> create(
-        final int[] blockDimensions,
-        final int[] downsamplingFactors,
-        final DownsamplingMethod downsamplingMethod,
-        final Class<?> pixelTypeClass,
-        final Class<?> inAccessClass) {
+            final int[] blockDimensions,
+            final int[] downsamplingFactors,
+            final DownsamplingMethod downsamplingMethod,
+            final Class<?> pixelTypeClass,
+            final Class<?> inAccessClass) {
         return DownsampleBlockInstances.create(blockDimensions, downsamplingFactors, downsamplingMethod, pixelTypeClass, inAccessClass);
     }
 
@@ -70,11 +66,11 @@ class DownsampleBlockInstances {
 
     @SuppressWarnings("unchecked")
     public static <T extends RealType<T>> DownsampleBlock<T> create(
-        final int[] blockDimensions,
-        final int[] downsamplingFactors,
-        DownsampleBlock.DownsamplingMethod downsamplingMethod,
-        final Class<?> pixelTypeClass,
-        final Class<?> inAccessClass) {
+            final int[] blockDimensions,
+            final int[] downsamplingFactors,
+            DownsampleBlock.DownsamplingMethod downsamplingMethod,
+            final Class<?> pixelTypeClass,
+            final Class<?> inAccessClass) {
 
         if (provider == null || !(lastDownsamplingMethod == downsamplingMethod)) {
             synchronized (DownsampleBlockInstances.class) {
@@ -113,8 +109,8 @@ class DownsampleBlockInstances {
         private final RandomAccess<DoubleType> acc;
 
         public AverageDownsampler(
-            final int[] blockDimensions,
-            final int[] downsamplingFactors) {
+                final int[] blockDimensions,
+                final int[] downsamplingFactors) {
             n = blockDimensions.length;
             if (n < 1 || n > 3)
                 throw new IllegalArgumentException();
@@ -131,9 +127,9 @@ class DownsampleBlockInstances {
 
         @Override
         public void downsampleBlock(
-            final RandomAccess<T> in,
-            final Cursor<T> out, // must be flat iteration order
-            final int[] dimensions) {
+                final RandomAccess<T> in,
+                final Cursor<T> out, // must be flat iteration order
+                final int[] dimensions) {
             clearAccumulator();
 
             if (n == 3) {
@@ -153,11 +149,11 @@ class DownsampleBlockInstances {
         }
 
         private void downsampleBlock3D(
-            final RandomAccess<DoubleType> acc,
-            final int asx, // size of output (resp accumulator) image
-            final int asy,
-            final int asz,
-            final RandomAccess<T> in) {
+                final RandomAccess<DoubleType> acc,
+                final int asx, // size of output (resp accumulator) image
+                final int asy,
+                final int asz,
+                final RandomAccess<T> in) {
             final int bsz = downsamplingFactors[2];
             final int sz = asz * bsz;
             for (int z = 0, bz = 0; z < sz; ++z) {
@@ -173,10 +169,10 @@ class DownsampleBlockInstances {
         }
 
         private void downsampleBlock2D(
-            final RandomAccess<DoubleType> acc,
-            final int asx, // size of output (resp accumulator) image
-            final int asy,
-            final RandomAccess<T> in) {
+                final RandomAccess<DoubleType> acc,
+                final int asx, // size of output (resp accumulator) image
+                final int asy,
+                final RandomAccess<T> in) {
             final int bsy = downsamplingFactors[1];
             final int sy = asy * bsy;
             for (int y = 0, by = 0; y < sy; ++y) {
@@ -192,9 +188,9 @@ class DownsampleBlockInstances {
         }
 
         private void downsampleBlock1D(
-            final RandomAccess<DoubleType> acc,
-            final int asx, // size of output (resp accumulator) image
-            final RandomAccess<T> in) {
+                final RandomAccess<DoubleType> acc,
+                final int asx, // size of output (resp accumulator) image
+                final RandomAccess<T> in) {
             final int bsx = downsamplingFactors[0];
             final int sx = asx * bsx;
             for (int x = 0, bx = 0; x < sx; ++x) {
@@ -210,11 +206,11 @@ class DownsampleBlockInstances {
         }
 
         private void writeOutput3D(
-            final Cursor<T> out, // must be flat iteration order
-            final int asx, // size of output (resp accumulator) image
-            final int asy,
-            final int asz,
-            final RandomAccess<DoubleType> acc) {
+                final Cursor<T> out, // must be flat iteration order
+                final int asx, // size of output (resp accumulator) image
+                final int asy,
+                final int asz,
+                final RandomAccess<DoubleType> acc) {
             for (int z = 0; z < asz; ++z) {
                 writeOutput2D(out, asx, asy, acc);
                 acc.fwd(2);
@@ -223,10 +219,10 @@ class DownsampleBlockInstances {
         }
 
         private void writeOutput2D(
-            final Cursor<T> out, // must be flat iteration order
-            final int asx, // size of output (resp accumulator) image
-            final int asy,
-            final RandomAccess<DoubleType> acc) {
+                final Cursor<T> out, // must be flat iteration order
+                final int asx, // size of output (resp accumulator) image
+                final int asy,
+                final RandomAccess<DoubleType> acc) {
             for (int y = 0; y < asy; ++y) {
                 writeOutput1D(out, asx, acc);
                 acc.fwd(1);
@@ -235,9 +231,9 @@ class DownsampleBlockInstances {
         }
 
         private void writeOutput1D(
-            final Cursor<T> out, // must be flat iteration order
-            final int asx, // size of output (resp accumulator) image
-            final RandomAccess<DoubleType> acc) {
+                final Cursor<T> out, // must be flat iteration order
+                final int asx, // size of output (resp accumulator) image
+                final RandomAccess<DoubleType> acc) {
             final double scale = this.scale;
             for (int x = 0; x < asx; ++x) {
                 out.next().setReal(acc.get().get() * scale);
@@ -257,8 +253,8 @@ class DownsampleBlockInstances {
         private final RandomAccess<DoubleType> acc;
 
         public CentreDownsampler(
-            final int[] blockDimensions,
-            final int[] downsamplingFactors) {
+                final int[] blockDimensions,
+                final int[] downsamplingFactors) {
             n = blockDimensions.length;
             if (n < 1 || n > 3)
                 throw new IllegalArgumentException();
@@ -274,9 +270,9 @@ class DownsampleBlockInstances {
 
         @Override
         public void downsampleBlock(
-            final RandomAccess<T> in,
-            final Cursor<T> out, // must be flat iteration order
-            final int[] dimensions) {
+                final RandomAccess<T> in,
+                final Cursor<T> out, // must be flat iteration order
+                final int[] dimensions) {
             clearAccumulator();
 
             if (n == 3) {
@@ -296,11 +292,11 @@ class DownsampleBlockInstances {
         }
 
         private void downsampleBlock3D(
-            final RandomAccess<DoubleType> acc,
-            final int asx, // size of accumulator image
-            final int asy,
-            final int asz,
-            final RandomAccess<T> in) {
+                final RandomAccess<DoubleType> acc,
+                final int asx, // size of accumulator image
+                final int asy,
+                final int asz,
+                final RandomAccess<T> in) {
             final int d = 2;
             final int bsz = downsamplingFactors[d];
             in.move(bsz / 2, d);
@@ -314,10 +310,10 @@ class DownsampleBlockInstances {
         }
 
         private void downsampleBlock2D(
-            final RandomAccess<DoubleType> acc,
-            final int asx, // size of accumulator image
-            final int asy,
-            final RandomAccess<T> in) {
+                final RandomAccess<DoubleType> acc,
+                final int asx, // size of accumulator image
+                final int asy,
+                final RandomAccess<T> in) {
             final int d = 1;
             final int bsy = downsamplingFactors[d];
             in.move(bsy / 2, d);
@@ -331,9 +327,9 @@ class DownsampleBlockInstances {
         }
 
         private void downsampleBlock1D(
-            final RandomAccess<DoubleType> acc,
-            final int asx, // size of output image
-            final RandomAccess<T> in) {
+                final RandomAccess<DoubleType> acc,
+                final int asx, // size of output image
+                final RandomAccess<T> in) {
             final int d = 0;
             final int bsx = downsamplingFactors[d];
             in.move(bsx / 2, d);
@@ -347,11 +343,11 @@ class DownsampleBlockInstances {
         }
 
         private void writeOutput3D(
-            final Cursor<T> out, // must be flat iteration order
-            final int asx, // size of accumulator image
-            final int asy,
-            final int asz,
-            final RandomAccess<DoubleType> acc) {
+                final Cursor<T> out, // must be flat iteration order
+                final int asx, // size of accumulator image
+                final int asy,
+                final int asz,
+                final RandomAccess<DoubleType> acc) {
             for (int z = 0; z < asz; ++z) {
                 writeOutput2D(out, asx, asy, acc);
                 acc.fwd(2);
@@ -360,10 +356,10 @@ class DownsampleBlockInstances {
         }
 
         private void writeOutput2D(
-            final Cursor<T> out, // must be flat iteration order
-            final int asx, // size of output image
-            final int asy,
-            final RandomAccess<DoubleType> acc) {
+                final Cursor<T> out, // must be flat iteration order
+                final int asx, // size of output image
+                final int asy,
+                final RandomAccess<DoubleType> acc) {
             for (int y = 0; y < asy; ++y) {
                 writeOutput1D(out, asx, acc);
                 acc.fwd(1);
@@ -372,9 +368,9 @@ class DownsampleBlockInstances {
         }
 
         private void writeOutput1D(
-            final Cursor<T> out, // must be flat iteration order
-            final int asx, // size of output (resp accumulator) image
-            final RandomAccess<DoubleType> acc) {
+                final Cursor<T> out, // must be flat iteration order
+                final int asx, // size of output (resp accumulator) image
+                final RandomAccess<DoubleType> acc) {
             for (int x = 0; x < asx; ++x) {
                 out.next().setReal(acc.get().get());
                 acc.fwd(0);
@@ -391,8 +387,8 @@ class DownsampleBlockInstances {
         private final TLongLongHashMapRandomAccess acc;
 
         public ModeDownsampler(
-            final int[] blockDimensions,
-            final int[] downsamplingFactors) {
+                final int[] blockDimensions,
+                final int[] downsamplingFactors) {
             n = blockDimensions.length;
             if (n < 1 || n > 3)
                 throw new IllegalArgumentException();
@@ -407,9 +403,9 @@ class DownsampleBlockInstances {
 
         @Override
         public void downsampleBlock(
-            final RandomAccess<T> in,
-            final Cursor<T> out, // must be flat iteration order
-            final int[] dimensions) {
+                final RandomAccess<T> in,
+                final Cursor<T> out, // must be flat iteration order
+                final int[] dimensions) {
             clearAccumulator();
 
             if (n == 3) {
@@ -429,11 +425,11 @@ class DownsampleBlockInstances {
         }
 
         private void downsampleBlock3D(
-            final TLongLongHashMapRandomAccess acc,
-            final int asx, // size of output (resp accumulator) image
-            final int asy,
-            final int asz,
-            final RandomAccess<T> in) {
+                final TLongLongHashMapRandomAccess acc,
+                final int asx, // size of output (resp accumulator) image
+                final int asy,
+                final int asz,
+                final RandomAccess<T> in) {
             final int bsz = downsamplingFactors[2];
             final int sz = asz * bsz;
             for (int z = 0, bz = 0; z < sz; ++z) {
@@ -449,10 +445,10 @@ class DownsampleBlockInstances {
         }
 
         private void downsampleBlock2D(
-            final TLongLongHashMapRandomAccess acc,
-            final int asx, // size of output (resp accumulator) image
-            final int asy,
-            final RandomAccess<T> in) {
+                final TLongLongHashMapRandomAccess acc,
+                final int asx, // size of output (resp accumulator) image
+                final int asy,
+                final RandomAccess<T> in) {
             final int bsy = downsamplingFactors[1];
             final int sy = asy * bsy;
             for (int y = 0, by = 0; y < sy; ++y) {
@@ -468,9 +464,9 @@ class DownsampleBlockInstances {
         }
 
         private void downsampleBlock1D(
-            final TLongLongHashMapRandomAccess acc,
-            final int asx, // size of output (resp accumulator) image
-            final RandomAccess<T> in) {
+                final TLongLongHashMapRandomAccess acc,
+                final int asx, // size of output (resp accumulator) image
+                final RandomAccess<T> in) {
             final int bsx = downsamplingFactors[0];
             final int sx = asx * bsx;
             for (int x = 0, bx = 0; x < sx; ++x) {
@@ -490,11 +486,11 @@ class DownsampleBlockInstances {
         }
 
         private void writeOutput3D(
-            final Cursor<T> out, // must be flat iteration order
-            final int asx, // size of output (resp accumulator) image
-            final int asy,
-            final int asz,
-            final TLongLongHashMapRandomAccess acc) {
+                final Cursor<T> out, // must be flat iteration order
+                final int asx, // size of output (resp accumulator) image
+                final int asy,
+                final int asz,
+                final TLongLongHashMapRandomAccess acc) {
             for (int z = 0; z < asz; ++z) {
                 writeOutput2D(out, asx, asy, acc);
                 acc.fwd(2);
@@ -503,10 +499,10 @@ class DownsampleBlockInstances {
         }
 
         private void writeOutput2D(
-            final Cursor<T> out, // must be flat iteration order
-            final int asx, // size of output (resp accumulator) image
-            final int asy,
-            final TLongLongHashMapRandomAccess acc) {
+                final Cursor<T> out, // must be flat iteration order
+                final int asx, // size of output (resp accumulator) image
+                final int asy,
+                final TLongLongHashMapRandomAccess acc) {
             for (int y = 0; y < asy; ++y) {
                 writeOutput1D(out, asx, acc);
                 acc.fwd(1);
@@ -515,9 +511,9 @@ class DownsampleBlockInstances {
         }
 
         private void writeOutput1D(
-            final Cursor<T> out, // must be flat iteration order
-            final int asx, // size of output (resp accumulator) image
-            final TLongLongHashMapRandomAccess acc) {
+                final Cursor<T> out, // must be flat iteration order
+                final int asx, // size of output (resp accumulator) image
+                final TLongLongHashMapRandomAccess acc) {
             for (int x = 0; x < asx; ++x) {
                 long label = getLabel(acc);
                 out.next().setReal(label);

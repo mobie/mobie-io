@@ -1,9 +1,9 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import java.util.List;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+
+import java.util.List;
 
 public class ZarrAxis {
     private transient final int index;

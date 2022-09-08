@@ -28,16 +28,14 @@
  */
 package org.embl.mobie.io.github;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.internal.LinkedTreeMap;
+import ij.gui.GenericDialog;
+import org.embl.mobie.io.util.IOHelper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import org.embl.mobie.io.util.IOHelper;
-
-import com.google.gson.GsonBuilder;
-import com.google.gson.internal.LinkedTreeMap;
-
-import ij.gui.GenericDialog;
 
 public abstract class GitHubUtils {
     public static String createRawUrl(String url) {

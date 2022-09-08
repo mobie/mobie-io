@@ -1,10 +1,10 @@
 package org.embl.mobie.io.n5.openers;
 
+import mpicbg.spim.data.SpimData;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-
-import mpicbg.spim.data.SpimData;
 
 public class S3Opener extends BDVOpener {
     protected String serviceEndpoint;

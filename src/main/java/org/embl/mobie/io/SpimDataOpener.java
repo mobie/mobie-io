@@ -1,11 +1,14 @@
 package org.embl.mobie.io;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
+import bdv.img.imaris.Imaris;
+import bdv.spimdata.SpimDataMinimal;
+import bdv.util.volatiles.SharedQueue;
+import ij.IJ;
+import lombok.extern.slf4j.Slf4j;
+import mpicbg.spim.data.SpimData;
+import mpicbg.spim.data.SpimDataException;
+import mpicbg.spim.data.generic.AbstractSpimData;
+import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.openers.N5Opener;
 import org.embl.mobie.io.n5.openers.N5S3Opener;
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
@@ -22,15 +25,11 @@ import org.jdom2.input.SAXBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import bdv.img.imaris.Imaris;
-import bdv.spimdata.SpimDataMinimal;
-import bdv.util.volatiles.SharedQueue;
-import ij.IJ;
-import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
-import mpicbg.spim.data.SpimDataException;
-import mpicbg.spim.data.generic.AbstractSpimData;
-import net.imglib2.util.Cast;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_TAG;
 import static mpicbg.spim.data.XmlKeys.SEQUENCEDESCRIPTION_TAG;
@@ -175,7 +174,7 @@ public class SpimDataOpener {
             if (queue != null) {
                 imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".", queue);
             } else {
-                imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".");
+               imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".");
             }
             SpimData spim = new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
             SpimData spimData;
@@ -233,14 +232,14 @@ public class SpimDataOpener {
             final Element imgLoaderElem = doc.getRootElement().getChild(SEQUENCEDESCRIPTION_TAG).getChild(IMGLOADER_TAG);
             String imagesFile = XmlN5OmeZarrImageLoader.getDatasetsPathFromXml(imgLoaderElem, path);
             if (imagesFile != null) {
-                if (new File(imagesFile).exists()) {
-                    return sharedQueue != null ? OMEZarrOpener.openFile(imagesFile, sharedQueue)
-                        : OMEZarrOpener.openFile(imagesFile);
-                } else {
-                    return sharedQueue != null ? OMEZarrS3Opener.readURL(imagesFile, sharedQueue)
+                    if (new File(imagesFile).exists()) {
+                        return sharedQueue != null ? OMEZarrOpener.openFile(imagesFile, sharedQueue)
+                                : OMEZarrOpener.openFile(imagesFile);
+                    } else {
+                        return sharedQueue != null ? OMEZarrS3Opener.readURL(imagesFile, sharedQueue)
                         : OMEZarrS3Opener.readURL(imagesFile);
+                    }
                 }
-            }
         } catch (JDOMException | IOException e) {
             IJ.log(e.getMessage());
         }

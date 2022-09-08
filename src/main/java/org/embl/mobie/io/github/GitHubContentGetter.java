@@ -40,10 +40,10 @@ public class GitHubContentGetter {
      * https://developer.github.com/v3/repos/contents/
      */
     public GitHubContentGetter(
-        String repository,
-        String path,
-        @Nullable String branch,
-        @Nullable String accessToken
+            String repository,
+            String path,
+            @Nullable String branch,
+            @Nullable String accessToken
     ) {
         this.repository = repository;
         this.path = path;

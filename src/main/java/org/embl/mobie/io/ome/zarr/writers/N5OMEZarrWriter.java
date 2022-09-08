@@ -1,44 +1,8 @@
 package org.embl.mobie.io.ome.zarr.writers;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.channels.Channels;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.FileSystemException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
-
-import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
-import org.embl.mobie.io.ome.zarr.util.OmeZArrayAttributes;
-import org.embl.mobie.io.ome.zarr.util.ZArrayAttributes;
-import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
-import org.janelia.saalfeldlab.n5.BlockWriter;
-import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
-import org.janelia.saalfeldlab.n5.Compression;
-import org.janelia.saalfeldlab.n5.DataBlock;
-import org.janelia.saalfeldlab.n5.DataType;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
-import org.janelia.saalfeldlab.n5.GsonAttributesParser;
-import org.janelia.saalfeldlab.n5.N5FSReader;
-import org.janelia.saalfeldlab.n5.N5Writer;
-import org.janelia.saalfeldlab.n5.zarr.DType;
-import org.janelia.saalfeldlab.n5.zarr.Utils;
-import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
-
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.img.array.ArrayImg;
@@ -47,6 +11,27 @@ import net.imglib2.img.basictypeaccess.array.ByteArray;
 import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
+import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
+import org.embl.mobie.io.ome.zarr.util.OmeZArrayAttributes;
+import org.embl.mobie.io.ome.zarr.util.ZArrayAttributes;
+import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
+import org.janelia.saalfeldlab.n5.*;
+import org.janelia.saalfeldlab.n5.zarr.DType;
+import org.janelia.saalfeldlab.n5.zarr.Utils;
+import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
 
@@ -159,12 +144,12 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
     }
 
     public static byte[] padCrop(
-        final byte[] src,
-        final int[] srcBlockSize,
-        final int[] dstBlockSize,
-        final int nBytes,
-        final int nBits,
-        final byte[] fill_value) {
+            final byte[] src,
+            final int[] srcBlockSize,
+            final int[] dstBlockSize,
+            final int nBytes,
+            final int nBits,
+            final byte[] fill_value) {
 
         assert srcBlockSize.length == dstBlockSize.length : "Dimensions do not match.";
 
@@ -228,9 +213,9 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
      * @throws IOException
      */
     public static <T> void writeBlock(
-        final OutputStream out,
-        final ZarrDatasetAttributes datasetAttributes,
-        final DataBlock<T> dataBlock) throws IOException {
+            final OutputStream out,
+            final ZarrDatasetAttributes datasetAttributes,
+            final DataBlock<T> dataBlock) throws IOException {
 
         final int[] blockSize = datasetAttributes.getBlockSize();
         final DType dType = datasetAttributes.getDType();
@@ -240,18 +225,18 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
         if (!Arrays.equals(blockSize, dataBlock.getSize())) {
 
             final byte[] padCropped = padCrop(
-                dataBlock.toByteBuffer().array(),
-                dataBlock.getSize(),
-                blockSize,
-                dType.getNBytes(),
-                dType.getNBits(),
-                datasetAttributes.getFillBytes());
+                    dataBlock.toByteBuffer().array(),
+                    dataBlock.getSize(),
+                    blockSize,
+                    dType.getNBytes(),
+                    dType.getNBits(),
+                    datasetAttributes.getFillBytes());
 
             final DataBlock<byte[]> padCroppedDataBlock =
-                new ByteArrayDataBlock(
-                    blockSize,
-                    dataBlock.getGridPosition(),
-                    padCropped);
+                    new ByteArrayDataBlock(
+                            blockSize,
+                            dataBlock.getGridPosition(),
+                            padCropped);
 
             writer.write(padCroppedDataBlock, out);
 
@@ -302,7 +287,7 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
      *                                       method to check access to the system property {@code user.dir}
      */
     private static Path createDirectories(Path dir, final FileAttribute<?>... attrs)
-        throws IOException {
+            throws IOException {
         // attempt to create the directory
         try {
             createAndCheckIsDirectory(dir, attrs);
@@ -335,7 +320,7 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
             // unable to find existing parent
             if (se == null) {
                 throw new FileSystemException(dir.toString(), null,
-                    "Unable to determine if root directory exists");
+                        "Unable to determine if root directory exists");
             } else {
                 throw se;
             }
@@ -361,7 +346,7 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
      */
     private static void createAndCheckIsDirectory(final Path dir,
                                                   final FileAttribute<?>... attrs)
-        throws IOException {
+            throws IOException {
         try {
             Files.createDirectory(dir, attrs);
         } catch (final FileAlreadyExistsException x) {
@@ -408,8 +393,8 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
     }
 
     public void setZArrayAttributes(
-        final String pathName,
-        final ZArrayAttributes attributes) throws IOException {
+            final String pathName,
+            final ZArrayAttributes attributes) throws IOException {
 
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
         final HashMap<String, JsonElement> map = new HashMap<>();
@@ -424,8 +409,8 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
 
     @Override
     public void setDatasetAttributes(
-        final String pathName,
-        final DatasetAttributes datasetAttributes) throws IOException {
+            final String pathName,
+            final DatasetAttributes datasetAttributes) throws IOException {
 
         final long[] shape = datasetAttributes.getDimensions().clone();
         Utils.reorder(shape);
@@ -433,23 +418,23 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
         Utils.reorder(chunks);
 
         final OmeZArrayAttributes zArrayAttributes = new OmeZArrayAttributes(
-            N5OmeZarrReader.VERSION.getMajor(),
-            shape,
-            chunks,
-            new DType(datasetAttributes.getDataType()),
-            ZarrCompressor.fromCompression(datasetAttributes.getCompression()),
-            "0",
-            'C',
-            null,
-            dimensionSeparator);
+                N5OmeZarrReader.VERSION.getMajor(),
+                shape,
+                chunks,
+                new DType(datasetAttributes.getDataType()),
+                ZarrCompressor.fromCompression(datasetAttributes.getCompression()),
+                "0",
+                'C',
+                null,
+                dimensionSeparator);
 
         setZArrayAttributes(pathName, zArrayAttributes);
     }
 
     @Override
     public void createDataset(
-        final String pathName,
-        final DatasetAttributes datasetAttributes) throws IOException {
+            final String pathName,
+            final DatasetAttributes datasetAttributes) throws IOException {
         int lastSlashIndex = removeTrailingSlash(pathName).lastIndexOf("/");
 
         if (lastSlashIndex != -1) {
@@ -469,35 +454,35 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zattrsFile);
         try (final N5FSReader.LockedFileChannel lockedFileChannel = N5FSReader.LockedFileChannel.openForWriting(path)) {
             elements.putAll(
-                GsonAttributesParser.readAttributes(
-                    Channels.newReader(
-                        lockedFileChannel.getFileChannel(),
-                        StandardCharsets.UTF_8.name()),
-                    gson));
+                    GsonAttributesParser.readAttributes(
+                            Channels.newReader(
+                                    lockedFileChannel.getFileChannel(),
+                                    StandardCharsets.UTF_8.name()),
+                            gson));
 
             lockedFileChannel.getFileChannel().truncate(0);
             GsonAttributesParser.writeAttributes(
-                Channels.newWriter(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name()),
-                elements,
-                gson);
+                    Channels.newWriter(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name()),
+                    elements,
+                    gson);
         }
     }
 
     @Override
     public void setAttributes(
-        final String pathName,
-        Map<String, ?> attributes) throws IOException {
+            final String pathName,
+            Map<String, ?> attributes) throws IOException {
 
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zattrsFile);
         final HashMap<String, JsonElement> map = new HashMap<>();
 
         try (final N5FSReader.LockedFileChannel lockedFileChannel = N5FSReader.LockedFileChannel.openForWriting(path)) {
             map.putAll(
-                GsonAttributesParser.readAttributes(
-                    Channels.newReader(
-                        lockedFileChannel.getFileChannel(),
-                        StandardCharsets.UTF_8.name()),
-                    gson));
+                    GsonAttributesParser.readAttributes(
+                            Channels.newReader(
+                                    lockedFileChannel.getFileChannel(),
+                                    StandardCharsets.UTF_8.name()),
+                            gson));
 
             if (mapN5DatasetAttributes && datasetExists(pathName)) {
 
@@ -544,15 +529,15 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
                     compressor = zArrayAttributes.getCompressor();
 
                 zArrayAttributes = new OmeZArrayAttributes(
-                    zArrayAttributes.getZarrFormat(),
-                    shape,
-                    chunks,
-                    dtype,
-                    compressor,
-                    zArrayAttributes.getFillValue(),
-                    zArrayAttributes.getOrder(),
-                    zArrayAttributes.getFilters(),
-                    dimensionSeparator);
+                        zArrayAttributes.getZarrFormat(),
+                        shape,
+                        chunks,
+                        dtype,
+                        compressor,
+                        zArrayAttributes.getFillValue(),
+                        zArrayAttributes.getOrder(),
+                        zArrayAttributes.getFilters(),
+                        dimensionSeparator);
 
                 setZArrayAttributes(pathName, zArrayAttributes);
             }
@@ -561,17 +546,17 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
 
             lockedFileChannel.getFileChannel().truncate(0);
             GsonAttributesParser.writeAttributes(
-                Channels.newWriter(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name()),
-                map,
-                gson);
+                    Channels.newWriter(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name()),
+                    map,
+                    gson);
         }
     }
 
     @Override
     public <T> void writeBlock(
-        final String pathName,
-        final DatasetAttributes datasetAttributes,
-        final DataBlock<T> dataBlock) throws IOException {
+            final String pathName,
+            final DatasetAttributes datasetAttributes,
+            final DataBlock<T> dataBlock) throws IOException {
         final ZarrDatasetAttributes zarrDatasetAttributes;
         if (datasetAttributes instanceof ZarrDatasetAttributes)
             zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
@@ -579,20 +564,20 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
             zarrDatasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
 
         final Path path = Paths.get(
-            basePath,
-            removeLeadingSlash(pathName),
-            getZarrDataBlockString(
-                dataBlock.getGridPosition(),
-                dimensionSeparator,
-                zarrDatasetAttributes.isRowMajor()));
+                basePath,
+                removeLeadingSlash(pathName),
+                getZarrDataBlockString(
+                        dataBlock.getGridPosition(),
+                        dimensionSeparator,
+                        zarrDatasetAttributes.isRowMajor()));
         createDirectories(path.getParent());
         try (final N5FSReader.LockedFileChannel lockedChannel = N5FSReader.LockedFileChannel.openForWriting(path)) {
 
             lockedChannel.getFileChannel().truncate(0);
             writeBlock(
-                Channels.newOutputStream(lockedChannel.getFileChannel()),
-                zarrDatasetAttributes,
-                dataBlock);
+                    Channels.newOutputStream(lockedChannel.getFileChannel()),
+                    zarrDatasetAttributes,
+                    dataBlock);
         }
     }
 
@@ -608,12 +593,12 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
             zarrDatasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
 
         final Path path = Paths.get(
-            basePath,
-            removeLeadingSlash(pathName),
-            getZarrDataBlockString(
-                gridPosition,
-                dimensionSeparator,
-                zarrDatasetAttributes.isRowMajor()));
+                basePath,
+                removeLeadingSlash(pathName),
+                getZarrDataBlockString(
+                        gridPosition,
+                        dimensionSeparator,
+                        zarrDatasetAttributes.isRowMajor()));
 
         if (!Files.exists(path))
             return true;
@@ -638,20 +623,20 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
         if (Files.exists(path))
             try (final Stream<Path> pathStream = Files.walk(path)) {
                 pathStream.sorted(Comparator.reverseOrder()).forEach(
-                    childPath -> {
-                        if (Files.isRegularFile(childPath)) {
-                            try (final N5FSReader.LockedFileChannel channel = N5FSReader.LockedFileChannel.openForWriting(childPath)) {
-                                Files.delete(childPath);
-                            } catch (final IOException e) {
-                                e.printStackTrace();
-                            }
-                        } else
-                            try {
-                                Files.delete(childPath);
-                            } catch (final IOException e) {
-                                e.printStackTrace();
-                            }
-                    });
+                        childPath -> {
+                            if (Files.isRegularFile(childPath)) {
+                                try (final N5FSReader.LockedFileChannel channel = N5FSReader.LockedFileChannel.openForWriting(childPath)) {
+                                    Files.delete(childPath);
+                                } catch (final IOException e) {
+                                    e.printStackTrace();
+                                }
+                            } else
+                                try {
+                                    Files.delete(childPath);
+                                } catch (final IOException e) {
+                                    e.printStackTrace();
+                                }
+                        });
             }
 
         return !Files.exists(path);

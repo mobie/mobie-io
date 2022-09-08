@@ -90,9 +90,9 @@ public class RESTCaller {
 
 
     public String get(
-        String url,
-        String requestMethod,
-        String accessToken // nullable
+            String url,
+            String requestMethod,
+            String accessToken // nullable
     ) {
         try {
             HttpURLConnection httpURLConnection = createUrlConnection(url, requestMethod, accessToken);
@@ -126,16 +126,16 @@ public class RESTCaller {
     private StringBuilder getResponse(HttpURLConnection httpURLConnection) throws IOException {
         StringBuilder builder = new StringBuilder();
         builder.append(httpURLConnection.getResponseCode())
-            .append(" ")
-            .append(httpURLConnection.getResponseMessage())
-            .append("\n");
+                .append(" ")
+                .append(httpURLConnection.getResponseMessage())
+                .append("\n");
 
         Map<String, List<String>> map = httpURLConnection.getHeaderFields();
         for (Map.Entry<String, List<String>> entry : map.entrySet()) {
             if (entry.getKey() == null)
                 continue;
             builder.append(entry.getKey())
-                .append(": ");
+                    .append(": ");
 
             List<String> headerValues = entry.getValue();
             Iterator<String> it = headerValues.iterator();
@@ -144,7 +144,7 @@ public class RESTCaller {
 
                 while (it.hasNext()) {
                     builder.append(", ")
-                        .append(it.next());
+                            .append(it.next());
                 }
             }
 

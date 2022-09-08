@@ -1,11 +1,16 @@
 package org.embl.mobie.io.n5.openers;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
+import bdv.util.volatiles.SharedQueue;
+import lombok.extern.slf4j.Slf4j;
+import mpicbg.spim.data.SpimData;
+import mpicbg.spim.data.XmlHelpers;
+import mpicbg.spim.data.registration.ViewRegistration;
+import mpicbg.spim.data.registration.ViewRegistrations;
+import mpicbg.spim.data.sequence.*;
+import net.imglib2.Dimensions;
+import net.imglib2.FinalDimensions;
+import net.imglib2.realtransform.AffineTransform3D;
+import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.loaders.N5S3ImageLoader;
 import org.embl.mobie.io.util.IOHelper;
 import org.jdom2.Document;
@@ -13,26 +18,11 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import bdv.util.volatiles.SharedQueue;
-import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
-import mpicbg.spim.data.XmlHelpers;
-import mpicbg.spim.data.registration.ViewRegistration;
-import mpicbg.spim.data.registration.ViewRegistrations;
-import mpicbg.spim.data.sequence.Angle;
-import mpicbg.spim.data.sequence.Channel;
-import mpicbg.spim.data.sequence.FinalVoxelDimensions;
-import mpicbg.spim.data.sequence.Illumination;
-import mpicbg.spim.data.sequence.MissingViews;
-import mpicbg.spim.data.sequence.SequenceDescription;
-import mpicbg.spim.data.sequence.TimePoint;
-import mpicbg.spim.data.sequence.TimePoints;
-import mpicbg.spim.data.sequence.ViewSetup;
-import mpicbg.spim.data.sequence.VoxelDimensions;
-import net.imglib2.Dimensions;
-import net.imglib2.FinalDimensions;
-import net.imglib2.realtransform.AffineTransform3D;
-import net.imglib2.util.Cast;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 public class N5S3Opener extends S3Opener {
@@ -96,9 +86,9 @@ public class N5S3Opener extends S3Opener {
                 final String[] voxelValues = elem.getChild("voxelSize").getChildText("size").split(" ");
                 final String unit = elem.getChild("voxelSize").getChildText("unit");
                 final VoxelDimensions voxelSize = new FinalVoxelDimensions(unit,
-                    Double.parseDouble(voxelValues[0]),
-                    Double.parseDouble(voxelValues[1]),
-                    Double.parseDouble(voxelValues[2]));
+                        Double.parseDouble(voxelValues[0]),
+                        Double.parseDouble(voxelValues[1]),
+                        Double.parseDouble(voxelValues[2]));
                 final ViewSetup setup = new ViewSetup(id, name, size, voxelSize, channel, angle, illumination);
                 setups.put(id, setup);
             } catch (Exception e) {
@@ -111,8 +101,9 @@ public class N5S3Opener extends S3Opener {
     public SpimData readURLData(String url, SharedQueue sharedQueue) throws IOException {
         InputStream stream = IOHelper.getInputStream(url);
         final SAXBuilder sax = new SAXBuilder();
+        Document doc;
         try {
-            Document doc = sax.build(stream);
+            doc = sax.build(stream);
             final Element root = doc.getRootElement();
             final Element sequenceDescriptionElement = root.getChild("SequenceDescription");
             final Element elem = sequenceDescriptionElement.getChild("ImageLoader");
@@ -132,7 +123,7 @@ public class N5S3Opener extends S3Opener {
                 transform.set(XmlHelpers.getDoubleArray(vr.getChild("ViewTransform"), "affine"));
                 regs.add(new ViewRegistration(timepointId, setupId, transform));
             }
-            SequenceDescription sequenceDescription = new SequenceDescription(timepoints, setups, null, (MissingViews) missingViews);
+            SequenceDescription sequenceDescription = new SequenceDescription(timepoints, setups, null, missingViews);
             N5S3ImageLoader imageLoader = new N5S3ImageLoader(serviceEndpoint, signingRegion, bucketName, key, sequenceDescription, sharedQueue);
             sequenceDescription.setImgLoader(imageLoader);
             imageLoader.setViewRegistrations(new ViewRegistrations(regs));

@@ -1,16 +1,15 @@
 package ui;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
-import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
-
 import bdv.util.BdvFunctions;
 import bdv.util.BdvOptions;
 import bdv.util.BdvStackSource;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.type.numeric.ARGBType;
+import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
+
+import java.io.IOException;
+import java.util.List;
 
 import static org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener.readURL;
 

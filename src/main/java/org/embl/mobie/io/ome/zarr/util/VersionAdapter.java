@@ -1,17 +1,10 @@
 package org.embl.mobie.io.ome.zarr.util;
 
 
-import java.lang.reflect.Type;
-
+import com.google.gson.*;
 import org.janelia.saalfeldlab.n5.N5Reader;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import java.lang.reflect.Type;
 
 public class VersionAdapter implements JsonDeserializer<N5Reader.Version>, JsonSerializer<N5Reader.Version> {
 
