@@ -25,6 +25,15 @@
  */
 package org.embl.mobie.io.ome.zarr.readers;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import lombok.extern.slf4j.Slf4j;
+import org.embl.mobie.io.ome.zarr.util.*;
+import org.janelia.saalfeldlab.n5.DataBlock;
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.GsonAttributesParser;
+import org.janelia.saalfeldlab.n5.N5FSReader;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.channels.Channels;
@@ -36,23 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
-import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReader;
-import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReaderHelper;
-import org.embl.mobie.io.ome.zarr.util.OmeZArrayAttributes;
-import org.embl.mobie.io.ome.zarr.util.ZArrayAttributes;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxis;
-import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
-import org.janelia.saalfeldlab.n5.DataBlock;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
-import org.janelia.saalfeldlab.n5.GsonAttributesParser;
-import org.janelia.saalfeldlab.n5.N5FSReader;
-
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-
-import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -176,17 +168,17 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
 
             try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
                 final HashMap<String, JsonElement> attributes =
-                    GsonAttributesParser.readAttributes(
-                        Channels.newReader(
-                            lockedFileChannel.getFileChannel(),
-                            StandardCharsets.UTF_8.name()),
-                        gson);
+                        GsonAttributesParser.readAttributes(
+                                Channels.newReader(
+                                        lockedFileChannel.getFileChannel(),
+                                        StandardCharsets.UTF_8.name()),
+                                gson);
 
                 final Integer zarr_format = GsonAttributesParser.parseAttribute(
-                    attributes,
-                    "zarr_format",
-                    Integer.class,
-                    gson);
+                        attributes,
+                        "zarr_format",
+                        Integer.class,
+                        gson);
 
                 if (zarr_format != null)
                     return new Version(zarr_format, 0, 0);
@@ -228,7 +220,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
             log.warn(path + " does not exist.");
         }
         this.dimensionSeparator = zArrayAttributes == null || zArrayAttributes.getDimensionSeparator() == null ?
-            DEFAULT_SEPARATOR : zArrayAttributes.getDimensionSeparator();
+                DEFAULT_SEPARATOR : zArrayAttributes.getDimensionSeparator();
 
         return zArrayAttributes;
     }
@@ -274,11 +266,11 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         if (Files.exists(path)) {
             try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
                 attributes.putAll(
-                    GsonAttributesParser.readAttributes(
-                        Channels.newReader(
-                            lockedFileChannel.getFileChannel(),
-                            StandardCharsets.UTF_8.name()),
-                        gson));
+                        GsonAttributesParser.readAttributes(
+                                Channels.newReader(
+                                        lockedFileChannel.getFileChannel(),
+                                        StandardCharsets.UTF_8.name()),
+                                gson));
             }
         }
 
@@ -305,12 +297,16 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         return this.zarrAxes;
     }
 
+    public List<ZarrAxis> getZarrAxes() {
+        return this.zarrAxesList;
+    }
+
     @Override
     public void setAxes(JsonElement axesJson) {
         if (axesJson != null) {
             this.zarrAxes = ZarrAxes.decode(axesJson.toString());
         } else {
-            this.zarrAxes = ZarrAxes.TCZYX;
+            this.zarrAxes = ZarrAxes.NOT_SPECIFIED;
         }
     }
 
@@ -319,15 +315,11 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         this.zarrAxesList = axes;
     }
 
-    public List<ZarrAxis> getZarrAxes() {
-        return this.zarrAxesList;
-    }
-
     @Override
     public DataBlock<?> readBlock(
-        final String pathName,
-        final DatasetAttributes datasetAttributes,
-        final long... gridPosition) throws IOException {
+            final String pathName,
+            final DatasetAttributes datasetAttributes,
+            final long... gridPosition) throws IOException {
 
         final ZarrDatasetAttributes zarrDatasetAttributes;
         if (datasetAttributes instanceof ZarrDatasetAttributes)
@@ -336,12 +328,12 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
             zarrDatasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
 
         Path path = Paths.get(
-            basePath,
-            removeLeadingSlash(pathName),
-            getZarrDataBlockString(
-                gridPosition,
-                dimensionSeparator,
-                zarrDatasetAttributes.isRowMajor()));
+                basePath,
+                removeLeadingSlash(pathName),
+                getZarrDataBlockString(
+                        gridPosition,
+                        dimensionSeparator,
+                        zarrDatasetAttributes.isRowMajor()));
         if (!Files.exists(path)) {
             return null;
         }
@@ -358,10 +350,10 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         try (final Stream<Path> pathStream = Files.list(path)) {
 
             return pathStream
-                .filter(Files::isDirectory)
-                .map(a -> path.relativize(a).toString())
-                .filter(a -> exists(pathName + "/" + a))
-                .toArray(String[]::new);
+                    .filter(Files::isDirectory)
+                    .map(a -> path.relativize(a).toString())
+                    .filter(a -> exists(pathName + "/" + a))
+                    .toArray(String[]::new);
         }
     }
 }

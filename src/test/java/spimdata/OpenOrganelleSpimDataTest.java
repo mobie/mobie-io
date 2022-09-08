@@ -1,29 +1,24 @@
 package spimdata;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
+import lombok.extern.slf4j.Slf4j;
+import mpicbg.spim.data.SpimData;
 import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import lombok.extern.slf4j.Slf4j;
-import mpicbg.spim.data.SpimData;
+import java.io.IOException;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 @Slf4j
 public class OpenOrganelleSpimDataTest {
     public static final OpenOrganelleS3Opener reader = new OpenOrganelleS3Opener(
-        "https://janelia-cosem.s3.amazonaws.com",
-        "us-west-2",
-        "jrc_hela-2");
+            "https://janelia-cosem.s3.amazonaws.com",
+            "us-west-2",
+            "jrc_hela-2");
     public static final String FILE_KEY = "jrc_hela-2.n5/em/fibsem-uint16";
     public static final int N = 3;
     public final Map<long[], Object> trueValuesMap = new LinkedHashMap<>();

@@ -28,11 +28,11 @@
  */
 package org.embl.mobie.io.github;
 
-import java.util.Base64;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Base64;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) // exclude all null fields from toString()
 public class GitHubFileCommit {

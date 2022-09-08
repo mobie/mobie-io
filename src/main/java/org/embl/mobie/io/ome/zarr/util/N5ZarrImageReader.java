@@ -1,12 +1,8 @@
 package org.embl.mobie.io.ome.zarr.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import org.janelia.saalfeldlab.n5.BlockReader;
 import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
 import org.janelia.saalfeldlab.n5.DataBlock;
@@ -15,9 +11,12 @@ import org.janelia.saalfeldlab.n5.zarr.DType;
 import org.janelia.saalfeldlab.n5.zarr.ZarrCompressor;
 import org.janelia.saalfeldlab.n5.zarr.ZarrDatasetAttributes;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public interface N5ZarrImageReader extends N5Reader {
     String DEFAULT_SEPARATOR = ".";
@@ -69,7 +68,7 @@ public interface N5ZarrImageReader extends N5Reader {
                 ZarrAxis zarrAxis;
                 if (axis.getAsJsonObject().get("unit") != null && axis.getAsJsonObject().get("unit").isJsonPrimitive()) {
                     String unit = axis.getAsJsonObject().get("unit").getAsString();
-                    zarrAxis = new ZarrAxis(index, name, type, unit);
+                        zarrAxis = new ZarrAxis(index, name, type, unit);
                 } else {
                     zarrAxis = new ZarrAxis(index, name, type);
                 }
@@ -110,9 +109,9 @@ public interface N5ZarrImageReader extends N5Reader {
      * @return
      */
     default String getZarrDataBlockString(
-        final long[] gridPosition,
-        final String dimensionSeparator,
-        final boolean isRowMajor) {
+            final long[] gridPosition,
+            final String dimensionSeparator,
+            final boolean isRowMajor) {
         final StringBuilder pathStringBuilder = new StringBuilder();
         if (isRowMajor) {
             pathStringBuilder.append(gridPosition[gridPosition.length - 1]);
@@ -142,9 +141,9 @@ public interface N5ZarrImageReader extends N5Reader {
      */
     @SuppressWarnings("incomplete-switch")
     default DataBlock<?> readBlock(
-        final InputStream in,
-        final ZarrDatasetAttributes datasetAttributes,
-        final long... gridPosition) throws IOException {
+            final InputStream in,
+            final ZarrDatasetAttributes datasetAttributes,
+            final long... gridPosition) throws IOException {
         final int[] blockSize = datasetAttributes.getBlockSize();
         final DType dType = datasetAttributes.getDType();
 

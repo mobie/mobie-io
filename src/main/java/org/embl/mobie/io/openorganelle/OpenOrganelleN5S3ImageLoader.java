@@ -29,16 +29,15 @@
  */
 package org.embl.mobie.io.openorganelle;
 
-import java.io.IOException;
-
-import org.embl.mobie.io.n5.loaders.S3ImageLoader;
-import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
-
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import org.embl.mobie.io.n5.loaders.S3ImageLoader;
+import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
+
+import java.io.IOException;
 
 public class OpenOrganelleN5S3ImageLoader extends OpenOrganelleN5ImageLoader implements S3ImageLoader {
     private final String serviceEndpoint;
@@ -76,11 +75,11 @@ public class OpenOrganelleN5S3ImageLoader extends OpenOrganelleN5ImageLoader imp
             final AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, signingRegion);
 
             final AmazonS3 s3 = AmazonS3ClientBuilder
-                .standard()
-                .withPathStyleAccessEnabled(true)
-                .withEndpointConfiguration(endpoint)
-                .withCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()))
-                .build();
+                    .standard()
+                    .withPathStyleAccessEnabled(true)
+                    .withEndpointConfiguration(endpoint)
+                    .withCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()))
+                    .build();
 
             return new N5AmazonS3Reader(s3, bucketName, key);
         }

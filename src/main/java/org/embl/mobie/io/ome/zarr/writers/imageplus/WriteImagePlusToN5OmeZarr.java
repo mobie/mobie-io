@@ -1,14 +1,5 @@
 package org.embl.mobie.io.ome.zarr.writers.imageplus;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
-import org.embl.mobie.io.n5.util.DownsampleBlock;
-import org.embl.mobie.io.n5.util.ExportScalePyramid;
-import org.embl.mobie.io.n5.writers.WriteImagePlusToN5;
-import org.janelia.saalfeldlab.n5.Compression;
-
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProgressWriter;
 import bdv.export.ProposeMipmaps;
@@ -20,6 +11,14 @@ import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.sequence.FinalVoxelDimensions;
 import net.imglib2.FinalDimensions;
 import net.imglib2.realtransform.AffineTransform3D;
+import org.embl.mobie.io.n5.util.DownsampleBlock;
+import org.embl.mobie.io.n5.util.ExportScalePyramid;
+import org.embl.mobie.io.n5.writers.WriteImagePlusToN5;
+import org.janelia.saalfeldlab.n5.Compression;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 import static org.embl.mobie.io.n5.writers.WriteImagePlusToN5Helper.getSize;
 import static org.embl.mobie.io.n5.writers.WriteImagePlusToN5Helper.getVoxelSize;
@@ -84,8 +83,8 @@ public class WriteImagePlusToN5OmeZarr extends WriteImagePlusToN5 {
         final File zarrFile = new File(zarrPath);
 
         Parameters exportParameters = new Parameters(resolutions, subdivisions, null, zarrFile, sourceTransform,
-            downsamplingMethod, compression, viewSetupNames, imp.getCalibration().getTimeUnit(),
-            imp.getCalibration().frameInterval);
+                downsamplingMethod, compression, viewSetupNames, imp.getCalibration().getTimeUnit(),
+                imp.getCalibration().frameInterval );
 
         export(imp, exportParameters);
     }
@@ -100,8 +99,8 @@ public class WriteImagePlusToN5OmeZarr extends WriteImagePlusToN5 {
         // propose reasonable mipmap settings
         final int maxNumElements = 64 * 64 * 64;
         final ExportMipmapInfo autoMipmapSettings = ProposeMipmaps.proposeMipmaps(
-            new BasicViewSetup(0, "", size, voxelSize),
-            maxNumElements);
+                new BasicViewSetup(0, "", size, voxelSize),
+                maxNumElements);
 
         int[][] resolutions = autoMipmapSettings.getExportResolutions();
         int[][] subdivisions = autoMipmapSettings.getSubdivisions();
@@ -114,8 +113,8 @@ public class WriteImagePlusToN5OmeZarr extends WriteImagePlusToN5 {
         final File zarrFile = new File(zarrPath);
 
         return new Parameters(resolutions, subdivisions, null, zarrFile, sourceTransform,
-            downsamplingMethod, compression, viewSetupNames, imp.getCalibration().getTimeUnit(),
-            imp.getCalibration().frameInterval);
+                downsamplingMethod, compression, viewSetupNames, imp.getCalibration().getTimeUnit(),
+                imp.getCalibration().frameInterval );
     }
 
     @Override
@@ -124,10 +123,10 @@ public class WriteImagePlusToN5OmeZarr extends WriteImagePlusToN5 {
                               ExportScalePyramid.AfterEachPlane afterEachPlane, int numCellCreatorThreads,
                               ProgressWriter progressWriter, int numTimepoints, int numSetups) throws IOException {
         WriteSequenceToN5OmeZarr.writeOmeZarrFile(seq, perSetupExportMipmapInfo,
-            params.downsamplingMethod,
-            params.compression, params.timeUnit, params.frameInterval, params.n5File,
-            loopbackHeuristic, afterEachPlane, numCellCreatorThreads,
-            new SubTaskProgressWriter(progressWriter, 0, 0.95));
+                params.downsamplingMethod,
+                params.compression, params.timeUnit, params.frameInterval, params.n5File,
+                loopbackHeuristic, afterEachPlane, numCellCreatorThreads,
+                new SubTaskProgressWriter(progressWriter, 0, 0.95));
 
         progressWriter.setProgress(1.0);
     }

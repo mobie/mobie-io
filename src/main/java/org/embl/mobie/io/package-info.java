@@ -32,9 +32,6 @@
  * <p>
  * Zarr backends for N5
  * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
- * <p>
- * Zarr backends for N5
- * @author Stephan Saalfeld &lt;saalfelds@janelia.hhmi.org&gt;
  */
 /**
  * Zarr backends for N5

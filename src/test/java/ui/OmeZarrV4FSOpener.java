@@ -1,11 +1,10 @@
 package ui;
 
-import java.io.IOException;
-
-import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
-
 import bdv.util.BdvFunctions;
 import mpicbg.spim.data.SpimData;
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
+
+import java.io.IOException;
 
 public class OmeZarrV4FSOpener {
     public static void main(String[] args) throws IOException {

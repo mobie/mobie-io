@@ -29,16 +29,14 @@
  */
 package org.embl.mobie.io.ome.zarr.loaders;
 
-import java.io.IOException;
-
+import bdv.util.volatiles.SharedQueue;
+import com.amazonaws.services.s3.AmazonS3;
+import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import org.embl.mobie.io.n5.loaders.S3ImageLoader;
 import org.embl.mobie.io.ome.zarr.readers.N5S3OmeZarrReader;
 import org.embl.mobie.io.util.S3Utils;
 
-import com.amazonaws.services.s3.AmazonS3;
-
-import bdv.util.volatiles.SharedQueue;
-import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
+import java.io.IOException;
 
 public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader implements S3ImageLoader {
     private final String serviceEndpoint;

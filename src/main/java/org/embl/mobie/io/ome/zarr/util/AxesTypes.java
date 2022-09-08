@@ -20,12 +20,12 @@ public enum AxesTypes {
         return false;
     }
 
-    public static AxesTypes getAxisType(String axisString) {
-        if (axisString.equals("x") || axisString.equals("y") || axisString.equals("z")) {
+    public static AxesTypes getAxisType( String axisString ) {
+        if ( axisString.equals("x") || axisString.equals("y") || axisString.equals("z") ) {
             return AxesTypes.SPACE;
-        } else if (axisString.equals("t")) {
+        } else if ( axisString.equals("t") ) {
             return AxesTypes.TIME;
-        } else if (axisString.equals("c")) {
+        } else if (axisString.equals("c") ) {
             return AxesTypes.CHANNEL;
         } else {
             return null;

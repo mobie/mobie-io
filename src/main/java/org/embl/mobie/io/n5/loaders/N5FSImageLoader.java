@@ -29,13 +29,12 @@
  */
 package org.embl.mobie.io.n5.loaders;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.janelia.saalfeldlab.n5.N5FSReader;
-
 import bdv.util.volatiles.SharedQueue;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
+import org.janelia.saalfeldlab.n5.N5FSReader;
+
+import java.io.File;
+import java.io.IOException;
 
 public class N5FSImageLoader extends N5ImageLoader {
     private final File n5File;
