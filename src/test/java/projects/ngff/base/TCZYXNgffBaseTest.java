@@ -1,4 +1,4 @@
-package projects.ngff;
+package projects.ngff.base;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Assertions;
@@ -11,14 +11,14 @@ import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
 import projects.remote.BaseTest;
+import net.imglib2.type.numeric.integer.ShortType;
 
 @Slf4j
-public class TCZYXNgffDataTest extends BaseTest {
-    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/tczyx.ome.zarr";
+public abstract class TCZYXNgffBaseTest extends BaseTest {
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public TCZYXNgffDataTest() throws SpimDataException {
-        super(URL, FORMAT);
+    protected TCZYXNgffBaseTest(String url) throws SpimDataException {
+        super(url, FORMAT);
         //set values for base test
         setExpectedTimePoints(3);
         setExpectedChannelsNumber(2);
@@ -43,5 +43,37 @@ public class TCZYXNgffDataTest extends BaseTest {
         int[] cellDims = new int[]{64, 64, 64};
         CellGrid expected = new CellGrid(dims, cellDims);
         Assertions.assertEquals(expected, cellGrid);
+    }
+    
+    @Test
+    public void checkImgValue() {
+
+        // random test data generated independently with python
+        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
+        ShortType o = (ShortType) randomAccessibleInterval.getAt(391, 70, 138);
+        int value = o.get();
+        int expectedValue = 7;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (ShortType) randomAccessibleInterval.getAt(91, 175, 178);
+        value = o.get();
+        expectedValue = 47;
+        Assertions.assertEquals(expectedValue, value);
+        
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
+        o = (ShortType) randomAccessibleInterval.getAt(458, 84, 65);
+        value = o.get();
+        expectedValue = 8;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (ShortType) randomAccessibleInterval.getAt(214, 105, 220);
+        value = o.get();
+        expectedValue = 37;
+        Assertions.assertEquals(expectedValue, value);
+        
+        o = (ShortType) randomAccessibleInterval.getAt(207, 0, 99);
+        value = o.get();
+        expectedValue = 8;
+        Assertions.assertEquals(expectedValue, value);
     }
 }
