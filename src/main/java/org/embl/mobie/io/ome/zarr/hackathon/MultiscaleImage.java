@@ -139,6 +139,7 @@ class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Vola
 
 			// Initialize the images for all resolutions.
 			//
+			// TODO only on demand
 			imgs = new CachedCellImg[ numResolutions ];
 			vimgs = new VolatileCachedCellImg[ numResolutions ];
 

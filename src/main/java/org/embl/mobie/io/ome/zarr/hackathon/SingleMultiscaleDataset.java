@@ -129,14 +129,14 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 	@Override
 	public List< SourceAndConverter< T > > asSources()
 	{
-		// FIXME: implement List< SourceAndConverter< T > > creation
+		// FIXME (JOHN) implement List< SourceAndConverter< T > > creation
 		return sources;
 	}
 
 	@Override
 	public SpimData asSpimData()
 	{
-		// FIXME: implement SpimData creation
+		// FIXME (JOHN) implement SpimData creation
 		return spimData;
 	}
 
@@ -189,39 +189,42 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 		if ( globalCoordinateTransformations != null )
 			for ( Multiscales.CoordinateTransformations transformation : globalCoordinateTransformations )
 				for ( int d = 0; d < numDimensions; d++ )
-					scales[ d ] *= 	transformation.scale[ d ];
+					scales[ d ] *= transformation.scale[ d ];
 
 		if ( coordinateTransformations != null )
 			for ( Multiscales.CoordinateTransformations transformation : coordinateTransformations )
 				for ( int d = 0; d < numDimensions; d++ )
-					scales[ d ] *= 	transformation.scale[ d ];
+					scales[ d ] *= transformation.scale[ d ];
+
+		// Add translations?
+
 
 		// Create the imgAxes
 		final ArrayList< CalibratedAxis > imgAxes = new ArrayList<>();
 
 		// X
 		final int xAxisIndex = multiscales.getSpatialAxisIndex( Multiscales.Axis.X_AXIS_NAME );
-		if ( xAxisIndex > 0 )
+		if ( xAxisIndex >= 0 )
 			imgAxes.add( createAxis( xAxisIndex, Axes.X, axes, scales ) );
 
 		// Y
 		final int yAxisIndex = multiscales.getSpatialAxisIndex( Multiscales.Axis.Y_AXIS_NAME );
-		if ( yAxisIndex > 0 )
+		if ( yAxisIndex >= 0 )
 			imgAxes.add( createAxis( yAxisIndex, Axes.Y, axes, scales ) );
 
 		// Z
 		final int zAxisIndex = multiscales.getSpatialAxisIndex( Multiscales.Axis.Z_AXIS_NAME );
-		if ( zAxisIndex > 0 )
+		if ( zAxisIndex >= 0 )
 			imgAxes.add( createAxis( zAxisIndex, Axes.Z, axes, scales ) );
 
 		// C
 		final int cAxisIndex = multiscales.getChannelAxisIndex();
-		if ( cAxisIndex > 0 )
+		if ( cAxisIndex >= 0 )
 			imgAxes.add( createAxis( cAxisIndex, Axes.CHANNEL, axes, scales ) );
 
 		// T
 		final int tAxisIndex = multiscales.getTimePointAxisIndex();
-		if ( tAxisIndex > 0 )
+		if ( tAxisIndex >= 0 )
 			imgAxes.add( createAxis( tAxisIndex, Axes.TIME, axes, scales ) );
 
 		// Set all axes

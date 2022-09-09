@@ -22,7 +22,7 @@ public class Multiscales
     private String type;
     private Axis[] axes; // from v0.4+ within JSON
     private Dataset[] datasets;
-    private CoordinateTransformations[] coordinateTransformations;
+    private CoordinateTransformations[] coordinateTransformations; // from v0.4+ within JSON
 
     // Runtime
 
