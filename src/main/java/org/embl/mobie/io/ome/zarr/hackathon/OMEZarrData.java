@@ -28,57 +28,57 @@
  */
 package org.embl.mobie.io.ome.zarr.hackathon;
 
-import Imaris.IDataSetPrx;
 import bdv.util.volatiles.SharedQueue;
-import com.bitplane.xt.util.ColorTableUtils;
 import org.scijava.Context;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
 
 public class OMEZarrData
 {
 	private final Context context;
 	private final String omeZarrPath;
 	private String[] multiscalePaths;
-	private Map< String, MultiscaleImage< ?, ? > > multiscaleArrays;
+	private final SharedQueue queue;
 
 	OMEZarrData(
 			final Context context,
 			final String omeZarrPath,
-			@Nullable final SharedQueue queue  )
+			@Nullable final SharedQueue queue )
 	{
 		this.context = context;
 		this.omeZarrPath = omeZarrPath;
-		this.multiscalePaths = fetchImagePyramidPaths( omeZarrPath );
-		this.multiscaleArrays = new HashMap<>();
-		for ( String multiscalePath : multiscalePaths )
-			multiscaleArrays.put( multiscalePath, new MultiscaleImage( multiscalePath, queue ) );
+		this.multiscalePaths = fetchMultiscalePaths( omeZarrPath );
+		this.queue = queue;
 	}
 
-	private String[] fetchImagePyramidPaths( String omeZarrPath )
+	private String[] fetchMultiscalePaths( String omeZarrPath )
 	{
-		// TODO
+		// FIXME JOHN
 		return new String[ 0 ];
 	}
 
-	public Pyramidal5DImage getDataset()
+	/**
+	 * Default for creating something simple,
+	 * from the potentially complex {@code OMEZarrData},
+	 * that we can display in ImageJ
+	 *
+	 * @return
+	 */
+	public Pyramidal5DImage createDefaultImage()
 	{
-		final String firstPyramidName = multiscaleArrays.keySet().iterator().next();
+		final MultiscaleImage< ?, ? > multiscaleImage = new MultiscaleImage<>( multiscalePaths[ 0 ], queue );
+
 		return new SingleMultiscalePyramidal5DImage<>(
 				context,
-				firstPyramidName,
-				multiscaleArrays.get( firstPyramidName ) );
+				multiscalePaths[ 0 ],
+				multiscaleImage );
 	}
 
-	// TODO: add methods for creating a dataset by
-	//  combining and/or slicing one or several imagePyramids
-
-	public Set< String > getPyramidNames()
+	// TODO one could use this to create a GUI
+	public String[] getMultiscalePaths()
 	{
-		return multiscaleArrays.keySet();
+		return multiscalePaths;
 	}
 }
