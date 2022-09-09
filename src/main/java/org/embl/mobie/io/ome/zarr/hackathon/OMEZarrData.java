@@ -32,8 +32,6 @@ import bdv.util.volatiles.SharedQueue;
 import org.scijava.Context;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class OMEZarrData
 {
