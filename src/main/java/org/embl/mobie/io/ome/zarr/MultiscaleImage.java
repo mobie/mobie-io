@@ -33,7 +33,6 @@ import bdv.util.volatiles.SharedQueue;
 import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.util.volatiles.VolatileViews;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
@@ -50,7 +49,6 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Cast;
-import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
 import org.embl.mobie.io.ome.zarr.util.OMEZarrAxes;
 import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
@@ -61,52 +59,38 @@ import javax.annotation.Nullable;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
-class MultiscaleOMEZarrArray< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements PyramidalImage< T, V >
+class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements PyramidalImage< T, V >
 {
+	private final String multiscalePath;
+
+	private final SharedQueue queue;
+
 	private int numResolutions;
+
+	private long[] dimensions;
 
 	private T type;
 
 	private V volatileType;
 
-	private final SharedQueue queue;
-
 	private CachedCellImg< T, ? >[] imgs;
 
 	private RandomAccessibleInterval< V > [] vimgs;
 
-	private final String imagePyramidPath;
+	private Multiscales multiscales;
 
-	private OMEZarrAxes axes;
-
-	private long[] dimensions;
-
-	private OmeZarrMultiscales.CoordinateTransformations[] coordinateTransformations;
-
-	private DatasetAttributes attributes;
+	private int multiscaleArrayIndex = 0; // TODO (see comments within code)
 
 	/**
 	 * TODO
 	 */
-	public MultiscaleOMEZarrArray(
-			final String imagePyramidPath,
-			@Nullable final SharedQueue queue
-	) throws Error
+	public MultiscaleImage(
+			final String multiscalePath,
+			@Nullable final SharedQueue queue )
 	{
-		this.imagePyramidPath = imagePyramidPath;
+		this.multiscalePath = multiscalePath;
 		this.queue = queue;
 	}
-
-	public OMEZarrAxes getAxes()
-	{
-		return axes;
-	}
-
-	// TODO: Getter
-	//  - resolutions
-	//  - either images or paths
-
-	// TODO: Getter for axis metadata
 
 	private void init()
 	{
@@ -114,11 +98,12 @@ class MultiscaleOMEZarrArray< T extends NativeType< T > & RealType< T >, V exten
 
 		try
 		{
-			final N5ZarrReader n5ZarrReader = new N5ZarrReader( imagePyramidPath );
+			// FIXME support S3
+			final N5ZarrReader n5ZarrReader = new N5ZarrReader( multiscalePath );
 
 			// Fetch metadata
 			//
-			Multiscales[] multiscalesArray = n5ZarrReader.getAttribute( imagePyramidPath, MULTI_SCALE_KEY, Multiscales[].class );
+			Multiscales[] multiscalesArray = n5ZarrReader.getAttribute( multiscalePath, MULTI_SCALE_KEY, Multiscales[].class );
 
 			// In principle the call above would be sufficient.
 			// However since we need to support different
@@ -127,37 +112,36 @@ class MultiscaleOMEZarrArray< T extends NativeType< T > & RealType< T >, V exten
 			// Thus, we parse the same JSON again and fill in missing
 			// information.
 			// TODO: could we do this by means of a JsonDeserializer?
-			final JsonArray multiscalesJsonArray = n5ZarrReader.getAttributes( imagePyramidPath ).get( MULTI_SCALE_KEY ).getAsJsonArray();
+			final JsonArray multiscalesJsonArray = n5ZarrReader.getAttributes( multiscalePath ).get( MULTI_SCALE_KEY ).getAsJsonArray();
 			for ( int i = 0; i < multiscalesArray.length; i++ )
 				multiscalesArray[ i ].applyVersionFixes( multiscalesJsonArray.get( i ).getAsJsonObject() );
 
-			// From the spec:
-			// TODO "If only one multiscale is provided, use it. Otherwise, the user can choose by name, using the first multiscale as a fallback"
-			//    Right now, I will proceed with the first one.
-			//    I guess, this should be a constructor parameter which one to choose.
+			// TODO
+			//   From the spec:
+			//   "If only one multiscale is provided, use it.
+			//   Otherwise, the user can choose by name,
+			//   using the first multiscale as a fallback"
+			//   Right now, we always only use the first one.
+			//   One option would be to add the {@code multiscaleArrayIndex}
+			//   array index as a parameter to the constructor
+			multiscales = multiscalesArray[ multiscaleArrayIndex ];
+			numResolutions = multiscales.datasets.length;
 
-			numResolutions = multiscalesArray.length;
-			n5ZarrReader.getAttributes(  )
-			this.OMEZarrAxes = OMEZarrAxes.decode(axesJson.toString());
-
-			// Set metadata.
-			//
-			final OmeZarrMultiscales multiscale = multiscalesArray[ 0 ];
-			axes = multiscale.axes;
-			attributes = n5ZarrReader.getDatasetAttributes( multiscale.datasets[ 0 ].path );
-			initTypes( attributes );
+			// Set the dimensions and data type
+			// from the highest resolution dataset's
+			// metadata.
+			final DatasetAttributes attributes = n5ZarrReader.getDatasetAttributes( multiscales.datasets[0].path );
 			dimensions = attributes.getDimensions();
-			coordinateTransformations = multiscale.coordinateTransformations;
+			initTypes( attributes.getDataType() );
 
-			// Initialize images.
+			// Initialize the images.
 			//
 			imgs = new CachedCellImg[ numResolutions ];
 			vimgs = new VolatileCachedCellImg[ numResolutions ];
 
 			for ( int resolution = 0; resolution < numResolutions; ++resolution )
 			{
-				// TODO handle S3
-				imgs[ resolution ] = N5Utils.openVolatile( n5ZarrReader, imagePyramidPath );
+				imgs[ resolution ] = N5Utils.openVolatile( n5ZarrReader, multiscalePath );
 
 				if ( queue != null )
 					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ], queue );
@@ -171,18 +155,12 @@ class MultiscaleOMEZarrArray< T extends NativeType< T > & RealType< T >, V exten
 		}
 	}
 
-	private void initTypes( DatasetAttributes attributes )
+	private void initTypes( DataType dataType )
 	{
 		if ( type != null ) return;
 
-		// Note: we could also get that from the
-		//   {@code imgs} but that may trigger loading
-		//   some data, which may be time-consuming if it
-		//   needs to fetch from the cloud.
-
 		// TODO JOHN: Does the below code already exists
 		//   somewhere in N5?
-		final DataType dataType = attributes.getDataType();
 		switch ( dataType ) {
 			case UINT8:
 				type = Cast.unchecked( new UnsignedByteType() );
@@ -219,12 +197,10 @@ class MultiscaleOMEZarrArray< T extends NativeType< T > & RealType< T >, V exten
 		volatileType = ( V ) VolatileTypeMatcher.getVolatileTypeForType( type );
 	}
 
-	public OmeZarrMultiscales.CoordinateTransformations[] getCoordinateTransformations()
+	public Multiscales getMultiscales()
 	{
-		init();
-		return coordinateTransformations;
+		return multiscales;
 	}
-
 
 	@Override
 	public long[] dimensions()

@@ -69,7 +69,7 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 
 	private final String name;
 
-	private final MultiscaleOMEZarrArray< T, V > multiscaleOMEZarrArray;
+	private final MultiscaleImage< T, V > multiscaleImage;
 
 	private final int numChannels;
 
@@ -91,21 +91,21 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 	 * which MUST only contains subset of the axes: X,Y,Z,C,T
 	 *
 	 * @param context The SciJava context for building the SciJava dataset
-	 * @param multiscaleOMEZarrArray The array containing the image all data.
+	 * @param multiscaleImage The array containing the image all data.
 	 * @throws Error
 	 */
 	DefaultOMEZarrPyramidal5DImage(
 			final Context context,
 			final String name,
-			final MultiscaleOMEZarrArray< T, V > multiscaleOMEZarrArray ) throws Error
+			final MultiscaleImage< T, V > multiscaleImage ) throws Error
 	{
 		this.context = context;
 		this.name = name;
-		this.multiscaleOMEZarrArray = multiscaleOMEZarrArray;
+		this.multiscaleImage = multiscaleImage;
 
-		omeZarrAxes = multiscaleOMEZarrArray.getAxes();
-		numResolutions = multiscaleOMEZarrArray.numResolutions();;
-		final long[] dimensions = multiscaleOMEZarrArray.dimensions();
+		omeZarrAxes = multiscaleImage.getAxes();
+		numResolutions = multiscaleImage.numResolutions();;
+		final long[] dimensions = multiscaleImage.dimensions();
 		numChannels = omeZarrAxes.hasChannels() ? ( int ) dimensions[ omeZarrAxes.channelIndex() ] : 1;
 		numTimePoints = omeZarrAxes.hasTimepoints() ? ( int ) dimensions[ omeZarrAxes.timeIndex() ] : 1;
 	}
@@ -169,7 +169,7 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 	{
 		if ( imgPlus != null ) return;
 
-		imgPlus = new ImgPlus<>( multiscaleOMEZarrArray.getImg( 0 ) );
+		imgPlus = new ImgPlus<>( multiscaleImage.getImg( 0 ) );
 		imgPlus.setName( getName() );
 		updateImpAxes();
 		updateImpColorTables();
@@ -181,31 +181,11 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 	 */
 	private void updateImpAxes()
 	{
-		final OmeZarrMultiscales.CoordinateTransformations coordinateTransformations = multiscaleOMEZarrArray.getCoordinateTransformations()[0];
-
-		final OMEZarrAxes omeZarrAxes = multiscaleOMEZarrArray.getAxes();
-		omeZarrAxes.toAxesList(  )
-		final double[] scale = coordinateTransformations.scale;
-		this.omeZarrAxes.getAxesList()
-
-		OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
-
-		if (multiscales.datasets[datasetId].coordinateTransformations != null && zarrAxesList != null) {
-			double[] scale = getXYZScale(multiscales.datasets[datasetId].coordinateTransformations[0]);
-			// get unit of last dimension, under assumption this is the X axis (i.e. a space axis)
-			String unit = zarrAxesList.get(zarrAxesList.size() - 1).getUnit();
-
-			if (scale != null && unit != null) {
-				if ( OMEZarrAxes.is2D()) {
-					return new FinalVoxelDimensions(unit, new double[]{scale[0], scale[1], 1.0});
-				} else {
-					return new FinalVoxelDimensions(unit, scale);
-				}
-			}
-		}
+		final OmeZarrMultiscales.CoordinateTransformations coordinateTransformations = multiscaleImage.getCoordinateTransformations()[0];
+		multiscaleImage.getAxes()
+		coordinateTransformations.scale
 
 
-		this.omeZarrAxes.toAxesList(  )
 		final ArrayList< CalibratedAxis > axes = new ArrayList<>();
 		axes.add( new DefaultLinearAxis( Axes.X, calib.unit(), calib.voxelSize( 0 ) ) );
 		axes.add( new DefaultLinearAxis( Axes.Y, calib.unit(), calib.voxelSize( 1 ) ) );
@@ -225,7 +205,7 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 	@Override
 	public int numDimensions()
 	{
-		return multiscaleOMEZarrArray.numDimensions();
+		return multiscaleImage.numDimensions();
 	}
 
 	/**
@@ -251,7 +231,7 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 	@Override
 	public T getType()
 	{
-		return multiscaleOMEZarrArray.getType();
+		return multiscaleImage.getType();
 	}
 
 	/**

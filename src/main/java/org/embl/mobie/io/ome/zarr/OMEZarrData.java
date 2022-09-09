@@ -44,7 +44,7 @@ public class OMEZarrData
 	private final Context context;
 	private final String omeZarrPath;
 	private String[] multiscalePaths;
-	private Map< String, MultiscaleOMEZarrArray< ?, ? > > multiscaleArrays;
+	private Map< String, MultiscaleImage< ?, ? > > multiscaleArrays;
 
 	OMEZarrData(
 			final Context context,
@@ -56,7 +56,7 @@ public class OMEZarrData
 		this.multiscalePaths = fetchImagePyramidPaths( omeZarrPath );
 		this.multiscaleArrays = new HashMap<>();
 		for ( String multiscalePath : multiscalePaths )
-			multiscaleArrays.put( multiscalePath, new MultiscaleOMEZarrArray( multiscalePath, queue ) );
+			multiscaleArrays.put( multiscalePath, new MultiscaleImage( multiscalePath, queue ) );
 	}
 
 	private String[] fetchImagePyramidPaths( String omeZarrPath )

@@ -27,7 +27,6 @@ public class Multiscales
     public Dataset[] datasets;
     public CoordinateTransformations[] coordinateTransformations;
 
-
     public Multiscales() {
     }
 
