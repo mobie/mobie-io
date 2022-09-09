@@ -46,7 +46,7 @@ import java.util.Arrays;
  *
  * @author Tobias Pietzsch
  */
-interface PyramidalArray< T, V > extends EuclideanSpace
+interface PyramidalImage< T, V > extends EuclideanSpace
 {
 	int numResolutions();
 

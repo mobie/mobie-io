@@ -43,8 +43,8 @@ public class OMEZarrData
 {
 	private final Context context;
 	private final String omeZarrPath;
-	private String[] imagePyramidPaths;
-	private Map< String, PyramidalOMEZarrArray< ?, ? > > imagePyramids;
+	private String[] multiscalePaths;
+	private Map< String, MultiscaleOMEZarrArray< ?, ? > > multiscaleArrays;
 
 	OMEZarrData(
 			final Context context,
@@ -53,11 +53,10 @@ public class OMEZarrData
 	{
 		this.context = context;
 		this.omeZarrPath = omeZarrPath;
-		this.imagePyramidPaths = fetchImagePyramidPaths( omeZarrPath );
-		this.imagePyramids = new HashMap<>();
-		for ( String zArrayPath : imagePyramidPaths )
-			imagePyramids.put( zArrayPath, new PyramidalOMEZarrArray( zArrayPath, queue, false ) );
-		// TODO we could fetch some other (collection) metadata, once specified
+		this.multiscalePaths = fetchImagePyramidPaths( omeZarrPath );
+		this.multiscaleArrays = new HashMap<>();
+		for ( String multiscalePath : multiscalePaths )
+			multiscaleArrays.put( multiscalePath, new MultiscaleOMEZarrArray( multiscalePath, queue ) );
 	}
 
 	private String[] fetchImagePyramidPaths( String omeZarrPath )
@@ -68,11 +67,11 @@ public class OMEZarrData
 
 	public Pyramidal5DImage getDataset()
 	{
-		final String firstPyramidName = imagePyramids.keySet().iterator().next();
+		final String firstPyramidName = multiscaleArrays.keySet().iterator().next();
 		return new DefaultOMEZarrPyramidal5DImage<>(
 				context,
 				firstPyramidName,
-				imagePyramids.get( firstPyramidName ) );
+				multiscaleArrays.get( firstPyramidName ) );
 	}
 
 	// TODO: add methods for creating a dataset by
@@ -80,6 +79,6 @@ public class OMEZarrData
 
 	public Set< String > getPyramidNames()
 	{
-		return imagePyramids.keySet();
+		return multiscaleArrays.keySet();
 	}
 }

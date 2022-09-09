@@ -10,7 +10,8 @@ public class OmeZarrMultiscales {
     public static final String MULTI_SCALE_KEY = "multiscales";
 
     public transient OMEZarrAxes axes;
-    public List<ZarrAxis> zarrAxisList;
+    public transient List<ZarrAxis> zarrAxisList;
+
     public Dataset[] datasets;
     public String name;
     public String type;

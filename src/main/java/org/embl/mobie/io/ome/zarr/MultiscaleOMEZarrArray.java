@@ -32,6 +32,8 @@ import bdv.img.cache.VolatileCachedCellImg;
 import bdv.util.volatiles.SharedQueue;
 import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.util.volatiles.VolatileViews;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
@@ -59,7 +61,7 @@ import javax.annotation.Nullable;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
-class PyramidalOMEZarrArray< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements PyramidalArray< T, V >
+class MultiscaleOMEZarrArray< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements PyramidalImage< T, V >
 {
 	private int numResolutions;
 
@@ -86,7 +88,7 @@ class PyramidalOMEZarrArray< T extends NativeType< T > & RealType< T >, V extend
 	/**
 	 * TODO
 	 */
-	public PyramidalOMEZarrArray(
+	public MultiscaleOMEZarrArray(
 			final String imagePyramidPath,
 			@Nullable final SharedQueue queue
 	) throws Error
@@ -114,14 +116,33 @@ class PyramidalOMEZarrArray< T extends NativeType< T > & RealType< T >, V extend
 		{
 			final N5ZarrReader n5ZarrReader = new N5ZarrReader( imagePyramidPath );
 
-			// Fetch multiscales metadata
+			// Fetch metadata
 			//
-			OmeZarrMultiscales[] multiscales = n5ZarrReader.getAttribute( imagePyramidPath, MULTI_SCALE_KEY, OmeZarrMultiscales[].class );
-			numResolutions = multiscales.length;
+			Multiscales[] multiscalesArray = n5ZarrReader.getAttribute( imagePyramidPath, MULTI_SCALE_KEY, Multiscales[].class );
+
+			// In principle the call above would be sufficient.
+			// However since we need to support different
+			// versions of OME-Zarrr we need to "manually"
+			// fix some fields.
+			// Thus, we parse the same JSON again and fill in missing
+			// information.
+			// TODO: could we do this by means of a JsonDeserializer?
+			final JsonArray multiscalesJsonArray = n5ZarrReader.getAttributes( imagePyramidPath ).get( MULTI_SCALE_KEY ).getAsJsonArray();
+			for ( int i = 0; i < multiscalesArray.length; i++ )
+				multiscalesArray[ i ].applyVersionFixes( multiscalesJsonArray.get( i ).getAsJsonObject() );
+
+			// From the spec:
+			// TODO "If only one multiscale is provided, use it. Otherwise, the user can choose by name, using the first multiscale as a fallback"
+			//    Right now, I will proceed with the first one.
+			//    I guess, this should be a constructor parameter which one to choose.
+
+			numResolutions = multiscalesArray.length;
+			n5ZarrReader.getAttributes(  )
+			this.OMEZarrAxes = OMEZarrAxes.decode(axesJson.toString());
 
 			// Set metadata.
 			//
-			final OmeZarrMultiscales multiscale = multiscales[ 0 ];
+			final OmeZarrMultiscales multiscale = multiscalesArray[ 0 ];
 			axes = multiscale.axes;
 			attributes = n5ZarrReader.getDatasetAttributes( multiscale.datasets[ 0 ].path );
 			initTypes( attributes );
@@ -203,6 +224,7 @@ class PyramidalOMEZarrArray< T extends NativeType< T > & RealType< T >, V extend
 		init();
 		return coordinateTransformations;
 	}
+
 
 	@Override
 	public long[] dimensions()
