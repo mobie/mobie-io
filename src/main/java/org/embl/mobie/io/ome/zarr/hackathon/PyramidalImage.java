@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.ome.zarr;
+package org.embl.mobie.io.ome.zarr.hackathon;
 
 import bdv.util.AxisOrder;
 import net.imglib2.EuclideanSpace;

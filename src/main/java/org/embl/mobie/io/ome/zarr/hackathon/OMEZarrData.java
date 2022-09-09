@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.ome.zarr;
+package org.embl.mobie.io.ome.zarr.hackathon;
 
 import Imaris.IDataSetPrx;
 import bdv.util.volatiles.SharedQueue;
@@ -68,7 +68,7 @@ public class OMEZarrData
 	public Pyramidal5DImage getDataset()
 	{
 		final String firstPyramidName = multiscaleArrays.keySet().iterator().next();
-		return new DefaultOMEZarrPyramidal5DImage<>(
+		return new SingleMultiscalePyramidal5DImage<>(
 				context,
 				firstPyramidName,
 				multiscaleArrays.get( firstPyramidName ) );

@@ -1,4 +1,4 @@
-package org.embl.mobie.io.ome.zarr;
+package org.embl.mobie.io.ome.zarr.hackathon;
 
 import bdv.viewer.SourceAndConverter;
 import mpicbg.spim.data.SpimData;

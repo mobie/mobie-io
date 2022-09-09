@@ -26,31 +26,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.ome.zarr;
+package org.embl.mobie.io.ome.zarr.hackathon;
 
-import Imaris.IDataSetPrx;
-import bdv.util.AxisOrder;
 import bdv.viewer.SourceAndConverter;
-import com.bitplane.xt.util.ColorTableUtils;
 import mpicbg.spim.data.SpimData;
-import mpicbg.spim.data.sequence.FinalVoxelDimensions;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
+import net.imagej.axis.AxisType;
 import net.imagej.axis.CalibratedAxis;
 import net.imagej.axis.DefaultLinearAxis;
 import net.imglib2.EuclideanSpace;
 import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
-import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
 import org.embl.mobie.io.ome.zarr.util.OMEZarrAxes;
-import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
+import org.jetbrains.annotations.NotNull;
 import org.scijava.Context;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -60,7 +57,7 @@ import java.util.List;
  * @param <T> Type of the pixels
  * @param <V> Volatile type of the pixels
  */
-public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements EuclideanSpace, Pyramidal5DImage< T >
+public class SingleMultiscalePyramidal5DImage< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements EuclideanSpace, Pyramidal5DImage< T >
 {
 	/**
 	 * The scijava context. This is needed (only) for creating {@link #ijDataset}.
@@ -85,6 +82,7 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 
 	private SpimData spimData;
 	private OMEZarrAxes omeZarrAxes;
+	private int numDimensions;
 
 	/**
 	 * Build a dataset from a single {@code PyramidalOMEZarrArray},
@@ -94,7 +92,7 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 	 * @param multiscaleImage The array containing the image all data.
 	 * @throws Error
 	 */
-	DefaultOMEZarrPyramidal5DImage(
+	SingleMultiscalePyramidal5DImage(
 			final Context context,
 			final String name,
 			final MultiscaleImage< T, V > multiscaleImage ) throws Error
@@ -103,23 +101,11 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 		this.name = name;
 		this.multiscaleImage = multiscaleImage;
 
-		omeZarrAxes = multiscaleImage.getAxes();
 		numResolutions = multiscaleImage.numResolutions();;
 		final long[] dimensions = multiscaleImage.dimensions();
+		numDimensions = dimensions.length;
 		numChannels = omeZarrAxes.hasChannels() ? ( int ) dimensions[ omeZarrAxes.channelIndex() ] : 1;
 		numTimePoints = omeZarrAxes.hasTimepoints() ? ( int ) dimensions[ omeZarrAxes.timeIndex() ] : 1;
-	}
-
-
-	/**
-	 * Get an {@code ImgPlus} wrapping the full resolution image (see {@link
-	 * #asImg}). Metadata and color tables are set up according to Imaris (at
-	 * the time of construction of this {@code ImarisDataset}).
-	 */
-	public ImgPlus< T > asImgPlus()
-	{
-		initImgPlus();
-		return imgPlus;
 	}
 
 	@Override
@@ -140,16 +126,17 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 		}
 	}
 
-
 	@Override
 	public List< SourceAndConverter< T > > asSources()
 	{
+		// FIXME: implement List< SourceAndConverter< T > > creation
 		return sources;
 	}
 
 	@Override
 	public SpimData asSpimData()
 	{
+		// FIXME: implement SpimData creation
 		return spimData;
 	}
 
@@ -165,41 +152,90 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 		return null;
 	}
 
-	private void initImgPlus()
+	private synchronized void initImgPlus()
 	{
 		if ( imgPlus != null ) return;
 
 		imgPlus = new ImgPlus<>( multiscaleImage.getImg( 0 ) );
 		imgPlus.setName( getName() );
-		updateImpAxes();
-		updateImpColorTables();
-		updateImpChannelMinMax();
+		updateImgAxes();
 	}
 
 	/**
 	 * Create/update calibrated axes for ImgPlus.
+	 *
+	 * This only needs to consider
+	 * the highest resolution dataset and metadata.
 	 */
-	private void updateImpAxes()
+	private void updateImgAxes()
 	{
-		final OmeZarrMultiscales.CoordinateTransformations coordinateTransformations = multiscaleImage.getCoordinateTransformations()[0];
-		multiscaleImage.getAxes()
-		coordinateTransformations.scale
+		final Multiscales multiscales = multiscaleImage.getMultiscales();
 
+		// The axes, which are valid for all resolutions.
+		final List< Multiscales.Axis > axes = multiscales.getAxes();
 
-		final ArrayList< CalibratedAxis > axes = new ArrayList<>();
-		axes.add( new DefaultLinearAxis( Axes.X, calib.unit(), calib.voxelSize( 0 ) ) );
-		axes.add( new DefaultLinearAxis( Axes.Y, calib.unit(), calib.voxelSize( 1 ) ) );
+		// The global transformations that
+		// should be applied to all resolutions.
+		final Multiscales.CoordinateTransformations[] globalCoordinateTransformations = multiscales.getCoordinateTransformations();
 
-		final AxisOrder axisOrder = datasetDimensions.getAxisOrder();
-		if ( axisOrder.hasZ() )
-			axes.add( new DefaultLinearAxis( Axes.Z, calib.unit(), calib.voxelSize( 2 ) ) );
-		if ( axisOrder.hasChannels() )
-			axes.add( new DefaultLinearAxis( Axes.CHANNEL ) );
-		if ( axisOrder.hasTimepoints() )
-			axes.add( new DefaultLinearAxis( Axes.TIME ) );
+		// The transformations that should
+		// only be applied to the highest resolution,
+		// which is the one we are concerned with here.
+		final Multiscales.CoordinateTransformations[] coordinateTransformations = multiscales.getDatasets()[ 0 ].coordinateTransformations;
 
-		for ( int i = 0; i < axes.size(); ++i )
-			imgPlus.setAxis( axes.get( i ), i );
+		// Concatenate all scaling transformations
+		final double[] scales = new double[ numDimensions ];
+		Arrays.fill( scales, 1.0 );
+		if ( globalCoordinateTransformations != null )
+			for ( Multiscales.CoordinateTransformations transformation : globalCoordinateTransformations )
+				for ( int d = 0; d < numDimensions; d++ )
+					scales[ d ] *= 	transformation.scale[ d ];
+
+		if ( coordinateTransformations != null )
+			for ( Multiscales.CoordinateTransformations transformation : coordinateTransformations )
+				for ( int d = 0; d < numDimensions; d++ )
+					scales[ d ] *= 	transformation.scale[ d ];
+
+		// Create the imgAxes
+		final ArrayList< CalibratedAxis > imgAxes = new ArrayList<>();
+
+		// X
+		final int xAxisIndex = multiscales.getSpatialAxisIndex( Multiscales.Axis.X_AXIS_NAME );
+		if ( xAxisIndex > 0 )
+			imgAxes.add( createAxis( xAxisIndex, Axes.X, axes, scales ) );
+
+		// Y
+		final int yAxisIndex = multiscales.getSpatialAxisIndex( Multiscales.Axis.Y_AXIS_NAME );
+		if ( yAxisIndex > 0 )
+			imgAxes.add( createAxis( yAxisIndex, Axes.Y, axes, scales ) );
+
+		// Z
+		final int zAxisIndex = multiscales.getSpatialAxisIndex( Multiscales.Axis.Z_AXIS_NAME );
+		if ( zAxisIndex > 0 )
+			imgAxes.add( createAxis( zAxisIndex, Axes.Z, axes, scales ) );
+
+		// C
+		final int cAxisIndex = multiscales.getChannelAxisIndex();
+		if ( cAxisIndex > 0 )
+			imgAxes.add( createAxis( cAxisIndex, Axes.CHANNEL, axes, scales ) );
+
+		// T
+		final int tAxisIndex = multiscales.getTimePointAxisIndex();
+		if ( tAxisIndex > 0 )
+			imgAxes.add( createAxis( tAxisIndex, Axes.TIME, axes, scales ) );
+
+		// Set all axes
+		for ( int i = 0; i < imgAxes.size(); ++i )
+			imgPlus.setAxis( imgAxes.get( i ), i );
+	}
+
+	@NotNull
+	private DefaultLinearAxis createAxis( int axisIndex, AxisType axisType, List< Multiscales.Axis > axes, double[] scale )
+	{
+		return new DefaultLinearAxis(
+				axisType,
+				axes.get( axisIndex ).unit,
+				scale[ axisIndex ] );
 	}
 
 	@Override
@@ -232,35 +268,6 @@ public class DefaultOMEZarrPyramidal5DImage< T extends NativeType< T > & RealTyp
 	public T getType()
 	{
 		return multiscaleImage.getType();
-	}
-
-	/**
-	 * Get the size of the underlying
-	 * 5D Imaris dataset and the mapping to dimensions of the ImgLib2
-	 * representation.
-	 */
-	public DatasetDimensions getDatasetDimensions()
-	{
-		return datasetDimensions;
-	}
-
-	/**
-	 * Get the physical calibration: unit, voxel size, and min in XYZ.
-	 */
-	public DatasetCalibration getCalibration()
-	{
-		return calib.copy();
-	}
-
-	/**
-	 * Get the base color of a channel.
-	 *
-	 * @param channel index of the channel
-	 * @return channel color
-	 */
-	public ARGBType getChannelColor( final int channel ) throws Error
-	{
-		return ColorTableUtils.getChannelColor( zArrayPath, channel );
 	}
 
 	@Override

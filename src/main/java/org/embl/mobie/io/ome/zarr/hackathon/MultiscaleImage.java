@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.ome.zarr;
+package org.embl.mobie.io.ome.zarr.hackathon;
 
 import bdv.img.cache.VolatileCachedCellImg;
 import bdv.util.volatiles.SharedQueue;
@@ -49,7 +49,6 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.Cast;
-import org.embl.mobie.io.ome.zarr.util.OMEZarrAxes;
 import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
@@ -114,7 +113,7 @@ class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Vola
 			// TODO: could we do this by means of a JsonDeserializer?
 			final JsonArray multiscalesJsonArray = n5ZarrReader.getAttributes( multiscalePath ).get( MULTI_SCALE_KEY ).getAsJsonArray();
 			for ( int i = 0; i < multiscalesArray.length; i++ )
-				multiscalesArray[ i ].applyVersionFixes( multiscalesJsonArray.get( i ).getAsJsonObject() );
+				multiscalesArray[ i ].applyVersionFixesAndInit( multiscalesJsonArray.get( i ).getAsJsonObject() );
 
 			// TODO
 			//   From the spec:
@@ -125,16 +124,20 @@ class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Vola
 			//   One option would be to add the {@code multiscaleArrayIndex}
 			//   array index as a parameter to the constructor
 			multiscales = multiscalesArray[ multiscaleArrayIndex ];
-			numResolutions = multiscales.datasets.length;
+
+			// Here, datasets are single resolution N-D Images.
+			// Each dataset represents one resolution layer.
+			final Multiscales.Dataset[] datasets = multiscales.getDatasets();
+			numResolutions = datasets.length;
 
 			// Set the dimensions and data type
 			// from the highest resolution dataset's
 			// metadata.
-			final DatasetAttributes attributes = n5ZarrReader.getDatasetAttributes( multiscales.datasets[0].path );
+			final DatasetAttributes attributes = n5ZarrReader.getDatasetAttributes( datasets[ 0 ].path );
 			dimensions = attributes.getDimensions();
 			initTypes( attributes.getDataType() );
 
-			// Initialize the images.
+			// Initialize the images for all resolutions.
 			//
 			imgs = new CachedCellImg[ numResolutions ];
 			vimgs = new VolatileCachedCellImg[ numResolutions ];
