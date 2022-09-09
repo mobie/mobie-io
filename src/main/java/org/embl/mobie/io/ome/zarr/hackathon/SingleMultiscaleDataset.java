@@ -57,7 +57,7 @@ import java.util.List;
  * @param <T> Type of the pixels
  * @param <V> Volatile type of the pixels
  */
-public class SingleMultiscalePyramidal5DImage< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements EuclideanSpace, Pyramidal5DImage< T >
+public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements EuclideanSpace, Pyramidal5DImage< T >
 {
 	/**
 	 * The scijava context. This is needed (only) for creating {@link #ijDataset}.
@@ -92,7 +92,7 @@ public class SingleMultiscalePyramidal5DImage< T extends NativeType< T > & RealT
 	 * @param multiscaleImage The array containing the image all data.
 	 * @throws Error
 	 */
-	SingleMultiscalePyramidal5DImage(
+	SingleMultiscaleDataset(
 			final Context context,
 			final String name,
 			final MultiscaleImage< T, V > multiscaleImage ) throws Error

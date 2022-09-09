@@ -41,8 +41,8 @@ public class OMEZarrData
 	private final SharedQueue queue;
 
 	OMEZarrData(
-			final Context context,
 			final String omeZarrPath,
+			final Context context, // Scijava context
 			@Nullable final SharedQueue queue )
 	{
 		this.context = context;
@@ -66,9 +66,15 @@ public class OMEZarrData
 	 */
 	public Pyramidal5DImage createDefaultImage()
 	{
+		// Create a Java object from the first
+		// multiscale metadata in the container.
 		final MultiscaleImage< ?, ? > multiscaleImage = new MultiscaleImage<>( multiscalePaths[ 0 ], queue );
 
-		return new SingleMultiscalePyramidal5DImage<>(
+		// Convert it to something that ImageJ
+		// can understand.
+		// Note: a {@code Dataset} is the
+		// "primary image data structure in ImageJ".
+		return new SingleMultiscaleDataset<>(
 				context,
 				multiscalePaths[ 0 ],
 				multiscaleImage );
