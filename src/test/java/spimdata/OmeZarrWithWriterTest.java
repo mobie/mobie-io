@@ -11,7 +11,7 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 import org.embl.mobie.io.n5.util.DownsampleBlock;
 import org.embl.mobie.io.n5.writers.WriteImagePlusToN5;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.OMEZarrAxes;
 import org.embl.mobie.io.ome.zarr.writers.imageplus.WriteImagePlusToN5OmeZarr;
 import org.embl.mobie.io.util.IOHelper;
 import org.everit.json.schema.Schema;
@@ -210,17 +210,17 @@ public class OmeZarrWithWriterTest {
         return filePath;
     }
 
-    String writeImageAndGetPath(ImageDataFormat imageDataFormat, ZarrAxes axes) {
+    String writeImageAndGetPath(ImageDataFormat imageDataFormat, OMEZarrAxes axes) {
 
         ImagePlus imp;
-        if (axes == ZarrAxes.ZYX) {
+        if (axes == OMEZarrAxes.ZYX) {
             // make an image with random values, same size as the imagej sample head image
             imp = makeZYXImage(imageName, defaultWidth, defaultHeight, defaultDepth);
-        } else if (axes == ZarrAxes.CZYX) {
+        } else if (axes == OMEZarrAxes.CZYX) {
             imp = makeCZYXImage(imageName, defaultWidth, defaultHeight, defaultDepth, defaultNChannels);
-        } else if (axes == ZarrAxes.TZYX) {
+        } else if (axes == OMEZarrAxes.TZYX) {
             imp = makeTZYXImage(imageName, defaultWidth, defaultHeight, defaultDepth, defaultNTimepoints);
-        } else if (axes == ZarrAxes.TCZYX) {
+        } else if (axes == OMEZarrAxes.TCZYX) {
             imp = makeTCZYXImage(imageName, defaultWidth, defaultHeight, defaultDepth,
                 defaultNChannels, defaultNTimepoints);
         } else {
@@ -282,7 +282,7 @@ public class OmeZarrWithWriterTest {
     @Test
     void writeAndReadZYXImageBdvN5() throws SpimDataException {
         ImageDataFormat format = ImageDataFormat.BdvN5;
-        String xmlPath = writeImageAndGetPath(format, ZarrAxes.ZYX);
+        String xmlPath = writeImageAndGetPath(format, OMEZarrAxes.ZYX);
 
         n5Assertions(xmlPath, 1, 1);
     }
@@ -290,7 +290,7 @@ public class OmeZarrWithWriterTest {
     @Test
     void writeAndReadCZYXImageBdvN5() throws SpimDataException {
         ImageDataFormat format = ImageDataFormat.BdvN5;
-        String xmlPath = writeImageAndGetPath(format, ZarrAxes.CZYX);
+        String xmlPath = writeImageAndGetPath(format, OMEZarrAxes.CZYX);
 
         n5Assertions(xmlPath, defaultNChannels, 1);
     }
@@ -298,7 +298,7 @@ public class OmeZarrWithWriterTest {
     @Test
     void writeAndReadTZYXImageBdvN5() throws SpimDataException {
         ImageDataFormat format = ImageDataFormat.BdvN5;
-        String xmlPath = writeImageAndGetPath(format, ZarrAxes.TZYX);
+        String xmlPath = writeImageAndGetPath(format, OMEZarrAxes.TZYX);
 
         n5Assertions(xmlPath, 1, defaultNTimepoints);
     }
@@ -306,7 +306,7 @@ public class OmeZarrWithWriterTest {
     @Test
     void writeAndReadTCZYXImageBdvN5() throws SpimDataException {
         ImageDataFormat format = ImageDataFormat.BdvN5;
-        String xmlPath = writeImageAndGetPath(format, ZarrAxes.TCZYX);
+        String xmlPath = writeImageAndGetPath(format, OMEZarrAxes.TCZYX);
 
         n5Assertions(xmlPath, defaultNChannels, defaultNTimepoints);
     }
@@ -314,7 +314,7 @@ public class OmeZarrWithWriterTest {
     @Test
     void writeAndReadZYXImageOmeZarr() throws SpimDataException, IOException {
         ImageDataFormat format = ImageDataFormat.OmeZarr;
-        String zarrPath = writeImageAndGetPath(format, ZarrAxes.ZYX);
+        String zarrPath = writeImageAndGetPath(format, OMEZarrAxes.ZYX);
 
         zarrAssertions(zarrPath, 1, 1);
     }
@@ -322,7 +322,7 @@ public class OmeZarrWithWriterTest {
     @Test
     void writeAndReadCZYXImageOmeZarr() throws SpimDataException, IOException {
         ImageDataFormat format = ImageDataFormat.OmeZarr;
-        String zarrPath = writeImageAndGetPath(format, ZarrAxes.CZYX);
+        String zarrPath = writeImageAndGetPath(format, OMEZarrAxes.CZYX);
 
         zarrAssertions(zarrPath, defaultNChannels, 1);
     }
@@ -330,7 +330,7 @@ public class OmeZarrWithWriterTest {
     @Test
     void writeAndReadTZYXImageOmeZarr() throws SpimDataException, IOException {
         ImageDataFormat format = ImageDataFormat.OmeZarr;
-        String zarrPath = writeImageAndGetPath(format, ZarrAxes.TZYX);
+        String zarrPath = writeImageAndGetPath(format, OMEZarrAxes.TZYX);
 
         zarrAssertions(zarrPath, 1, defaultNTimepoints);
     }
@@ -338,7 +338,7 @@ public class OmeZarrWithWriterTest {
     @Test
     void writeAndReadTCZYXImageOmeZarr() throws SpimDataException, IOException {
         ImageDataFormat format = ImageDataFormat.OmeZarr;
-        String zarrPath = writeImageAndGetPath(format, ZarrAxes.TCZYX);
+        String zarrPath = writeImageAndGetPath(format, OMEZarrAxes.TCZYX);
 
         zarrAssertions(zarrPath, defaultNChannels, defaultNTimepoints);
     }

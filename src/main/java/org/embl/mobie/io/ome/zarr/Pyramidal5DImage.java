@@ -11,11 +11,14 @@ import java.util.List;
 
 
 /**
- * Various representations of a 5D (XYZCT) image loaded from an OME-Zarr.
+ * 5D multi-resolution array data
+ * represented as various 5D images objects
+ * that can be visualised in different ImageJ
+ * viewers.
  *
  * @param <T>
  */
-public interface OMEZarrDataset < T extends NativeType< T > & RealType< T > >
+public interface Pyramidal5DImage< T extends NativeType< T > & RealType< T > >
 {
 	/**
 	 * @return a IJ2 {@code net.imagej.Dataset} wrapping the full resolution
@@ -40,12 +43,14 @@ public interface OMEZarrDataset < T extends NativeType< T > & RealType< T > >
 
 	int numTimePoints();
 
+	int numResolutions();
+
+	T getType();
+
 	/**
 	 * @return  calibration of the spatial dimensions (XYZ)
 	 */
 	VoxelDimensions voxelDimensions();
 
-	OMEZarrData getOMEZarrData();
-
-	getName()
+	String getName();
 }

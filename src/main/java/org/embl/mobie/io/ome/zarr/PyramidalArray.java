@@ -29,13 +29,15 @@
 package org.embl.mobie.io.ome.zarr;
 
 import bdv.util.AxisOrder;
+import net.imglib2.EuclideanSpace;
 import net.imglib2.RandomAccessibleInterval;
 
 import java.util.Arrays;
 
 /**
- * Contains images and volatile images for each resolution level.
- * Holds metadata about axis order and number of resolutions, channels, and timepoints.
+ * Contains multi-resolution arrays.
+ * Contains volatile and non-volatile versions.
+ * Holds metadata about axes.
  *
  * @param <T>
  * 		pixel type
@@ -44,31 +46,11 @@ import java.util.Arrays;
  *
  * @author Tobias Pietzsch
  */
-interface ImagePyramid< T, V >
+interface PyramidalArray< T, V > extends EuclideanSpace
 {
 	int numResolutions();
 
-	AxisOrder axisOrder();
-
-	default boolean hasChannels()
-	{
-		return axisOrder().hasChannels();
-	}
-
-	default boolean hasTimepoints()
-	{
-		return axisOrder().hasTimepoints();
-	}
-
-	default int numChannels()
-	{
-		return ( int ) axisOrder().numChannels( getImg( 0 ) );
-	}
-
-	default int numTimepoints()
-	{
-		return ( int ) axisOrder().numTimepoints( getImg( 0 ) );
-	}
+	long[] dimensions();
 
 	RandomAccessibleInterval< T > getImg( final int resolutionLevel );
 
@@ -76,16 +58,16 @@ interface ImagePyramid< T, V >
 
 	default RandomAccessibleInterval< T >[] getImgs()
 	{
-		final RandomAccessibleInterval< T >[] result = new RandomAccessibleInterval[ numResolutions() ];
-		Arrays.setAll( result, i -> getImg( i ) );
-		return result;
+		final RandomAccessibleInterval< T >[] rais = new RandomAccessibleInterval[ numResolutions() ];
+		Arrays.setAll( rais, i -> getImg( i ) );
+		return rais;
 	}
 
 	default RandomAccessibleInterval< V >[] getVolatileImgs()
 	{
-		final RandomAccessibleInterval< V >[] result = new RandomAccessibleInterval[ numResolutions() ];
-		Arrays.setAll( result, i -> getVolatileImg( i ) );
-		return result;
+		final RandomAccessibleInterval< V >[] rais = new RandomAccessibleInterval[ numResolutions() ];
+		Arrays.setAll( rais, i -> getVolatileImg( i ) );
+		return rais;
 	}
 
 	/**

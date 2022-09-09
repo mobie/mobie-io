@@ -13,7 +13,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.collect.Lists;
 
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
-public enum ZarrAxes {
+public enum OMEZarrAxes
+{
     YX("[\"y\",\"x\"]"),
     CYX("[\"c\",\"y\",\"x\"]"),
     TYX("[\"t\",\"y\",\"x\"]"),
@@ -25,13 +26,13 @@ public enum ZarrAxes {
 
     private final String axes;
 
-    ZarrAxes(String axes) {
+    OMEZarrAxes( String axes) {
         this.axes = axes;
     }
 
     @JsonCreator
-    public static ZarrAxes decode(final String axes) {
-        return Stream.of(ZarrAxes.values()).filter(targetEnum ->
+    public static OMEZarrAxes decode( final String axes) {
+        return Stream.of( OMEZarrAxes.values()).filter( targetEnum ->
             targetEnum.axes.equals(axes)).findFirst().orElse(TCZYX);
     }
 

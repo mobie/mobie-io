@@ -29,7 +29,6 @@
 package org.embl.mobie.io.ome.zarr;
 
 import bdv.img.cache.VolatileCachedCellImg;
-import bdv.util.AxisOrder;
 import bdv.util.volatiles.SharedQueue;
 import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.util.volatiles.VolatileViews;
@@ -38,9 +37,20 @@ import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.util.Util;
+import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.type.numeric.integer.LongType;
+import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.integer.UnsignedIntType;
+import net.imglib2.type.numeric.integer.UnsignedLongType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
+import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.Cast;
 import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.OMEZarrAxes;
+import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.janelia.saalfeldlab.n5.zarr.N5ZarrReader;
@@ -49,15 +59,9 @@ import javax.annotation.Nullable;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
-class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements ImagePyramid<T,V>
+class PyramidalOMEZarrArray< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements PyramidalArray< T, V >
 {
 	private int numResolutions;
-
-	private int numChannels;
-
-	private int numTimepoints;
-
-	private AxisOrder axisOrder;
 
 	private T type;
 
@@ -65,28 +69,35 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 
 	private final SharedQueue queue;
 
-	private final boolean writable;
-
 	private CachedCellImg< T, ? >[] imgs;
 
 	private RandomAccessibleInterval< V > [] vimgs;
 
 	private final String imagePyramidPath;
 
-	private ZarrAxes zarrAxes;
+	private OMEZarrAxes axes;
+
+	private long[] dimensions;
+
+	private OmeZarrMultiscales.CoordinateTransformations[] coordinateTransformations;
+
+	private DatasetAttributes attributes;
 
 	/**
 	 * TODO
 	 */
-	public ZarrImagePyramid(
+	public PyramidalOMEZarrArray(
 			final String imagePyramidPath,
-			@Nullable final SharedQueue queue,
-			final boolean writable // TODO ??
+			@Nullable final SharedQueue queue
 	) throws Error
 	{
 		this.imagePyramidPath = imagePyramidPath;
 		this.queue = queue;
-		this.writable = writable; // TODO ??
+	}
+
+	public OMEZarrAxes getAxes()
+	{
+		return axes;
 	}
 
 	// TODO: Getter
@@ -108,19 +119,16 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 			OmeZarrMultiscales[] multiscales = n5ZarrReader.getAttribute( imagePyramidPath, MULTI_SCALE_KEY, OmeZarrMultiscales[].class );
 			numResolutions = multiscales.length;
 
-			// Set axes metadata.
+			// Set metadata.
 			//
-			// Fetch this metadata just from the highest
-			// resolution level, assuming this is the
-			// same for all resolutions
-			// TODO is this assumption valid?
 			final OmeZarrMultiscales multiscale = multiscales[ 0 ];
-			zarrAxes = multiscale.axes;
-			DatasetAttributes attributes = n5ZarrReader.getDatasetAttributes( multiscale.datasets[ 0 ].path );
-			numChannels = zarrAxes.hasChannels() ? ( int ) attributes.getDimensions()[ zarrAxes.channelIndex() ] : 1;
-			numTimepoints = zarrAxes.hasTimepoints() ? ( int ) attributes.getDimensions()[ zarrAxes.timeIndex() ] : 1;
+			axes = multiscale.axes;
+			attributes = n5ZarrReader.getDatasetAttributes( multiscale.datasets[ 0 ].path );
+			initTypes( attributes );
+			dimensions = attributes.getDimensions();
+			coordinateTransformations = multiscale.coordinateTransformations;
 
-			// Initialize the images
+			// Initialize images.
 			//
 			imgs = new CachedCellImg[ numResolutions ];
 			vimgs = new VolatileCachedCellImg[ numResolutions ];
@@ -142,15 +150,65 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 		}
 	}
 
-	private void initTypes()
+	private void initTypes( DatasetAttributes attributes )
 	{
 		if ( type != null ) return;
 
-		init();
+		// Note: we could also get that from the
+		//   {@code imgs} but that may trigger loading
+		//   some data, which may be time-consuming if it
+		//   needs to fetch from the cloud.
 
-		// TODO can we get the type without accessing the data?
-		type = Util.getTypeFromInterval( imgs[ 0 ] );
+		// TODO JOHN: Does the below code already exists
+		//   somewhere in N5?
+		final DataType dataType = attributes.getDataType();
+		switch ( dataType ) {
+			case UINT8:
+				type = Cast.unchecked( new UnsignedByteType() );
+				break;
+			case UINT16:
+				type = Cast.unchecked( new UnsignedShortType() );
+				break;
+			case UINT32:
+				type = Cast.unchecked( new UnsignedIntType() );
+				break;
+			case UINT64:
+				type = Cast.unchecked( new UnsignedLongType() );
+				break;
+			case INT8:
+				type = Cast.unchecked( new ByteType() );
+				break;
+			case INT16:
+				type = Cast.unchecked( new ShortType() );
+				break;
+			case INT32:
+				type = Cast.unchecked( new IntType() );
+				break;
+			case INT64:
+				type = Cast.unchecked( new LongType() );
+				break;
+			case FLOAT32:
+				type = Cast.unchecked( new FloatType() );
+				break;
+			case FLOAT64:
+				type = Cast.unchecked( new DoubleType() );
+				break;
+		}
+
 		volatileType = ( V ) VolatileTypeMatcher.getVolatileTypeForType( type );
+	}
+
+	public OmeZarrMultiscales.CoordinateTransformations[] getCoordinateTransformations()
+	{
+		init();
+		return coordinateTransformations;
+	}
+
+	@Override
+	public long[] dimensions()
+	{
+		init();
+		return dimensions;
 	}
 
 	@Override
@@ -158,27 +216,6 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 	{
 		init();
 		return numResolutions;
-	}
-
-	@Override
-	public AxisOrder axisOrder()
-	{
-		init();
-		return axisOrder;
-	}
-
-	@Override
-	public int numChannels()
-	{
-		init();
-		return numChannels;
-	}
-
-	@Override
-	public int numTimepoints()
-	{
-		init();
-		return numTimepoints;
 	}
 
 	@Override
@@ -198,14 +235,14 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 	@Override
 	public T getType()
 	{
-		initTypes();
+		init();
 		return type;
 	}
 
 	@Override
 	public V getVolatileType()
 	{
-		initTypes();
+		init();
 		return volatileType;
 	}
 
@@ -214,4 +251,9 @@ class ZarrImagePyramid< T extends NativeType< T > & RealType< T >, V extends Vol
 		return queue;
 	}
 
+	@Override
+	public int numDimensions()
+	{
+		return dimensions.length;
+	}
 }

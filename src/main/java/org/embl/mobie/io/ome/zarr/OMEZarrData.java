@@ -44,7 +44,7 @@ public class OMEZarrData
 	private final Context context;
 	private final String omeZarrPath;
 	private String[] imagePyramidPaths;
-	private Map< String, ZarrImagePyramid< ?, ? > > imagePyramids;
+	private Map< String, PyramidalOMEZarrArray< ?, ? > > imagePyramids;
 
 	OMEZarrData(
 			final Context context,
@@ -56,7 +56,7 @@ public class OMEZarrData
 		this.imagePyramidPaths = fetchImagePyramidPaths( omeZarrPath );
 		this.imagePyramids = new HashMap<>();
 		for ( String zArrayPath : imagePyramidPaths )
-			imagePyramids.put( zArrayPath, new ZarrImagePyramid( zArrayPath, queue, false ) );
+			imagePyramids.put( zArrayPath, new PyramidalOMEZarrArray( zArrayPath, queue, false ) );
 		// TODO we could fetch some other (collection) metadata, once specified
 	}
 
@@ -66,10 +66,10 @@ public class OMEZarrData
 		return new String[ 0 ];
 	}
 
-	public OMEZarrDataset getDataset()
+	public Pyramidal5DImage getDataset()
 	{
 		final String firstPyramidName = imagePyramids.keySet().iterator().next();
-		return new SinglePyramidOMEZarrDataset<>(
+		return new DefaultOMEZarrPyramidal5DImage<>(
 				context,
 				firstPyramidName,
 				imagePyramids.get( firstPyramidName ) );

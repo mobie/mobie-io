@@ -41,7 +41,7 @@ import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReader;
 import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReaderHelper;
 import org.embl.mobie.io.ome.zarr.util.OmeZArrayAttributes;
 import org.embl.mobie.io.ome.zarr.util.ZArrayAttributes;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.OMEZarrAxes;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxis;
 import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
 import org.janelia.saalfeldlab.n5.DataBlock;
@@ -63,7 +63,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
     protected final boolean mapN5DatasetAttributes;
     final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
     protected String dimensionSeparator;
-    private ZarrAxes zarrAxes;
+    private OMEZarrAxes OMEZarrAxes;
     private List<ZarrAxis> zarrAxesList;
 
     /**
@@ -301,16 +301,16 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         return super.listAttributes(pathName);
     }
 
-    public ZarrAxes getAxes() {
-        return this.zarrAxes;
+    public OMEZarrAxes getAxes() {
+        return this.OMEZarrAxes;
     }
 
     @Override
     public void setAxes(JsonElement axesJson) {
         if (axesJson != null) {
-            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
+            this.OMEZarrAxes = OMEZarrAxes.decode(axesJson.toString());
         } else {
-            this.zarrAxes = ZarrAxes.TCZYX;
+            this.OMEZarrAxes = OMEZarrAxes.TCZYX;
         }
     }
 

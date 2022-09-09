@@ -35,7 +35,7 @@ import java.util.List;
 import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReader;
 import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReaderHelper;
 import org.embl.mobie.io.ome.zarr.util.ZArrayAttributes;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.OMEZarrAxes;
 import org.embl.mobie.io.ome.zarr.util.ZarrAxis;
 import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
 import org.janelia.saalfeldlab.n5.DataBlock;
@@ -62,7 +62,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     private final N5ZarrImageReaderHelper n5ZarrImageReaderHelper;
     protected String dimensionSeparator;
     List<ZarrAxis> zarrAxesList = new ArrayList<>();
-    private ZarrAxes zarrAxes;
+    private OMEZarrAxes OMEZarrAxes;
 
     public N5S3OmeZarrReader(AmazonS3 s3, String serviceEndpoint, String bucketName, String containerPath, String dimensionSeparator) throws IOException {
         super(s3, bucketName, containerPath, N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
@@ -72,16 +72,16 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
         this.n5ZarrImageReaderHelper = new N5ZarrImageReaderHelper(N5ZarrImageReader.initGsonBuilder(new GsonBuilder()));
     }
 
-    public ZarrAxes getAxes() {
-        return this.zarrAxes;
+    public OMEZarrAxes getAxes() {
+        return this.OMEZarrAxes;
     }
 
     @Override
     public void setAxes(JsonElement axesJson) {
         if (axesJson != null) {
-            this.zarrAxes = ZarrAxes.decode(axesJson.toString());
+            this.OMEZarrAxes = OMEZarrAxes.decode(axesJson.toString());
         } else {
-            this.zarrAxes = ZarrAxes.TCZYX;
+            this.OMEZarrAxes = OMEZarrAxes.TCZYX;
         }
     }
 

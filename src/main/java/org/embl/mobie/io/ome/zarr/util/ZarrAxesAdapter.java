@@ -11,10 +11,10 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-public class ZarrAxesAdapter implements JsonDeserializer<ZarrAxes>, JsonSerializer<ZarrAxes> {
+public class ZarrAxesAdapter implements JsonDeserializer< OMEZarrAxes >, JsonSerializer< OMEZarrAxes > {
 
     @Override
-    public ZarrAxes deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public OMEZarrAxes deserialize( JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonArray array = json.getAsJsonArray();
         if (array.size() > 0) {
             StringBuilder axisString = new StringBuilder("[");
@@ -39,14 +39,14 @@ public class ZarrAxesAdapter implements JsonDeserializer<ZarrAxes>, JsonSerializ
 
             }
             axisString.append("]");
-            return ZarrAxes.decode(axisString.toString());
+            return OMEZarrAxes.decode(axisString.toString());
         } else {
             return null;
         }
     }
 
     @Override
-    public JsonElement serialize(ZarrAxes axes, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize( OMEZarrAxes axes, Type typeOfSrc, JsonSerializationContext context) {
         List<String> axisList = axes.getAxesList();
         JsonArray jsonArray = new JsonArray();
         for (String axis : axisList) {

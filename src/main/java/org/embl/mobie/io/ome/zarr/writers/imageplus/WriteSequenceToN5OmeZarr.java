@@ -14,7 +14,7 @@ import org.embl.mobie.io.n5.util.DownsampleBlock;
 import org.embl.mobie.io.n5.util.ExportScalePyramid;
 import org.embl.mobie.io.ome.zarr.util.N5OMEZarrCacheArrayLoader;
 import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxes;
+import org.embl.mobie.io.ome.zarr.util.OMEZarrAxes;
 import org.embl.mobie.io.ome.zarr.util.ZarrDatasetAttributes;
 import org.embl.mobie.io.ome.zarr.writers.N5OMEZarrWriter;
 import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
@@ -119,15 +119,15 @@ public class WriteSequenceToN5OmeZarr {
 
         N5OMEZarrWriter zarrWriter = new N5OMEZarrWriter(zarrFile.getAbsolutePath(), new GsonBuilder(), "/");
 
-        ZarrAxes axes;
+        OMEZarrAxes axes;
         if (timepointIds.size() > 1 && setupIds.size() > 1) {
-            axes = ZarrAxes.TCZYX;
+            axes = OMEZarrAxes.TCZYX;
         } else if (timepointIds.size() > 1) {
-            axes = ZarrAxes.TZYX;
+            axes = OMEZarrAxes.TZYX;
         } else if (setupIds.size() > 1) {
-            axes = ZarrAxes.CZYX;
+            axes = OMEZarrAxes.CZYX;
         } else {
-            axes = ZarrAxes.ZYX;
+            axes = OMEZarrAxes.ZYX;
         }
 
         // create group for top directory & add multiscales
@@ -197,7 +197,7 @@ public class WriteSequenceToN5OmeZarr {
         final int timepointId,
         final int totalNSetups,
         final int totalNTimepoints,
-        final ZarrAxes axes,
+        final OMEZarrAxes axes,
         final ExportMipmapInfo mipmapInfo,
         final ExecutorService executorService,
         final int numThreads,
@@ -235,11 +235,11 @@ public class WriteSequenceToN5OmeZarr {
         private final Function<ExportScalePyramid.Block<T>, DataBlock<?>> getDataBlock;
         private final int totalNSetups;
         private final int totalNTimepoints;
-        private final ZarrAxes axes;
+        private final OMEZarrAxes axes;
 
         public OmeZarrDatasetIO(final N5OMEZarrWriter zarrWriter, final Compression compression, final int setupId,
                                 final int timepointId, final T type,
-                                final int totalNSetups, final int totalNTimepoints, ZarrAxes axes) {
+                                final int totalNSetups, final int totalNTimepoints, OMEZarrAxes axes) {
             this.zarrWriter = zarrWriter;
             this.compression = compression;
             this.setupId = setupId;
