@@ -31,14 +31,8 @@ package org.embl.mobie.io.ome.zarr.hackathon;
 import bdv.img.cache.VolatileCachedCellImg;
 import bdv.util.volatiles.SharedQueue;
 import bdv.util.volatiles.VolatileTypeMatcher;
-import bdv.util.volatiles.VolatileViews;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import net.imagej.Dataset;
-import net.imagej.DatasetService;
 import net.imagej.ImageJ;
-import net.imagej.ImageJService;
-import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
@@ -59,14 +53,12 @@ import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.janelia.saalfeldlab.n5.zarr.N5ZarrReader;
-import org.scijava.Context;
-import org.scijava.ui.UIService;
 
 import javax.annotation.Nullable;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
-public class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements PyramidalImage< T, V >
+public class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > >
 {
 	private final String multiscalePath;
 
@@ -220,42 +212,36 @@ public class MultiscaleImage< T extends NativeType< T > & RealType< T >, V exten
 		return multiscales;
 	}
 
-	@Override
 	public long[] dimensions()
 	{
 		init();
 		return dimensions;
 	}
 
-	@Override
 	public int numResolutions()
 	{
 		init();
 		return numResolutions;
 	}
 
-	@Override
 	public CachedCellImg< T, ? > getImg( final int resolutionLevel )
 	{
 		init();
 		return imgs[ resolutionLevel ];
 	}
 
-	@Override
 	public RandomAccessibleInterval< V > getVolatileImg( final int resolutionLevel )
 	{
 		init();
 		return vimgs[ resolutionLevel ];
 	}
 
-	@Override
 	public T getType()
 	{
 		init();
 		return type;
 	}
 
-	@Override
 	public V getVolatileType()
 	{
 		init();
@@ -267,7 +253,6 @@ public class MultiscaleImage< T extends NativeType< T > & RealType< T >, V exten
 		return queue;
 	}
 
-	@Override
 	public int numDimensions()
 	{
 		return dimensions.length;
@@ -283,7 +268,9 @@ public class MultiscaleImage< T extends NativeType< T > & RealType< T >, V exten
 		System.out.println( img.toString() );
 
 		final ImageJ imageJ = new ImageJ();
-		final SingleMultiscaleDataset< ?, ? > dataset = new SingleMultiscaleDataset<>( imageJ.context(), "image", multiscaleImage );
-		imageJ.ui().show( dataset.asDataset() );
+		imageJ.ui().showUI();
+		final DefaultPyramidal5DImageData< ?, ? > dataset = new DefaultPyramidal5DImageData<>( imageJ.context(), "image", multiscaleImage );
+		imageJ.ui().show( dataset.asPyramidalDataset() );
+		imageJ.command().run( OpenInBDVCommand.class, true );
 	}
 }

@@ -57,7 +57,7 @@ import java.util.List;
  * @param <T> Type of the pixels
  * @param <V> Volatile type of the pixels
  */
-public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements EuclideanSpace, Pyramidal5DImage< T >
+public class DefaultPyramidal5DImageData< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements EuclideanSpace, Pyramidal5DImageData< T >
 {
 	/**
 	 * The scijava context. This is needed (only) for creating {@link #ijDataset}.
@@ -81,8 +81,11 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 	private List< SourceAndConverter< T > > sources;
 
 	private SpimData spimData;
+
 	private OMEZarrAxes omeZarrAxes;
+
 	private int numDimensions;
+
 	private long[] dimensions;
 
 	/**
@@ -93,7 +96,7 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 	 * @param multiscaleImage The array containing the image all data.
 	 * @throws Error
 	 */
-	public SingleMultiscaleDataset(
+	public DefaultPyramidal5DImageData(
 			final Context context,
 			final String name,
 			final MultiscaleImage< T, V > multiscaleImage ) throws Error
@@ -108,9 +111,15 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 	}
 
 	@Override
+	public PyramidalDataset asPyramidalDataset()
+	{
+		return new PyramidalDataset( this );
+	}
+
+	@Override
 	public Dataset asDataset()
 	{
-		initImgPlus();
+		imgPlus();
 
 		synchronized ( imgPlus )
 		{
@@ -151,13 +160,14 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 		return null;
 	}
 
-	private synchronized void initImgPlus()
+	private synchronized ImgPlus< T > imgPlus()
 	{
-		if ( imgPlus != null ) return;
+		if ( imgPlus != null ) return null;
 
 		imgPlus = new ImgPlus<>( multiscaleImage.getImg( 0 ) );
 		imgPlus.setName( getName() );
 		updateImgAxes();
+		return imgPlus;
 	}
 
 	/**

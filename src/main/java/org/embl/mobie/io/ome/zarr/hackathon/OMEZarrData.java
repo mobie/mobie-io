@@ -64,7 +64,7 @@ public class OMEZarrData
 	 *
 	 * @return
 	 */
-	public Pyramidal5DImage createDefaultImage()
+	public Pyramidal5DImageData createDefaultImage()
 	{
 		// Create a Java object from the first
 		// multiscale metadata in the container.
@@ -74,7 +74,7 @@ public class OMEZarrData
 		// can understand.
 		// Note: a {@code Dataset} is the
 		// "primary image data structure in ImageJ".
-		return new SingleMultiscaleDataset<>(
+		return new DefaultPyramidal5DImageData<>(
 				context,
 				multiscalePaths[ 0 ],
 				multiscaleImage );

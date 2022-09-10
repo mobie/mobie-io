@@ -4,6 +4,7 @@ import bdv.viewer.SourceAndConverter;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imagej.Dataset;
+import net.imagej.ImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -18,8 +19,15 @@ import java.util.List;
  *
  * @param <T>
  */
-public interface Pyramidal5DImage< T extends NativeType< T > & RealType< T > >
+public interface Pyramidal5DImageData< T extends NativeType< T > & RealType< T > >
 {
+	/**
+	 * @return an IJ2 {@code net.imagej.Dataset}
+	 *   with additional methods for retrieving the
+	 *   underlying multi-resolution data.
+	 */
+	PyramidalDataset asPyramidalDataset();
+
 	/**
 	 * @return a IJ2 {@code net.imagej.Dataset} wrapping the full resolution
 	 *   5D (XYZCT) image; this will indirectly also serve the ImagePlus.
@@ -47,9 +55,6 @@ public interface Pyramidal5DImage< T extends NativeType< T > & RealType< T > >
 
 	T getType();
 
-	/**
-	 * @return  calibration of the spatial dimensions (XYZ)
-	 */
 	VoxelDimensions voxelDimensions();
 
 	String getName();
