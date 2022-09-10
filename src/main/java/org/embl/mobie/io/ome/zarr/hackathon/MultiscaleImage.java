@@ -31,6 +31,7 @@ package org.embl.mobie.io.ome.zarr.hackathon;
 import bdv.img.cache.VolatileCachedCellImg;
 import bdv.util.volatiles.SharedQueue;
 import bdv.util.volatiles.VolatileTypeMatcher;
+import bdv.util.volatiles.VolatileViews;
 import com.google.gson.JsonArray;
 import net.imagej.ImageJ;
 import net.imglib2.RandomAccessibleInterval;
@@ -74,7 +75,7 @@ public class MultiscaleImage< T extends NativeType< T > & RealType< T >, V exten
 
 	private CachedCellImg< T, ? >[] imgs;
 
-	private RandomAccessibleInterval< V > [] vimgs;
+	private RandomAccessibleInterval< V >[] vimgs;
 
 	private Multiscales multiscales;
 
@@ -145,17 +146,16 @@ public class MultiscaleImage< T extends NativeType< T > & RealType< T >, V exten
 			//
 			// TODO only on demand
 			imgs = new CachedCellImg[ numResolutions ];
-			vimgs = new VolatileCachedCellImg[ numResolutions ];
+			vimgs = new RandomAccessibleInterval[ numResolutions ];
 
 			for ( int resolution = 0; resolution < numResolutions; ++resolution )
 			{
 				imgs[ resolution ] = N5Utils.openVolatile( n5ZarrReader, datasets[ resolution ].path );
 
-				// FIXME (Tischi asked Tobias in Zulip)
-//				if ( queue != null )
-//					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ], queue );
-//				else
-//					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ] );
+				if ( queue == null )
+					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ] );
+				else
+					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ], queue );
 			}
 		}
 		catch ( Exception e )
@@ -264,13 +264,14 @@ public class MultiscaleImage< T extends NativeType< T > & RealType< T >, V exten
 
 		final MultiscaleImage< ?, ? > multiscaleImage = new MultiscaleImage<>( multiscalePath, null );
 		multiscaleImage.dimensions();
-		final CachedCellImg< ?, ? > img = multiscaleImage.getImg( 0 );
-		System.out.println( img.toString() );
 
+		// Show as imagePlus
 		final ImageJ imageJ = new ImageJ();
 		imageJ.ui().showUI();
 		final DefaultPyramidal5DImageData< ?, ? > dataset = new DefaultPyramidal5DImageData<>( imageJ.context(), "image", multiscaleImage );
 		imageJ.ui().show( dataset.asPyramidalDataset() );
+
+		// Also show the displayed image in BDV
 		imageJ.command().run( OpenInBDVCommand.class, true );
 	}
 }
