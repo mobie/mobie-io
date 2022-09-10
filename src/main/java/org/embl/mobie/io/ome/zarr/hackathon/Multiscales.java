@@ -62,32 +62,18 @@ public class Multiscales
         public String unit;
     }
 
-    /**
-     * "Manually" set some fields from the JSON.
-     * This is necessary to support the
-     * different versions of OME-Zarr.
-     *
-     * TODO: Do this via a JSONAdapter?
-     *
-     * @param multiscales The multiscales JSON metadata.
-     */
-    public void applyVersionFixesAndInit( JsonElement multiscales ) {
-        applyVersionFixes( multiscales );
-        init();
-    }
-
-    private void init()
+    public void init()
     {
         axisList = Lists.reverse( Arrays.asList( axes ) );
         numDimensions = axisList.size();
     }
 
-    private void applyVersionFixes( JsonElement multiscales )
+    // TODO Can this be done with a JSONAdapter ?
+    public void applyVersionFixes( JsonElement multiscales )
     {
-        final JsonElement jsonElement = multiscales.getAsJsonArray().get( 0 );
-        String version = jsonElement.getAsJsonObject().get("version").getAsString();
+        String version = multiscales.getAsJsonObject().get("version").getAsString();
         if ( version.equals("0.3") ) {
-            JsonElement axes = jsonElement.getAsJsonObject().get("axes");
+            JsonElement axes = multiscales.getAsJsonObject().get("axes");
             // FIXME
             //   - populate Axes[]
             //   - populate coordinateTransformations[]
@@ -95,7 +81,7 @@ public class Multiscales
         } else if ( version.equals("0.4") ) {
             // This should just work automatically
         } else {
-            JsonElement axes = jsonElement.getAsJsonObject().get("axes");
+            JsonElement axes = multiscales.getAsJsonObject().get("axes");
             // FIXME
             //   - populate Axes[]
             //   - populate coordinateTransformations[]

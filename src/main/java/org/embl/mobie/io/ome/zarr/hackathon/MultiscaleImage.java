@@ -33,6 +33,12 @@ import bdv.util.volatiles.SharedQueue;
 import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.util.volatiles.VolatileViews;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import net.imagej.Dataset;
+import net.imagej.DatasetService;
+import net.imagej.ImageJ;
+import net.imagej.ImageJService;
+import net.imagej.ImgPlus;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
@@ -53,12 +59,14 @@ import org.janelia.saalfeldlab.n5.DataType;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.janelia.saalfeldlab.n5.zarr.N5ZarrReader;
+import org.scijava.Context;
+import org.scijava.ui.UIService;
 
 import javax.annotation.Nullable;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
-class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements PyramidalImage< T, V >
+public class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > implements PyramidalImage< T, V >
 {
 	private final String multiscalePath;
 
@@ -102,7 +110,7 @@ class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Vola
 
 			// Fetch metadata
 			//
-			Multiscales[] multiscalesArray = n5ZarrReader.getAttribute( multiscalePath, MULTI_SCALE_KEY, Multiscales[].class );
+			Multiscales[] multiscalesArray = n5ZarrReader.getAttribute( "", MULTI_SCALE_KEY, Multiscales[].class );
 
 			// In principle the call above would be sufficient.
 			// However since we need to support different
@@ -111,9 +119,13 @@ class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Vola
 			// Thus, we parse the same JSON again and fill in missing
 			// information.
 			// TODO: could we do this by means of a JsonDeserializer?
-			final JsonArray multiscalesJsonArray = n5ZarrReader.getAttributes( multiscalePath ).get( MULTI_SCALE_KEY ).getAsJsonArray();
+
+			final JsonArray multiscalesJsonArray = n5ZarrReader.getAttributes( "" ).get( MULTI_SCALE_KEY ).getAsJsonArray();
 			for ( int i = 0; i < multiscalesArray.length; i++ )
-				multiscalesArray[ i ].applyVersionFixesAndInit( multiscalesJsonArray.get( i ).getAsJsonObject() );
+			{
+				multiscalesArray[ i ].applyVersionFixes( multiscalesJsonArray.get( i ).getAsJsonObject() );
+				multiscalesArray[ i ].init();
+			}
 
 			// TODO
 			//   From the spec:
@@ -145,16 +157,18 @@ class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Vola
 
 			for ( int resolution = 0; resolution < numResolutions; ++resolution )
 			{
-				imgs[ resolution ] = N5Utils.openVolatile( n5ZarrReader, multiscalePath );
+				imgs[ resolution ] = N5Utils.openVolatile( n5ZarrReader, datasets[ resolution ].path );
 
-				if ( queue != null )
-					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ], queue );
-				else
-					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ] );
+				// FIXME (Tischi asked Tobias in Zulip)
+//				if ( queue != null )
+//					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ], queue );
+//				else
+//					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ] );
 			}
 		}
 		catch ( Exception e )
 		{
+			e.printStackTrace();
 			throw new RuntimeException( e );
 		}
 	}
@@ -257,5 +271,19 @@ class MultiscaleImage< T extends NativeType< T > & RealType< T >, V extends Vola
 	public int numDimensions()
 	{
 		return dimensions.length;
+	}
+
+	public static void main( String[] args )
+	{
+		final String multiscalePath = "/Users/tischer/Desktop/testNew.zarr";
+
+		final MultiscaleImage< ?, ? > multiscaleImage = new MultiscaleImage<>( multiscalePath, null );
+		multiscaleImage.dimensions();
+		final CachedCellImg< ?, ? > img = multiscaleImage.getImg( 0 );
+		System.out.println( img.toString() );
+
+		final ImageJ imageJ = new ImageJ();
+		final SingleMultiscaleDataset< ?, ? > dataset = new SingleMultiscaleDataset<>( imageJ.context(), "image", multiscaleImage );
+		imageJ.ui().show( dataset.asDataset() );
 	}
 }

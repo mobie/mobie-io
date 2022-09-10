@@ -40,7 +40,7 @@ public class OMEZarrData
 	private String[] multiscalePaths;
 	private final SharedQueue queue;
 
-	OMEZarrData(
+	public OMEZarrData(
 			final String omeZarrPath,
 			final Context context, // Scijava context
 			@Nullable final SharedQueue queue )

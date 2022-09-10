@@ -68,9 +68,9 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 
 	private final MultiscaleImage< T, V > multiscaleImage;
 
-	private final int numChannels;
+	private int numChannels = 1;
 
-	private final int numTimePoints;
+	private int numTimePoints = 1;
 
 	private int numResolutions;
 
@@ -83,6 +83,7 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 	private SpimData spimData;
 	private OMEZarrAxes omeZarrAxes;
 	private int numDimensions;
+	private long[] dimensions;
 
 	/**
 	 * Build a dataset from a single {@code PyramidalOMEZarrArray},
@@ -92,7 +93,7 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 	 * @param multiscaleImage The array containing the image all data.
 	 * @throws Error
 	 */
-	SingleMultiscaleDataset(
+	public SingleMultiscaleDataset(
 			final Context context,
 			final String name,
 			final MultiscaleImage< T, V > multiscaleImage ) throws Error
@@ -102,10 +103,8 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 		this.multiscaleImage = multiscaleImage;
 
 		numResolutions = multiscaleImage.numResolutions();;
-		final long[] dimensions = multiscaleImage.dimensions();
+		dimensions = multiscaleImage.dimensions();
 		numDimensions = dimensions.length;
-		numChannels = omeZarrAxes.hasChannels() ? ( int ) dimensions[ omeZarrAxes.channelIndex() ] : 1;
-		numTimePoints = omeZarrAxes.hasTimepoints() ? ( int ) dimensions[ omeZarrAxes.timeIndex() ] : 1;
 	}
 
 	@Override
@@ -220,12 +219,18 @@ public class SingleMultiscaleDataset< T extends NativeType< T > & RealType< T >,
 		// C
 		final int cAxisIndex = multiscales.getChannelAxisIndex();
 		if ( cAxisIndex >= 0 )
+		{
 			imgAxes.add( createAxis( cAxisIndex, Axes.CHANNEL, axes, scales ) );
+			numChannels = (int) dimensions[ cAxisIndex ];
+		}
 
 		// T
 		final int tAxisIndex = multiscales.getTimePointAxisIndex();
 		if ( tAxisIndex >= 0 )
+		{
 			imgAxes.add( createAxis( tAxisIndex, Axes.TIME, axes, scales ) );
+			numTimePoints = (int) dimensions[ tAxisIndex ];
+		}
 
 		// Set all axes
 		for ( int i = 0; i < imgAxes.size(); ++i )
