@@ -118,14 +118,23 @@ public enum ZarrAxes {
             this.axes.equals(TCZYX.axes);
     }
 
+    // the flag reverseAxes determines whether the index will be given w.r.t.
+    // reversedAxes=true corresponds to the java/bdv axis convention
+    // reversedAxes=false corresponds to the zarr axis convention
+    public int axisIndex(String axisName, boolean reverseAxes) {
+        if(reverseAxes) {
+            List<String> reverseAxesList = Lists.reverse(getAxesList());
+            return reverseAxesList.indexOf(axisName);
+        }
+        return getAxesList().indexOf(axisName);
+    }
+
     public int timeIndex() {
-        List<String> reverseAxesList = Lists.reverse(getAxesList());
-        return reverseAxesList.indexOf("t");
+        return axisIndex("t", true);
     }
 
     public int channelIndex() {
-        List<String> reverseAxesList = Lists.reverse(getAxesList());
-        return reverseAxesList.indexOf("c");
+        return axisIndex("c", true);
     }
 
     // spatial: 0,1,2 (x,y,z)

@@ -370,34 +370,11 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         double[] scale = coordinateTransformations.scale;
         double[] xyzScale = null;
         if (scale != null && zarrAxesList != null) {
-            int scalesFirstIndexBackward = scale.length - 1;
-            if (zarrAxes.hasChannels()) {
-                if (zarrAxes.is2D()) {
-                    xyzScale = new double[]{
-                        scale[scalesFirstIndexBackward],
-                        scale[scalesFirstIndexBackward - 1],
-                        1.0
-                    };
-                } else {
-                    xyzScale = new double[]{
-                        scale[scalesFirstIndexBackward],
-                        scale[scalesFirstIndexBackward - 1],
-                        scale[scalesFirstIndexBackward - 2]};
-                }
-            } else {
-                if (zarrAxes.isSpatial3D()) {
-                    xyzScale = new double[]{
-                        scale[scalesFirstIndexBackward],
-                        scale[scalesFirstIndexBackward - 1],
-                        scale[scalesFirstIndexBackward - 2]};
-                } else {
-                    xyzScale = new double[]{
-                        scale[scalesFirstIndexBackward],
-                        scale[scalesFirstIndexBackward - 1],
-                        1.0
-                    };
-                }
-            }
+            xyzScale = new double[]{
+                    zarrAxes.axisIndex("x", false),
+                    scale[zarrAxes.axisIndex("y", false)],
+                    zarrAxes.hasZAxis() ? scale[zarrAxes.axisIndex("z", false)] : 1.0
+            };
         }
         return xyzScale;
     }
