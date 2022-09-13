@@ -14,18 +14,15 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import projects.remote.BaseTest;
 
 /*
- * Extra test for the data from 
- * https://s3.embl.de/i2k-2020/spatial-transcriptomics-example/pos42/images/ome-zarr/MMStack_Pos42.ome.zarr
- * which is for some reason not displayed properly in MoBIE / BDV.
- * See https://github.com/mobie/mobie-viewer-fiji/issues/791 for details.
+ * Test for image data with labels, to ensure that this data can be read correctly
 */
 
 @Slf4j
-public class SpatialTranscriptomicsDataNgffTest extends BaseTest {
-    private static final String URL = "https://s3.embl.de/i2k-2020/spatial-transcriptomics-example/pos42/images/ome-zarr/MMStack_Pos42.ome.zarr";
+public class ImageWithLabelsNgffTest extends BaseTest {
+    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/image-with-labels.ome.zarr";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;
 
-    public SpatialTranscriptomicsDataNgffTest() throws SpimDataException {
+    public ImageWithLabelsNgffTest() throws SpimDataException {
         super(URL, FORMAT);
         //set values for base test
         setExpectedTimePoints(1);
