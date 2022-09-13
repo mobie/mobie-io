@@ -83,16 +83,8 @@ public enum ZarrAxes {
         return zarrAxesList;
     }
 
-    public boolean is2D() {
-        return this.axes.equals(YX.axes) || this.axes.equals(CYX.axes); // XYT XYC
-    }
-
     public boolean is5D() {
         return this.axes.equals(TCZYX.axes);
-    }
-
-    public boolean isSpatial3D() {
-        return this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(ZYX.axes);
     }
 
     public boolean is4DWithTimepoints() {
