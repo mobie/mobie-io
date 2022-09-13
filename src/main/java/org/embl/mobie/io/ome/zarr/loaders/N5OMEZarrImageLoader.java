@@ -371,7 +371,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         double[] xyzScale = null;
         if (scale != null && zarrAxesList != null) {
             xyzScale = new double[]{
-                    zarrAxes.axisIndex("x", false),
+                    scale[zarrAxes.axisIndex("x", false)],
                     scale[zarrAxes.axisIndex("y", false)],
                     zarrAxes.hasZAxis() ? scale[zarrAxes.axisIndex("z", false)] : 1.0
             };
