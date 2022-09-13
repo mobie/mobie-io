@@ -9,8 +9,9 @@ public class OmeZarrMultiscales {
     // key in json for multiscales
     public static final String MULTI_SCALE_KEY = "multiscales";
 
-    public transient ZarrAxes axes;
-    public List<ZarrAxis> zarrAxisList;
+    public transient OMEZarrAxes axes;
+    public transient List<ZarrAxis> zarrAxisList;
+
     public Dataset[] datasets;
     public String name;
     public String type;
@@ -20,9 +21,9 @@ public class OmeZarrMultiscales {
     public OmeZarrMultiscales() {
     }
 
-    public OmeZarrMultiscales(ZarrAxes axes, String name, String type, String version,
-                              VoxelDimensions voxelDimensions, double[][] resolutions, String timeUnit,
-                              double frameInterval) {
+    public OmeZarrMultiscales( OMEZarrAxes axes, String name, String type, String version,
+							   VoxelDimensions voxelDimensions, double[][] resolutions,
+                               String timeUnit, double frameInterval) {
         this.version = version;
         this.name = name;
         this.type = type;

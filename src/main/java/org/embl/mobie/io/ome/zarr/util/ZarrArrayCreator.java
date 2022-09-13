@@ -10,18 +10,18 @@ import net.imglib2.img.cell.CellGrid;
 import net.imglib2.type.NativeType;
 
 public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
-    private final ZarrAxes zarrAxes;
+    private final OMEZarrAxes OMEZarrAxes;
 
-    public ZarrArrayCreator(CellGrid cellGrid, DataType dataType, ZarrAxes zarrAxes) {
+    public ZarrArrayCreator(CellGrid cellGrid, DataType dataType, OMEZarrAxes OMEZarrAxes ) {
         super(cellGrid, dataType);
-        this.zarrAxes = zarrAxes;
+        this.OMEZarrAxes = OMEZarrAxes;
     }
 
     public A createArray(DataBlock<?> dataBlock, long[] gridPosition) {
         long[] cellDims = getCellDims(gridPosition);
         int n = (int) (cellDims[0] * cellDims[1] * cellDims[2]);
 
-        if (zarrAxes.getNumDimension() == 2)
+        if ( OMEZarrAxes.getNumDimension() == 2)
             cellDims = Arrays.stream(cellDims).limit(2).toArray();
 
         return (A) VolatileDoubleArray(dataBlock, cellDims, n);
@@ -33,20 +33,20 @@ public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
         int[] cellDims = new int[3];
 
         // TODO: do something like in: private long[] toZarrChunkIndices( long[] gridPosition )
-        if (zarrAxes.is4DWithChannels() || zarrAxes.is4DWithTimepoints()) {
+        if ( OMEZarrAxes.is4DWithChannels() || OMEZarrAxes.is4DWithTimepoints()) {
             cellMin = new long[4];
             cellDims = new int[4];
             cellDims[3] = 1; // channel
         }
 
-        if (zarrAxes.is4DWithTimepointsAndChannels()) {
+        if ( OMEZarrAxes.is4DWithTimepointsAndChannels()) {
             cellMin = new long[4];
             cellDims = new int[4];
             cellDims[2] = 1; // channel
             cellDims[3] = 1; // timepoint
         }
 
-        if (zarrAxes.is5D()) {
+        if ( OMEZarrAxes.is5D()) {
             cellMin = new long[5];
             cellDims = new int[5];
             cellDims[3] = 1; // channel

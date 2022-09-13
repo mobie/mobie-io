@@ -25,17 +25,17 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
     private final int timepoint;
     private final DatasetAttributes attributes;
     private final ZarrArrayCreator<A, ?> zarrArrayCreator;
-    private final ZarrAxes zarrAxes;
+    private final OMEZarrAxes OMEZarrAxes;
 
-    public N5OMEZarrCacheArrayLoader(final N5Reader n5, final String pathName, final int channel, final int timepoint, final DatasetAttributes attributes, CellGrid grid, ZarrAxes zarrAxes) {
+    public N5OMEZarrCacheArrayLoader(final N5Reader n5, final String pathName, final int channel, final int timepoint, final DatasetAttributes attributes, CellGrid grid, OMEZarrAxes OMEZarrAxes ) {
         this.n5 = n5;
         this.pathName = pathName; // includes the level
         this.channel = channel;
         this.timepoint = timepoint;
         this.attributes = attributes;
         final DataType dataType = attributes.getDataType();
-        this.zarrArrayCreator = new ZarrArrayCreator<>(grid, dataType, zarrAxes);
-        this.zarrAxes = zarrAxes;
+        this.zarrArrayCreator = new ZarrArrayCreator<>(grid, dataType, OMEZarrAxes );
+        this.OMEZarrAxes = OMEZarrAxes;
     }
 
     @Override
@@ -74,18 +74,18 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
 
     private long[] toZarrChunkIndices(long[] gridPosition) {
 
-        long[] chunkInZarr = new long[zarrAxes.getNumDimension()];
+        long[] chunkInZarr = new long[ OMEZarrAxes.getNumDimension()];
 
         // fill in the spatial dimensions
-        final Map<Integer, Integer> spatialToZarr = zarrAxes.spatialToZarr();
+        final Map<Integer, Integer> spatialToZarr = OMEZarrAxes.spatialToZarr();
         for (Map.Entry<Integer, Integer> entry : spatialToZarr.entrySet())
             chunkInZarr[entry.getValue()] = gridPosition[entry.getKey()];
 
-        if (zarrAxes.hasChannels())
-            chunkInZarr[zarrAxes.channelIndex()] = channel;
+        if ( OMEZarrAxes.hasChannels())
+            chunkInZarr[ OMEZarrAxes.channelIndex()] = channel;
 
-        if (zarrAxes.hasTimepoints())
-            chunkInZarr[zarrAxes.timeIndex()] = timepoint;
+        if ( OMEZarrAxes.hasTimepoints())
+            chunkInZarr[ OMEZarrAxes.timeIndex()] = timepoint;
 
         return chunkInZarr;
     }
