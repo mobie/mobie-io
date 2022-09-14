@@ -87,19 +87,6 @@ public enum ZarrAxes {
         return this.axes.equals(TCZYX.axes);
     }
 
-    public boolean is4DWithTimepoints() {
-        return this.axes.equals(TZYX.axes);
-    }
-
-    public boolean is4DWithChannels() {
-        return this.axes.equals(CZYX.axes);
-    }
-
-    // not used anymore
-    public boolean is4DWithTimepointsAndChannels() {
-        return this.axes.equals(TCYX.axes);
-    }
-
     public boolean hasTimepoints() {
         return this.axes.equals(TCYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TYX.axes) ||
             this.axes.equals(TCZYX.axes);

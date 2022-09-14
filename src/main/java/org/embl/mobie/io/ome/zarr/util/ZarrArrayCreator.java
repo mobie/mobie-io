@@ -29,28 +29,14 @@ public class ZarrArrayCreator<A, T extends NativeType<T>> extends ArrayCreator {
 
     @Override
     public long[] getCellDims(long[] gridPosition) {
-        long[] cellMin = new long[3];
-        int[] cellDims = new int[3];
+        long[] cellMin = new long[Math.max(zarrAxes.getNumDimension(), 3)];
+        int[] cellDims = new int[Math.max(zarrAxes.getNumDimension(), 3)];
 
-        // TODO: do something like in: private long[] toZarrChunkIndices( long[] gridPosition )
-        if (zarrAxes.is4DWithChannels() || zarrAxes.is4DWithTimepoints()) {
-            cellMin = new long[4];
-            cellDims = new int[4];
-            cellDims[3] = 1; // channel
+        if(zarrAxes.hasChannels()) {
+            cellDims[zarrAxes.channelIndex()] = 1;
         }
-
-        if (zarrAxes.is4DWithTimepointsAndChannels()) {
-            cellMin = new long[4];
-            cellDims = new int[4];
-            cellDims[2] = 1; // channel
-            cellDims[3] = 1; // timepoint
-        }
-
-        if (zarrAxes.is5D()) {
-            cellMin = new long[5];
-            cellDims = new int[5];
-            cellDims[3] = 1; // channel
-            cellDims[4] = 1; // timepoint
+        if(zarrAxes.hasTimepoints()) {
+            cellDims[zarrAxes.timeIndex()] = 1;
         }
 
         cellGrid.getCellDimensions(gridPosition, cellMin, cellDims);
