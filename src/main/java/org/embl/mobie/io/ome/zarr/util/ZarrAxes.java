@@ -83,10 +83,6 @@ public enum ZarrAxes {
         return zarrAxesList;
     }
 
-    public boolean is5D() {
-        return this.axes.equals(TCZYX.axes);
-    }
-
     public boolean hasTimepoints() {
         return this.axes.equals(TCYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TYX.axes) ||
             this.axes.equals(TCZYX.axes);
