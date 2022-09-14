@@ -17,6 +17,9 @@ public abstract class BaseTest extends BaseSpimDataChecker {
     protected int expectedChannelsNumber = 1;
     protected Dimensions expectedShape;
     protected String expectedDType;
+    // TODO refactor the base test into a zarr base test so that we can also check for zarr specific attributes
+    // like the expected scale
+    //protected int [] expectedScale = null;
 
     protected BaseTest(String path, ImageDataFormat format) throws SpimDataException {
         super(new SpimDataOpener().openSpimData(path, format));
@@ -32,6 +35,9 @@ public abstract class BaseTest extends BaseSpimDataChecker {
         Assertions.assertEquals(expectedChannelsNumber, getAllChannelsSize());
         Assertions.assertEquals(expectedShape, getShape());
         Assertions.assertEquals(expectedDType, getDType());
+        // if(expectedScale != null) {
+        //    Assertions.assertEquals(expectedScale, getScale());
+        //}
     }
 
     public int getExpectedTimePoints() {
