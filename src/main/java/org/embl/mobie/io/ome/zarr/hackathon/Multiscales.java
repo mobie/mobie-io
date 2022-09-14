@@ -32,7 +32,7 @@ public class Multiscales implements SpatialMetadataGroup<Dataset>
     // key in json for multiscales
     public static final String MULTI_SCALE_KEY = "multiscales";
 
-    private transient String path;
+    public transient String path;
 
     // Serialisation
     private String version;
@@ -53,9 +53,21 @@ public class Multiscales implements SpatialMetadataGroup<Dataset>
     public Multiscales() {
     }
 
+	public Multiscales(String version, String name, String type, 
+			Axis[] axes, Dataset[] datasets, CoordinateTransformations[] coordinateTransformations)
+	{
+		this.version = version;
+		this.name = name;
+		this.type = type;
+		this.axes = axes;
+		this.datasets = datasets;
+		this.coordinateTransformations = coordinateTransformations;
+	}
+
     public static class Dataset implements SpatialMetadata {
         public String path;
         public CoordinateTransformations[] coordinateTransformations;
+        public transient String unit = ""; // default empty string means "unitless"
 
 		@Override
 		public String getPath() {
@@ -102,8 +114,7 @@ public class Multiscales implements SpatialMetadataGroup<Dataset>
 
 		@Override
 		public String unit() {
-			// TODO this has to come from the parent multiscale's axes
-			return "px";
+			return unit;
 		}
     }
 
@@ -159,12 +170,23 @@ public class Multiscales implements SpatialMetadataGroup<Dataset>
         public String name;
         public String type;
         public String unit;
+
+		public Axis(String name, String type, String unit)
+		{
+			this.name = name;
+			this.type = type;
+			this.unit = unit;
+		}
     }
 
     public void init()
     {
         axisList = Lists.reverse( Arrays.asList( axes ) );
         numDimensions = axisList.size();
+
+        // TODO I'm not sure if this is correct. double check later -John
+        for( int i = 0; i < numDimensions; i++ )
+			datasets[i].unit = axisList.get(i).unit;
     }
 
     // TODO Can this be done with a JSONAdapter ?
@@ -252,4 +274,5 @@ public class Multiscales implements SpatialMetadataGroup<Dataset>
 	public String[] units() {
 		return axisList.stream().map( x -> x.unit ).toArray( String[]::new );
 	}
+
 }
