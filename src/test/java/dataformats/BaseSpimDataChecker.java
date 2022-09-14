@@ -1,5 +1,7 @@
 package dataformats;
 
+import mpicbg.spim.data.sequence.ViewId;
+import mpicbg.spim.data.sequence.VoxelDimensions;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +63,22 @@ public class BaseSpimDataChecker {
             return N5Utils.dataType(Cast.unchecked(type)).toString();
         }
         return "";
+    }
+
+    protected double[] getScale() {
+        VoxelDimensions voxelDimensions = spimData.getSequenceDescription().getViewDescription(new ViewId(0,0)).getViewSetup().getVoxelSize();
+        double[] scale = {
+                voxelDimensions.dimension(0),
+                voxelDimensions.dimension(1),
+                voxelDimensions.dimension(2)
+        };
+        return scale;
+    }
+
+    protected String getUnit() {
+        VoxelDimensions voxelDimensions = spimData.getSequenceDescription().getViewDescription(new ViewId(0,0)).getViewSetup().getVoxelSize();
+        String unit = voxelDimensions.unit();
+        return unit;
     }
 
 }

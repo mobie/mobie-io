@@ -2,6 +2,7 @@ package dataformats;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +10,6 @@ import bdv.util.volatiles.SharedQueue;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.Dimensions;
-import dataformats.BaseSpimDataChecker;
 
 @Slf4j
 public abstract class BaseTest extends BaseSpimDataChecker {
@@ -17,6 +17,9 @@ public abstract class BaseTest extends BaseSpimDataChecker {
     protected int expectedChannelsNumber = 1;
     protected Dimensions expectedShape;
     protected String expectedDType;
+    protected double[] expectedScale = null;
+    protected String expectedUnit = null;
+
 
     protected BaseTest(String path, ImageDataFormat format) throws SpimDataException {
         super(new SpimDataOpener().openSpimData(path, format));
@@ -32,9 +35,12 @@ public abstract class BaseTest extends BaseSpimDataChecker {
         Assertions.assertEquals(expectedChannelsNumber, getAllChannelsSize());
         Assertions.assertEquals(expectedShape, getShape());
         Assertions.assertEquals(expectedDType, getDType());
-        // if(expectedScale != null) {
-        //    Assertions.assertEquals(expectedScale, getScale());
-        //}
+        if(expectedScale != null) {
+            Assert.assertArrayEquals(expectedScale, getScale(), 0.0);
+        }
+        if(expectedUnit != null) {
+            Assertions.assertEquals(expectedUnit, getUnit());
+        }
     }
 
     public int getExpectedTimePoints() {
@@ -68,6 +74,10 @@ public abstract class BaseTest extends BaseSpimDataChecker {
     public void setExpectedDType(String expectedDType) {
         this.expectedDType = expectedDType;
     }
+
+    protected void setExpectedScale(double[] scale) {this.expectedScale = scale;}
+
+    protected void setExpectedUnit(String unit) {this.expectedUnit = unit;}
 }
 /*
 TODO: add tests for:
