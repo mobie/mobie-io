@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package dataformats.remote;
+package dataformats.ngff.bdv_ngff;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Disabled;
@@ -35,6 +35,10 @@ import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 import dataformats.BaseTest;
 
+/*
+ * This is a test for the legacy data format bdv.ome.zarr.
+ * It's kept here for reference, but is currently not used.
+ */ 
 @Slf4j
 @Disabled
 public class COMULISTest extends BaseTest {
@@ -44,5 +48,4 @@ public class COMULISTest extends BaseTest {
     public COMULISTest() throws SpimDataException {
         super(URL, FORMAT);
     }
-//.s3AccessAndSecretKey(new String[]{"UYP3FNN3V5F0P86DR2O3", "3EL7Czzg0vVwx2L4v27GQiX0Ct1GkMHS+tbcJR3D"}));
 }
