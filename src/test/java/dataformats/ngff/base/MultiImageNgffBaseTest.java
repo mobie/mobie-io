@@ -13,6 +13,7 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 
 @Slf4j
 public abstract class MultiImageNgffBaseTest extends NgffBaseTest {
+    public static final int MULTISCALES_SIZE = 4;
 
     protected MultiImageNgffBaseTest(String url) throws SpimDataException {
         super(url);
@@ -73,5 +74,13 @@ public abstract class MultiImageNgffBaseTest extends NgffBaseTest {
         value = o.get();
         expectedValue = 2121;
         Assertions.assertEquals(expectedValue, value);
+    }
+    
+    // make sure that we have 4 elements in the mulitscales represntation,
+    // corresponding to the 4 different images stored on the multi-scales level
+    @Test
+    public void checkMultiscalesSize() {
+        int multiscalesSize = spimData.getViewRegistrations().getViewRegistrations().size();
+        Assertions.assertEquals(MULTISCALES_SIZE, multiscalesSize);
     }
 }
