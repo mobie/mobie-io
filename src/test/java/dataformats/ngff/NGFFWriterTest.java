@@ -1,4 +1,4 @@
-package spimdata;
+package dataformats.ngff;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,7 +43,7 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class OmeZarrWithWriterTest {
+public class NGFFWriterTest {
 
     private static JSONObject omeZarrSchema;
     private String imageName;

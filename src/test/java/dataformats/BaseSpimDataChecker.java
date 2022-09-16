@@ -66,12 +66,8 @@ public class BaseSpimDataChecker {
     }
 
     protected double[] getScale() {
-        VoxelDimensions voxelDimensions = spimData.getSequenceDescription().getViewDescription(new ViewId(0,0)).getViewSetup().getVoxelSize();
-        double[] scale = {
-                voxelDimensions.dimension(0),
-                voxelDimensions.dimension(1),
-                voxelDimensions.dimension(2)
-        };
+        final double[] scale = new double[3];
+        spimData.getSequenceDescription().getViewSetupsOrdered().get(0).getVoxelSize().dimensions(scale);
         return scale;
     }
 

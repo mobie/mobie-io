@@ -79,16 +79,3 @@ public abstract class BaseTest extends BaseSpimDataChecker {
 
     protected void setExpectedUnit(String unit) {this.expectedUnit = unit;}
 }
-/*
-TODO: add tests for:
-/Volumes/schwab/Karel/MOBIE/MOBIE1_bc"
-/Volumes/cba/exchange/marianne-beckwidth/220509_MSB26_sample2_MoBIE".view("clem-registered"));
-https://github.com/mobie/arabidopsis-root-lm-datasets
-https://github.com/mobie/clem-example-project/ .view("Figure2a"));
-https://github.com/mobie/covid-if-project .view("default"));
-https://github.com/mobie/plankton-fibsem-project .dataset("micromonas"));
-https://github.com/platybrowser/platybrowser");
-https://github.com/mobie/platybrowser-datasets" .gitProjectBranch("normal-vie"));
- 1) check the data format
- 2) add similarly to the AutophagosomesEMTest
- */
