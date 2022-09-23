@@ -31,7 +31,7 @@ public class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
     }
 
     @Override
-    public A loadArray(final long[] gridPosition) {
+    public A loadArray(final long[] gridPosition, int[] cellDimensions) {
         DataBlock<?> block = null;
 
         try {

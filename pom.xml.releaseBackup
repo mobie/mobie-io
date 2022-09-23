@@ -9,7 +9,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.2.13-SNAPSHOT</version>
+    <version>1.2.14-SNAPSHOT</version>
 
     <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update - -skip-branch-check -->
 
