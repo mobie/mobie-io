@@ -32,6 +32,7 @@ import bdv.img.cache.VolatileCachedCellImg;
 import bdv.util.volatiles.SharedQueue;
 import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.util.volatiles.VolatileViews;
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import net.imagej.ImageJ;
 import net.imglib2.RandomAccessibleInterval;
