@@ -41,7 +41,7 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.registration.ViewRegistration;

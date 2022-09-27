@@ -34,7 +34,7 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.Dimensions;

@@ -35,7 +35,7 @@ import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import com.amazonaws.services.s3.AmazonS3;
 
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 
 public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader {

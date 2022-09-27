@@ -34,7 +34,7 @@ import org.embl.mobie.io.n5.openers.S3Opener;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
 
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.util.Cast;
 

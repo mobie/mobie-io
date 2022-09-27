@@ -37,7 +37,7 @@ import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
 
 import com.google.gson.GsonBuilder;
 
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.util.Cast;
 

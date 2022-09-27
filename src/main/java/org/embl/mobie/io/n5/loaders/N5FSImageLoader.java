@@ -33,7 +33,7 @@ import java.io.IOException;
 
 import org.janelia.saalfeldlab.n5.N5FSReader;
 
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 
 public class N5FSImageLoader extends N5ImageLoader {

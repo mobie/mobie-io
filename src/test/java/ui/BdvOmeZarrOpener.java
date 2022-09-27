@@ -32,7 +32,7 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 
 import bdv.util.BdvFunctions;
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 

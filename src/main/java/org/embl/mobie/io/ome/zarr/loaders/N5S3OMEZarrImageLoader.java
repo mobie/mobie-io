@@ -36,7 +36,7 @@ import org.embl.mobie.io.util.S3Utils;
 
 import com.amazonaws.services.s3.AmazonS3;
 
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 
 public class N5S3OMEZarrImageLoader extends N5OMEZarrImageLoader implements S3ImageLoader {

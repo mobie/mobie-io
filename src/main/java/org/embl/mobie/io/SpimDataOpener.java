@@ -52,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
 
 import bdv.img.imaris.Imaris;
 import bdv.spimdata.SpimDataMinimal;
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import ij.IJ;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;

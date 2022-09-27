@@ -30,7 +30,7 @@ package dataformats.n5;
 
 import org.embl.mobie.io.ImageDataFormat;
 
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;

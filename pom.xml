@@ -73,7 +73,7 @@
     <scm>
         <connection>scm:git:https://github.com/mobie/mobie-io</connection>
         <developerConnection>scm:git:git@github.com:mobie/mobie-io</developerConnection>
-        <tag>mobie-io-2.0.5</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/mobie/mobie-io</url>
     </scm>
     <issueManagement>
