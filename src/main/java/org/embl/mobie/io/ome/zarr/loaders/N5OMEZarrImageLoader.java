@@ -128,12 +128,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private final Map<Integer, Integer> setupToChannel = new HashMap<>();
     protected AbstractSequenceDescription<?, ?, ?> seq;
     protected ViewRegistrations viewRegistrations;
-    List<ZarrAxis> zarrAxesList;
     private volatile boolean isOpen = false;
     private int sequenceTimepoints = 0;
     private FetcherThreads fetchers;
     private VolatileGlobalCellCache cache;
-    private ZarrAxes zarrAxes;
     private BlockingFetchQueues<Callable<?>> queue;
 
     /**
@@ -176,6 +174,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             int numSetups = setupToMultiscale.size();
             for (int setupId = 0; setupId < numSetups; setupId++) {
                 ViewSetup viewSetup = createViewSetup(setupId);
+                ZarrAxes zarrAxes = setupToMultiscale.get(setupId).axes;
                 int setupTimepoints = 1;
                 if (zarrAxes.hasTimepoints())
                     setupTimepoints = (int) setupToAttributes.get(setupId).getDimensions()[zarrAxes.timeIndex()];
@@ -209,9 +208,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
             DatasetAttributes attributes = getDatasetAttributes(multiscale.datasets[0].path);
 
             // TODO: Maybe AbstractOmeZarrReader which has .getAxes()
-            zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
+            ZarrAxes zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
                 n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.TCZYX;
-            zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
+            List<ZarrAxis> zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
                 n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
 
             multiscale.axes = zarrAxes;
@@ -244,9 +243,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 for (OmeZarrMultiscales multiscale : multiscales) {
                     DatasetAttributes attributes = getDatasetAttributes(pathName + "/" + multiscale.datasets[0].path);
 
-                    zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
+                    ZarrAxes zarrAxes = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getAxes() :
                         n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getAxes() : ZarrAxes.TCZYX;
-                    zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
+                    List<ZarrAxis> zarrAxesList = n5 instanceof N5OmeZarrReader ? ((N5OmeZarrReader) n5).getZarrAxes() :
                         n5 instanceof N5S3OmeZarrReader ? ((N5S3OmeZarrReader) n5).getZarrAxes() : null;
 
                     multiscale.axes = zarrAxes;
@@ -366,9 +365,11 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return viewRegistrations;
     }
 
-    private double[] getXYZScale(OmeZarrMultiscales.CoordinateTransformations coordinateTransformations) {
+    private double[] getXYZScale(int setupId, OmeZarrMultiscales.CoordinateTransformations coordinateTransformations) {
         double[] scale = coordinateTransformations.scale;
         double[] xyzScale = null;
+        ZarrAxes zarrAxes = setupToMultiscale.get(setupId).axes;
+        List<ZarrAxis> zarrAxesList = setupToMultiscale.get(setupId).zarrAxisList;
         if (scale != null && zarrAxesList != null) {
             xyzScale = new double[]{
                     scale[zarrAxes.axisIndex("x", false)],
@@ -384,7 +385,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
         AffineTransform3D transform = new AffineTransform3D();
         if (multiscales.datasets[datasetId].coordinateTransformations != null) {
-            double[] scale = getXYZScale(multiscales.datasets[datasetId].coordinateTransformations[0]);
+            double[] scale = getXYZScale(setupId, multiscales.datasets[datasetId].coordinateTransformations[0]);
             if (scale != null) {
                 transform.scale(scale[0], scale[1], scale[2]);
             }
@@ -400,8 +401,10 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     private VoxelDimensions getVoxelDimensions3D(int setupId, int datasetId) {
         OmeZarrMultiscales multiscales = setupToMultiscale.get(setupId);
 
+        ZarrAxes zarrAxes = setupToMultiscale.get(setupId).axes;
+        List<ZarrAxis> zarrAxesList = setupToMultiscale.get(setupId).zarrAxisList;
         if (multiscales.datasets[datasetId].coordinateTransformations != null && zarrAxesList != null) {
-            double[] scale = getXYZScale(multiscales.datasets[datasetId].coordinateTransformations[0]);
+            double[] scale = getXYZScale(setupId, multiscales.datasets[datasetId].coordinateTransformations[0]);
             // get unit of last dimension, under assumption this is the X axis (i.e. a space axis)
             String unit = zarrAxesList.get(zarrAxesList.size() - 1).getUnit();
 
@@ -417,10 +420,11 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return new DefaultVoxelDimensions(3);
     }
 
-    private Dimensions getSpatialDimensions(DatasetAttributes attributes) {
+    private Dimensions getSpatialDimensions(int setupId, DatasetAttributes attributes) {
         final long[] spatialDimensions = new long[3];
         long[] attributeDimensions = attributes.getDimensions();
         Arrays.fill(spatialDimensions, 1);
+        ZarrAxes zarrAxes = setupToMultiscale.get(setupId).axes;
         final Map<Integer, Integer> spatialToZarr = zarrAxes.spatialToZarr();
         for (Map.Entry<Integer, Integer> entry : spatialToZarr.entrySet()) {
             spatialDimensions[entry.getKey()] = attributeDimensions[entry.getValue()];
@@ -430,7 +434,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
     private ViewSetup createViewSetup(int setupId) {
         OmeZarrMultiscales multiscale = setupToMultiscale.get(setupId);
-        Dimensions dimensions = getSpatialDimensions(setupToAttributes.get(setupId));
+        Dimensions dimensions = getSpatialDimensions(setupId, setupToAttributes.get(setupId));
         VoxelDimensions voxelDimensions = getVoxelDimensions3D(setupId, 0);
 
         Tile tile = new Tile(0);
@@ -514,7 +518,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     // TODO: Add description
-    private int[] getBlockSize(DatasetAttributes attributes) {
+    private int[] getBlockSize(int setupId, DatasetAttributes attributes) {
+        ZarrAxes zarrAxes = setupToMultiscale.get(setupId).axes;
         if (!zarrAxes.hasZAxis()) {
             return fillBlockSize(attributes);
         } else {
@@ -530,8 +535,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return tmp;
     }
 
-    private SimpleCacheArrayLoader<?> createCacheArrayLoader(final N5Reader n5, final String pathName, int channel, int timepointId, CellGrid grid) throws IOException {
+    private SimpleCacheArrayLoader<?> createCacheArrayLoader(final N5Reader n5, final String pathName, int setupId, int channel, int timepointId, CellGrid grid) throws IOException {
         final DatasetAttributes attributes = n5.getDatasetAttributes(pathName);
+        ZarrAxes zarrAxes = setupToMultiscale.get(setupId).axes;
         return new N5OMEZarrCacheArrayLoader<>(n5, pathName, channel, timepointId, attributes, grid, zarrAxes);
     }
 
@@ -637,14 +643,14 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
                 // The below dimensions refer to one time point and one channel.
                 // That means they are either 2D or 3D.
-                long[] dimensions = getSpatialDimensions(attributes).dimensionsAsLongArray();
-                final int[] cellDimensions = getBlockSize(attributes);
+                long[] dimensions = getSpatialDimensions(setupId, attributes).dimensionsAsLongArray();
+                final int[] cellDimensions = getBlockSize(setupId, attributes);
                 final CellGrid grid = new CellGrid(dimensions, cellDimensions);
 
                 final int priority = numMipmapLevels() - 1 - level;
                 final CacheHints cacheHints = new CacheHints(loadingStrategy, priority, false);
 
-                final SimpleCacheArrayLoader<?> loader = createCacheArrayLoader(n5, pathName, setupToChannel.get(setupId), timepointId, grid);
+                final SimpleCacheArrayLoader<?> loader = createCacheArrayLoader(n5, pathName, setupId, setupToChannel.get(setupId), timepointId, grid);
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
                 log.error(String.format(
