@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>31.1.0</version>
+        <version>33.2.0</version>
     </parent>
 
     <groupId>org.embl.mobie</groupId>
@@ -89,9 +89,8 @@
         <package-name>org.embl.mobie.io</package-name>
         <license.licenseName>bsd_2</license.licenseName>
         <license.copyrightOwners>EMBL</license.copyrightOwners>
-        <enforcer.skip>true</enforcer.skip>
+        <enforcer.skip>false</enforcer.skip>
         <someModule.test.excludes>src/test/java/projects/local</someModule.test.excludes>
-        <bigdataviewer-core.version>10.2.1</bigdataviewer-core.version>
 
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>

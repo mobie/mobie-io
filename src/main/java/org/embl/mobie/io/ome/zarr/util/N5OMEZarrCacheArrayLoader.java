@@ -39,7 +39,7 @@ public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
     }
 
     @Override
-    public A loadArray(final long[] gridPosition) throws IOException {
+    public A loadArray(final long[] gridPosition, int[] cellDimensions) throws IOException {
         DataBlock<?> block = null;
 
         long[] dataBlockIndices = toZarrChunkIndices(gridPosition);

@@ -83,39 +83,6 @@ public enum ZarrAxes {
         return zarrAxesList;
     }
 
-    public boolean is2D() {
-        return this.axes.equals(YX.axes) || this.axes.equals(CYX.axes); // XYT XYC
-    }
-
-    public boolean is5D() {
-        return this.axes.equals(TCZYX.axes);
-    }
-
-    public boolean isSpatial3D() {
-        return this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(ZYX.axes);
-    }
-
-    public boolean is4D() {
-        return this.axes.equals(CZYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TCYX.axes);
-    }
-
-    public boolean is3DWithTimepoints() {
-        return this.axes.equals(TYX.axes);
-    }
-
-    public boolean is4DWithTimepoints() {
-        return this.axes.equals(TZYX.axes);
-    }
-
-    public boolean is4DWithChannels() {
-        return this.axes.equals(CZYX.axes);
-    }
-
-    // not used anymore
-    public boolean is4DWithTimepointsAndChannels() {
-        return this.axes.equals(TCYX.axes);
-    }
-
     public boolean hasTimepoints() {
         return this.axes.equals(TCYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TYX.axes) ||
             this.axes.equals(TCZYX.axes);
@@ -126,14 +93,23 @@ public enum ZarrAxes {
             this.axes.equals(TCZYX.axes);
     }
 
+    // the flag reverseAxes determines whether the index will be given w.r.t.
+    // reversedAxes=true corresponds to the java/bdv axis convention
+    // reversedAxes=false corresponds to the zarr axis convention
+    public int axisIndex(String axisName, boolean reverseAxes) {
+        if(reverseAxes) {
+            List<String> reverseAxesList = Lists.reverse(getAxesList());
+            return reverseAxesList.indexOf(axisName);
+        }
+        return getAxesList().indexOf(axisName);
+    }
+
     public int timeIndex() {
-        List<String> reverseAxesList = Lists.reverse(getAxesList());
-        return reverseAxesList.indexOf("t");
+        return axisIndex("t", true);
     }
 
     public int channelIndex() {
-        List<String> reverseAxesList = Lists.reverse(getAxesList());
-        return reverseAxesList.indexOf("c");
+        return axisIndex("c", true);
     }
 
     // spatial: 0,1,2 (x,y,z)
