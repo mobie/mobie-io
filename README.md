@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/mobie/mobie-io/actions/workflows/build.yml/badge.svg)](https://github.com/mobie/mobie-io/actions/workflows/build.yml)
+
 [![](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml/badge.svg)](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml)
 
 [![](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml/badge.svg)](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml)

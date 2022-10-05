@@ -1,19 +1,18 @@
 /*
  * #%L
- * BigDataViewer core classes with minimal dependencies
+ * Readers and writers for image data in MoBIE projects
  * %%
- * Copyright (C) 2012 - 2016 Tobias Pietzsch, Stephan Saalfeld, Stephan Preibisch,
- * Jean-Yves Tinevez, HongKee Moon, Johannes Schindelin, Curtis Rueden, John Bogovic
+ * Copyright (C) 2021 - 2022 EMBL
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * 
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -36,7 +35,7 @@ import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 
 import com.amazonaws.services.s3.AmazonS3;
 
-import bdv.util.volatiles.SharedQueue;
+import bdv.cache.SharedQueue;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 
 public class N5S3ImageLoader extends N5ImageLoader implements S3ImageLoader {

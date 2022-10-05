@@ -9,7 +9,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>1.2.13-SNAPSHOT</version>
+    <version>2.0.8-SNAPSHOT</version>
 
     <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update - -skip-branch-check -->
 
@@ -67,7 +67,7 @@
     <mailingLists>
         <mailingList>
             <name>ImageJ Forum</name>
-            <archive>http://forum.imagej.net/</archive>
+            <archive>https://forum.image.sc/</archive>
         </mailingList>
     </mailingLists>
     <scm>
