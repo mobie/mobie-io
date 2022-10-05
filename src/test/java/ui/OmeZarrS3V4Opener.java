@@ -38,7 +38,8 @@ import net.imglib2.Dimensions;
 
 public class OmeZarrS3V4Opener {
     public static void main(String[] args) throws IOException, InterruptedException {
-        multiImg();
+        // multiImg();
+        withLabels();
         Thread.sleep(10000);
     }
 
@@ -81,6 +82,11 @@ public class OmeZarrS3V4Opener {
 
     public static void multiImg() throws IOException {
         SpimData image = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/multi-image.ome.zarr");
+        BdvFunctions.show(image);
+    }
+
+    public static void withLabels() throws IOException {
+        SpimData image = OMEZarrS3Opener.readURL("https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/image-with-labels.ome.zarr");
         BdvFunctions.show(image);
     }
 }
