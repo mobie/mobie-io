@@ -187,6 +187,11 @@
             <artifactId>ij</artifactId>
         </dependency>
         <dependency>
+            <groupId>ch.epfl.biop</groupId>
+            <artifactId>bigdataviewer-image-loaders</artifactId>
+            <version>0.4.0</version>
+        </dependency>
+        <dependency>
             <groupId>trove</groupId>
             <artifactId>trove</artifactId>
             <version>1.0.2</version>

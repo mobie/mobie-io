@@ -34,6 +34,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
+import ij.ImagePlus;
 import org.embl.mobie.io.n5.openers.N5Opener;
 import org.embl.mobie.io.n5.openers.N5S3Opener;
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
@@ -111,6 +113,17 @@ public class SpimDataOpener {
             default:
                 System.out.println("Shared queues for " + imageDataFormat + " are not yet supported; opening with own queue.");
                 return openSpimData(imagePath, imageDataFormat);
+        }
+    }
+
+    public AbstractSpimData asSpimData(Object imageData, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException
+    {
+        switch (imageDataFormat)
+        {
+            case ImagePlus:
+                return ImagePlusToSpimData.getSpimData( ( ImagePlus ) imageData );
+            default:
+                throw new UnsupportedOperationException( "Opening of " + imageDataFormat + " is not supported." );
         }
     }
 

@@ -64,58 +64,61 @@ import com.google.gson.annotations.SerializedName;
  * 's3' ending indicates that the data is taken from the remote s3 object store.
  */
 public enum ImageDataFormat {
-    @SerializedName("bdv.hdf5")
-    BdvHDF5,
-    @SerializedName("bdv.n5")
-    BdvN5,
-    @SerializedName("bdv.n5.s3")
-    BdvN5S3,
-    @SerializedName("openOrganelle.s3")
-    OpenOrganelleS3,
-    @SerializedName("ome.zarr")
-    OmeZarr,
-    @SerializedName("ome.zarr.s3")
-    OmeZarrS3,
-    @SerializedName("bdv.ome.zarr")
-    BdvOmeZarr,
-    @SerializedName("bdv.ome.zarr.s3")
-    BdvOmeZarrS3,
-    @SerializedName("ims")
-    Imaris;
 
-    // needed for SciJava Command UI, which does not support enums
-    public static final String BDVN5 = "BdvN5";
-    public static final String BDVN5S3 = "BdvN5S3";
-    public static final String OPENORGANELLES3 = "OpenOrganelleS3";
-    public static final String BDVOMEZARR = "BdvOmeZarr";
-    public static final String BDVOMEZARRS3 = "BdvOmeZarrS3";
-    public static final String OMEZARR = "OmeZarr";
-    public static final String OMEZARRS3 = "OmeZarrS3";
-    public static final String BDVHDF5 = "BdvHDF5";
-    public static final String IMARIS = "Imaris";
+    @SerializedName(BDVHDF5)
+    BdvHDF5,
+    @SerializedName(BDVN5)
+    BdvN5,
+    @SerializedName(BDVN5S3)
+    BdvN5S3,
+    @SerializedName(OPENORGANELLES3)
+    OpenOrganelleS3,
+    @SerializedName(OMEZARR)
+    OmeZarr,
+    @SerializedName(OMEZARRS3)
+    OmeZarrS3,
+    @SerializedName(BDVOMEZARR)
+    BdvOmeZarr,
+    @SerializedName(BDVOMEZARRS3)
+    BdvOmeZarrS3,
+    @SerializedName(IMARIS)
+    Imaris,
+    @SerializedName(IMAGEPLUS)
+    ImagePlus;
+
+    public static final String BDVN5 = "bdv.n5";
+    public static final String BDVN5S3 = "bdv.n5.s3";
+    public static final String OPENORGANELLES3 = "openOrganelle.s3";
+    public static final String BDVOMEZARR = "bdv.ome.zarr";
+    public static final String BDVOMEZARRS3 = "bdv.ome.zarr.s3";
+    public static final String OMEZARR = "ome.zarr";
+    public static final String OMEZARRS3 = "ome.zarr.s3";
+    public static final String BDVHDF5 = "bdv.hdf5";
+    public static final String IMARIS = "ims";
+    public static final String IMAGEPLUS = "imagePlus";
 
     public static ImageDataFormat fromString(String string) {
         switch (string) {
-            case "bdv.h5":
+            case BDVHDF5:
                 return BdvHDF5;
-            case "bdv.n5":
+            case BDVN5:
                 return BdvN5;
-            case "bdv.n5.s3":
+            case BDVN5S3:
                 return BdvN5S3;
-            case "openOrganelle":
+            case OPENORGANELLES3:
                 return OpenOrganelleS3;
-            case "bdv.ome.zarr":
+            case BDVOMEZARR:
                 return BdvOmeZarr;
-            case "ome.zarr":
+            case OMEZARR:
                 return OmeZarr;
-            case "bdv.ome.zarr.s3":
+            case BDVOMEZARRS3:
                 return BdvOmeZarrS3;
-            case "ome.zarr.s3":
+            case OMEZARRS3:
                 return OmeZarrS3;
-            case "bdv.hdf5":
-                return BdvHDF5;
-            case "ims":
+            case IMARIS:
                 return Imaris;
+            case IMAGEPLUS:
+                return ImagePlus;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + string);
         }
@@ -125,23 +128,25 @@ public enum ImageDataFormat {
     public String toString() {
         switch (this) {
             case BdvHDF5:
-                return "bdv.h5";
+                return BDVHDF5;
             case BdvN5:
-                return "bdv.n5";
+                return BDVN5;
             case BdvN5S3:
-                return "bdv.n5.s3";
+                return BDVN5S3;
             case OpenOrganelleS3:
-                return "openOrganelle.s3";
+                return OPENORGANELLES3;
             case BdvOmeZarr:
-                return "bdv.ome.zarr";
+                return BDVOMEZARRS3;
             case OmeZarr:
-                return "ome.zarr";
+                return OMEZARR;
             case BdvOmeZarrS3:
-                return "bdv.ome.zarr.s3";
+                return BDVOMEZARR;
             case OmeZarrS3:
-                return "ome.zarr.s3";
+                return OMEZARRS3;
             case Imaris:
-                return "ims";
+                return IMARIS;
+            case ImagePlus:
+                return IMAGEPLUS;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + this);
         }
