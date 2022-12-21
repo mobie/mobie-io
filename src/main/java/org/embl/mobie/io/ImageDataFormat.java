@@ -29,12 +29,15 @@
 package org.embl.mobie.io;
 
 import com.google.gson.annotations.SerializedName;
+import ij.IJ;
 
+import static org.embl.mobie.io.ImageDataFormatNames.BDV;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVHDF5;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVN5;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVN5S3;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARR;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARRS3;
+import static org.embl.mobie.io.ImageDataFormatNames.BIOFORMATS;
 import static org.embl.mobie.io.ImageDataFormatNames.IMAGEPLUS;
 import static org.embl.mobie.io.ImageDataFormatNames.IMARIS;
 import static org.embl.mobie.io.ImageDataFormatNames.OMEZARR;
@@ -43,6 +46,11 @@ import static org.embl.mobie.io.ImageDataFormatNames.OPENORGANELLES3;
 
 /**
  * Currently mobie-io supports the following data formats:
+ * <p>
+ * bdv
+ * This includes all file formats that come with a BDV XML.
+ * Below some variants are mentioned specifically as bdv.*
+ * All file formats starting with bdv must include the XML.
  * <p>
  * bdv.n5 and bdv.n5.s3
  * The data is stored in the n5 data format.
@@ -76,6 +84,10 @@ import static org.embl.mobie.io.ImageDataFormatNames.OPENORGANELLES3;
  */
 public enum ImageDataFormat {
 
+    @SerializedName(BIOFORMATS)
+    BioFormats,
+    @SerializedName(BDV)
+    Bdv,
     @SerializedName(BDVHDF5)
     BdvHDF5,
     @SerializedName(BDVN5)
@@ -97,10 +109,12 @@ public enum ImageDataFormat {
     @SerializedName(IMAGEPLUS)
     ImagePlus;
 
-
-
     public static ImageDataFormat fromString(String string) {
         switch (string) {
+            case BIOFORMATS:
+                return BioFormats;
+            case BDV:
+                return Bdv;
             case BDVHDF5:
                 return BdvHDF5;
             case BDVN5:
@@ -129,6 +143,10 @@ public enum ImageDataFormat {
     @Override
     public String toString() {
         switch (this) {
+            case BioFormats:
+                return BIOFORMATS;
+            case Bdv:
+                return BDV;
             case BdvHDF5:
                 return BDVHDF5;
             case BdvN5:
@@ -151,6 +169,28 @@ public enum ImageDataFormat {
                 return IMAGEPLUS;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + this);
+        }
+    }
+
+    public static ImageDataFormat fromPath(String path)
+    {
+        if( path.contains( ".zarr" )  )
+            return ImageDataFormat.OmeZarr;
+        else if ( path.endsWith( ".xml" ) )
+            return ImageDataFormat.Bdv; // TODO:
+        else
+            return
+
+
+    }
+
+    public boolean isInMemory()
+    {
+        switch (this) {
+            case ImagePlus:
+                return true;
+            default:
+                return false;
         }
     }
 

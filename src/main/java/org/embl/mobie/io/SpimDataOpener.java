@@ -31,11 +31,18 @@ package org.embl.mobie.io;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.epfl.biop.bdv.img.OpenersToSpimData;
+import ch.epfl.biop.bdv.img.bioformats.BioFormatsHelper;
 import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
+import ch.epfl.biop.bdv.img.opener.OpenerSettings;
 import ij.ImagePlus;
+import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
+import mpicbg.spim.data.sequence.SequenceDescription;
 import org.embl.mobie.io.n5.openers.N5Opener;
 import org.embl.mobie.io.n5.openers.N5S3Opener;
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
@@ -75,8 +82,11 @@ public class SpimDataOpener {
 
     public AbstractSpimData openSpimData(String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
+            case BioFormats:
+                return openWithBioFormats(imagePath);
             case Imaris:
                 return openImaris(imagePath);
+            case Bdv:
             case BdvHDF5:
             case BdvN5:
             case BdvN5S3:
@@ -98,6 +108,8 @@ public class SpimDataOpener {
 
     public AbstractSpimData openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
+            case BioFormats:
+                return openWithBioFormats(imagePath);
             case BdvN5:
                 return openBdvN5(imagePath, sharedQueue);
             case BdvN5S3:
@@ -116,14 +128,15 @@ public class SpimDataOpener {
         }
     }
 
-    public AbstractSpimData asSpimData(Object imageData, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException
+    // Wrap RAM resident image data into SpimData
+    public AbstractSpimData asSpimData(Object imageData, ImageDataFormat imageDataFormat) throws UnsupportedOperationException
     {
         switch (imageDataFormat)
         {
             case ImagePlus:
                 return ImagePlusToSpimData.getSpimData( ( ImagePlus ) imageData );
             default:
-                throw new UnsupportedOperationException( "Opening of " + imageDataFormat + " is not supported." );
+                throw new UnsupportedOperationException( "Wrapping " + imageDataFormat + " is not supported." );
         }
     }
 
@@ -235,6 +248,29 @@ public class SpimDataOpener {
             log.debug("Failed to open openBdvOmeZarrS3", e);
             return null;
         }
+    }
+
+    private SpimData openWithBioFormats(String path)
+    {
+        final File file = new File( path );
+        List< OpenerSettings > openerSettings = new ArrayList<>();
+        int numSeries = BioFormatsHelper.getNSeries(file);
+        for (int i = 0; i < numSeries; i++) {
+            openerSettings.add(
+                    OpenerSettings.BioFormats()
+                            .location(file)
+                            .setSerie(i) );
+        }
+
+        return asSpimData( OpenersToSpimData.getSpimData( openerSettings ) );
+    }
+
+    public static SpimData asSpimData( AbstractSpimData abstractSpimData )
+    {
+        final AbstractSequenceDescription abstractSequenceDescription = abstractSpimData.getSequenceDescription();
+        final SequenceDescription sequenceDescription = new SequenceDescription( abstractSequenceDescription.getTimePoints(), abstractSequenceDescription.getViewSetups() );
+        final SpimData spimData = new SpimData( abstractSpimData.getBasePath(), sequenceDescription, abstractSpimData.getViewRegistrations() );
+        return spimData;
     }
 
     private SpimData openBdvOmeZarr(String path, @Nullable SharedQueue sharedQueue) throws SpimDataException {
