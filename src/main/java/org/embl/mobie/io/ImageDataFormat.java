@@ -30,6 +30,17 @@ package org.embl.mobie.io;
 
 import com.google.gson.annotations.SerializedName;
 
+import static org.embl.mobie.io.ImageDataFormatNames.BDVHDF5;
+import static org.embl.mobie.io.ImageDataFormatNames.BDVN5;
+import static org.embl.mobie.io.ImageDataFormatNames.BDVN5S3;
+import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARR;
+import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARRS3;
+import static org.embl.mobie.io.ImageDataFormatNames.IMAGEPLUS;
+import static org.embl.mobie.io.ImageDataFormatNames.IMARIS;
+import static org.embl.mobie.io.ImageDataFormatNames.OMEZARR;
+import static org.embl.mobie.io.ImageDataFormatNames.OMEZARRS3;
+import static org.embl.mobie.io.ImageDataFormatNames.OPENORGANELLES3;
+
 /**
  * Currently mobie-io supports the following data formats:
  * <p>
@@ -86,16 +97,7 @@ public enum ImageDataFormat {
     @SerializedName(IMAGEPLUS)
     ImagePlus;
 
-    public static final String BDVN5 = "bdv.n5";
-    public static final String BDVN5S3 = "bdv.n5.s3";
-    public static final String OPENORGANELLES3 = "openOrganelle.s3";
-    public static final String BDVOMEZARR = "bdv.ome.zarr";
-    public static final String BDVOMEZARRS3 = "bdv.ome.zarr.s3";
-    public static final String OMEZARR = "ome.zarr";
-    public static final String OMEZARRS3 = "ome.zarr.s3";
-    public static final String BDVHDF5 = "bdv.hdf5";
-    public static final String IMARIS = "ims";
-    public static final String IMAGEPLUS = "imagePlus";
+
 
     public static ImageDataFormat fromString(String string) {
         switch (string) {
