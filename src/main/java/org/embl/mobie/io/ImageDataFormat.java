@@ -177,14 +177,12 @@ public enum ImageDataFormat {
         if( path.contains( ".zarr" )  )
             return ImageDataFormat.OmeZarr;
         else if ( path.endsWith( ".xml" ) )
-            return ImageDataFormat.Bdv; // TODO:
+            return ImageDataFormat.Bdv; // TODO: https://github.com/mobie/mobie-io/issues/131
         else
-            return
-
-
+            return ImageDataFormat.BioFormats;
     }
 
-    public boolean isInMemory()
+    public boolean inMemory()
     {
         switch (this) {
             case ImagePlus:
