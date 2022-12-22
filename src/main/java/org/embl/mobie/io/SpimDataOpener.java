@@ -215,7 +215,7 @@ public class SpimDataOpener {
     }
 
     private SpimData openBdvOmeZarrS3(String path, SharedQueue queue) {
-        //Todo: finish bug fixing
+        //TODO: finish bug fixing
         try {
             SAXBuilder sax = new SAXBuilder();
             InputStream stream = IOHelper.getInputStream(path);
