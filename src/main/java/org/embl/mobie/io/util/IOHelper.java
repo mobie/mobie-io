@@ -62,6 +62,7 @@ import static org.embl.mobie.io.util.S3Utils.getS3FileNames;
 import static org.embl.mobie.io.util.S3Utils.selectS3PathFromDirectory;
 
 public class IOHelper {
+
     public static ResourceType getType(String uri) {
         if (uri.startsWith("https://s3") || uri.contains("s3.amazon.aws.com")) {
             return IOHelper.ResourceType.S3;

@@ -174,6 +174,7 @@ public enum ImageDataFormat {
 
     public static ImageDataFormat fromPath(String path)
     {
+        // FIXME:
         if( path.contains( ".zarr" )  )
             return ImageDataFormat.OmeZarr;
         else if ( path.endsWith( ".xml" ) )

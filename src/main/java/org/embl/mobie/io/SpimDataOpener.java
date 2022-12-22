@@ -134,7 +134,7 @@ public class SpimDataOpener {
         switch (imageDataFormat)
         {
             case ImagePlus:
-                return ImagePlusToSpimData.getSpimData( ( ImagePlus ) imageData );
+                return ImagePlusToSpimData.getSpimData((ImagePlus)imageData);
             default:
                 throw new UnsupportedOperationException( "Wrapping " + imageDataFormat + " is not supported." );
         }
