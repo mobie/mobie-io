@@ -80,7 +80,7 @@ public class SpimDataOpener {
     public SpimDataOpener() {
     }
 
-    public AbstractSpimData openSpimData(String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
+    public AbstractSpimData< ? > openSpimData(String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
             case BioFormats:
                 return openWithBioFormats(imagePath);
@@ -106,7 +106,7 @@ public class SpimDataOpener {
         }
     }
 
-    public AbstractSpimData openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
+    public AbstractSpimData< ? > openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
             case BioFormats:
                 return openWithBioFormats(imagePath);
@@ -250,7 +250,7 @@ public class SpimDataOpener {
         }
     }
 
-    private SpimData openWithBioFormats(String path)
+    private AbstractSpimData< ? > openWithBioFormats( String path)
     {
         final File file = new File( path );
         List< OpenerSettings > openerSettings = new ArrayList<>();
@@ -262,16 +262,16 @@ public class SpimDataOpener {
                             .setSerie(i) );
         }
 
-        return asSpimData( OpenersToSpimData.getSpimData( openerSettings ) );
+        return OpenersToSpimData.getSpimData( openerSettings );
     }
 
-    public static SpimData asSpimData( AbstractSpimData abstractSpimData )
-    {
-        final AbstractSequenceDescription abstractSequenceDescription = abstractSpimData.getSequenceDescription();
-        final SequenceDescription sequenceDescription = new SequenceDescription( abstractSequenceDescription.getTimePoints(), abstractSequenceDescription.getViewSetups() );
-        final SpimData spimData = new SpimData( abstractSpimData.getBasePath(), sequenceDescription, abstractSpimData.getViewRegistrations() );
-        return spimData;
-    }
+//    public static SpimData asSpimData( AbstractSpimData< ? > abstractSpimData )
+//    {
+//        final AbstractSequenceDescription< ?, ?, ? > abstractSequenceDescription = abstractSpimData.getSequenceDescription();
+//        final SequenceDescription sequenceDescription = new SequenceDescription( abstractSequenceDescription.getTimePoints(), abstractSequenceDescription.getViewSetups() );
+//        final SpimData spimData = new SpimData( abstractSpimData.getBasePath(), sequenceDescription, abstractSpimData.getViewRegistrations() );
+//        return spimData;
+//    }
 
     private SpimData openBdvOmeZarr(String path, @Nullable SharedQueue sharedQueue) throws SpimDataException {
         SpimData spimData = openBdvXml(path);
