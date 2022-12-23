@@ -29,7 +29,6 @@
 package org.embl.mobie.io;
 
 import com.google.gson.annotations.SerializedName;
-import ij.IJ;
 
 import static org.embl.mobie.io.ImageDataFormatNames.BDV;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVHDF5;
@@ -38,7 +37,7 @@ import static org.embl.mobie.io.ImageDataFormatNames.BDVN5S3;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARR;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARRS3;
 import static org.embl.mobie.io.ImageDataFormatNames.BIOFORMATS;
-import static org.embl.mobie.io.ImageDataFormatNames.IMAGEPLUS;
+import static org.embl.mobie.io.ImageDataFormatNames.SPIMDATA;
 import static org.embl.mobie.io.ImageDataFormatNames.IMARIS;
 import static org.embl.mobie.io.ImageDataFormatNames.OMEZARR;
 import static org.embl.mobie.io.ImageDataFormatNames.OMEZARRS3;
@@ -106,8 +105,8 @@ public enum ImageDataFormat {
     BdvOmeZarrS3,
     @SerializedName(IMARIS)
     Imaris,
-    @SerializedName(IMAGEPLUS)
-    ImagePlus;
+    @SerializedName(SPIMDATA)
+    SpimData;
 
     public static ImageDataFormat fromString(String string) {
         switch (string) {
@@ -133,8 +132,8 @@ public enum ImageDataFormat {
                 return OmeZarrS3;
             case IMARIS:
                 return Imaris;
-            case IMAGEPLUS:
-                return ImagePlus;
+            case SPIMDATA:
+                return SpimData;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + string);
         }
@@ -165,8 +164,8 @@ public enum ImageDataFormat {
                 return OMEZARRS3;
             case Imaris:
                 return IMARIS;
-            case ImagePlus:
-                return IMAGEPLUS;
+            case SpimData:
+                return SPIMDATA;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + this);
         }
@@ -186,7 +185,7 @@ public enum ImageDataFormat {
     public boolean inMemory()
     {
         switch (this) {
-            case ImagePlus:
+            case SpimData:
                 return true;
             default:
                 return false;

@@ -128,16 +128,9 @@ public class SpimDataOpener {
         }
     }
 
-    // Wrap RAM resident image data into SpimData
-    public AbstractSpimData asSpimData(Object imageData, ImageDataFormat imageDataFormat) throws UnsupportedOperationException
+    public AbstractSpimData asSpimData(ImagePlus imagePlus)
     {
-        switch (imageDataFormat)
-        {
-            case ImagePlus:
-                return ImagePlusToSpimData.getSpimData((ImagePlus)imageData);
-            default:
-                throw new UnsupportedOperationException( "Wrapping " + imageDataFormat + " is not supported." );
-        }
+        return ImagePlusToSpimData.getSpimData(imagePlus);
     }
 
     @NotNull
