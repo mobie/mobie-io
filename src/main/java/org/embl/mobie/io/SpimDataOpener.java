@@ -106,6 +106,11 @@ public class SpimDataOpener {
         }
     }
 
+    public AbstractSpimData< ? > open(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
+        return openSpimData( imagePath, imageDataFormat, sharedQueue );
+    }
+
+    @Deprecated // use open( .. )
     public AbstractSpimData< ? > openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
             case BioFormats:
@@ -128,7 +133,7 @@ public class SpimDataOpener {
         }
     }
 
-    public AbstractSpimData openSpimData( ImagePlus imagePlus)
+    public AbstractSpimData open( ImagePlus imagePlus)
     {
         return ImagePlusToSpimData.getSpimData(imagePlus);
     }
