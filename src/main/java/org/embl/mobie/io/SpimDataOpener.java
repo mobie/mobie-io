@@ -128,7 +128,7 @@ public class SpimDataOpener {
         }
     }
 
-    public AbstractSpimData asSpimData(ImagePlus imagePlus)
+    public AbstractSpimData openSpimData( ImagePlus imagePlus)
     {
         return ImagePlusToSpimData.getSpimData(imagePlus);
     }
