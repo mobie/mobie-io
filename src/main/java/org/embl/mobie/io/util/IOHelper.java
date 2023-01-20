@@ -213,9 +213,24 @@ public class IOHelper {
             case FILE:
                 return new File(uri).getParent();
             default:
-                throw new RuntimeException("Invalid ur: " + uri);
+                throw new RuntimeException("Invalid uri: " + uri);
         }
     }
+
+    public static String getFileName( String uri) {
+        IOHelper.ResourceType type = getType(uri);
+        switch (type) {
+            case HTTP:
+            case S3:
+                final String[] split = uri.split( "/" );
+                return split[ split.length - 1 ];
+            case FILE:
+                return new File(uri).getName();
+            default:
+                throw new RuntimeException("Invalid uri: " + uri);
+        }
+    }
+
 
     public static String getHttpParentLocation(String uri) {
         try {
