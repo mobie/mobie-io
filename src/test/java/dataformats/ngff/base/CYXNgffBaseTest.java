@@ -55,25 +55,36 @@ public abstract class CYXNgffBaseTest extends NgffBaseTest {
         long x = 1;
         long y = 1;
         long z = 1;
-        long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).dimensionsAsLongArray();
-        if (x > imageDimensions[0] || y > imageDimensions[1] || z > imageDimensions[2]) {
-            throw new RuntimeException("Coordinates out of bounds");
-        }
 
-        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
-        VolatileCachedCellImg volatileCachedCellImg = (VolatileCachedCellImg) randomAccessibleInterval;
-        CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
-        long[] dims = new long[]{1024, 930, 1};
-        int[] cellDims = new int[]{256, 256, 1};
-        CellGrid expected = new CellGrid(dims, cellDims);
-        Assertions.assertEquals(expected, cellGrid);
+        final int timepointId = 0;
+
+        for ( int channelId = 0; channelId < expectedChannelsNumber; channelId++ )
+        {
+            long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( channelId ).getImage( timepointId ).dimensionsAsLongArray();
+            if ( x > imageDimensions[ 0 ] || y > imageDimensions[ 1 ] || z > imageDimensions[ 2 ] )
+            {
+                throw new RuntimeException( "Coordinates out of bounds" );
+            }
+
+            RandomAccessibleInterval< ? > randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( channelId ).getImage( timepointId );
+            VolatileCachedCellImg volatileCachedCellImg = ( VolatileCachedCellImg ) randomAccessibleInterval;
+            CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
+            long[] dims = new long[]{ 1024, 930, 1 };
+            int[] cellDims = new int[]{ 256, 256, 1 };
+            CellGrid expected = new CellGrid( dims, cellDims );
+            Assertions.assertEquals( expected, cellGrid );
+        }
     }
     
     @Test
     public void checkImgValue() {
 
+        final int timepointId = 0;
+
         // random test data generated independently with python
-        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
+        int channelId = 1;
+        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( channelId ).getImage( timepointId );
+
         UnsignedShortType o = (UnsignedShortType) randomAccessibleInterval.getAt(647, 482, 0);
         int value = o.get();
         int expectedValue = 4055;
@@ -83,14 +94,18 @@ public abstract class CYXNgffBaseTest extends NgffBaseTest {
         value = o.get();
         expectedValue = 4213;
         Assertions.assertEquals(expectedValue, value);
-        
-        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(2).getImage(0);
+
+        channelId = 2;
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(channelId).getImage(timepointId);
+
         o = (UnsignedShortType) randomAccessibleInterval.getAt(559, 920, 0);
         value = o.get();
         expectedValue = 1835;
         Assertions.assertEquals(expectedValue, value);
-        
-        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(3).getImage(0);
+
+        channelId = 3;
+        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(channelId).getImage(timepointId);
+
         o = (UnsignedShortType) randomAccessibleInterval.getAt(934, 929, 0);
         value = o.get();
         expectedValue = 1724;
