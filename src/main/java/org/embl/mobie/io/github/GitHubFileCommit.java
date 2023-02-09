@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -36,10 +36,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @JsonInclude(JsonInclude.Include.NON_NULL) // exclude all null fields from toString()
 public class GitHubFileCommit {
-    public String message = "My commit message";
-    public String content = Base64.getEncoder().encodeToString("Hello World".getBytes());
-    public String branch;
-    public String sha; // Needed if updating existing file
+    private final String message;
+    private final String content;
+    private final String branch;
+    private final String sha; // Needed if updating existing file
+
+    public GitHubFileCommit() {
+        this("My commit message", Base64.getEncoder().encodeToString("Hello World".getBytes()), null, null);
+    }
 
     public GitHubFileCommit(String message, String base64String) {
         this(message, base64String, null, null);
@@ -54,6 +58,18 @@ public class GitHubFileCommit {
         content = base64String;
         this.branch = branch;
         this.sha = sha;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getBranch() {
+        return branch;
     }
 
     @Override
