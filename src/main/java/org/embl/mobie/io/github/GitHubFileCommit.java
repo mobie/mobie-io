@@ -38,7 +38,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class GitHubFileCommit {
     public String message = "My commit message";
     public String content = Base64.getEncoder().encodeToString("Hello World".getBytes());
-    ;
     public String branch;
     public String sha; // Needed if updating existing file
 

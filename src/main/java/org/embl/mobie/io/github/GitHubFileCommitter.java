@@ -29,11 +29,11 @@
 package org.embl.mobie.io.github;
 
 public class GitHubFileCommitter {
-    private String repository;
-    private String accessToken;
-    private String path;
-    private String branch;
-    private String sha; // needed if updating an existing file
+    private final String repository;
+    private final String accessToken;
+    private final String path;
+    private final String branch;
+    private final String sha; // needed if updating an existing file
 
     public GitHubFileCommitter(String repository, String accessToken, String path) {
         this(repository, accessToken, null, path, null);

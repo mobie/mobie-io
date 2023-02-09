@@ -31,10 +31,10 @@ package org.embl.mobie.io.github;
 import com.drew.lang.annotations.Nullable;
 
 public class GitHubContentGetter {
-    private String repository;
-    private String path;
-    private String branch;
-    private String accessToken;
+    private final String repository;
+    private final String path;
+    private final String branch;
+    private final String accessToken;
 
     /**
      * https://developer.github.com/v3/repos/contents/
@@ -49,12 +49,6 @@ public class GitHubContentGetter {
         this.path = path;
         this.branch = branch;
         this.accessToken = accessToken;
-    }
-
-    public static void main(String[] args) {
-        final GitHubContentGetter contentGetter = new GitHubContentGetter("https://github.com/platybrowser/platybrowser", "data/1.0.1/misc/bookmarks", "mobie", null);
-
-        System.out.println(contentGetter.getContent());
     }
 
     public String getContent() {

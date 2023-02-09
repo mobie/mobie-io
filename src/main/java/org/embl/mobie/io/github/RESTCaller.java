@@ -38,6 +38,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class RESTCaller {
     private int issueNumber;
     private String status;
@@ -62,7 +65,7 @@ public class RESTCaller {
 
             parseResponse(httpURLConnection);
         } catch (Exception e) {
-            System.err.println(e);
+           log.error("Failed put", e);
         }
     }
 
@@ -98,7 +101,7 @@ public class RESTCaller {
             HttpURLConnection httpURLConnection = createUrlConnection(url, requestMethod, accessToken);
             return parseResponse(httpURLConnection);
         } catch (Exception e) {
-            System.err.println(e);
+            log.error("Failed get", e);
             throw new RuntimeException(e);
         }
     }
@@ -109,7 +112,7 @@ public class RESTCaller {
 
         int responseCode = httpURLConnection.getResponseCode();
         if (!(responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED)) {
-            System.err.println("Unexpected response code: " + responseCode + "\n" + status + ".\n" + builder.toString());
+            log.error("Unexpected response code: " + responseCode + "\n" + status + ".\n" + builder);
             throw new RuntimeException();
         } else {
             final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader((httpURLConnection.getInputStream())));
@@ -118,8 +121,7 @@ public class RESTCaller {
             while ((output = bufferedReader.readLine()) != null) {
                 stringBuilder.append(output);
             }
-            final String response = stringBuilder.toString();
-            return response;
+            return stringBuilder.toString();
         }
     }
 
