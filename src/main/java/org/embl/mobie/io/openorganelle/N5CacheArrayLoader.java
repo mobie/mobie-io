@@ -30,6 +30,7 @@ package org.embl.mobie.io.openorganelle;
 
 import java.util.Arrays;
 
+import net.imglib2.img.basictypeaccess.DataAccess;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
@@ -39,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.imglib2.img.cell.CellGrid;
 
 @Slf4j
-public class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
+public class N5CacheArrayLoader<A extends DataAccess> implements SimpleCacheArrayLoader<A> {
     private final N5Reader n5;
     private final String pathName;
     private final DatasetAttributes attributes;

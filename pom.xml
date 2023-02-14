@@ -94,8 +94,14 @@
         <someModule.test.excludes>src/test/java/projects/local</someModule.test.excludes>
 
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
-        <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
-    </properties>
+		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
+
+		<imglib2.version>6.1.0-SNAPSHOT</imglib2.version>
+		<imglib2-cache.version>1.0.0-beta-17-SNAPSHOT</imglib2-cache.version>
+		<bigdataviewer-core.version>10.4.6-SNAPSHOT</bigdataviewer-core.version>
+		<bigdataviewer-vistools.version>1.0.0-beta-32-SNAPSHOT</bigdataviewer-vistools.version>
+		<n5-imglib2.version>4.4.1-SNAPSHOT</n5-imglib2.version>
+	</properties>
 
     <build>
         <plugins>
@@ -146,7 +152,6 @@
         <dependency>
             <groupId>sc.fiji</groupId>
             <artifactId>bigdataviewer-core</artifactId>
-            <version>${bigdataviewer-core.version}</version>
         </dependency>
         <dependency>
             <groupId>sc.fiji</groupId>

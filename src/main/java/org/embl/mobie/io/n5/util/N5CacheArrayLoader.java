@@ -31,6 +31,7 @@ package org.embl.mobie.io.n5.util;
 import java.util.Arrays;
 import java.util.function.Function;
 
+import net.imglib2.img.basictypeaccess.DataAccess;
 import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
 import org.janelia.saalfeldlab.n5.DataBlock;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
@@ -45,7 +46,7 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
+public class N5CacheArrayLoader<A extends DataAccess> implements SimpleCacheArrayLoader<A> {
     private final N5Reader n5;
     private final String pathName;
     private final DatasetAttributes attributes;
