@@ -48,7 +48,6 @@ public abstract class BaseTest extends BaseSpimDataChecker {
     protected double[] expectedScale = null;
     protected String expectedUnit = null;
 
-
     protected BaseTest(String path, ImageDataFormat format) throws SpimDataException {
         super(new SpimDataOpener().openSpimData(path, format));
     }
