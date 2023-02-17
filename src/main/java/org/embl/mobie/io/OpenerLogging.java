@@ -26,13 +26,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io.n5.openers;
+package org.embl.mobie.io;
 
-public abstract class BDVOpener {
+public abstract class OpenerLogging
+{
     protected static boolean logging;
 
-    public static void setLogging(final boolean logging) {
-        S3Opener.logging = logging;
+    public static synchronized void setLogging(final boolean logging) {
+        OpenerLogging.logging = logging;
     }
-
 }

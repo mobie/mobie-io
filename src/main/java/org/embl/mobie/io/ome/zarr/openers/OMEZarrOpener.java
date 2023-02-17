@@ -31,7 +31,7 @@ package org.embl.mobie.io.ome.zarr.openers;
 import java.io.File;
 import java.io.IOException;
 
-import org.embl.mobie.io.n5.openers.BDVOpener;
+import org.embl.mobie.io.OpenerLogging;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.readers.N5OmeZarrReader;
 
@@ -41,7 +41,8 @@ import bdv.cache.SharedQueue;
 import mpicbg.spim.data.SpimData;
 import net.imglib2.util.Cast;
 
-public class OMEZarrOpener extends BDVOpener {
+public class OMEZarrOpener extends OpenerLogging
+{
     private final String filePath;
 
     public OMEZarrOpener(String filePath) {

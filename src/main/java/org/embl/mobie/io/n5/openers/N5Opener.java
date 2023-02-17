@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.embl.mobie.io.OpenerLogging;
 import org.embl.mobie.io.n5.loaders.N5FSImageLoader;
 import org.embl.mobie.io.util.IOHelper;
 import org.jdom2.Document;
@@ -61,7 +62,8 @@ import net.imglib2.FinalDimensions;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.Cast;
 
-public class N5Opener extends BDVOpener {
+public class N5Opener extends OpenerLogging
+{
     private final String filePath;
 
     public N5Opener(String filePath) {

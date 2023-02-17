@@ -33,8 +33,10 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import mpicbg.spim.data.SpimData;
+import org.embl.mobie.io.OpenerLogging;
 
-public class S3Opener extends BDVOpener {
+public class S3Opener extends OpenerLogging
+{
     protected String serviceEndpoint;
     protected String signingRegion;
     protected String bucketName;
