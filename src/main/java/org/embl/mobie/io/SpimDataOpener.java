@@ -77,8 +77,16 @@ public class SpimDataOpener {
     public SpimDataOpener() {
     }
 
+    public AbstractSpimData< ? > open(String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
+        return openSpimData( imagePath, imageDataFormat );
+    }
+
+    @Deprecated // use {@code open(String imagePath, ImageDataFormat imageDataFormat)}
     public AbstractSpimData< ? > openSpimData(String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
+            case ImageJ:
+                final ImagePlus imagePlus = IJ.openImage(imagePath);
+                return open(imagePlus);
             case BioFormats:
                 return openWithBioFormats(imagePath);
             case Imaris:
@@ -104,14 +112,14 @@ public class SpimDataOpener {
     }
 
     public AbstractSpimData< ? > open(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
-        return openSpimData( imagePath, imageDataFormat, sharedQueue );
+        if (sharedQueue == null)
+            return openSpimData(imagePath, imageDataFormat);
+        return openSpimData(imagePath, imageDataFormat, sharedQueue);
     }
 
-    @Deprecated // use open( .. )
+    @Deprecated // use (@code open(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue)}
     public AbstractSpimData< ? > openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
-            case BioFormats:
-                return openWithBioFormats(imagePath);
             case BdvN5:
                 return openBdvN5(imagePath, sharedQueue);
             case BdvN5S3:
@@ -125,14 +133,14 @@ public class SpimDataOpener {
             case BdvOmeZarrS3:
                 return openBdvOmeZarrS3(imagePath, sharedQueue);
             default:
-                System.out.println("Shared queues for " + imageDataFormat + " are not yet supported; opening with own queue.");
+                // open without {@code SharedQueue}
                 return openSpimData(imagePath, imageDataFormat);
         }
     }
 
-    public AbstractSpimData open( ImagePlus imagePlus)
+    public AbstractSpimData open( ImagePlus imagePlus )
     {
-        return ImagePlusToSpimData.getSpimData(imagePlus);
+        return ImagePlusToSpimData.getSpimData( imagePlus );
     }
 
     @NotNull
@@ -245,7 +253,7 @@ public class SpimDataOpener {
         }
     }
 
-    private AbstractSpimData< ? > openWithBioFormats( String path)
+    private AbstractSpimData< ? > openWithBioFormats( String path )
     {
         final File file = new File( path );
         List< OpenerSettings > openerSettings = new ArrayList<>();

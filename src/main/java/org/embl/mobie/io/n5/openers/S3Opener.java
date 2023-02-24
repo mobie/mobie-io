@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import mpicbg.spim.data.SpimData;
 import org.embl.mobie.io.OpenerLogging;
+import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 
 public class S3Opener extends OpenerLogging
 {
@@ -57,6 +58,8 @@ public class S3Opener extends OpenerLogging
     }
 
     protected S3Opener(String url) {
+        url = url.replaceAll( "\\s", "" );
+        url = url.trim();
         final String[] split = url.split("/");
         this.serviceEndpoint = Arrays.stream(split).limit(3).collect(Collectors.joining("/"));
         this.signingRegion = "us-west-2";

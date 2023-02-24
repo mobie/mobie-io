@@ -37,6 +37,7 @@ import static org.embl.mobie.io.ImageDataFormatNames.BDVN5S3;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARR;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARRS3;
 import static org.embl.mobie.io.ImageDataFormatNames.BIOFORMATS;
+import static org.embl.mobie.io.ImageDataFormatNames.IMAGEJ;
 import static org.embl.mobie.io.ImageDataFormatNames.SPIMDATA;
 import static org.embl.mobie.io.ImageDataFormatNames.IMARIS;
 import static org.embl.mobie.io.ImageDataFormatNames.OMEZARR;
@@ -83,6 +84,8 @@ import static org.embl.mobie.io.ImageDataFormatNames.OPENORGANELLES3;
  */
 public enum ImageDataFormat {
 
+    @SerializedName(IMAGEJ)
+    ImageJ,
     @SerializedName(BIOFORMATS)
     BioFormats,
     @SerializedName(BDV)
@@ -110,6 +113,8 @@ public enum ImageDataFormat {
 
     public static ImageDataFormat fromString(String string) {
         switch (string) {
+            case IMAGEJ:
+                return ImageJ;
             case BIOFORMATS:
                 return BioFormats;
             case BDV:
@@ -142,6 +147,8 @@ public enum ImageDataFormat {
     @Override
     public String toString() {
         switch (this) {
+            case ImageJ:
+                return IMAGEJ;
             case BioFormats:
                 return BIOFORMATS;
             case Bdv:
@@ -203,6 +210,7 @@ public enum ImageDataFormat {
             case BdvOmeZarr:
             case OmeZarr:
             case BdvHDF5:
+            case ImageJ:
             default:
                 return false;
         }

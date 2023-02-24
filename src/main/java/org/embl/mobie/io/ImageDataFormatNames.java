@@ -2,6 +2,7 @@ package org.embl.mobie.io;
 
 public class ImageDataFormatNames
 {
+	public static final String IMAGEJ = "imagej";
 	public static final String BIOFORMATS = "bioformats";
 	public static final String BDV = "bdv";
 	public static final String BDVN5 = "bdv.n5";
