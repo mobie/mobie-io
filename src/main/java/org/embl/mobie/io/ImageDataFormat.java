@@ -43,6 +43,7 @@ import static org.embl.mobie.io.ImageDataFormatNames.IMARIS;
 import static org.embl.mobie.io.ImageDataFormatNames.OMEZARR;
 import static org.embl.mobie.io.ImageDataFormatNames.OMEZARRS3;
 import static org.embl.mobie.io.ImageDataFormatNames.OPENORGANELLES3;
+import static org.embl.mobie.io.ImageDataFormatNames.TIFF;
 
 /**
  * Currently mobie-io supports the following data formats:
@@ -84,6 +85,8 @@ import static org.embl.mobie.io.ImageDataFormatNames.OPENORGANELLES3;
  */
 public enum ImageDataFormat {
 
+    @SerializedName(TIFF)
+    Tiff,
     @SerializedName(IMAGEJ)
     ImageJ,
     @SerializedName(BIOFORMATS)
@@ -147,6 +150,8 @@ public enum ImageDataFormat {
     @Override
     public String toString() {
         switch (this) {
+            case Tiff:
+                return TIFF;
             case ImageJ:
                 return IMAGEJ;
             case BioFormats:
@@ -180,11 +185,13 @@ public enum ImageDataFormat {
 
     public static ImageDataFormat fromPath(String path)
     {
-        // FIXME:
-        if( path.contains( ".zarr" )  )
+        final String lowerCase = path.toLowerCase();
+        if(lowerCase.contains( ".zarr" ))
             return ImageDataFormat.OmeZarr;
-        else if ( path.endsWith( ".xml" ) )
+        else if (lowerCase.endsWith( ".xml" ))
             return ImageDataFormat.Bdv; // TODO: https://github.com/mobie/mobie-io/issues/131
+        else if (lowerCase.endsWith( ".tif" ) || lowerCase.endsWith( ".tiff" ))
+            return ImageDataFormat.Tiff;
         else
             return ImageDataFormat.BioFormats;
     }

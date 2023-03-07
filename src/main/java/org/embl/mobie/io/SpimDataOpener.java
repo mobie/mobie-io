@@ -37,6 +37,8 @@ import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
 import ch.epfl.biop.bdv.img.opener.OpenerSettings;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.VirtualStack;
+import ij.io.Opener;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
@@ -84,9 +86,11 @@ public class SpimDataOpener {
     @Deprecated // use {@code open(String imagePath, ImageDataFormat imageDataFormat)}
     public AbstractSpimData< ? > openSpimData(String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
+            case Tiff:
+                final File file = new File(imagePath);
+                return open( (new Opener()).openTiff( file.getParent(), file.getName() ) );
             case ImageJ:
-                final ImagePlus imagePlus = IJ.openImage(imagePath);
-                return open(imagePlus);
+                return open( IJ.openImage(imagePath) );
             case BioFormats:
                 return openWithBioFormats(imagePath);
             case Imaris:
@@ -264,6 +268,8 @@ public class SpimDataOpener {
                             .location(file)
                             .setSerie(i) );
         }
+
+
 
         return OpenersToSpimData.getSpimData( openerSettings );
     }
