@@ -73,8 +73,7 @@ import net.imglib2.util.Intervals;
 public class WriteImagePlusToN5 {
 
     // export, generating default source transform, and default resolutions / subdivisions
-    public void export(ImagePlus imp, String xmlPath, DownsampleBlock.DownsamplingMethod downsamplingMethod,
-                       Compression compression) {
+    public void export(ImagePlus imp, String xmlPath, DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression) {
         if (!WriteImagePlusToN5Helper.isImageSuitable(imp)) {
             return;
         }

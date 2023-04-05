@@ -162,9 +162,7 @@ public class WriteSequenceToN5OmeZarr {
         // Currently we write v0.4 ome-zarr
         // Assumes persetupmipmapinfo is the same for every setup, and unit same for every setup
         OmeZarrMultiscales[] multiscales = new OmeZarrMultiscales[1];
-        multiscales[0] = new OmeZarrMultiscales(axes, zarrFile.getName().split("\\.")[0], downsamplingMethod.name(),
-            "0.4", seq.getViewSetupsOrdered().get(0).getVoxelSize(),
-            perSetupMipmapInfo.get(0).getResolutions(), timeUnit, frameInterval);
+        multiscales[0] = new OmeZarrMultiscales(axes, zarrFile.getName().split("\\.")[0], downsamplingMethod.name(), "0.4", seq.getViewSetupsOrdered().get(0).getVoxelSize(), perSetupMipmapInfo.get(0).getResolutions(), timeUnit, frameInterval);
 
         zarrWriter.createGroup("");
         zarrWriter.setAttribute("", MULTI_SCALE_KEY, multiscales);
@@ -214,7 +212,6 @@ public class WriteSequenceToN5OmeZarr {
 
         progressWriter.setProgress(1.0);
     }
-
 
     static <T extends RealType<T> & NativeType<T>> void writeScalePyramid(
         final N5OMEZarrWriter zarrWriter,

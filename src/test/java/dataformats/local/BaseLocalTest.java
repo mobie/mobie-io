@@ -41,7 +41,7 @@ public class BaseLocalTest extends BaseSpimDataChecker {
     protected int expectedChannelsNumber = 1;
 
     protected BaseLocalTest(String path, ImageDataFormat format) throws SpimDataException {
-        super(new SpimDataOpener().openSpimData(path, format));
+        super(new SpimDataOpener().open(path, format));
     }
 
     @Test

@@ -62,38 +62,30 @@ public class WriteImagePlusToN5OmeZarr extends WriteImagePlusToN5 {
 
     // export, generating default source transform, and default resolutions / subdivisions
     @Override
-    public void export(ImagePlus imp, String zarrPath, DownsampleBlock.DownsamplingMethod downsamplingMethod,
-                       Compression compression) {
+    public void export(ImagePlus imp, String zarrPath, DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression) {
         super.export(imp, zarrPath, downsamplingMethod, compression);
     }
 
     // export, generating default resolutions / subdivisions
     @Override
-    public void export(ImagePlus imp, String zarrPath, AffineTransform3D sourceTransform,
-                       DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression) {
+    public void export(ImagePlus imp, String zarrPath, AffineTransform3D sourceTransform, DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression) {
         super.export(imp, zarrPath, sourceTransform, downsamplingMethod, compression);
     }
 
 
     // export, generating default resolutions / subdivisions
     @Override
-    public void export(ImagePlus imp, String zarrPath, AffineTransform3D sourceTransform,
-                       DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression,
-                       String[] viewSetupNames) {
+    public void export(ImagePlus imp, String zarrPath, AffineTransform3D sourceTransform, DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression, String[] viewSetupNames) {
         super.export(imp, zarrPath, sourceTransform, downsamplingMethod, compression, viewSetupNames);
     }
 
     @Override
-    public void export(ImagePlus imp, int[][] resolutions, int[][] subdivisions, String zarrPath,
-                       AffineTransform3D sourceTransform, DownsampleBlock.DownsamplingMethod downsamplingMethod,
-                       Compression compression) {
+    public void export(ImagePlus imp, int[][] resolutions, int[][] subdivisions, String zarrPath, AffineTransform3D sourceTransform, DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression) {
         export(imp, resolutions, subdivisions, zarrPath, sourceTransform, downsamplingMethod, compression, null);
     }
 
     @Override
-    public void export(ImagePlus imp, int[][] resolutions, int[][] subdivisions, String zarrPath,
-                       AffineTransform3D sourceTransform, DownsampleBlock.DownsamplingMethod downsamplingMethod,
-                       Compression compression, String[] viewSetupNames) {
+    public void export(ImagePlus imp, int[][] resolutions, int[][] subdivisions, String zarrPath, AffineTransform3D sourceTransform, DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression, String[] viewSetupNames) {
         if (resolutions.length == 0) {
             IJ.showMessage("Invalid resolutions - length 0");
             return;
@@ -111,17 +103,13 @@ public class WriteImagePlusToN5OmeZarr extends WriteImagePlusToN5 {
 
         final File zarrFile = new File(zarrPath);
 
-        Parameters exportParameters = new Parameters(resolutions, subdivisions, null, zarrFile, sourceTransform,
-            downsamplingMethod, compression, viewSetupNames, imp.getCalibration().getTimeUnit(),
-            imp.getCalibration().frameInterval);
+        Parameters exportParameters = new Parameters(resolutions, subdivisions, null, zarrFile, sourceTransform, downsamplingMethod, compression, viewSetupNames, imp.getCalibration().getTimeUnit(), imp.getCalibration().frameInterval);
 
         export(imp, exportParameters);
     }
 
     @Override
-    protected Parameters generateDefaultParameters(ImagePlus imp, String zarrPath, AffineTransform3D sourceTransform,
-                                                   DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression,
-                                                   String[] viewSetupNames) {
+    protected Parameters generateDefaultParameters(ImagePlus imp, String zarrPath, AffineTransform3D sourceTransform, DownsampleBlock.DownsamplingMethod downsamplingMethod, Compression compression, String[] viewSetupNames) {
         FinalVoxelDimensions voxelSize = getVoxelSize(imp);
         FinalDimensions size = getSize(imp);
 
@@ -147,15 +135,8 @@ public class WriteImagePlusToN5OmeZarr extends WriteImagePlusToN5 {
     }
 
     @Override
-    protected void writeFiles(SequenceDescriptionMinimal seq, Map<Integer, ExportMipmapInfo> perSetupExportMipmapInfo,
-                              Parameters params, ExportScalePyramid.LoopbackHeuristic loopbackHeuristic,
-                              ExportScalePyramid.AfterEachPlane afterEachPlane, int numCellCreatorThreads,
-                              ProgressWriter progressWriter, int numTimepoints, int numSetups) throws IOException {
-        WriteSequenceToN5OmeZarr.writeOmeZarrFile(seq, perSetupExportMipmapInfo,
-            params.downsamplingMethod,
-            params.compression, params.timeUnit, params.frameInterval, params.n5File,
-            loopbackHeuristic, afterEachPlane, numCellCreatorThreads,
-            new SubTaskProgressWriter(progressWriter, 0, 0.95));
+    protected void writeFiles(SequenceDescriptionMinimal seq, Map<Integer, ExportMipmapInfo> perSetupExportMipmapInfo, Parameters params, ExportScalePyramid.LoopbackHeuristic loopbackHeuristic, ExportScalePyramid.AfterEachPlane afterEachPlane, int numCellCreatorThreads, ProgressWriter progressWriter, int numTimepoints, int numSetups) throws IOException {
+        WriteSequenceToN5OmeZarr.writeOmeZarrFile(seq, perSetupExportMipmapInfo, params.downsamplingMethod, params.compression, params.timeUnit, params.frameInterval, params.n5File, loopbackHeuristic, afterEachPlane, numCellCreatorThreads, new SubTaskProgressWriter(progressWriter, 0, 0.95));
 
         progressWriter.setProgress(1.0);
     }

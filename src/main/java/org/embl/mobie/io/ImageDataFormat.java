@@ -190,10 +190,12 @@ public enum ImageDataFormat {
             return ImageDataFormat.OmeZarr;
         else if (lowerCase.endsWith( ".xml" ))
             return ImageDataFormat.Bdv; // TODO: https://github.com/mobie/mobie-io/issues/131
+        else if (lowerCase.endsWith( ".ome.tif" ) || lowerCase.endsWith( ".ome.tiff" ))
+            return ImageDataFormat.BioFormats;
         else if (lowerCase.endsWith( ".tif" ) || lowerCase.endsWith( ".tiff" ))
             return ImageDataFormat.Tiff;
         else
-            return ImageDataFormat.BioFormats;
+            return ImageDataFormat.ImageJ;
     }
 
     public boolean inMemory()

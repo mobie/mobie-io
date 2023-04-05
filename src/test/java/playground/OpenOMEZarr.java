@@ -38,7 +38,7 @@ public class OpenOMEZarr
 {
 	public static void main( String[] args ) throws SpimDataException
 	{
-		final AbstractSpimData spimData = new SpimDataOpener().openSpimData( "https://s3.embl.de/ome-zarr-course/ome_zarr_data/xyzct_8bit__mitosis.zarr", ImageDataFormat.OmeZarrS3 );
+		final AbstractSpimData spimData = new SpimDataOpener().open( "https://s3.embl.de/ome-zarr-course/ome_zarr_data/xyzct_8bit__mitosis.zarr", ImageDataFormat.OmeZarrS3 );
 		BdvFunctions.show( spimData );
 	}
 }

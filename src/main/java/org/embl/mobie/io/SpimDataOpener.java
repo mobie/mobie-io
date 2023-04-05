@@ -29,20 +29,22 @@
 package org.embl.mobie.io;
 
 import bdv.cache.SharedQueue;
+import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.img.imaris.Imaris;
 import bdv.spimdata.SpimDataMinimal;
+import ch.epfl.biop.bdv.img.CacheControlOverride;
 import ch.epfl.biop.bdv.img.OpenersToSpimData;
 import ch.epfl.biop.bdv.img.bioformats.BioFormatsHelper;
 import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
 import ch.epfl.biop.bdv.img.opener.OpenerSettings;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.VirtualStack;
 import ij.io.Opener;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.generic.AbstractSpimData;
+import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import net.imglib2.util.Cast;
 import org.embl.mobie.io.n5.openers.N5Opener;
 import org.embl.mobie.io.n5.openers.N5S3Opener;
@@ -79,18 +81,19 @@ public class SpimDataOpener {
     public SpimDataOpener() {
     }
 
-    public AbstractSpimData< ? > open(String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
-        return openSpimData( imagePath, imageDataFormat );
+    public AbstractSpimData< ? > open(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
+        if (sharedQueue == null)
+            return open(imagePath, imageDataFormat);
+        return openWithSharedQueue(imagePath, imageDataFormat, sharedQueue);
     }
 
-    @Deprecated // use {@code open(String imagePath, ImageDataFormat imageDataFormat)}
-    public AbstractSpimData< ? > openSpimData(String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
+    public AbstractSpimData< ? > open( String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
             case Tiff:
                 final File file = new File(imagePath);
-                return open( (new Opener()).openTiff( file.getParent(), file.getName() ) );
+                return open((new Opener()).openTiff( file.getParent(), file.getName()));
             case ImageJ:
-                return open( IJ.openImage(imagePath) );
+                return open(IJ.openImage(imagePath));
             case BioFormats:
                 return openWithBioFormats(imagePath);
             case Imaris:
@@ -115,15 +118,16 @@ public class SpimDataOpener {
         }
     }
 
-    public AbstractSpimData< ? > open(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
-        if (sharedQueue == null)
-            return openSpimData(imagePath, imageDataFormat);
-        return openSpimData(imagePath, imageDataFormat, sharedQueue);
-    }
-
-    @Deprecated // use (@code open(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue)}
-    public AbstractSpimData< ? > openSpimData(String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
+    private AbstractSpimData< ? > openWithSharedQueue( String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
+            case Tiff:
+                final File file = new File(imagePath);
+                final ImagePlus imagePlus = (new Opener()).openTiff( file.getParent(), file.getName() );
+                return open(imagePlus, sharedQueue);
+            case ImageJ:
+                return open(IJ.openImage(imagePath), sharedQueue);
+            case BioFormats:
+                return openWithBioFormats(imagePath, sharedQueue);
             case BdvN5:
                 return openBdvN5(imagePath, sharedQueue);
             case BdvN5S3:
@@ -138,13 +142,33 @@ public class SpimDataOpener {
                 return openBdvOmeZarrS3(imagePath, sharedQueue);
             default:
                 // open without {@code SharedQueue}
-                return openSpimData(imagePath, imageDataFormat);
+                return open(imagePath, imageDataFormat);
         }
     }
 
     public AbstractSpimData open( ImagePlus imagePlus )
     {
         return ImagePlusToSpimData.getSpimData( imagePlus );
+    }
+
+    public AbstractSpimData open( ImagePlus imagePlus, SharedQueue sharedQueue )
+    {
+        final AbstractSpimData< ? > spimData = open(  imagePlus );
+
+        setSharedQueue( sharedQueue, spimData );
+
+        return spimData;
+    }
+
+    private void setSharedQueue( SharedQueue sharedQueue, AbstractSpimData< ? > spimData )
+    {
+        BasicImgLoader imgLoader = spimData.getSequenceDescription().getImgLoader();
+
+        if (imgLoader instanceof CacheControlOverride ) {
+            CacheControlOverride cco = (CacheControlOverride) imgLoader;
+            final VolatileGlobalCellCache volatileGlobalCellCache = new VolatileGlobalCellCache( sharedQueue );
+            cco.setCacheControl( volatileGlobalCellCache );
+        }
     }
 
     @NotNull
@@ -268,10 +292,16 @@ public class SpimDataOpener {
                             .location(file)
                             .setSerie(i) );
         }
-
-
-
         return OpenersToSpimData.getSpimData( openerSettings );
+    }
+
+    private AbstractSpimData< ? > openWithBioFormats( String path, SharedQueue sharedQueue )
+    {
+        final AbstractSpimData< ? > spimData = openWithBioFormats( path );
+
+        setSharedQueue( sharedQueue, spimData );
+
+        return spimData;
     }
 
 //    public static SpimData asSpimData( AbstractSpimData< ? > abstractSpimData )

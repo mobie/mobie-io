@@ -49,11 +49,11 @@ public abstract class BaseTest extends BaseSpimDataChecker {
     protected String expectedUnit = null;
 
     protected BaseTest(String path, ImageDataFormat format) throws SpimDataException {
-        super(new SpimDataOpener().openSpimData(path, format));
+        super(new SpimDataOpener().open(path, format));
     }
 
     protected BaseTest(String path, ImageDataFormat format, SharedQueue sharedQueue) throws SpimDataException {
-        super(new SpimDataOpener().openSpimData(path, format, sharedQueue));
+        super(new SpimDataOpener().open(path, format, sharedQueue));
     }
 
     @Test

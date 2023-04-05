@@ -200,7 +200,7 @@ public class NGFFWriterTest {
         assertTrue(new File(xmlPath).exists());
         assertTrue(new File(removeExtension(xmlPath) + ".n5").exists());
 
-        SpimData spimData = (SpimData) new SpimDataOpener().openSpimData(xmlPath, ImageDataFormat.BdvN5);
+        SpimData spimData = (SpimData) new SpimDataOpener().open(xmlPath, ImageDataFormat.BdvN5);
         spimDataAssertions(spimData, nChannels, nTimepoints, ImageDataFormat.BdvN5);
     }
 
@@ -208,7 +208,7 @@ public class NGFFWriterTest {
         assertTrue(new File(zarrPath).exists());
         validateJSON(zarrPath);
 
-        SpimData spimData = (SpimData) new SpimDataOpener().openSpimData(zarrPath, ImageDataFormat.OmeZarr);
+        SpimData spimData = (SpimData) new SpimDataOpener().open(zarrPath, ImageDataFormat.OmeZarr);
         spimDataAssertions(spimData, nChannels, nTimepoints, ImageDataFormat.OmeZarr);
     }
 
@@ -388,8 +388,8 @@ public class NGFFWriterTest {
         String n5Path = writeImageAndGetPath(imp, ImageDataFormat.BdvN5, resolutions, subdivisions);
 
         SpimDataOpener spimDataOpener = new SpimDataOpener();
-        SpimData spimDataZarr = (SpimData) spimDataOpener.openSpimData(zarrPath, ImageDataFormat.OmeZarr);
-        SpimData spimDataN5 = (SpimData) spimDataOpener.openSpimData(n5Path, ImageDataFormat.BdvN5);
+        SpimData spimDataZarr = (SpimData) spimDataOpener.open(zarrPath, ImageDataFormat.OmeZarr);
+        SpimData spimDataN5 = (SpimData) spimDataOpener.open(n5Path, ImageDataFormat.BdvN5);
 
         VolatileCachedCellImg lowestResN5 = getImage(spimDataN5, 0, 0, lowestResolutionLevel);
         VolatileCachedCellImg lowestResZarr = getImage(spimDataZarr, 0, 0, lowestResolutionLevel);
