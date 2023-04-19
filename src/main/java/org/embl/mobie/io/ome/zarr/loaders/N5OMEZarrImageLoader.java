@@ -503,8 +503,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 return Cast.unchecked(new SetupImgLoader<>(setupId, new FloatType(), new VolatileFloatType()));
             case FLOAT64:
                 return Cast.unchecked(new SetupImgLoader<>(setupId, new DoubleType(), new VolatileDoubleType()));
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override
