@@ -26,17 +26,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.local;
+package dataformats.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
 
 @Slf4j
-public class PlatynereisTest extends projects.local.BaseLocalTest
+public class PlatynereisTest extends BaseLocalTest
 {
     private static final String PATH = "/g/arendt/EM_6dpf_segmentation/platy-browser-data/data/";
     private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5;

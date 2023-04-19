@@ -26,14 +26,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.local;
+package dataformats.local;
 
 import org.embl.mobie.io.ImageDataFormat;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.SpimDataException;
+
+;
 
 @Slf4j
 public class ConstantinNoTablesTest extends BaseLocalTest {
