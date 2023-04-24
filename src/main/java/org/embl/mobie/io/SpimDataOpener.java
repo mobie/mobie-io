@@ -281,7 +281,7 @@ public class SpimDataOpener {
         }
     }
 
-    private AbstractSpimData< ? > openWithBioFormats( String path )
+    public AbstractSpimData< ? > openWithBioFormats( String path )
     {
         final File file = new File( path );
         List< OpenerSettings > openerSettings = new ArrayList<>();
@@ -295,7 +295,7 @@ public class SpimDataOpener {
         return OpenersToSpimData.getSpimData( openerSettings );
     }
 
-    private AbstractSpimData< ? > openWithBioFormats( String path, SharedQueue sharedQueue )
+    public AbstractSpimData< ? > openWithBioFormats( String path, SharedQueue sharedQueue )
     {
         final AbstractSpimData< ? > spimData = openWithBioFormats( path );
 
