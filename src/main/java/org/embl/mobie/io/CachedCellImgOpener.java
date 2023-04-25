@@ -1,12 +1,14 @@
 package org.embl.mobie.io;
 
 import bdv.cache.SharedQueue;
+import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.util.volatiles.VolatileViews;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Util;
 import org.janelia.saalfeldlab.n5.hdf5.N5HDF5Reader;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 
@@ -23,6 +25,7 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 	private boolean isOpen = false;
 	private List< RandomAccessibleInterval< T > > channels;
 	private ArrayList< RandomAccessibleInterval< Volatile< T > > > volatileChannels;
+	private T type;
 
 	public CachedCellImgOpener( String path, ImageDataFormat imageDataFormat, SharedQueue sharedQueue )
 	{
@@ -67,6 +70,8 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 
 		final CachedCellImg< T, ? > cachedCellImg = N5Utils.openVolatile( n5, dataset );
 		channels = Axes.getChannels( cachedCellImg, axes );
+		type = Util.getTypeFromInterval( channels.get( 0 ) );
+		final NativeType< ? > volatileTypeForType = VolatileTypeMatcher.getVolatileTypeForType( type );
 
 		RandomAccessibleInterval< Volatile< T > > vRAI;
 		if ( sharedQueue == null )
@@ -78,6 +83,7 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 			vRAI = VolatileViews.wrapAsVolatile( cachedCellImg, sharedQueue );
 		}
 		volatileChannels = Axes.getChannels( vRAI, axes );
+
 
 		isOpen = true;
 	}
@@ -98,5 +104,10 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 	{
 		open();
 		return channels.size();
+	}
+
+	public T getType()
+	{
+		return Util.getTypeFromInterval( channels.get( 0  ) );
 	}
 }
