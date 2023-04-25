@@ -112,13 +112,11 @@ public enum ZarrAxes {
     }
 
     public boolean hasTimepoints() {
-        return this.axes.equals(TCYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TYX.axes) ||
-            this.axes.equals(TCZYX.axes);
+        return this.axes.equals(TCYX.axes) || this.axes.equals(TZYX.axes) || this.axes.equals(TYX.axes) || this.axes.equals(TCZYX.axes);
     }
 
     public boolean hasChannels() {
-        return this.axes.equals(CZYX.axes) || this.axes.equals(CYX.axes) || this.axes.equals(TCYX.axes) ||
-            this.axes.equals(TCZYX.axes);
+        return this.axes.equals(CZYX.axes) || this.axes.equals(CYX.axes) || this.axes.equals(TCYX.axes) || this.axes.equals(TCZYX.axes);
     }
 
     // the flag reverseAxes determines whether the index will be given w.r.t.

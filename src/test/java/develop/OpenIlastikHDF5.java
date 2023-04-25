@@ -9,6 +9,8 @@ import com.google.gson.JsonElement;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.cache.img.CachedCellImg;
 import net.imglib2.img.display.imagej.ImageJFunctions;
+import org.embl.mobie.io.CachedCellImgOpener;
+import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.hdf5.N5HDF5Reader;
@@ -23,12 +25,17 @@ public class OpenIlastikHDF5
 {
 	public static void main( String[] args ) throws IOException
 	{
+		final CachedCellImgOpener< ? > opener = new CachedCellImgOpener( "/Users/tischer/Desktop/C5_2022-07-12-165037-0000--0.4.0-0-1.4.0--tracking-oids.h5", ImageDataFormat.IlastikHDF5, null );
+		final RandomAccessibleInterval< ? > rai = opener.getRAI( 0 );
+		final RandomAccessibleInterval< ? > vRAI = opener.getVolatileRAI( 0 );
+		int a = 1;
+
 //		final Class< String > aClass = String.class;
 //		final boolean assignableFrom = aClass.isAssignableFrom( String[].class );
-		final N5HDF5Reader n5 = new N5HDF5Reader( "/Users/tischer/Desktop/C5_2022-07-12-165037-0000--0.4.0-0-1.4.0--tracking-oids.h5" );
-		final boolean isIlastikHDF5 = n5.datasetExists( "exported_data" );
-		final DatasetAttributes datasetAttributes = n5.getDatasetAttributes( "exported_data" );
-		final long[] dimensions = datasetAttributes.getDimensions();
+//		final N5HDF5Reader n5 = new N5HDF5Reader( "/Users/tischer/Desktop/C5_2022-07-12-165037-0000--0.4.0-0-1.4.0--tracking-oids.h5" );
+//		final boolean isIlastikHDF5 = n5.datasetExists( "exported_data" );
+//		final DatasetAttributes datasetAttributes = n5.getDatasetAttributes( "exported_data" );
+//		final long[] dimensions = datasetAttributes.getDimensions();
 		//final String[] attribute = n5.getAttribute( "exported_data", "DIMENSION_LABELS", String[].class );
 		// TRY
 		// Multiscales[] multiscalesArray = n5ZarrReader.getAttribute( "", MULTI_SCALE_KEY, Multiscales[].class );
