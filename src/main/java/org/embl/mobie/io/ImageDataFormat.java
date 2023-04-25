@@ -37,6 +37,7 @@ import static org.embl.mobie.io.ImageDataFormatNames.BDVN5S3;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARR;
 import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARRS3;
 import static org.embl.mobie.io.ImageDataFormatNames.BIOFORMATS;
+import static org.embl.mobie.io.ImageDataFormatNames.ILASTIKHDF5;
 import static org.embl.mobie.io.ImageDataFormatNames.IMAGEJ;
 import static org.embl.mobie.io.ImageDataFormatNames.SPIMDATA;
 import static org.embl.mobie.io.ImageDataFormatNames.IMARIS;
@@ -112,7 +113,9 @@ public enum ImageDataFormat {
     @SerializedName(IMARIS)
     Imaris,
     @SerializedName(SPIMDATA)
-    SpimData;
+    SpimData,
+    @SerializedName(ILASTIKHDF5)
+    IlastikHDF5;
 
     public static ImageDataFormat fromString(String string) {
         switch (string) {
@@ -142,6 +145,8 @@ public enum ImageDataFormat {
                 return Imaris;
             case SPIMDATA:
                 return SpimData;
+            case ILASTIKHDF5:
+                return IlastikHDF5;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + string);
         }
@@ -178,6 +183,8 @@ public enum ImageDataFormat {
                 return IMARIS;
             case SpimData:
                 return SPIMDATA;
+            case IlastikHDF5:
+                return ILASTIKHDF5;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + this);
         }
@@ -194,6 +201,8 @@ public enum ImageDataFormat {
             return ImageDataFormat.BioFormats;
         else if (lowerCase.endsWith( ".tif" ) || lowerCase.endsWith( ".tiff" ))
             return ImageDataFormat.Tiff;
+        else if (lowerCase.endsWith( ".h5" ))
+            return ImageDataFormat.IlastikHDF5;
         else
             return ImageDataFormat.ImageJ;
     }

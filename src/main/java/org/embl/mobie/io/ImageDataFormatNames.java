@@ -16,4 +16,5 @@ public class ImageDataFormatNames
 	public static final String OMEZARRS3 = "ome.zarr.s3";
 	public static final String IMARIS = "ims";
 	public static final String SPIMDATA = "spimData";
+	public static final String ILASTIKHDF5 = "ilastikHDF5";
 }

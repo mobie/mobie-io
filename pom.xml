@@ -169,6 +169,10 @@
             <artifactId>n5-imglib2</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.janelia.saalfeldlab</groupId>
+            <artifactId>n5-hdf5</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
         </dependency>
@@ -192,6 +196,10 @@
             <artifactId>bigdataviewer-image-loaders</artifactId>
             <version>0.4.6</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>sc.fiji</groupId>-->
+<!--            <artifactId>HDF5_Vibez</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>trove</groupId>
             <artifactId>trove</artifactId>

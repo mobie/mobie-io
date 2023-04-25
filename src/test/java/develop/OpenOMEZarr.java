@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package playground;
+package develop;
 
 import bdv.util.BdvFunctions;
 import mpicbg.spim.data.SpimDataException;
