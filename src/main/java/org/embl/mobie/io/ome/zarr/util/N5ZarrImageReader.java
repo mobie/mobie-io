@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -56,7 +56,6 @@ public interface N5ZarrImageReader extends N5Reader {
 
 
     static GsonBuilder initGsonBuilder(final GsonBuilder gsonBuilder) {
-
         gsonBuilder.registerTypeAdapter(DType.class, new DType.JsonAdapter());
         gsonBuilder.registerTypeAdapter(ZarrCompressor.class, ZarrCompressor.jsonAdapter);
         gsonBuilder.registerTypeAdapter(ZarrAxes.class, new ZarrAxesAdapter());
@@ -75,19 +74,16 @@ public interface N5ZarrImageReader extends N5Reader {
         return dimSep == null ? DEFAULT_SEPARATOR : dimSep.getAsString();
     }
 
-    default void getDimensions(HashMap<String, JsonElement> attributes) throws IllegalArgumentException {
+    default void readDimensions(HashMap<String, JsonElement> attributes) throws IllegalArgumentException {
         JsonElement multiscales = attributes.get("multiscales");
         if (multiscales == null) {
             return;
         }
         String version = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
-        if (version.equals("0.3")) {
-            JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
-            setAxes(axes);
-        } else if (version.equals("0.4")) {
+        if (version.equals("0.4")) {
             JsonArray axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes").getAsJsonArray();
             int index = 0;
-            List<ZarrAxis> zarrAxes = new ArrayList<>();
+            List<ZarrAxis> zarrAxisArrayList = new ArrayList<>();
             for (JsonElement axis : axes) {
                 String name = axis.getAsJsonObject().get("name").getAsString();
                 String type = axis.getAsJsonObject().get("type").getAsString();
@@ -102,10 +98,10 @@ public interface N5ZarrImageReader extends N5Reader {
                     zarrAxis = new ZarrAxis(index, name, type);
                 }
                 index++;
-                zarrAxes.add(zarrAxis);
+                zarrAxisArrayList.add(zarrAxis);
             }
-            setAxes(zarrAxes);
-            setAxes(ZarrAxis.convertToJson(zarrAxes));
+            setAxes(zarrAxisArrayList);
+            setAxes(ZarrAxis.convertToJson(zarrAxisArrayList));
         } else {
             JsonElement axes = multiscales.getAsJsonArray().get(0).getAsJsonObject().get("axes");
             setAxes(axes);

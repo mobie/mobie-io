@@ -221,7 +221,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     /**
      * CHANGE: rename to not overwrite the AWS list objects version
      *
-     * @returns false if the group or dataset does not exist but also if the
+     * @return false if the group or dataset does not exist but also if the
      * attempt to access
      */
     // @Override
@@ -249,7 +249,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
         }
 
         try {
-            getDimensions(attributes);
+            readDimensions(attributes);
         } catch (IllegalArgumentException e) {
             throw new IOException("Error while getting datasets dimensions", e);
         }
@@ -267,10 +267,12 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
         final DatasetAttributes datasetAttributes,
         final long... gridPosition) throws IOException {
         final ZarrDatasetAttributes zarrDatasetAttributes;
-        if (datasetAttributes instanceof ZarrDatasetAttributes)
+        if (datasetAttributes instanceof ZarrDatasetAttributes) {
             zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
-        else
+        }
+        else {
             zarrDatasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
+        }
 
         final String dataBlockKey =
             objectFile(pathName,
@@ -278,10 +280,6 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
                     gridPosition,
                     dimensionSeparator,
                     zarrDatasetAttributes.isRowMajor()));
-
-        // Currently exists() appends "/"
-        //		if (!exists(dataBlockKey))
-        //			return null;
 
         try {
             try (final InputStream in = this.readS3Object(dataBlockKey)) {

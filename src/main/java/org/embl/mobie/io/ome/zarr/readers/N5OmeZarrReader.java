@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -62,7 +62,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReader;
@@ -99,14 +98,14 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      * {@link GsonBuilder} to support custom attributes.
      *
      * @param basePath               Zarr base path
-     * @param gsonBuilder
-     * @param dimensionSeparator
+     * @param gsonBuilder            gsonBuilder for metadata
+     * @param dimensionSeparator     separator symbol
      * @param mapN5DatasetAttributes Virtually create N5 dataset attributes (dimensions, blockSize,
      *                               compression, dataType) for datasets such that N5 code that
      *                               reads or modifies these attributes directly works as expected.
      *                               This can lead to name clashes if a zarr container uses these
      *                               attribute keys for other purposes.
-     * @throws IOException
+     * @throws IOException if fails
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
         super(basePath, N5ZarrImageReader.initGsonBuilder(gsonBuilder));
@@ -120,12 +119,11 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      * {@link GsonBuilder} to support custom attributes.
      *
      * @param basePath           Zarr base path
-     * @param gsonBuilder
-     * @param dimensionSeparator
-     * @throws IOException
+     * @param gsonBuilder        gsonBuilder for metadata
+     * @param dimensionSeparator separator symbol
+     * @throws IOException if fails
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder, final String dimensionSeparator) throws IOException {
-
         this(basePath, gsonBuilder, dimensionSeparator, true);
     }
 
@@ -133,16 +131,15 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      * Opens an {@link N5OmeZarrReader} at a given base path.
      *
      * @param basePath               Zarr base path
-     * @param dimensionSeparator
+     * @param dimensionSeparator     separator symbol
      * @param mapN5DatasetAttributes Virtually create N5 dataset attributes (dimensions, blockSize,
      *                               compression, dataType) for datasets such that N5 code that
      *                               reads or modifies these attributes directly works as expected.
      *                               This can lead to name collisions if a zarr container uses these
      *                               attribute keys for other purposes.
-     * @throws IOException
+     * @throws IOException if fails
      */
     public N5OmeZarrReader(final String basePath, final String dimensionSeparator, final boolean mapN5DatasetAttributes) throws IOException {
-
         this(basePath, new GsonBuilder(), dimensionSeparator, mapN5DatasetAttributes);
     }
 
@@ -155,7 +152,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      *                               reads or modifies these attributes directly works as expected.
      *                               This can lead to name collisions if a zarr container uses these
      *                               attribute keys for other purposes.
-     * @throws IOException
+     * @throws IOException if fails
      */
     public N5OmeZarrReader(final String basePath, final boolean mapN5DatasetAttributes) throws IOException {
         this(basePath, new GsonBuilder(), DEFAULT_SEPARATOR, mapN5DatasetAttributes);
@@ -168,8 +165,8 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      * Zarray metadata will be virtually mapped to N5 dataset attributes.
      *
      * @param basePath    Zarr base path
-     * @param gsonBuilder
-     * @throws IOException
+     * @param gsonBuilder gsonBuilder for metadata
+     * @throws IOException if fails
      */
     public N5OmeZarrReader(final String basePath, final GsonBuilder gsonBuilder) throws IOException {
         this(basePath, gsonBuilder, DEFAULT_SEPARATOR);
@@ -181,10 +178,9 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      * Zarray metadata will be virtually mapped to N5 dataset attributes.
      *
      * @param basePath Zarr base path
-     * @throws IOException
+     * @throws IOException if fails
      */
     public N5OmeZarrReader(final String basePath) throws IOException {
-
         this(basePath, new GsonBuilder());
     }
 
@@ -207,17 +203,15 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
                     GsonAttributesParser.readAttributes(
                         Channels.newReader(
                             lockedFileChannel.getFileChannel(),
-                            StandardCharsets.UTF_8.name()),
+                            StandardCharsets.UTF_8),
                         gson);
 
-                final Integer zarr_format = GsonAttributesParser.parseAttribute(
+                final Integer zarFormat = GsonAttributesParser.parseAttribute(
                     attributes,
                     "zarr_format",
                     Integer.class,
                     gson);
-
-                if (zarr_format != null)
-                    return new Version(zarr_format, 0, 0);
+                return new Version(zarFormat, 0, 0);
             }
         }
         return VERSION;
@@ -228,12 +222,10 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      */
     @Override
     public String getBasePath() {
-
         return this.basePath;
     }
 
     public boolean groupExists(final String pathName) {
-
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zgroupFile);
         return Files.exists(path) && Files.isRegularFile(path);
     }
@@ -244,12 +236,11 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
     }
 
     public ZArrayAttributes getZArrayAttributes(final String pathName) throws IOException {
-
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
         OmeZArrayAttributes zArrayAttributes = null;
         if (Files.exists(path)) {
             try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path);
-                 final Reader reader = Channels.newReader(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8.name())) {
+                 final Reader reader = Channels.newReader(lockedFileChannel.getFileChannel(), StandardCharsets.UTF_8)) {
                 zArrayAttributes = gson.fromJson(reader, OmeZArrayAttributes.class);
             }
         } else {
@@ -263,29 +254,26 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
 
     @Override
     public DatasetAttributes getDatasetAttributes(final String pathName) throws IOException {
-
         final ZArrayAttributes zArrayAttributes = getZArrayAttributes(pathName);
         return zArrayAttributes == null ? null : zArrayAttributes.getDatasetAttributes();
     }
 
     @Override
     public boolean datasetExists(final String pathName) throws IOException {
-
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
         return Files.exists(path) && Files.isRegularFile(path) && getDatasetAttributes(pathName) != null;
     }
 
     /**
-     * @returns false if the group or dataset does not exist but also if the
+     * @return false if the group or dataset does not exist but also if the
      * attempt to access
      */
     @Override
     public boolean exists(final String pathName) {
-
         try {
             return groupExists(pathName) || datasetExists(pathName);
         } catch (final IOException e) {
-            e.printStackTrace();
+            log.error("Failed to check is exists {} ", pathName, e);
             return false;
         }
     }
@@ -296,7 +284,6 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
      */
     @Override
     public HashMap<String, JsonElement> getAttributes(final String pathName) throws IOException {
-
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zattrsFile);
         final HashMap<String, JsonElement> attributes = new HashMap<>();
         if (Files.exists(path)) {
@@ -305,13 +292,13 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
                     GsonAttributesParser.readAttributes(
                         Channels.newReader(
                             lockedFileChannel.getFileChannel(),
-                            StandardCharsets.UTF_8.name()),
+                            StandardCharsets.UTF_8),
                         gson));
             }
         }
 
         try {
-            getDimensions(attributes);
+            readDimensions(attributes);
         } catch (IllegalArgumentException e) {
             throw new IOException("Error while getting datasets dimensions", e);
         }
@@ -322,11 +309,6 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         }
 
         return attributes;
-    }
-
-    @Override
-    public Map<String, Class<?>> listAttributes(String pathName) throws IOException {
-        return super.listAttributes(pathName);
     }
 
     public ZarrAxes getAxes() {
@@ -358,10 +340,11 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
         final long... gridPosition) throws IOException {
 
         final ZarrDatasetAttributes zarrDatasetAttributes;
-        if (datasetAttributes instanceof ZarrDatasetAttributes)
+        if (datasetAttributes instanceof ZarrDatasetAttributes) {
             zarrDatasetAttributes = (ZarrDatasetAttributes) datasetAttributes;
-        else
+        } else {
             zarrDatasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
+        }
 
         Path path = Paths.get(
             basePath,
@@ -381,7 +364,6 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
 
     @Override
     public String[] list(final String pathName) throws IOException {
-
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName));
         try (final Stream<Path> pathStream = Files.list(path)) {
 

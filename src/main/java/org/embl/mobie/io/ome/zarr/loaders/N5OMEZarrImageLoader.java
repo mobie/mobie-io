@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,6 +45,7 @@ import org.embl.mobie.io.ome.zarr.util.ZarrAxis;
 import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import bdv.AbstractViewerSetupImgLoader;
 import bdv.ViewerImgLoader;
@@ -53,6 +54,7 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
@@ -112,9 +114,6 @@ import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY
 
 @Slf4j
 public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
-
-    private static final int C = 3;
-    private static final int T = 4;
     public static boolean logging = false;
     public final N5Reader n5;
     /**
@@ -140,30 +139,25 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
      * @param sequenceDescription
      */
     @Deprecated
-    public N5OMEZarrImageLoader(N5Reader n5Reader, AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
+    public N5OMEZarrImageLoader(@NotNull N5Reader n5Reader, @NotNull AbstractSequenceDescription<?, ?, ?> sequenceDescription) throws IOException {
         this.n5 = n5Reader;
         this.seq = sequenceDescription; // TODO: it is better to fetch from within Zarr
-        try {
-            initSetups();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        initSetups();
     }
 
-    public N5OMEZarrImageLoader(N5Reader n5Reader) {
+    public N5OMEZarrImageLoader(N5Reader n5Reader) throws IOException {
         this.n5 = n5Reader;
         fetchSequenceDescriptionAndViewRegistrations();
     }
 
-    public N5OMEZarrImageLoader(N5Reader n5Reader, BlockingFetchQueues<Callable<?>> queue) {
+    public N5OMEZarrImageLoader(@NotNull N5Reader n5Reader, @NotNull BlockingFetchQueues<Callable<?>> queue) throws IOException {
         this.n5 = n5Reader;
         this.queue = queue;
         fetchSequenceDescriptionAndViewRegistrations();
     }
 
 
-    private void fetchSequenceDescriptionAndViewRegistrations() {
+    private void fetchSequenceDescriptionAndViewRegistrations() throws IOException {
         try {
             initSetups();
 
@@ -186,8 +180,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
 
             seq = new SequenceDescription(new TimePoints(createTimePoints(sequenceTimepoints)), viewSetups);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            log.error("Failed to fetch sequence description and view registrations", e);
+            throw new IOException(e);
         }
     }
 
@@ -309,43 +303,41 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         return multiscales;
     }
 
+    @Nullable
     public AbstractSequenceDescription<?, ?, ?> getSequenceDescription() {
         //open();
-        seq.setImgLoader(Cast.unchecked(this));
+        if (seq != null) {
+            seq.setImgLoader(Cast.unchecked(this));
+        }
         return seq;
     }
 
+    @NotNull
     public ViewRegistrations getViewRegistrations() {
         return viewRegistrations;
     }
 
-    private void open() {
+    private void open() throws IOException {
         if (!isOpen) {
             synchronized (this) {
                 if (isOpen)
                     return;
-
-                try {
-                    int maxNumLevels = 0;
-                    final List<? extends BasicViewSetup> setups = seq.getViewSetupsOrdered();
-                    for (final BasicViewSetup setup : setups) {
-                        final int setupId = setup.getId();
-                        final SetupImgLoader<?, ?> setupImgLoader = createSetupImgLoader(setupId);
-                        setupImgLoaders.put(setupId, setupImgLoader);
-                        if (setupImgLoader != null) {
-                            maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
-                        }
+                int maxNumLevels = 0;
+                final List<? extends BasicViewSetup> setups = seq.getViewSetupsOrdered();
+                for (final BasicViewSetup setup : setups) {
+                    final int setupId = setup.getId();
+                    final SetupImgLoader<?, ?> setupImgLoader = createSetupImgLoader(setupId);
+                    setupImgLoaders.put(setupId, setupImgLoader);
+                    if (setupImgLoader != null) {
+                        maxNumLevels = Math.max(maxNumLevels, setupImgLoader.numMipmapLevels());
                     }
-                    if (queue == null) {
-                        final int numFetcherThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
-                        queue = new BlockingFetchQueues<>(maxNumLevels, numFetcherThreads);
-                        fetchers = new FetcherThreads(queue, numFetcherThreads);
-                    }
-                    cache = new VolatileGlobalCellCache(queue);
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
                 }
+                if (queue == null) {
+                    final int numFetcherThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
+                    queue = new BlockingFetchQueues<>(maxNumLevels, numFetcherThreads);
+                    fetchers = new FetcherThreads(queue, numFetcherThreads);
+                }
+                cache = new VolatileGlobalCellCache(queue);
 
                 isOpen = true;
             }
@@ -371,9 +363,9 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         List<ZarrAxis> zarrAxesList = setupToMultiscale.get(setupId).zarrAxisList;
         if (scale != null && zarrAxesList != null) {
             xyzScale = new double[]{
-                    scale[zarrAxes.axisIndex("x", false)],
-                    scale[zarrAxes.axisIndex("y", false)],
-                    zarrAxes.hasZAxis() ? scale[zarrAxes.axisIndex("z", false)] : 1.0
+                scale[zarrAxes.axisIndex("x", false)],
+                scale[zarrAxes.axisIndex("y", false)],
+                zarrAxes.hasZAxis() ? scale[zarrAxes.axisIndex("z", false)] : 1.0
             };
         }
         return xyzScale;
@@ -420,9 +412,8 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     private Dimensions getSpatialDimensions(int setupId, DatasetAttributes attributes) {
-        final long[] spatialDimensions = new long[3];
+        final long[] spatialDimensions = new long[] {1, 1, 1};
         long[] attributeDimensions = attributes.getDimensions();
-        Arrays.fill(spatialDimensions, 1);
         ZarrAxes zarrAxes = setupToMultiscale.get(setupId).axes;
         final Map<Integer, Integer> spatialToZarr = zarrAxes.spatialToZarr();
         for (Map.Entry<Integer, Integer> entry : spatialToZarr.entrySet()) {
@@ -479,8 +470,14 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
     }
 
     @Override
+    @Nullable
     public SetupImgLoader<?, ?> getSetupImgLoader(final int setupId) {
-        open();
+        try {
+            open();
+        } catch (IOException exception) {
+            log.error("Failed to open while getSetupImgLoader for {}", setupId, exception);
+            return null;
+        }
         return setupImgLoaders.get(setupId);
     }
 
@@ -506,13 +503,20 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 return Cast.unchecked(new SetupImgLoader<>(setupId, new FloatType(), new VolatileFloatType()));
             case FLOAT64:
                 return Cast.unchecked(new SetupImgLoader<>(setupId, new DoubleType(), new VolatileDoubleType()));
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override
+    @Nullable
     public CacheControl getCacheControl() {
-        open();
+        try {
+            open();
+        } catch (IOException exception) {
+            log.error("Failed to open while getCacheControl");
+            return null;
+        }
         return cache;
     }
 
@@ -583,23 +587,27 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         }
 
         @Override
+        @NotNull
         public RandomAccessibleInterval<V> getVolatileImage(final int timepointId, final int level, final ImgLoaderHint... hints) {
             return prepareCachedImage(timepointId, level, LoadingStrategy.BUDGETED, volatileType);
         }
 
         @Override
+        @NotNull
         public RandomAccessibleInterval<T> getImage(final int timepointId, final int level, final ImgLoaderHint... hints) {
             return prepareCachedImage(timepointId, level, LoadingStrategy.BLOCKING, type);
         }
 
+        @SneakyThrows
         @Override
+        @NotNull
         public Dimensions getImageSize(final int timepointId, final int level) {
             final String pathName = getPathName(setupId, level);
             try {
                 final DatasetAttributes attributes = getDatasetAttributes(pathName);
                 return new FinalDimensions(attributes.getDimensions());
             } catch (Exception e) {
-                throw new RuntimeException("Could not read from " + pathName);
+                throw new IOException("Could not read from " + pathName, e);
             }
         }
 
@@ -614,6 +622,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         }
 
         @Override
+        @NotNull
         public AffineTransform3D[] getMipmapTransforms() {
             return mipmapTransforms;
         }
@@ -624,6 +633,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
         }
 
         @Override
+        @Nullable
         public VoxelDimensions getVoxelSize(final int timepointId) {
             return null;
         }

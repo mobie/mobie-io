@@ -26,15 +26,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.local;
+package dataformats.local;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.SpimDataOpener;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import mpicbg.spim.data.SpimDataException;
 import dataformats.BaseSpimDataChecker;
+import mpicbg.spim.data.SpimDataException;
 
 public class BaseLocalTest extends BaseSpimDataChecker {
     protected int expectedTimePoints = 0;

@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -38,6 +38,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class RESTCaller {
     private int issueNumber;
     private String status;
@@ -62,7 +67,7 @@ public class RESTCaller {
 
             parseResponse(httpURLConnection);
         } catch (Exception e) {
-            System.err.println(e);
+            log.error("Failed put", e);
         }
     }
 
@@ -89,16 +94,12 @@ public class RESTCaller {
     }
 
 
-    public String get(
-        String url,
-        String requestMethod,
-        String accessToken // nullable
-    ) {
+    public String get(String url, String requestMethod, @Nullable String accessToken) {
         try {
             HttpURLConnection httpURLConnection = createUrlConnection(url, requestMethod, accessToken);
             return parseResponse(httpURLConnection);
         } catch (Exception e) {
-            System.err.println(e);
+            log.error("Failed get", e);
             throw new RuntimeException(e);
         }
     }
@@ -109,7 +110,7 @@ public class RESTCaller {
 
         int responseCode = httpURLConnection.getResponseCode();
         if (!(responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED)) {
-            System.err.println("Unexpected response code: " + responseCode + "\n" + status + ".\n" + builder.toString());
+            log.error("Unexpected response code: " + responseCode + "\n" + status + ".\n" + builder);
             throw new RuntimeException();
         } else {
             final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader((httpURLConnection.getInputStream())));
@@ -118,8 +119,7 @@ public class RESTCaller {
             while ((output = bufferedReader.readLine()) != null) {
                 stringBuilder.append(output);
             }
-            final String response = stringBuilder.toString();
-            return response;
+            return stringBuilder.toString();
         }
     }
 

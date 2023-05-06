@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -31,10 +31,10 @@ package org.embl.mobie.io.github;
 import com.drew.lang.annotations.Nullable;
 
 public class GitHubContentGetter {
-    private String repository;
-    private String path;
-    private String branch;
-    private String accessToken;
+    private final String repository;
+    private final String path;
+    private final String branch;
+    private final String accessToken;
 
     /**
      * https://developer.github.com/v3/repos/contents/
@@ -49,12 +49,6 @@ public class GitHubContentGetter {
         this.path = path;
         this.branch = branch;
         this.accessToken = accessToken;
-    }
-
-    public static void main(String[] args) {
-        final GitHubContentGetter contentGetter = new GitHubContentGetter("https://github.com/platybrowser/platybrowser", "data/1.0.1/misc/bookmarks", "mobie", null);
-
-        System.out.println(contentGetter.getContent());
     }
 
     public String getContent() {
