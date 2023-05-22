@@ -41,6 +41,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,6 +59,7 @@ import org.apache.commons.io.IOUtils;
 import org.embl.mobie.io.github.GitHubUtils;
 
 import com.amazonaws.services.s3.AmazonS3;
+import org.jetbrains.annotations.NotNull;
 
 import static org.embl.mobie.io.github.GitHubUtils.isGithub;
 import static org.embl.mobie.io.github.GitHubUtils.selectGitHubPathFromDirectory;
@@ -428,7 +431,43 @@ public class IOHelper {
         return namedGroups;
     }
 
-	public enum ResourceType {
+    public static List< String > getPaths( String regex, int maxDepth )
+    {
+        final String dir = new File( regex ).getParent();
+        String name = new File( regex ).getName();
+        return getPaths( dir, name, maxDepth );
+    }
+
+    public static List< String > getPaths( String dir, String regex, int maxDepth )
+    {
+        try
+        {
+            final List< String > paths = Files.find( Paths.get( dir ), maxDepth,
+                            ( path, basicFileAttribute ) -> {
+                                final boolean isFileOrDirectory = basicFileAttribute.isRegularFile() || basicFileAttribute.isDirectory();
+                                final String fileName = path.getFileName().toString();
+                                final boolean matchesRegex = fileName.matches( regex );
+                                return isFileOrDirectory && matchesRegex;
+                            } )
+                    .map( path -> path.toString() ).collect( Collectors.toList() );
+            Collections.sort( paths );
+
+            if ( paths.size() == 0 )
+            {
+                System.err.println("Could not find any files matching " + regex + " within " + dir );
+            }
+
+            return paths;
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();
+            throw new RuntimeException( e );
+        }
+    }
+
+
+    public enum ResourceType {
         FILE,  // resource is a file on the file system
         HTTP,  // resource supports http requests
         S3     // resource supports s3 API
