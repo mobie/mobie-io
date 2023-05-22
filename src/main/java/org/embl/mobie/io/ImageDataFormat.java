@@ -45,6 +45,7 @@ import static org.embl.mobie.io.ImageDataFormatNames.OMEZARR;
 import static org.embl.mobie.io.ImageDataFormatNames.OMEZARRS3;
 import static org.embl.mobie.io.ImageDataFormatNames.OPENORGANELLES3;
 import static org.embl.mobie.io.ImageDataFormatNames.TIFF;
+import static org.embl.mobie.io.ImageDataFormatNames.TOML;
 
 /**
  * Currently mobie-io supports the following data formats:
@@ -85,7 +86,8 @@ import static org.embl.mobie.io.ImageDataFormatNames.TIFF;
  * 's3' ending indicates that the data is taken from the remote s3 object store.
  */
 public enum ImageDataFormat {
-
+    @SerializedName(TOML)
+    Toml,
     @SerializedName(TIFF)
     Tiff,
     @SerializedName(IMAGEJ)
@@ -119,6 +121,8 @@ public enum ImageDataFormat {
 
     public static ImageDataFormat fromString(String string) {
         switch (string) {
+            case TOML:
+                return Toml;
             case IMAGEJ:
                 return ImageJ;
             case BIOFORMATS:
@@ -155,6 +159,8 @@ public enum ImageDataFormat {
     @Override
     public String toString() {
         switch (this) {
+            case Toml:
+                return TOML;
             case Tiff:
                 return TIFF;
             case ImageJ:

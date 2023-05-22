@@ -51,6 +51,8 @@ import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 
+import ij.ImagePlus;
+import ij.io.Opener;
 import org.apache.commons.io.IOUtils;
 import org.embl.mobie.io.github.GitHubUtils;
 
@@ -406,7 +408,27 @@ public class IOHelper {
         return items.parallelStream().anyMatch(inputStr::contains);
     }
 
-    public enum ResourceType {
+	public static ImagePlus openTiffAsImagePlus( String imagePath )
+	{
+		final File file = new File( imagePath );
+		final ImagePlus imagePlus = (new Opener()).openTiff( file.getParent(), file.getName() );
+		return imagePlus;
+	}
+
+    public static List< String > getNamedGroups( String regex )
+    {
+        List< String > namedGroups = new ArrayList<>();
+
+        Matcher m = Pattern.compile("\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>").matcher( regex );
+
+        while ( m.find() ) {
+            namedGroups.add(m.group(1));
+        }
+
+        return namedGroups;
+    }
+
+	public enum ResourceType {
         FILE,  // resource is a file on the file system
         HTTP,  // resource supports http requests
         S3     // resource supports s3 API

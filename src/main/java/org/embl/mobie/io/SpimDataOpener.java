@@ -120,10 +120,11 @@ public class SpimDataOpener {
 
     private AbstractSpimData< ? > openWithSharedQueue( String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
+            case Toml:
+                // TODO
+                return open(IOHelper.openTiffAsImagePlus( imagePath ), sharedQueue);
             case Tiff:
-                final File file = new File(imagePath);
-                final ImagePlus imagePlus = (new Opener()).openTiff( file.getParent(), file.getName() );
-                return open(imagePlus, sharedQueue);
+                return open(IOHelper.openTiffAsImagePlus( imagePath ), sharedQueue);
             case ImageJ:
                 return open(IJ.openImage(imagePath), sharedQueue);
             case BioFormats:
