@@ -53,6 +53,7 @@ import org.embl.mobie.io.ome.zarr.loaders.xml.XmlN5OmeZarrImageLoader;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
+import org.embl.mobie.io.toml.TOMLOpener;
 import org.embl.mobie.io.util.CustomXmlIoSpimData;
 import org.embl.mobie.io.util.IOHelper;
 import org.jdom2.Document;
@@ -89,6 +90,8 @@ public class SpimDataOpener {
 
     public AbstractSpimData< ? > open( String imagePath, ImageDataFormat imageDataFormat) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
+            case Toml:
+                return new TOMLOpener( imagePath ).asSpimData();
             case Tiff:
                 final File file = new File(imagePath);
                 return open((new Opener()).openTiff( file.getParent(), file.getName()));
@@ -121,8 +124,7 @@ public class SpimDataOpener {
     private AbstractSpimData< ? > openWithSharedQueue( String imagePath, ImageDataFormat imageDataFormat, SharedQueue sharedQueue) throws UnsupportedOperationException, SpimDataException {
         switch (imageDataFormat) {
             case Toml:
-                // TODO
-                return open(IOHelper.openTiffAsImagePlus( imagePath ), sharedQueue);
+                return new TOMLOpener( imagePath ).asSpimData(sharedQueue);
             case Tiff:
                 return open(IOHelper.openTiffAsImagePlus( imagePath ), sharedQueue);
             case ImageJ:

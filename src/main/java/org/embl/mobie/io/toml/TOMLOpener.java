@@ -8,6 +8,7 @@ import ij.ImagePlus;
 import ij.VirtualStack;
 import ij.measure.Calibration;
 import mpicbg.spim.data.generic.AbstractSpimData;
+import org.apache.commons.io.FilenameUtils;
 import org.embl.mobie.io.SpimDataOpener;
 import org.embl.mobie.io.util.IOHelper;
 import org.jetbrains.annotations.NotNull;
@@ -22,12 +23,10 @@ import java.util.Set;
 
 public class TOMLOpener
 {
-	private final String imageName;
 	private final String tomlImagePath;
 
-	public TOMLOpener( String imageName, String tomlImagePath )
+	public TOMLOpener( String tomlImagePath )
 	{
-		this.imageName = imageName;
 		this.tomlImagePath = tomlImagePath;
 	}
 
@@ -40,6 +39,7 @@ public class TOMLOpener
 		final Double scaleT = toml.getDouble( "scale_t" );
 		final String timeUnit = toml.getString( "unit_t" );
 		final String path = toml.getString( "path" );
+		final String imageName = tomlFile.getName().replace( ".image.toml", "" );
 
 		final List< String > groups = IOHelper.getNamedGroups( path );
 
@@ -55,6 +55,10 @@ public class TOMLOpener
 				slicePaths.put( new ZPosition( "0" ), framePath );
 				frameSlicePaths.put( tPosition, slicePaths );
 			}
+		}
+		else
+		{
+			throw new UnsupportedOperationException("TOML opening of path not yet supported: " + path );
 		}
 
 		VirtualStack virtualStack = null;
