@@ -209,6 +209,8 @@ public enum ImageDataFormat {
             return ImageDataFormat.Tiff;
         else if (lowerCase.endsWith( ".h5" ))
             return ImageDataFormat.IlastikHDF5;
+        else if (lowerCase.endsWith( ".toml" ))
+            return ImageDataFormat.Toml;
         else
             return ImageDataFormat.ImageJ;
     }
