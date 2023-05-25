@@ -3,6 +3,9 @@ package org.embl.mobie.io;
 import bdv.cache.SharedQueue;
 import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.util.volatiles.VolatileViews;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
@@ -14,7 +17,7 @@ import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
@@ -23,9 +26,10 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 	private final ImageDataFormat imageDataFormat;
 	private final SharedQueue sharedQueue;
 	private boolean isOpen = false;
-	private List< RandomAccessibleInterval< T > > channels;
-	private ArrayList< RandomAccessibleInterval< Volatile< T > > > volatileChannels;
+	private List< RandomAccessibleInterval< T > > channelRAIs;
+	private ArrayList< RandomAccessibleInterval< Volatile< T > > > volatileChannelRAIs;
 	private T type;
+	private NativeType< ? > volatileType;
 
 	public CachedCellImgOpener( String path, ImageDataFormat imageDataFormat, SharedQueue sharedQueue )
 	{
@@ -61,17 +65,13 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 		final N5HDF5Reader n5 = new N5HDF5Reader( path );
 
 		final String dataset = "exported_data";
-		//final JsonArray jsonArray = n5.getAttributes( dataset ).get( "DIMENSION_LABELS" ).getAsJsonArray();
-		// TODO: get from JSON
-		final String[] axesArray = { "c", "x", "y", "t" };
-		final List< String > axes = Arrays.asList( axesArray );
 
-//		this.axes = new Axes( axes );
+		ArrayList< String > axes = getIlastikAxesLabels( n5, dataset );
 
 		final CachedCellImg< T, ? > cachedCellImg = N5Utils.openVolatile( n5, dataset );
-		channels = Axes.getChannels( cachedCellImg, axes );
-		type = Util.getTypeFromInterval( channels.get( 0 ) );
-		final NativeType< ? > volatileTypeForType = VolatileTypeMatcher.getVolatileTypeForType( type );
+		channelRAIs = Axes.getChannels( cachedCellImg, axes );
+		type = Util.getTypeFromInterval( channelRAIs.get( 0 ) );
+		volatileType = VolatileTypeMatcher.getVolatileTypeForType( type );
 
 		RandomAccessibleInterval< Volatile< T > > vRAI;
 		if ( sharedQueue == null )
@@ -82,32 +82,48 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 		{
 			vRAI = VolatileViews.wrapAsVolatile( cachedCellImg, sharedQueue );
 		}
-		volatileChannels = Axes.getChannels( vRAI, axes );
 
+		volatileChannelRAIs = Axes.getChannels( vRAI, axes );
 
 		isOpen = true;
+	}
+
+	private ArrayList< String > getIlastikAxesLabels( N5HDF5Reader n5, String dataset ) throws IOException
+	{
+		ArrayList< String > axes = new ArrayList<>();
+		final JsonObject axistags = n5.getAttribute( dataset,"axistags", JsonObject.class );
+		final JsonArray jsonArray = axistags.get( "axes" ).getAsJsonArray();
+		for ( JsonElement jsonElement : jsonArray )
+		{
+			final JsonObject jsonObject = jsonElement.getAsJsonObject();
+			final String axisLabel = jsonObject.get( "key" ).getAsString();
+			axes.add( axisLabel );
+		}
+		Collections.reverse( axes );
+		return axes;
 	}
 
 	public RandomAccessibleInterval< T > getRAI( int c )
 	{
 		open();
-		return channels.get( c );
+		return channelRAIs.get( c );
 	}
 
 	public RandomAccessibleInterval< Volatile< T > > getVolatileRAI( int c )
 	{
 		open();
-		return volatileChannels.get( c );
+		return volatileChannelRAIs.get( c );
 	}
 
 	public int getNumChannels()
 	{
 		open();
-		return channels.size();
+		return channelRAIs.size();
 	}
 
 	public T getType()
 	{
-		return Util.getTypeFromInterval( channels.get( 0  ) );
+		open();
+		return type;
 	}
 }

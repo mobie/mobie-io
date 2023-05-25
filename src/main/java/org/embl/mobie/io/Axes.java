@@ -28,21 +28,11 @@
  */
 package org.embl.mobie.io;
 
-import bdv.util.AxisOrder;
-import com.google.common.collect.Lists;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.view.Views;
-import org.embl.mobie.io.ome.zarr.util.AxesTypes;
-import org.embl.mobie.io.ome.zarr.util.UnitTypes;
-import org.embl.mobie.io.ome.zarr.util.ZarrAxis;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class Axes
 {
@@ -54,12 +44,12 @@ public abstract class Axes
             final RandomAccessibleInterval< T > rai, List< String > axes )
     {
         if ( rai.numDimensions() != axes.size() )
-            throw new IllegalArgumentException( "provided Axes doesn't match dimensionality of image" );
+            throw new IllegalArgumentException( "provided axes doesn't match dimensionality of image" );
 
         final ArrayList< RandomAccessibleInterval< T > > sourceStacks = new ArrayList< >();
 
         /*
-         * If there a channels dimension, slice img along that dimension.
+         * If there are channels dimension, slice img along that dimension.
          */
         final int c = axes.indexOf( C );
         if ( c != -1 )
