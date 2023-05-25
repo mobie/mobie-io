@@ -29,7 +29,6 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 	private List< RandomAccessibleInterval< T > > channelRAIs;
 	private ArrayList< RandomAccessibleInterval< Volatile< T > > > volatileChannelRAIs;
 	private T type;
-	private NativeType< ? > volatileType;
 
 	public CachedCellImgOpener( String path, ImageDataFormat imageDataFormat, SharedQueue sharedQueue )
 	{
