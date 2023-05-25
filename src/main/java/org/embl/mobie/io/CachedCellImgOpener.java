@@ -14,6 +14,7 @@ import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Util;
 import org.janelia.saalfeldlab.n5.hdf5.N5HDF5Reader;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,22 +70,21 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 
 		final CachedCellImg< T, ? > cachedCellImg = N5Utils.openVolatile( n5, dataset );
 		channelRAIs = Axes.getChannels( cachedCellImg, axes );
+		volatileChannelRAIs = Axes.getChannels( getVolatileRAI( cachedCellImg ), axes );
 		type = Util.getTypeFromInterval( channelRAIs.get( 0 ) );
-		volatileType = VolatileTypeMatcher.getVolatileTypeForType( type );
+		isOpen = true;
+	}
 
-		RandomAccessibleInterval< Volatile< T > > vRAI;
+	private RandomAccessibleInterval< Volatile< T > > getVolatileRAI( CachedCellImg< T, ? > cachedCellImg )
+	{
 		if ( sharedQueue == null )
 		{
-			vRAI = VolatileViews.wrapAsVolatile( cachedCellImg );
+			return VolatileViews.wrapAsVolatile( cachedCellImg );
 		}
 		else
 		{
-			vRAI = VolatileViews.wrapAsVolatile( cachedCellImg, sharedQueue );
+			return VolatileViews.wrapAsVolatile( cachedCellImg, sharedQueue );
 		}
-
-		volatileChannelRAIs = Axes.getChannels( vRAI, axes );
-
-		isOpen = true;
 	}
 
 	private ArrayList< String > getIlastikAxesLabels( N5HDF5Reader n5, String dataset ) throws IOException
