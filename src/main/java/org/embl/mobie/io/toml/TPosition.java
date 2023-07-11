@@ -1,8 +1,8 @@
 /*-
  * #%L
- * Readers and writers for image data in MoBIE projects
+ * Fiji viewer for MoBIE projects
  * %%
- * Copyright (C) 2021 - 2023 EMBL
+ * Copyright (C) 2018 - 2023 EMBL
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,24 +26,51 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io;
+package org.embl.mobie.io.toml;
 
-public class ImageDataFormatNames
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
+public class TPosition implements Comparable< TPosition >
 {
-	public static final String TOML = "toml";
-	public static final String TIFF = "tiff";
-	public static final String IMAGEJ = "imagej";
-	public static final String BIOFORMATS = "bioformats";
-	public static final String BDV = "bdv";
-	public static final String BDVN5 = "bdv.n5";
-	public static final String BDVN5S3 = "bdv.n5.s3";
-	public static final String BDVHDF5 = "bdv.hdf5";
-	public static final String BDVOMEZARR = "bdv.ome.zarr";
-	public static final String BDVOMEZARRS3 = "bdv.ome.zarr.s3";
-	public static final String OPENORGANELLES3 = "openOrganelle.s3";
-	public static final String OMEZARR = "ome.zarr";
-	public static final String OMEZARRS3 = "ome.zarr.s3";
-	public static final String IMARIS = "ims";
-	public static final String SPIMDATA = "spimData";
-	public static final String ILASTIKHDF5 = "ilastikHDF5";
+	private final String timepoint;
+
+	public TPosition( String timepoint )
+	{
+		this.timepoint = timepoint;
+	}
+
+	@Override
+	public String toString()
+	{
+		return timepoint;
+	}
+
+	@Override
+	public boolean equals( Object o ) {
+		// self check
+		if (this == o)
+			return true;
+		// null check
+		if (o == null)
+			return false;
+		// type check and cast
+		if (getClass() != o.getClass())
+			return false;
+		TPosition tPosition = (TPosition) o;
+		// field comparison
+		return tPosition.timepoint.equals( timepoint );
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash( timepoint );
+	}
+
+	@Override
+	public int compareTo( @NotNull TPosition o )
+	{
+		return this.toString().compareTo( o.toString() );
+	}
 }

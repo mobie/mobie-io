@@ -53,56 +53,9 @@ public class OpenIlastikHDF5
 {
 	public static void main( String[] args ) throws IOException
 	{
-		final CachedCellImgOpener< ? > opener = new CachedCellImgOpener( "/Users/tischer/Desktop/C5_2022-07-12-165037-0000--0.4.0-0-1.4.0--tracking-oids.h5", ImageDataFormat.IlastikHDF5, null );
+		final CachedCellImgOpener< ? > opener = new CachedCellImgOpener( "/Users/tischer/Desktop/mobie-data/ilastik/A1_2022-07-06-093303-0000--0.4.0-0-1.4.0--tracking-oids.h5", ImageDataFormat.IlastikHDF5, null );
 		final RandomAccessibleInterval< ? > rai = opener.getRAI( 0 );
 		final RandomAccessibleInterval< ? > vRAI = opener.getVolatileRAI( 0 );
 		int a = 1;
-
-//		final Class< String > aClass = String.class;
-//		final boolean assignableFrom = aClass.isAssignableFrom( String[].class );
-//		final N5HDF5Reader n5 = new N5HDF5Reader( "/Users/tischer/Desktop/C5_2022-07-12-165037-0000--0.4.0-0-1.4.0--tracking-oids.h5" );
-//		final boolean isIlastikHDF5 = n5.datasetExists( "exported_data" );
-//		final DatasetAttributes datasetAttributes = n5.getDatasetAttributes( "exported_data" );
-//		final long[] dimensions = datasetAttributes.getDimensions();
-		//final String[] attribute = n5.getAttribute( "exported_data", "DIMENSION_LABELS", String[].class );
-		// TRY
-		// Multiscales[] multiscalesArray = n5ZarrReader.getAttribute( "", MULTI_SCALE_KEY, Multiscales[].class );
-		// final JsonArray multiscalesJsonArray = n5ZarrReader.getAttributes( "" ).get( MULTI_SCALE_KEY ).getAsJsonArray();
-		//			for ( int i = 0; i < multiscalesArray.length; i++ )
-		//			{
-		//				multiscalesArray[ i ].applyVersionFixes( multiscalesJsonArray.get( i ).getAsJsonObject() );
-		//				multiscalesArray[ i ].init();
-		//			}
-
-		/*
-		imgs[ resolution ] = N5Utils.openVolatile( n5ZarrReader, datasets[ resolution ].path );
-
-				if ( queue == null )
-					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ] );
-				else
-					vimgs[ resolution ] = VolatileViews.wrapAsVolatile( imgs[ resolution ], queue );
-		 */
-//		final CachedCellImg< ?, ? > exportedData = N5Utils.openVolatile( n5, "exported_data" );
-//
-//		new TransformAxes(  )
-//		new AxisOrder
-//		BdvFunctions.show( Ra
-//		final ArrayList< RandomAccessibleInterval< T > > stacks = AxisOrder.splitInputStackIntoSourceStacks( img, axisOrder );
-//		int numTimepoints = 1;
-//		for ( final RandomAccessibleInterval< T > stack : stacks )
-//		{
-//			final Source< T > s;
-//			if ( stack.numDimensions() > 3 )
-//			{
-//				numTimepoints = ( int ) stack.max( 3 ) + 1;
-//				s = new RandomAccessibleIntervalSource4D<>( stack, type, sourceTransform, name );
-//			}
-//			else
-//			{
-//				s = new RandomAccessibleIntervalSource<>( stack, type, sourceTransform, name );
-//			}
-//			addSourceToListsGenericType( s, handle.getUnusedSetupId(), converterSetups, sources );
-//		}
-		//new SpimDataOpener().open(  )
 	}
 }
