@@ -83,7 +83,7 @@
     </issueManagement>
     <ciManagement>
         <system>GitHub Actions</system>
-		<url>https://github.com/mobie/mobie-io/actions</url>
+        <url>https://github.com/mobie/mobie-io/actions</url>
     </ciManagement>
     <properties>
         <doclint>none</doclint>
@@ -92,22 +92,26 @@
         <license.copyrightOwners>EMBL</license.copyrightOwners>
         <enforcer.skip>false</enforcer.skip>
         <someModule.test.excludes>src/test/java/projects/local</someModule.test.excludes>
+        <scijava.surefire.args>-Xmx4024m</scijava.surefire.args>
 
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
+
+        <org.jetbrains.annotations.version>16.0.2</org.jetbrains.annotations.version>
+        <bigdataviewer-image-loaders.version>0.4.6</bigdataviewer-image-loaders.version>
+        <trove.version>1.0.2</trove.version>
+        <lombok.version>1.18.22</lombok.version>
+        <everit-json-schema.version>1.14.0</everit-json-schema.version>
     </properties>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
                 <configuration>
                     <excludes>
                         <exclude>${someModule.test.excludes}</exclude>
                     </excludes>
-                    <argLine>-Xmx4024m</argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -123,21 +127,10 @@
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
             <artifactId>n5-zarr</artifactId>
-            <version>0.0.7</version>
         </dependency>
         <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.imglib2</groupId>
@@ -146,7 +139,6 @@
         <dependency>
             <groupId>sc.fiji</groupId>
             <artifactId>bigdataviewer-core</artifactId>
-            <version>${bigdataviewer-core.version}</version>
         </dependency>
         <dependency>
             <groupId>sc.fiji</groupId>
@@ -177,15 +169,9 @@
             <artifactId>google-http-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.14.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>16.0.2</version>
+            <version>${org.jetbrains.annotations.version}</version>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
@@ -194,7 +180,7 @@
         <dependency>
             <groupId>ch.epfl.biop</groupId>
             <artifactId>bigdataviewer-image-loaders</artifactId>
-            <version>0.4.6</version>
+            <version>${bigdataviewer-image-loaders.version}</version>
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>sc.fiji</groupId>-->
@@ -203,30 +189,28 @@
         <dependency>
             <groupId>trove</groupId>
             <artifactId>trove</artifactId>
-            <version>1.0.2</version>
+            <version>${trove.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.22</version>
+            <version>${lombok.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.erosb</groupId>
             <artifactId>everit-json-schema</artifactId>
-            <version>1.14.0</version>
+            <version>${everit-json-schema.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
