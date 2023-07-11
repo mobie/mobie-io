@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
+import net.imglib2.img.basictypeaccess.DataAccess;
 import org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales;
 import org.janelia.saalfeldlab.n5.ByteArrayDataBlock;
 import org.janelia.saalfeldlab.n5.DataBlock;
@@ -299,7 +300,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
         return cache;
     }
 
-    private static class N5CacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
+    private static class N5CacheArrayLoader<A extends DataAccess> implements SimpleCacheArrayLoader<A> {
         private final N5Reader n5;
         private final String pathName;
         private final DatasetAttributes attributes;

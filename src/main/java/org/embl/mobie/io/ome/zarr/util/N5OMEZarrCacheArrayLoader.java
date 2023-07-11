@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
+import net.imglib2.img.basictypeaccess.DataAccess;
 import org.embl.mobie.io.n5.util.N5DataTypeSize;
 import org.embl.mobie.io.ome.zarr.loaders.N5OMEZarrImageLoader;
 import org.janelia.saalfeldlab.n5.DataBlock;
@@ -46,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.imglib2.img.cell.CellGrid;
 
 @Slf4j
-public class N5OMEZarrCacheArrayLoader<A> implements SimpleCacheArrayLoader<A> {
+public class N5OMEZarrCacheArrayLoader<A extends DataAccess > implements SimpleCacheArrayLoader<A> {
     private final N5Reader n5;
     private final String pathName;
     private final int channel;

@@ -569,7 +569,7 @@ class DownsampleBlockInstances {
         }
 
         @Override
-        public RandomAccess<TLongLongHashMap> copyRandomAccess() {
+        public RandomAccess<TLongLongHashMap> copy() {
             throw new UnsupportedOperationException();
         }
 
@@ -636,11 +636,6 @@ class DownsampleBlockInstances {
         @Override
         public TLongLongHashMap get() {
             return maps[position[0]][position[1]][position[2]];
-        }
-
-        @Override
-        public Sampler<TLongLongHashMap> copy() {
-            throw new UnsupportedOperationException();
         }
     }
 }
