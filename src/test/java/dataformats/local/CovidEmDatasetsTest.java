@@ -32,10 +32,10 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 
-@Slf4j
+
 public class CovidEmDatasetsTest extends BaseLocalTest {
     private static final String PATH = "/pape/Work/mobie/covid-em-datasets/ngff-example/data";
     private static final ImageDataFormat FORMAT = ImageDataFormat.BdvOmeZarr;

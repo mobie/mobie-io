@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import bdv.img.cache.VolatileCachedCellImg;
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
@@ -48,7 +48,7 @@ import dataformats.BaseTest;
  * See https://github.com/mobie/mobie-viewer-fiji/issues/791 for details.
 */
 
-@Slf4j
+
 public class SpatialTranscriptomicsDataNgffTest extends BaseTest {
     private static final String URL = "https://s3.embl.de/i2k-2020/spatial-transcriptomics-example/pos42/images/ome-zarr/MMStack_Pos42.ome.zarr";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;

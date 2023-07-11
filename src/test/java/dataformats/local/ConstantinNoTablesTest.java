@@ -32,10 +32,10 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 
-@Slf4j
+
 public class ConstantinNoTablesTest extends BaseLocalTest {
     private static final String PATH = "/Volumes/emcf/pape/jil";
     private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5;

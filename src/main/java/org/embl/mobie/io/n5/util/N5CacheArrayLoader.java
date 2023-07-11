@@ -43,9 +43,7 @@ import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.ShortArrayDataBlock;
 
 import bdv.img.cache.SimpleCacheArrayLoader;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class N5CacheArrayLoader<A extends DataAccess > implements SimpleCacheArrayLoader<A> {
     private final N5Reader n5;
     private final String pathName;
@@ -66,7 +64,7 @@ public class N5CacheArrayLoader<A extends DataAccess > implements SimpleCacheArr
         try {
             block = n5.readBlock(pathName, attributes, gridPosition);
         } catch (Exception e) {
-            log.error("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
+            System.err.println("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
         }
 
         if (block == null) {

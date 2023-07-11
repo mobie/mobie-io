@@ -32,10 +32,10 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 
-@Slf4j
+
 public class OmeNgffPrototypesTest extends BaseLocalTest {
     private static final String PATH = "g/kreshuk/pape/Work/mobie/ngff/ome-ngff-prototypes/single_image/v0.4/yx.ome.zarr";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarr;

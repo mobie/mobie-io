@@ -40,7 +40,7 @@ import ch.epfl.biop.bdv.img.opener.OpenerSettings;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.io.Opener;
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.generic.AbstractSpimData;
@@ -74,7 +74,7 @@ import java.util.stream.Collectors;
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_TAG;
 import static mpicbg.spim.data.XmlKeys.SEQUENCEDESCRIPTION_TAG;
 
-@Slf4j
+
 public class SpimDataOpener {
 
     public static final String ERROR_WHILE_TRYING_TO_READ_SPIM_DATA = "Error while trying to read spimData";
@@ -271,7 +271,7 @@ public class SpimDataOpener {
                 InputStream st = IOHelper.getInputStream(path);
                 spimData = (new CustomXmlIoSpimData()).loadFromStream(st, path);
             } catch (SpimDataException exception) {
-                log.debug("Failed to load stream from {}", path, exception);
+                System.err.println("Failed to load stream from " + path + "; " + exception);
                 return null;
             }
             spimData.setBasePath(null);
@@ -279,7 +279,7 @@ public class SpimDataOpener {
             spimData.getSequenceDescription().getAllChannels().putAll(spim.getSequenceDescription().getAllChannels());
             return spimData;
         } catch (JDOMException | IOException e) {
-            log.debug("Failed to open openBdvOmeZarrS3", e);
+            System.err.println("Failed to open BdvOmeZarrS3: " + e);
             return null;
         }
     }

@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import bdv.img.cache.VolatileCachedCellImg;
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
@@ -45,7 +45,7 @@ import dataformats.BaseTest;
  * Test for image data with labels, to ensure that this data can be read correctly
 */
 
-@Slf4j
+
 public class ImageWithLabelsNgffTest extends BaseTest {
     private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.4/image-with-labels.ome.zarr";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OmeZarrS3;

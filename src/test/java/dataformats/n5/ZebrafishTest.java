@@ -31,12 +31,12 @@ package dataformats.n5;
 import org.embl.mobie.io.ImageDataFormat;
 
 import bdv.cache.SharedQueue;
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import dataformats.BaseTest;
 
-@Slf4j
+
 public class ZebrafishTest extends BaseTest {
     private static final String URL = "https://raw.githubusercontent.com/mobie/zebrafish-lm-datasets/main/data/membrane/images/remote/membrane-056F63395C_lynEGFP.xml";
     private static final ImageDataFormat FORMAT = ImageDataFormat.BdvN5S3;

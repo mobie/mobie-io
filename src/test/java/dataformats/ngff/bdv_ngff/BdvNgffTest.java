@@ -31,7 +31,7 @@ package dataformats.ngff.bdv_ngff;
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.jupiter.api.Disabled;
 
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 import dataformats.BaseTest;
 
@@ -39,7 +39,7 @@ import dataformats.BaseTest;
  * This is a test for the legacy data format bdv.ome.zarr.
  * It's kept here for reference, but is currently not used.
  */ 
-@Slf4j
+
 @Disabled
 public class BdvNgffTest extends BaseTest {
     private static final String URL = "https://s3.embl.de/i2k-2020/project-bdv-ome-zarr";

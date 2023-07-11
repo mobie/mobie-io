@@ -35,11 +35,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import bdv.cache.SharedQueue;
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.Dimensions;
 
-@Slf4j
+
 public abstract class BaseTest extends BaseSpimDataChecker {
     protected int expectedTimePoints = 0;
     protected int expectedChannelsNumber = 1;

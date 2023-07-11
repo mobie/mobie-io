@@ -64,6 +64,15 @@
                 <role>support</role>
             </roles>
         </contributor>
+        <contributor>
+            <name>Tobias Pietzsch</name>
+            <roles>
+                <role>developer</role>
+                <role>debugger</role>
+                <role>reviewer</role>
+                <role>support</role>
+            </roles>
+        </contributor>
     </contributors>
     <mailingLists>
         <mailingList>
@@ -100,8 +109,8 @@
         <org.jetbrains.annotations.version>16.0.2</org.jetbrains.annotations.version>
         <bigdataviewer-image-loaders.version>0.4.6</bigdataviewer-image-loaders.version>
         <trove.version>1.0.2</trove.version>
-        <lombok.version>1.18.22</lombok.version>
         <everit-json-schema.version>1.14.0</everit-json-schema.version>
+        <toml4j.version>0.7.2</toml4j.version>
     </properties>
 
     <build>
@@ -182,20 +191,15 @@
             <artifactId>bigdataviewer-image-loaders</artifactId>
             <version>${bigdataviewer-image-loaders.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>sc.fiji</groupId>-->
-<!--            <artifactId>HDF5_Vibez</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>trove</groupId>
             <artifactId>trove</artifactId>
             <version>${trove.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>compile</scope>
+            <groupId>com.moandjiezana.toml</groupId>
+            <artifactId>toml4j</artifactId>
+            <version>${toml4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

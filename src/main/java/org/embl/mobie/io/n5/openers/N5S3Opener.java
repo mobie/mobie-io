@@ -42,7 +42,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
 import bdv.cache.SharedQueue;
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.registration.ViewRegistration;
@@ -62,7 +62,7 @@ import net.imglib2.FinalDimensions;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.Cast;
 
-@Slf4j
+
 public class N5S3Opener extends S3Opener {
     public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
     public static final String SIGNING_REGION = "SigningRegion";
@@ -113,7 +113,7 @@ public class N5S3Opener extends S3Opener {
                 }
             } catch (NumberFormatException e) {
                 if (logging) {
-                    log.warn("No channel specified");
+                    System.out.println("No channel specified");
                 }
             }
             try {
@@ -130,7 +130,7 @@ public class N5S3Opener extends S3Opener {
                 final ViewSetup setup = new ViewSetup(id, name, size, voxelSize, channel, angle, illumination);
                 setups.put(id, setup);
             } catch (Exception e) {
-                log.warn("No pixel parameters specified");
+                System.out.println("No pixel parameters specified");
             }
         }
         return setups;

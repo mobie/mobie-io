@@ -53,7 +53,7 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
@@ -110,7 +110,7 @@ import net.imglib2.view.Views;
 
 import static org.embl.mobie.io.ome.zarr.util.OmeZarrMultiscales.MULTI_SCALE_KEY;
 
-@Slf4j
+
 public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
 
     private static final int C = 3;
@@ -637,7 +637,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 final DatasetAttributes attributes = getDatasetAttributes(pathName);
 
                 if (logging) {
-                    log.info("Preparing image " + pathName + " of data type " + attributes.getDataType());
+                    System.out.println("Preparing image " + pathName + " of data type " + attributes.getDataType());
                 }
 
                 // The below dimensions refer to one time point and one channel.
@@ -652,7 +652,7 @@ public class N5OMEZarrImageLoader implements ViewerImgLoader, MultiResolutionImg
                 final SimpleCacheArrayLoader<?> loader = createCacheArrayLoader(n5, pathName, setupId, setupToChannel.get(setupId), timepointId, grid);
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
-                log.error(String.format(
+                System.err.println(String.format(
                     "image data for timepoint %d setup %d level %d could not be found.%n",
                     timepointId, setupId, level));
                 return Views.interval(

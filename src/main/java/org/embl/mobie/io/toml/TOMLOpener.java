@@ -8,10 +8,8 @@ import ij.ImagePlus;
 import ij.VirtualStack;
 import ij.measure.Calibration;
 import mpicbg.spim.data.generic.AbstractSpimData;
-import org.apache.commons.io.FilenameUtils;
 import org.embl.mobie.io.SpimDataOpener;
 import org.embl.mobie.io.util.IOHelper;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;

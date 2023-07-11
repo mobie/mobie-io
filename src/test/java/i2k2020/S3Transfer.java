@@ -33,9 +33,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+
+
 public class S3Transfer {
 
     /**
@@ -92,7 +92,7 @@ public class S3Transfer {
         IntStream.range(list.indexOf("94"), list.size()).forEach(i ->
         {
             String job = template.replace("LEVEL", "1").replace("GROUP", list.get(i));
-            log.info(job);
+            System.out.println(job);
         });
 
         // /g/cba/tischer/software/aws --profile tischi --endpoint-url=https://idr-ftp.openmicroscopy.org s3 sync /g/arendt/EM_6dpf_segmentation/platy-browser-data/data/rawdata/sbem-6dpf-1-whole-raw.n5/setup0/timepoint0/s1/94 s3://idr-upload/tischi/sbem-6dpf-1-whole-raw.n5/setup0/timepoint0/s1/94

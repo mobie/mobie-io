@@ -32,14 +32,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import bdv.img.cache.VolatileCachedCellImg;
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.cell.CellGrid;
 import net.imglib2.type.numeric.integer.ShortType;
 
-@Slf4j
+
 public abstract class TCYXNgffBaseTest extends NgffBaseTest {
 
     protected TCYXNgffBaseTest(String url) throws SpimDataException {

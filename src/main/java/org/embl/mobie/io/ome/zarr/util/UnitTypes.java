@@ -28,7 +28,7 @@
  */
 package org.embl.mobie.io.ome.zarr.util;
 
-import lombok.extern.slf4j.Slf4j;
+
 import ucar.units.PrefixDBException;
 import ucar.units.SpecificationException;
 import ucar.units.Unit;
@@ -37,7 +37,7 @@ import ucar.units.UnitFormat;
 import ucar.units.UnitFormatManager;
 import ucar.units.UnitSystemException;
 
-@Slf4j
+
 public enum UnitTypes {
     ANGSTROM("angstrom"),
     ATTOMETER("attometer"),
@@ -116,7 +116,7 @@ public enum UnitTypes {
             for (UnitTypes unitType : UnitTypes.values()) {
                 Unit zarrUnit = unitFormatter.parse(unitType.typeName);
                 if (zarrUnit.getCanonicalString().equals(inputUnit.getCanonicalString())) {
-                    log.info("Converted unit: " + unit + " to recommended ome-zarr unit: " + unitType.getTypeName());
+                    System.out.println("Converted unit: " + unit + " to recommended ome-zarr unit: " + unitType.getTypeName());
                     return unitType;
                 }
             }
@@ -124,7 +124,7 @@ public enum UnitTypes {
             e.printStackTrace();
         }
 
-        log.warn(unit + " is not one of the recommended units for ome-zarr");
+        System.out.println(unit + " is not one of the recommended units for ome-zarr");
         return null;
     }
 

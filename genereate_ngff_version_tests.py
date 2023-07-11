@@ -30,11 +30,11 @@ def generate_ngff_version_tests(version):
 
         test = f"""package projects.ngff.v0{version};
 
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 import projects.ngff.base.{name}NgffBaseTest;
 
-@Slf4j
+
 public class {name}NgffV0{version}Test extends {name}NgffBaseTest{{
     private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.{version}/{url_name}.ome.zarr";
     public {name}NgffV0{version}Test() throws SpimDataException {{

@@ -58,7 +58,7 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
@@ -115,7 +115,7 @@ import static bdv.img.n5.BdvN5Format.DOWNSAMPLING_FACTORS_KEY;
 import static bdv.img.n5.BdvN5Format.getPathName;
 import static mpicbg.spim.data.XmlKeys.BASEPATH_TAG;
 
-@Slf4j
+
 public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader {
     protected final N5Reader n5;
     /**
@@ -320,13 +320,13 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
             try {
                 block = n5.readBlock(pathName, attributes, gridPosition);
             } catch (Exception e) {
-                log.error("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
+                System.err.println("Error loading " + pathName + " at block " + Arrays.toString(gridPosition) + ": " + e);
             }
 
 //			if ( block != null )
-//				log.warn( pathName + " " + Arrays.toString( gridPosition ) + " " + block.getNumElements() );
+//				System.out.println( pathName + " " + Arrays.toString( gridPosition ) + " " + block.getNumElements() );
 //			else
-//				log.warn( pathName + " " + Arrays.toString( gridPosition ) + " NaN" );
+//				System.out.println( pathName + " " + Arrays.toString( gridPosition ) + " NaN" );
 
 
             if (block == null) {
@@ -436,7 +436,7 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader 
                 final SimpleCacheArrayLoader<?> loader = createCacheArrayLoader(n5, pathName);
                 return cache.createImg(grid, timepointId, setupId, level, cacheHints, loader, type);
             } catch (IOException e) {
-                log.error(String.format(
+                System.err.println(String.format(
                     "image data for timepoint %d setup %d level %d could not be found.",
                     timepointId, setupId, level));
                 return Views.interval(

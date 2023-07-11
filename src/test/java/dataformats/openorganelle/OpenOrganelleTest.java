@@ -40,12 +40,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.FinalDimensions;
 import dataformats.BaseTest;
 
-@Slf4j
+
 public class OpenOrganelleTest extends BaseTest {
     private static final String URL = "https://janelia-cosem.s3.amazonaws.com/jrc_hela-2/jrc_hela-2.n5/em/fibsem-uint16";
     private static final ImageDataFormat FORMAT = ImageDataFormat.OpenOrganelleS3;
@@ -66,7 +66,7 @@ public class OpenOrganelleTest extends BaseTest {
     }
 
     public void init() {
-        log.info("Before init() method called");
+        System.out.println("Before init() method called");
         long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).dimensionsAsLongArray();
         for (int i = 0; i <= N; i++) {
             long x = getRandomNumberUsingNextInt(0, Math.toIntExact(imageDimensions[0] - 1));
@@ -81,7 +81,7 @@ public class OpenOrganelleTest extends BaseTest {
     @Test
     @DisplayName("Random SpimData test")
     public void RandomSpimDataTest() {
-        log.info("Running random test");
+        System.out.println("Running random test");
         List<Object> testValues = new ArrayList<>();
         for (long[] axes : trueValuesMap.keySet()) {
             Object realPixelValue = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).getAt(axes[0], axes[1], axes[2]);

@@ -43,10 +43,9 @@ import org.janelia.saalfeldlab.n5.N5Reader;
 import com.amazonaws.SdkClientException;
 
 import bdv.img.cache.SimpleCacheArrayLoader;
-import lombok.extern.slf4j.Slf4j;
+
 import net.imglib2.img.cell.CellGrid;
 
-@Slf4j
 public class N5OMEZarrCacheArrayLoader<A extends DataAccess > implements SimpleCacheArrayLoader<A> {
     private final N5Reader n5;
     private final String pathName;
@@ -80,7 +79,7 @@ public class N5OMEZarrCacheArrayLoader<A extends DataAccess > implements SimpleC
         try {
             block = n5.readBlock(pathName, attributes, dataBlockIndices);
         } catch (SdkClientException e) {
-            log.error(e.getMessage()); // this happens sometimes, not sure yet why...
+            System.err.println(e.getMessage()); // this happens sometimes, not sure yet why...
         }
         if (N5OMEZarrImageLoader.logging) {
             if (block != null) {
@@ -89,9 +88,9 @@ public class N5OMEZarrCacheArrayLoader<A extends DataAccess > implements SimpleC
                 final DataType dataType = attributes.getDataType();
                 final float megaBytes = (float) numElements * N5DataTypeSize.getNumBytesPerElement(dataType) / 1000000.0F;
                 final float mbPerSecond = megaBytes / (millis / 1000.0F);
-                log.info(pathName + " " + Arrays.toString(dataBlockIndices) + ": " + "Read " + numElements + " " + dataType + " (" + String.format("%.3f", megaBytes) + " MB) in " + millis + " ms (" + String.format("%.3f", mbPerSecond) + " MB/s).");
+                System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + ": " + "Read " + numElements + " " + dataType + " (" + String.format("%.3f", megaBytes) + " MB) in " + millis + " ms (" + String.format("%.3f", mbPerSecond) + " MB/s).");
             } else
-                log.warn(pathName + " " + Arrays.toString(dataBlockIndices) + ": Missing, returning zeros.");
+                System.out.println(pathName + " " + Arrays.toString(dataBlockIndices) + ": Missing, returning zeros.");
         }
 
         if (block == null) {

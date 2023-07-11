@@ -32,7 +32,7 @@ import mpicbg.spim.data.sequence.ViewId;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 
-import lombok.extern.slf4j.Slf4j;
+
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.generic.AbstractSpimData;
 import mpicbg.spim.data.sequence.ImgLoader;
@@ -41,7 +41,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Cast;
 
-@Slf4j
+
 public class BaseSpimDataChecker {
     protected final SpimData spimData;
 
@@ -55,7 +55,7 @@ public class BaseSpimDataChecker {
 
     protected int getAllChannelsSize() {
         if (spimData == null) {
-            log.warn("SpimData is null");
+            System.out.println("SpimData is null");
             return 0;
         }
         return spimData.getSequenceDescription().getAllChannels().size();
@@ -63,7 +63,7 @@ public class BaseSpimDataChecker {
 
     protected int getTimePointsSize() {
         if (spimData == null) {
-            log.warn("SpimData is null");
+            System.out.println("SpimData is null");
             return 0;
         }
         return spimData.getSequenceDescription().getTimePoints().size();
@@ -71,7 +71,7 @@ public class BaseSpimDataChecker {
 
     protected Dimensions getShape() {
         if (spimData == null) {
-            log.warn("SpimData is null");
+            System.out.println("SpimData is null");
             return null;
         }
         return spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImageSize(0);
@@ -79,7 +79,7 @@ public class BaseSpimDataChecker {
 
     protected String getDType() {
         if (spimData == null) {
-            log.warn("SpimData is null");
+            System.out.println("SpimData is null");
             return null;
         }
 
