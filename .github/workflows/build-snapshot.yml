@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - develop
+  pull_request:
+    branches:
+      - develop
     tags:
       - "*.[0-9]-SNAPSHOT"
 
