@@ -5,10 +5,7 @@ on:
     branches:
       - develop
     tags:
-      - "SNAPSHOT-[0-9]+.*"
-  pull_request:
-    branches:
-      - develop
+      - "*.[0-9]-SNAPSHOT"
 
 jobs:
   build:
