@@ -22,6 +22,12 @@ jobs:
           cache: 'maven'
       - name: Set up CI environment
         run: .github/setup.sh
+      - name: Install blosc
+        run: sudo apt install libblosc-dev
+      - name: Install xvfb
+        run: sudo apt-get install xvfb
+      - name: Run mvn test
+        run: mvn test
       - name: Execute the build
         run: .github/build.sh
         env:
@@ -31,9 +37,3 @@ jobs:
           MAVEN_PASS: ${{ secrets.MAVEN_PASS }}
           OSSRH_PASS: ${{ secrets.OSSRH_PASS }}
           SIGNING_ASC: ${{ secrets.SIGNING_ASC }}
-      - name: Install blosc
-        run: sudo apt install libblosc-dev
-      - name: Install xvfb
-        run: sudo apt-get install xvfb
-      - name: Run mvn test
-        run: mvn test
