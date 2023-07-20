@@ -107,7 +107,7 @@
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
         <org.jetbrains.annotations.version>16.0.2</org.jetbrains.annotations.version>
-        <bigdataviewer-image-loaders.version>0.4.6</bigdataviewer-image-loaders.version>
+        <bigdataviewer-image-loaders.version>0.6.0</bigdataviewer-image-loaders.version>
         <trove.version>1.0.2</trove.version>
         <everit-json-schema.version>1.14.0</everit-json-schema.version>
         <toml4j.version>0.7.2</toml4j.version>
@@ -135,7 +135,33 @@
     <dependencies>
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
+            <artifactId>n5</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.janelia.saalfeldlab</groupId>
             <artifactId>n5-zarr</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.janelia.saalfeldlab</groupId>
+            <artifactId>n5-aws-s3</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.janelia.saalfeldlab</groupId>
+            <artifactId>n5-imglib2</artifactId>
+            <version>7.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.janelia.saalfeldlab</groupId>
+            <artifactId>n5-imglib2</artifactId>
+            <version>7.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.janelia.saalfeldlab</groupId>
+            <artifactId>n5-universe</artifactId>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>net.imglib2</groupId>
@@ -160,18 +186,6 @@
         <dependency>
             <groupId>sc.fiji</groupId>
             <artifactId>spim_data</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.janelia.saalfeldlab</groupId>
-            <artifactId>n5-aws-s3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.janelia.saalfeldlab</groupId>
-            <artifactId>n5-imglib2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.janelia.saalfeldlab</groupId>
-            <artifactId>n5-hdf5</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.http-client</groupId>

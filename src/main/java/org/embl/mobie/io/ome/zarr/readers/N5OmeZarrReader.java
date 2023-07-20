@@ -189,7 +189,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
     }
 
     @Override
-    public Version getVersion() throws IOException {
+    public Version getVersion() {
 
         final Path path;
         if (groupExists("/")) {
@@ -262,14 +262,14 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
     }
 
     @Override
-    public DatasetAttributes getDatasetAttributes(final String pathName) throws IOException {
+    public DatasetAttributes getDatasetAttributes(final String pathName) {
 
         final ZArrayAttributes zArrayAttributes = getZArrayAttributes(pathName);
         return zArrayAttributes == null ? null : zArrayAttributes.getDatasetAttributes();
     }
 
     @Override
-    public boolean datasetExists(final String pathName) throws IOException {
+    public boolean datasetExists(final String pathName) {
 
         final Path path = Paths.get(basePath, removeLeadingSlash(pathName), zarrayFile);
         return Files.exists(path) && Files.isRegularFile(path) && getDatasetAttributes(pathName) != null;
