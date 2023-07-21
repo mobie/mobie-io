@@ -78,7 +78,6 @@ import com.google.gson.JsonElement;
 
 
 
-
 /**
  * Attempt at a diamond inheritance solution for S3+Zarr.
  */
@@ -166,7 +165,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     // remove getBasePath
 
     @Override
-    public Version getVersion() throws IOException {
+    public Version getVersion() {
         HashMap<String, JsonElement> meta;
         meta = readJson(objectFile("", zgroupFile));
         if (meta == null) {
@@ -213,7 +212,7 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     }
 
     @Override
-    public boolean datasetExists(final String pathName) throws IOException {
+    public boolean datasetExists(final String pathName) {
         final String path = objectFile(pathName, zarrayFile);
         return readJson(path) != null;
     }

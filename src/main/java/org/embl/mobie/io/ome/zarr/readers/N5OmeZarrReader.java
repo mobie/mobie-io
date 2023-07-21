@@ -191,6 +191,9 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
     @Override
     public Version getVersion() {
 
+        // FIXME
+        String basePath = "";
+
         final Path path;
         if (groupExists("/")) {
             path = Paths.get(basePath, zgroupFile);
@@ -202,6 +205,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
 
         if (Files.exists(path)) {
 
+            // FIXME
             try (final LockedFileChannel lockedFileChannel = LockedFileChannel.openForReading(path)) {
                 final HashMap<String, JsonElement> attributes =
                     GsonAttributesParser.readAttributes(

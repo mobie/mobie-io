@@ -66,7 +66,7 @@ public interface N5ZarrImageReader extends N5Reader {
         return gsonBuilder;
     }
 
-    default Version getVersion() throws IOException {
+    default Version getVersion() {
         return VERSION;
     }
 
@@ -118,7 +118,7 @@ public interface N5ZarrImageReader extends N5Reader {
 
     ZArrayAttributes getZArrayAttributes(final String pathName) throws IOException;
 
-    boolean datasetExists(final String pathName) throws IOException;
+    boolean datasetExists(final String pathName);
 
     boolean groupExists(final String pathName);
 
