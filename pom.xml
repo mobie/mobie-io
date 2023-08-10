@@ -120,10 +120,39 @@
                 <configuration>
                     <excludes>
                         <exclude>${someModule.test.excludes}</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<artifactSet>
+								<includes>
+									<include>org.janelia.saalfeldlab:n5*</include>
+								</includes>
+							</artifactSet>
+							<relocations>
+								<relocation>
+									<pattern>org.janelia.saalfeldlab.n5</pattern>
+									<shadedPattern>org.embl.mobie.io.n5.shaded</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>net.imglib2.realtransform</pattern>
+									<shadedPattern>org.embl.mobie.io.n5.shaded</shadedPattern>
+								</relocation>
+							</relocations>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
     </build>
 
     <repositories>

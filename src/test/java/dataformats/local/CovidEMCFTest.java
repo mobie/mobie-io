@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package projects.local;
+package dataformats.local;
 
 import org.embl.mobie.io.ImageDataFormat;
 import org.junit.Test;
