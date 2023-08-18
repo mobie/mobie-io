@@ -142,6 +142,15 @@
 								<relocation>
 									<pattern>org.janelia.saalfeldlab.n5</pattern>
 									<shadedPattern>org.embl.mobie.io.n5.shaded</shadedPattern>
+<!--                                    <excludes>-->
+<!--                                        <exclude>org.janelia.saalfeldlab.n5.Compression</exclude>-->
+<!--                                        <exclude>org.janelia.saalfeldlab.n5.CompressionAdapter</exclude>-->
+<!--                                        <exclude>org.janelia.saalfeldlab.n5.Bzip2Compression</exclude>-->
+<!--                                        <exclude>org.janelia.saalfeldlab.n5.RawCompression</exclude>-->
+<!--                                        <exclude>org.janelia.saalfeldlab.n5.XzCompression</exclude>-->
+<!--                                        <exclude>org.janelia.saalfeldlab.n5.GzipCompression</exclude>-->
+<!--                                        <exclude>org.janelia.saalfeldlab.n5.Lz4Compression</exclude>-->
+<!--                                    </excludes>-->
 								</relocation>
 								<relocation>
 									<pattern>net.imglib2.realtransform</pattern>

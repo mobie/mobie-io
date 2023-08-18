@@ -121,6 +121,13 @@
                 <relocation>
                   <pattern>net.imglib2.realtransform</pattern>
                   <shadedPattern>org.embl.mobie.io.n5.shaded</shadedPattern>
+                  <includes>
+                    <include>net.imglib2.realtransform.AxisSelectionTransform</include>
+                    <include>net.imglib2.realtransform.RealComponentMappingTransform</include>
+                    <include>net.imglib2.realtransform.RealInvertibleComponentMappingTransform</include>
+                    <include>net.imglib2.realtransform.StackedInvertibleRealTransform</include>
+                    <include>net.imglib2.realtransform.StackedRealTransform</include>
+                  </includes>
                 </relocation>
               </relocations>
             </configuration>
@@ -199,7 +206,7 @@
     <dependency>
       <groupId>ch.epfl.biop</groupId>
       <artifactId>bigdataviewer-image-loaders</artifactId>
-      <version>0.4.6</version>
+      <version>0.6.0</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -276,7 +283,7 @@
     <someModule.test.excludes>src/test/java/projects/local</someModule.test.excludes>
     <toml4j.version>0.7.2</toml4j.version>
     <trove.version>1.0.2</trove.version>
-    <bigdataviewer-image-loaders.version>0.4.6</bigdataviewer-image-loaders.version>
+    <bigdataviewer-image-loaders.version>0.6.0</bigdataviewer-image-loaders.version>
     <license.copyrightOwners>EMBL</license.copyrightOwners>
     <doclint>none</doclint>
     <license.licenseName>bsd_2</license.licenseName>
