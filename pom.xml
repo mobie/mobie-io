@@ -107,7 +107,7 @@
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
         <org.jetbrains.annotations.version>16.0.2</org.jetbrains.annotations.version>
-        <bigdataviewer-image-loaders.version>0.4.6</bigdataviewer-image-loaders.version>
+        <bigdataviewer-image-loaders.version>0.6.0</bigdataviewer-image-loaders.version>
         <trove.version>1.0.2</trove.version>
         <everit-json-schema.version>1.14.0</everit-json-schema.version>
         <toml4j.version>0.7.2</toml4j.version>
