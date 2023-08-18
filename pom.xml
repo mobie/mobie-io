@@ -146,6 +146,13 @@
 								<relocation>
 									<pattern>net.imglib2.realtransform</pattern>
 									<shadedPattern>org.embl.mobie.io.n5.shaded</shadedPattern>
+									<includes>
+										<include>net.imglib2.realtransform.AxisSelectionTransform</include>
+										<include>net.imglib2.realtransform.RealComponentMappingTransform</include>
+										<include>net.imglib2.realtransform.RealInvertibleComponentMappingTransform</include>
+										<include>net.imglib2.realtransform.StackedInvertibleRealTransform</include>
+										<include>net.imglib2.realtransform.StackedRealTransform</include>
+									</includes>
 								</relocation>
 							</relocations>
 						</configuration>
