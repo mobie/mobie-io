@@ -28,6 +28,8 @@
  */
 package dataformats.ngff.base;
 
+import mpicbg.spim.data.sequence.ImgLoader;
+import mpicbg.spim.data.sequence.MultiResolutionImgLoader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -55,42 +57,80 @@ public abstract class CYXNgffBaseTest extends NgffBaseTest {
         long x = 1;
         long y = 1;
         long z = 1;
-        long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0).dimensionsAsLongArray();
-        if (x > imageDimensions[0] || y > imageDimensions[1] || z > imageDimensions[2]) {
-            throw new RuntimeException("Coordinates out of bounds");
-        }
 
-        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(0).getImage(0);
-        VolatileCachedCellImg volatileCachedCellImg = (VolatileCachedCellImg) randomAccessibleInterval;
-        CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
-        long[] dims = new long[]{1024, 930, 1};
-        int[] cellDims = new int[]{256, 256, 1};
-        CellGrid expected = new CellGrid(dims, cellDims);
-        Assertions.assertEquals(expected, cellGrid);
+        final int timepointId = 0;
+
+        for ( int channelId = 0; channelId < expectedChannelsNumber; channelId++ )
+        {
+            long[] imageDimensions = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( channelId ).getImage( timepointId ).dimensionsAsLongArray();
+            if ( x > imageDimensions[ 0 ] || y > imageDimensions[ 1 ] || z > imageDimensions[ 2 ] )
+            {
+                throw new RuntimeException( "Coordinates out of bounds" );
+            }
+
+            RandomAccessibleInterval< ? > randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader( channelId ).getImage( timepointId );
+            VolatileCachedCellImg volatileCachedCellImg = ( VolatileCachedCellImg ) randomAccessibleInterval;
+            CellGrid cellGrid = volatileCachedCellImg.getCellGrid();
+            long[] dims = new long[]{ 1024, 930, 1 };
+            int[] cellDims = new int[]{ 256, 256, 1 };
+            CellGrid expected = new CellGrid( dims, cellDims );
+            Assertions.assertEquals( expected, cellGrid );
+        }
     }
     
     @Test
     public void checkImgValue() {
 
+        final int timepointId = 0;
+        int channelId;
+        int resolutionLevel;
+        RandomAccessibleInterval<?> randomAccessibleInterval;
+        UnsignedShortType o;
+        int value;
+        int expectedValue;
+
+
+        final MultiResolutionImgLoader imgLoader = ( MultiResolutionImgLoader )  spimData.getSequenceDescription().getImgLoader();
+        final int numResolutions = imgLoader.getSetupImgLoader( 0 ).getMipmapResolutions().length;
+
         // random test data generated independently with python
-        RandomAccessibleInterval<?> randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(1).getImage(0);
-        UnsignedShortType o = (UnsignedShortType) randomAccessibleInterval.getAt(647, 482, 0);
-        int value = o.get();
-        int expectedValue = 4055;
+
+        // test high channel number in down-sampled resolution
+        // this was where we thought that issue could be:
+        // https://github.com/mobie/mobie-viewer-fiji/issues/945
+        channelId = 3;
+        resolutionLevel = 2;
+        randomAccessibleInterval = imgLoader.getSetupImgLoader(channelId).getImage( timepointId, resolutionLevel );
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(770/4, 343/4, 0);
+        value = o.get();
+        //expectedValue = 2871;
+        Assertions.assertTrue( value > 0 );
+
+        channelId = 1;
+        resolutionLevel = 0;
+        randomAccessibleInterval = imgLoader.getSetupImgLoader( channelId ).getImage( timepointId, resolutionLevel );
+
+        o = (UnsignedShortType) randomAccessibleInterval.getAt(647, 482, 0);
+        value = o.get();
+        expectedValue = 4055;
         Assertions.assertEquals(expectedValue, value);
         
         o = (UnsignedShortType) randomAccessibleInterval.getAt(649, 346, 0);
         value = o.get();
         expectedValue = 4213;
         Assertions.assertEquals(expectedValue, value);
-        
-        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(2).getImage(0);
+
+        channelId = 2;
+        randomAccessibleInterval = imgLoader.getSetupImgLoader(channelId).getImage( timepointId, resolutionLevel );
+
         o = (UnsignedShortType) randomAccessibleInterval.getAt(559, 920, 0);
         value = o.get();
         expectedValue = 1835;
         Assertions.assertEquals(expectedValue, value);
-        
-        randomAccessibleInterval = spimData.getSequenceDescription().getImgLoader().getSetupImgLoader(3).getImage(0);
+
+        channelId = 3;
+        randomAccessibleInterval = imgLoader.getSetupImgLoader(channelId).getImage( timepointId, resolutionLevel );
+
         o = (UnsignedShortType) randomAccessibleInterval.getAt(934, 929, 0);
         value = o.get();
         expectedValue = 1724;
@@ -100,5 +140,7 @@ public abstract class CYXNgffBaseTest extends NgffBaseTest {
         value = o.get();
         expectedValue = 2871;
         Assertions.assertEquals(expectedValue, value);
+
+
     }
 }
