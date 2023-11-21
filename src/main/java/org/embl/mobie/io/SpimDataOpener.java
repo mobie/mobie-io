@@ -128,7 +128,12 @@ public class SpimDataOpener {
             case Tiff:
                 return open(IOHelper.openTiffAsImagePlus( imagePath ), sharedQueue);
             case ImageJ:
-                return open(IJ.openImage(imagePath), sharedQueue);
+                ImagePlus imagePlus = IJ.openImage( imagePath );
+                if ( imagePlus == null )
+                {
+                    throw new RuntimeException("Could not open " + imagePath );
+                }
+                return open( imagePlus, sharedQueue);
             case BioFormats:
                 return openWithBioFormats(imagePath, sharedQueue);
             case BdvN5:
@@ -301,9 +306,7 @@ public class SpimDataOpener {
     public AbstractSpimData< ? > openWithBioFormats( String path, SharedQueue sharedQueue )
     {
         final AbstractSpimData< ? > spimData = openWithBioFormats( path );
-
         setSharedQueue( sharedQueue, spimData );
-
         return spimData;
     }
 
