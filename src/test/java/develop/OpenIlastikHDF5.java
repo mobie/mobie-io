@@ -56,6 +56,5 @@ public class OpenIlastikHDF5
 		final CachedCellImgOpener< ? > opener = new CachedCellImgOpener( "/Users/tischer/Desktop/mobie-data/ilastik/A1_2022-07-06-093303-0000--0.4.0-0-1.4.0--tracking-oids.h5", ImageDataFormat.IlastikHDF5, null );
 		final RandomAccessibleInterval< ? > rai = opener.getRAI( 0 );
 		final RandomAccessibleInterval< ? > vRAI = opener.getVolatileRAI( 0 );
-		int a = 1;
 	}
 }

@@ -112,7 +112,7 @@ public abstract class S3Utils {
 
     public static AmazonS3 getS3Client(String uri) {
         final String endpoint = getEndpoint(uri);
-        final String region = "us-west-2";  // TODO get region from uri
+        final String region = null; // "us-west-2";
         final String[] bucketAndObject = getBucketAndObject(uri);
         return getS3Client(endpoint, region, bucketAndObject[0]);
     }

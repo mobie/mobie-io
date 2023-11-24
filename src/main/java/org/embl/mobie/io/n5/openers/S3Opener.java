@@ -62,7 +62,7 @@ public class S3Opener extends OpenerLogging
         url = url.trim();
         final String[] split = url.split("/");
         this.serviceEndpoint = Arrays.stream(split).limit(3).collect(Collectors.joining("/"));
-        this.signingRegion = "us-west-2";
+        this.signingRegion = null; // "us-west-2";
         this.bucketName = split[3];
         this.key = Arrays.stream(split).skip(4).collect(Collectors.joining("/"));
     }

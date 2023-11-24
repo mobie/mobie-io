@@ -68,12 +68,22 @@ import static org.embl.mobie.io.util.S3Utils.selectS3PathFromDirectory;
 
 public class IOHelper {
 
-    public static ResourceType getType(String uri) {
-        if (uri.startsWith("https://s3") || uri.contains("s3.amazon.aws.com")) {
+    public static ResourceType getType(String uri)
+    {
+        if ( ( uri.startsWith("http") && uri.contains( "s3." ) ) )
+        {
             return IOHelper.ResourceType.S3;
-        } else if (uri.startsWith("http")) {
+        }
+        else if ( uri.startsWith("http") && uri.contains( ".zarr" ) )
+        {
+            return IOHelper.ResourceType.S3;
+        }
+        else if ( uri.startsWith("http") )
+        {
             return IOHelper.ResourceType.HTTP;
-        } else {
+        }
+        else
+        {
             return IOHelper.ResourceType.FILE;
         }
     }
