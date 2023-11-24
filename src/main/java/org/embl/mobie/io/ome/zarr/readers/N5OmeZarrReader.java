@@ -253,7 +253,7 @@ public class N5OmeZarrReader extends N5FSReader implements N5ZarrImageReader {
                 zArrayAttributes = gson.fromJson(reader, OmeZArrayAttributes.class);
             }
         } else {
-            System.out.println(path + " does not exist.");
+            //System.out.println(path + " does not exist.");
         }
         this.dimensionSeparator = zArrayAttributes == null || zArrayAttributes.getDimensionSeparator() == null ?
             DEFAULT_SEPARATOR : zArrayAttributes.getDimensionSeparator();
