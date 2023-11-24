@@ -77,7 +77,7 @@ import static mpicbg.spim.data.XmlKeys.SEQUENCEDESCRIPTION_TAG;
 
 public class SpimDataOpener {
 
-    public static final String ERROR_WHILE_TRYING_TO_READ_SPIM_DATA = "Error while trying to read spimData";
+    public static final String ERROR_WHILE_TRYING_TO_READ_SPIM_DATA = "Error while trying to read ";
 
     public SpimDataOpener() {
     }
@@ -192,67 +192,76 @@ public class SpimDataOpener {
         try {
             InputStream stream = IOHelper.getInputStream(path);
             return new CustomXmlIoSpimData().loadFromStream(stream, path);
-        } catch (SpimDataException | IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error opening " + path);
+            throw new RuntimeException(e);
         }
     }
 
     private SpimData openBdvN5(String path, SharedQueue queue) throws SpimDataException {
         try {
             return N5Opener.openFile(path, queue);
-        } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error opening " + path);
+            throw new RuntimeException(e);
         }
     }
 
     private SpimData openBdvN5S3(String path, SharedQueue queue) throws SpimDataException {
         try {
             return N5S3Opener.readURL(path, queue);
-        } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error opening " + path);
+            throw new RuntimeException(e);
         }
     }
 
     private SpimData openOmeZarr(String path) throws SpimDataException {
         try {
             return OMEZarrOpener.openFile(path);
-        } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error opening " + path);
+            throw new RuntimeException(e);
         }
     }
 
     private SpimData openOmeZarr(String path, SharedQueue sharedQueue) throws SpimDataException {
         try {
             return OMEZarrOpener.openFile(path, sharedQueue);
-        } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error opening " + path);
+            throw new RuntimeException(e);
         }
     }
 
     private SpimData openOmeZarrS3(String path) throws SpimDataException {
         try {
             return OMEZarrS3Opener.readURL(path);
-        } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error opening " + path);
+            throw new RuntimeException(e);
         }
     }
 
     private SpimData openOmeZarrS3(String path, SharedQueue sharedQueue) throws SpimDataException {
         try {
             return OMEZarrS3Opener.readURL(path, sharedQueue);
-        } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error opening " + path);
+            throw new RuntimeException(e);
         }
     }
 
     private SpimData openOpenOrganelleS3(String path) throws SpimDataException {
         try {
             return OpenOrganelleS3Opener.readURL(path);
-        } catch (IOException e) {
-            throw new SpimDataException(ERROR_WHILE_TRYING_TO_READ_SPIM_DATA + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error opening " + path);
+            throw new RuntimeException(e);
         }
     }
 
+    @NotNull
     private SpimData openBdvOmeZarrS3(String path, SharedQueue queue) {
         //TODO: finish bug fixing
         try {

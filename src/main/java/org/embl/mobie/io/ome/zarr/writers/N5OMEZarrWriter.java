@@ -528,7 +528,6 @@ public class N5OMEZarrWriter extends N5OmeZarrReader implements N5Writer {
                     gson));
 
             if (mapN5DatasetAttributes && datasetExists(pathName)) {
-
                 attributes = new HashMap<>(attributes);
                 ZArrayAttributes zArrayAttributes = getZArrayAttributes(pathName);
                 long[] shape;

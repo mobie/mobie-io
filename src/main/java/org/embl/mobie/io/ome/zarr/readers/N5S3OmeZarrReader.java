@@ -59,6 +59,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReader;
 import org.embl.mobie.io.ome.zarr.util.N5ZarrImageReaderHelper;
@@ -219,23 +220,6 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
     }
 
     /**
-     * CHANGE: rename to not overwrite the AWS list objects version
-     *
-     * @returns false if the group or dataset does not exist but also if the
-     * attempt to access
-     */
-    // @Override
-    public boolean zarrExists(final String pathName) {
-        try {
-            return groupExists(pathName) || datasetExists(pathName);
-        } catch (final IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-    /**
      * If {@link #mapN5DatasetAttributes} is set, dataset attributes will
      * override attributes with the same key.
      */
@@ -254,9 +238,16 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
             throw new IOException("Error while getting datasets dimensions", e);
         }
 
-        if (mapN5DatasetAttributes && datasetExists(pathName)) {
-            final DatasetAttributes datasetAttributes = getZArrayAttributes(pathName).getDatasetAttributes();
-            n5ZarrImageReaderHelper.putAttributes(attributes, datasetAttributes);
+        if (mapN5DatasetAttributes) {
+            try
+            {
+                final DatasetAttributes datasetAttributes = getZArrayAttributes( pathName ).getDatasetAttributes();
+                n5ZarrImageReaderHelper.putAttributes( attributes, datasetAttributes );
+            }
+            catch ( Exception e )
+            {
+                // no datasetAttributes found here
+            }
         }
         return attributes;
     }
@@ -287,11 +278,8 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
             try (final InputStream in = this.readS3Object(dataBlockKey)) {
                 return readBlock(in, zarrDatasetAttributes, gridPosition);
             }
-        } catch (AmazonS3Exception ase) {
-            if ("NoSuchKey".equals(ase.getErrorCode())) {
-                return null;
-            }
-            throw ase;
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -302,14 +290,11 @@ public class N5S3OmeZarrReader extends N5AmazonS3Reader implements N5ZarrImageRe
      * @param objectPath
      * @return null if the object does not exist, otherwise the loaded attributes.
      */
-    public HashMap<String, JsonElement> readJson(String objectPath) throws IOException {
+    public HashMap<String, JsonElement> readJson(String objectPath) {
         try (final InputStream in = this.readS3Object(objectPath)) {
             return GsonAttributesParser.readAttributes(new InputStreamReader(in), gson);
-        } catch (AmazonS3Exception ase) {
-            if (ase.getErrorCode().equals("NoSuchKey"))
-                return null;
-            else
-                throw ase;
+        } catch (Exception e) {
+            return null;
         }
     }
 
