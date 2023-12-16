@@ -128,7 +128,7 @@ public class SpimDataOpener {
             case Toml:
                 return new TOMLOpener( imagePath ).asSpimData(sharedQueue);
             case Tiff:
-                return open(IOHelper.openTiffAsImagePlus( imagePath ), sharedQueue);
+                return open(IOHelper.openTiffFromFile( imagePath ), sharedQueue);
             case ImageJ:
                 ImagePlus imagePlus = IJ.openImage( imagePath );
                 if ( imagePlus == null )

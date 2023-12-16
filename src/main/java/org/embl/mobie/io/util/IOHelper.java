@@ -50,6 +50,7 @@ import ij.ImagePlus;
 import ij.io.Opener;
 import loci.common.ByteArrayHandle;
 import loci.common.Location;
+import loci.common.ReflectException;
 import loci.plugins.in.ImagePlusReader;
 import loci.plugins.in.ImportProcess;
 import loci.plugins.in.ImporterOptions;
@@ -132,6 +133,21 @@ public class IOHelper {
     }
 
     public static ImagePlus openWithBioFormats( String path, int seriesIndex )
+    {
+        ResourceType type = getType( path );
+
+        switch ( type )
+        {
+            case S3:
+                return openWithBioformatsFromS3( path, seriesIndex );
+            case FILE:
+                return openWithBioFormatsFromFile( path, seriesIndex );
+            default:
+                throw new RuntimeException( "Cannot open " + path + " with BioFormats." );
+        }
+    }
+
+    public static ImagePlus openWithBioFormatsFromFile( String path, int seriesIndex )
     {
         try
         {
@@ -438,7 +454,7 @@ public class IOHelper {
         return items.parallelStream().anyMatch(inputStr::contains);
     }
 
-	public static ImagePlus openTiffAsImagePlus( String imagePath )
+	public static ImagePlus openTiffFromFile( String imagePath )
 	{
 		final File file = new File( imagePath );
 		final ImagePlus imagePlus = (new Opener()).openTiff( file.getParent(), file.getName() );
@@ -507,7 +523,7 @@ public class IOHelper {
             byte[] byteArray = buffer.toByteArray();
             //System.out.println( byteArray.length + " bytes read from S3." );
             Location.mapFile( "mapped_" + path, new ByteArrayHandle( byteArray ) );
-            ImagePlus imagePlus = openWithBioFormats( "mapped_" + path, seriesIndex );
+            ImagePlus imagePlus = openWithBioFormatsFromFile( "mapped_" + path, seriesIndex );
             //System.out.println( "S3 [ms]: " + ( System.currentTimeMillis() - start ) );
             return imagePlus;
         }
@@ -515,7 +531,6 @@ public class IOHelper {
         {
             throw new RuntimeException( e );
         }
-
     }
 
 

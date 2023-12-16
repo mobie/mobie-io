@@ -100,45 +100,6 @@ public abstract class S3Utils {
 
         return s3;
     }
-// check if we can access
-// this does not work for all S3 implementations
-// https://imagesc.zulipchat.com/#narrow/stream/328251-NGFF/topic/S3.20Zarr.20access.20issue
-//        HeadBucketRequest headBucketRequest = new HeadBucketRequest(bucket);
-//        try {
-//            HeadBucketResult headBucketResult = s3.headBucket(headBucketRequest);
-//            return s3;
-//        } catch (AmazonServiceException e) {
-//            switch (e.getStatusCode()) {
-//                // if we get a 403 response (access forbidden), we try again with credentials
-//                case HttpStatusCodes.STATUS_CODE_FORBIDDEN:
-//                    if (s3AccessAndSecretKey != null) {
-//                        // use the given credentials
-//                        final BasicAWSCredentials credentials = new BasicAWSCredentials(s3AccessAndSecretKey[0], s3AccessAndSecretKey[1]);
-//                        credentialsProvider = new AWSStaticCredentialsProvider(credentials);
-//                    } else {
-//                        // look for credentials at other places
-//                        credentialsProvider = new DefaultAWSCredentialsProviderChain();
-//                        checkCredentialsExistence(credentialsProvider);
-//                    }
-//                    s3 = AmazonS3ClientBuilder
-//                        .standard()
-//                        .withPathStyleAccessEnabled(true)
-//                        .withEndpointConfiguration(endpointConfiguration)
-//                        .withCredentials(credentialsProvider)
-//                        .build();
-//                    // check if we have access permissions now
-//                    try {
-//                        HeadBucketResult headBucketResult = s3.headBucket(headBucketRequest);
-//                    } catch (AmazonServiceException e2) {
-//                        throw e2;
-//                    }
-//                    return s3;
-//                // otherwise the bucket does not exist or has been permanently moved; throw the exception
-//                default:
-//                    throw e;
-//            }
-//        }
-//    }
 
     public static AmazonS3 getS3Client(String uri) {
         final String endpoint = getEndpoint(uri);
