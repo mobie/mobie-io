@@ -30,22 +30,7 @@ package org.embl.mobie.io;
 
 import com.google.gson.annotations.SerializedName;
 
-import static org.embl.mobie.io.ImageDataFormatNames.BDV;
-import static org.embl.mobie.io.ImageDataFormatNames.BDVHDF5;
-import static org.embl.mobie.io.ImageDataFormatNames.BDVN5;
-import static org.embl.mobie.io.ImageDataFormatNames.BDVN5S3;
-import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARR;
-import static org.embl.mobie.io.ImageDataFormatNames.BDVOMEZARRS3;
-import static org.embl.mobie.io.ImageDataFormatNames.BIOFORMATS;
-import static org.embl.mobie.io.ImageDataFormatNames.ILASTIKHDF5;
-import static org.embl.mobie.io.ImageDataFormatNames.IMAGEJ;
-import static org.embl.mobie.io.ImageDataFormatNames.SPIMDATA;
-import static org.embl.mobie.io.ImageDataFormatNames.IMARIS;
-import static org.embl.mobie.io.ImageDataFormatNames.OMEZARR;
-import static org.embl.mobie.io.ImageDataFormatNames.OMEZARRS3;
-import static org.embl.mobie.io.ImageDataFormatNames.OPENORGANELLES3;
-import static org.embl.mobie.io.ImageDataFormatNames.TIFF;
-import static org.embl.mobie.io.ImageDataFormatNames.TOML;
+import static org.embl.mobie.io.ImageDataFormatNames.*;
 
 /**
  * Currently mobie-io supports the following data formats:
@@ -94,6 +79,8 @@ public enum ImageDataFormat {
     ImageJ,
     @SerializedName(BIOFORMATS)
     BioFormats,
+    @SerializedName(BIOFORMATSS3)
+    BioFormatsS3,
     @SerializedName(BDV)
     Bdv,
     @SerializedName(BDVHDF5)
@@ -127,6 +114,8 @@ public enum ImageDataFormat {
                 return ImageJ;
             case BIOFORMATS:
                 return BioFormats;
+            case BIOFORMATSS3:
+                return BioFormatsS3;
             case BDV:
                 return Bdv;
             case BDVHDF5:
@@ -167,6 +156,8 @@ public enum ImageDataFormat {
                 return IMAGEJ;
             case BioFormats:
                 return BIOFORMATS;
+            case BioFormatsS3:
+                return BIOFORMATSS3;
             case Bdv:
                 return BDV;
             case BdvHDF5:
@@ -231,6 +222,7 @@ public enum ImageDataFormat {
             case OmeZarrS3:
             case BdvOmeZarrS3:
             case OpenOrganelleS3:
+            case BioFormatsS3:
                 return true;
             case BdvN5:
             case BdvOmeZarr:

@@ -44,11 +44,8 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.HeadBucketRequest;
-import com.amazonaws.services.s3.model.HeadBucketResult;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ListObjectsV2Result;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.iterable.S3Objects;
+import com.amazonaws.services.s3.model.*;
 import com.google.api.client.http.HttpStatusCodes;
 
 import ij.gui.GenericDialog;
@@ -194,17 +191,13 @@ public abstract class S3Utils {
         final String[] bucketAndObject = getBucketAndObject(directory);
 
         final String bucket = bucketAndObject[0];
-        final String prefix = (bucketAndObject[1] == "") ? "" : (bucketAndObject[1] + "/");
+        final String prefix = bucketAndObject[ 1 ].isEmpty() ? "" : ( bucketAndObject[1] + "/" );
 
-        ListObjectsV2Request request = new ListObjectsV2Request()
-            .withBucketName(bucket)
-            .withPrefix(prefix)
-            .withDelimiter("/");
-        ListObjectsV2Result files = s3.listObjectsV2(request);
         final ArrayList<String> paths = new ArrayList<>();
-        for (S3ObjectSummary summary : files.getObjectSummaries()) {
-            paths.add(summary.getKey());
-        }
+        S3Objects.withPrefix( s3, bucket, prefix ).forEach( (S3ObjectSummary objectSummary ) -> {
+            String path = IOHelper.combinePath( directory, objectSummary.getKey().replace( prefix, "" ) );
+            paths.add( path );
+        });
         return paths;
     }
 

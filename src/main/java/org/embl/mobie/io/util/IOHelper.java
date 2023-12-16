@@ -28,14 +28,7 @@
  */
 package org.embl.mobie.io.util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,11 +48,15 @@ import javax.swing.JFileChooser;
 
 import ij.ImagePlus;
 import ij.io.Opener;
+import loci.common.ByteArrayHandle;
+import loci.common.Location;
+import loci.plugins.in.ImagePlusReader;
+import loci.plugins.in.ImportProcess;
+import loci.plugins.in.ImporterOptions;
 import org.apache.commons.io.IOUtils;
 import org.embl.mobie.io.github.GitHubUtils;
 
 import com.amazonaws.services.s3.AmazonS3;
-import org.jetbrains.annotations.NotNull;
 
 import static org.embl.mobie.io.github.GitHubUtils.isGithub;
 import static org.embl.mobie.io.github.GitHubUtils.selectGitHubPathFromDirectory;
@@ -132,6 +129,26 @@ public class IOHelper {
         final List<String> paths = fileList.stream().map(x -> x.toString()).collect(Collectors.toList());
 
         return paths;
+    }
+
+    public static ImagePlus openWithBioFormats( String path, int seriesIndex )
+    {
+        try
+        {
+            ImporterOptions opts = new ImporterOptions();
+            opts.setId( path );
+            opts.setVirtual( true );
+            opts.setSeriesOn( seriesIndex, true );
+            ImportProcess process = new ImportProcess( opts );
+            process.execute();
+            ImagePlusReader impReader = new ImagePlusReader( process );
+            ImagePlus[] imps = impReader.openImagePlus();
+            return imps[ 0 ];
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException("Could not open " + path );
+        }
     }
 
     public static String getSeparator(String uri) {
@@ -306,7 +323,7 @@ public class IOHelper {
                 }
             case FILE:
                 List<File> files = getFileList(new File(uri), ".*", false);
-                if (files.size() > 0) {
+                if ( !files.isEmpty() ) {
                     String[] fileNames = new String[files.size()];
                     for (int i = 0; i < files.size(); i++) {
                         fileNames[i] = files.get(i).getName();
@@ -474,6 +491,31 @@ public class IOHelper {
             e.printStackTrace();
             throw new RuntimeException( e );
         }
+    }
+
+    public static ImagePlus openWithBioformatsFromS3( String path, int seriesIndex )
+    {
+        try
+        {
+            InputStream inputStream = getInputStream( path );
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int nRead;
+            byte[] data = new byte[ 1024 ];
+            while ( ( nRead = inputStream.read( data, 0, data.length ) ) != -1 )
+                buffer.write( data, 0, nRead );
+            buffer.flush();
+            byte[] byteArray = buffer.toByteArray();
+            //System.out.println( byteArray.length + " bytes read from S3." );
+            Location.mapFile( "mapped_" + path, new ByteArrayHandle( byteArray ) );
+            ImagePlus imagePlus = openWithBioFormats( "mapped_" + path, seriesIndex );
+            //System.out.println( "S3 [ms]: " + ( System.currentTimeMillis() - start ) );
+            return imagePlus;
+        }
+        catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
+
     }
 
 

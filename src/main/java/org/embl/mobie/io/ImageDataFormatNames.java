@@ -34,6 +34,7 @@ public class ImageDataFormatNames
 	public static final String TIFF = "tiff";
 	public static final String IMAGEJ = "imagej";
 	public static final String BIOFORMATS = "bioformats";
+	public static final String BIOFORMATSS3 = "bioformats.s3";
 	public static final String BDV = "bdv";
 	public static final String BDVN5 = "bdv.n5";
 	public static final String BDVN5S3 = "bdv.n5.s3";

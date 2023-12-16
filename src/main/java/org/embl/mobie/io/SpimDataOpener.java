@@ -98,7 +98,9 @@ public class SpimDataOpener {
             case ImageJ:
                 return open(IJ.openImage(imagePath));
             case BioFormats:
-                return openWithBioFormats(imagePath);
+                return openWithBDVBioFormats(imagePath);
+            case BioFormatsS3:
+                return openWithBioFormatsFromS3(imagePath, 0, null );
             case Imaris:
                 return openImaris(imagePath);
             case Bdv:
@@ -130,12 +132,12 @@ public class SpimDataOpener {
             case ImageJ:
                 ImagePlus imagePlus = IJ.openImage( imagePath );
                 if ( imagePlus == null )
-                {
                     throw new RuntimeException("Could not open " + imagePath );
-                }
                 return open( imagePlus, sharedQueue);
             case BioFormats:
-                return openWithBioFormats(imagePath, sharedQueue);
+                return openWithBDVBioFormats(imagePath, sharedQueue);
+            case BioFormatsS3:
+                return openWithBioFormatsFromS3(imagePath, 0, sharedQueue );
             case BdvN5:
                 return openBdvN5(imagePath, sharedQueue);
             case BdvN5S3:
@@ -162,9 +164,7 @@ public class SpimDataOpener {
     public AbstractSpimData open( ImagePlus imagePlus, SharedQueue sharedQueue )
     {
         final AbstractSpimData< ? > spimData = open(  imagePlus );
-
         setSharedQueue( sharedQueue, spimData );
-
         return spimData;
     }
 
@@ -298,7 +298,7 @@ public class SpimDataOpener {
         }
     }
 
-    public AbstractSpimData< ? > openWithBioFormats( String path )
+    public AbstractSpimData< ? > openWithBDVBioFormats( String path )
     {
         final File file = new File( path );
         List< OpenerSettings > openerSettings = new ArrayList<>();
@@ -312,20 +312,28 @@ public class SpimDataOpener {
         return OpenersToSpimData.getSpimData( openerSettings );
     }
 
-    public AbstractSpimData< ? > openWithBioFormats( String path, SharedQueue sharedQueue )
+    public AbstractSpimData< ? > openWithBDVBioFormats( String path, SharedQueue sharedQueue )
     {
-        final AbstractSpimData< ? > spimData = openWithBioFormats( path );
+        final AbstractSpimData< ? > spimData = openWithBDVBioFormats( path );
         setSharedQueue( sharedQueue, spimData );
         return spimData;
     }
 
-//    public static SpimData asSpimData( AbstractSpimData< ? > abstractSpimData )
-//    {
-//        final AbstractSequenceDescription< ?, ?, ? > abstractSequenceDescription = abstractSpimData.getSequenceDescription();
-//        final SequenceDescription sequenceDescription = new SequenceDescription( abstractSequenceDescription.getTimePoints(), abstractSequenceDescription.getViewSetups() );
-//        final SpimData spimData = new SpimData( abstractSpimData.getBasePath(), sequenceDescription, abstractSpimData.getViewRegistrations() );
-//        return spimData;
-//    }
+    // TODO: Currently does not support resolution pyramids
+    //
+    public AbstractSpimData< ? > openWithBioFormatsFromS3( String path, int seriesIndex, SharedQueue sharedQueue )
+    {
+        ImagePlus imagePlus = IOHelper.openWithBioformatsFromS3( path, seriesIndex );
+
+        if ( sharedQueue != null )
+        {
+            return open( imagePlus, sharedQueue );
+        }
+        else
+        {
+            return open( imagePlus );
+        }
+    }
 
     private SpimData openBdvOmeZarr(String path, @Nullable SharedQueue sharedQueue) throws SpimDataException {
         SpimData spimData = openBdvXml(path);
