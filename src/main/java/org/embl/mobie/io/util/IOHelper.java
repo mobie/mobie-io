@@ -50,7 +50,6 @@ import ij.ImagePlus;
 import ij.io.Opener;
 import loci.common.ByteArrayHandle;
 import loci.common.Location;
-import loci.common.ReflectException;
 import loci.plugins.in.ImagePlusReader;
 import loci.plugins.in.ImportProcess;
 import loci.plugins.in.ImporterOptions;
@@ -139,7 +138,7 @@ public class IOHelper {
         switch ( type )
         {
             case S3:
-                return openWithBioformatsFromS3( path, seriesIndex );
+                return openWithBioFormatsFromS3( path, seriesIndex );
             case FILE:
                 return openWithBioFormatsFromFile( path, seriesIndex );
             default:
@@ -509,7 +508,7 @@ public class IOHelper {
         }
     }
 
-    public static ImagePlus openWithBioformatsFromS3( String path, int seriesIndex )
+    public static ImagePlus openWithBioFormatsFromS3( String path, int seriesIndex )
     {
         try
         {

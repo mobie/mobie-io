@@ -29,23 +29,19 @@
 package org.embl.mobie.io;
 
 import bdv.cache.SharedQueue;
-import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.img.imaris.Imaris;
 import bdv.spimdata.SpimDataMinimal;
-import ch.epfl.biop.bdv.img.CacheControlOverride;
 import ch.epfl.biop.bdv.img.OpenersToSpimData;
 import ch.epfl.biop.bdv.img.bioformats.BioFormatsHelper;
 import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
 import ch.epfl.biop.bdv.img.opener.OpenerSettings;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.io.Opener;
 
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.generic.AbstractSpimData;
-import mpicbg.spim.data.generic.sequence.BasicImgLoader;
-import net.imglib2.util.Cast;
+import org.embl.mobie.io.imagedata.*;
 import org.embl.mobie.io.n5.openers.N5Opener;
 import org.embl.mobie.io.n5.openers.N5S3Opener;
 import org.embl.mobie.io.ome.zarr.loaders.N5S3OMEZarrImageLoader;
@@ -54,8 +50,9 @@ import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
 import org.embl.mobie.io.toml.TOMLOpener;
-import org.embl.mobie.io.util.CustomXmlIoSpimData;
+import org.embl.mobie.io.util.InputStreamXmlIoSpimData;
 import org.embl.mobie.io.util.IOHelper;
+import org.embl.mobie.io.util.SharedQueueHelper;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -106,7 +103,7 @@ public class ImageDataOpener
             case OmeZarr:
             case OmeZarrS3:
             case OpenOrganelleS3:
-                return new N5ViewerImageData<>( uri, );
+                return new N5ImageData<>( uri, );
             default:
                 throw new UnsupportedOperationException("Opening of " + imageDataFormat + " is not supported.");
         }
@@ -120,22 +117,20 @@ public class ImageDataOpener
             case Tiff:
                 return open( IOHelper.openTiffFromFile( uri ), sharedQueue );
             case ImageJ:
-                ImagePlus imagePlus = IJ.openImage( uri );
-                if ( imagePlus == null )
-                    throw new RuntimeException( "Could not open " + uri );
-                return open( imagePlus, sharedQueue );
+               return new IJImageData<>( uri, sharedQueue );
             case BioFormats:
-                return openWithBDVBioFormats( uri, sharedQueue );
+                return new BioFormatsImageData<>( uri, sharedQueue );
             case BioFormatsS3:
-                return openWithBioFormatsFromS3( uri, 0, sharedQueue );
+                return new BioFormatsS3ImageData<>( uri, sharedQueue );
+            case Bdv:
+            case BdvHDF5:
             case BdvN5:
-                return openBdvN5( uri, sharedQueue );
             case BdvN5S3:
-                return openBdvN5S3( uri, sharedQueue );
+                return new BDVXMLImageData<>( uri, sharedQueue );
             case OmeZarr:
             case OmeZarrS3:
             case OpenOrganelleS3:
-                return new N5ViewerImageData<>( uri, sharedQueue );
+                return new N5ImageData<>( uri, sharedQueue );
             case BdvOmeZarr:
             case BdvOmeZarrS3:
             default:
@@ -153,19 +148,8 @@ public class ImageDataOpener
     public AbstractSpimData open( ImagePlus imagePlus, SharedQueue sharedQueue )
     {
         final AbstractSpimData< ? > spimData = open(  imagePlus );
-        setSharedQueue( sharedQueue, spimData );
+        SharedQueueHelper.setSharedQueue( sharedQueue, spimData );
         return spimData;
-    }
-
-    public static void setSharedQueue( SharedQueue sharedQueue, AbstractSpimData< ? > spimData )
-    {
-        BasicImgLoader imgLoader = spimData.getSequenceDescription().getImgLoader();
-
-        if (imgLoader instanceof CacheControlOverride) {
-            CacheControlOverride cco = (CacheControlOverride) imgLoader;
-            final VolatileGlobalCellCache volatileGlobalCellCache = new VolatileGlobalCellCache( sharedQueue );
-            cco.setCacheControl( volatileGlobalCellCache );
-        }
     }
 
     @NotNull
@@ -180,7 +164,7 @@ public class ImageDataOpener
     private SpimData openBdvXml(String path) throws SpimDataException {
         try {
             InputStream stream = IOHelper.getInputStream(path);
-            SpimData spimData = new CustomXmlIoSpimData().loadFromStream( stream, path );
+            SpimData spimData = new InputStreamXmlIoSpimData().open( stream, path );
 
             return spimData;
         } catch (Exception e) {
@@ -253,41 +237,6 @@ public class ImageDataOpener
     }
 
     @NotNull
-    private SpimData openBdvOmeZarrS3(String path, SharedQueue queue) {
-        //TODO: finish bug fixing
-        try {
-            SAXBuilder sax = new SAXBuilder();
-            InputStream stream = IOHelper.getInputStream(path);
-            Document doc = sax.build(stream);
-            Element imgLoaderElem = doc.getRootElement().getChild("SequenceDescription").getChild("ImageLoader");
-            String bucketAndObject = imgLoaderElem.getChild("BucketName").getText() + "/" + imgLoaderElem.getChild("Key").getText();
-            String[] split = bucketAndObject.split("/");
-            String bucket = split[0];
-            String object = Arrays.stream(split).skip(1L).collect(Collectors.joining("/"));
-            N5S3OMEZarrImageLoader imageLoader;
-            if (queue != null) {
-                imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".", queue);
-            } else {
-                imageLoader = new N5S3OMEZarrImageLoader(imgLoaderElem.getChild("ServiceEndpoint").getText(), imgLoaderElem.getChild("SigningRegion").getText(), bucket, object, ".");
-            }
-            SpimData spim = new SpimData(null, Cast.unchecked(imageLoader.getSequenceDescription()), imageLoader.getViewRegistrations());
-            SpimData spimData;
-            try {
-                InputStream st = IOHelper.getInputStream(path);
-                spimData = (new CustomXmlIoSpimData()).loadFromStream(st, path);
-            } catch (SpimDataException exception) {
-                System.err.println("Failed to load stream from " + path + "; " + exception);
-                return null;
-            }
-            spimData.setBasePath(null);
-            spimData.getSequenceDescription().setImgLoader(spim.getSequenceDescription().getImgLoader());
-            spimData.getSequenceDescription().getAllChannels().putAll(spim.getSequenceDescription().getAllChannels());
-            return spimData;
-        } catch (JDOMException | IOException e) {
-            System.err.println("Failed to open BdvOmeZarrS3: " + e);
-            return null;
-        }
-    }
 
     public AbstractSpimData< ? > openWithBDVBioFormats( String path )
     {
@@ -306,7 +255,7 @@ public class ImageDataOpener
     public AbstractSpimData< ? > openWithBDVBioFormats( String path, SharedQueue sharedQueue )
     {
         final AbstractSpimData< ? > spimData = openWithBDVBioFormats( path );
-        setSharedQueue( sharedQueue, spimData );
+        SharedQueueHelper.setSharedQueue( sharedQueue, spimData );
         return spimData;
     }
 
@@ -314,7 +263,7 @@ public class ImageDataOpener
     //
     public AbstractSpimData< ? > openWithBioFormatsFromS3( String path, int seriesIndex, SharedQueue sharedQueue )
     {
-        ImagePlus imagePlus = IOHelper.openWithBioformatsFromS3( path, seriesIndex );
+        ImagePlus imagePlus = IOHelper.openWithBioFormatsFromS3( path, seriesIndex );
 
         if ( sharedQueue != null )
         {

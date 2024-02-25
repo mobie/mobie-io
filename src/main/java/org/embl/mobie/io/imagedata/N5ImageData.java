@@ -1,4 +1,4 @@
-package org.embl.mobie.io;
+package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
 import bdv.tools.brightness.ConverterSetup;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class N5ViewerImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
+public class N5ImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
 {
     private final String uri;
     private final SharedQueue sharedQueue;
@@ -32,23 +32,28 @@ public class N5ViewerImageData< T extends NumericType< T > & NativeType< T > > i
     private int numTimepoints;
     private BdvOptions bdvOptions;
 
-    public N5ViewerImageData( String uri, SharedQueue sharedQueue )
+    public N5ImageData( String uri, SharedQueue sharedQueue )
     {
         this.uri = uri;
         this.sharedQueue = sharedQueue;
     }
 
     @Override
-    public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex )
+    public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex, String name )
     {
         if ( !isOpen ) open();
 
         SourceAndConverter< T > sourceAndConverter = sourcesAndConverters.get( datasetIndex );
 
+        Source< T > source = sourceAndConverter.getSpimSource();
+        Source< ? extends Volatile< T > > vSource = sourceAndConverter.asVolatile().getSpimSource();
+
+        // FIXME: set the name of the sources!
+
         Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair =
                 new ValuePair<>(
-                        sourceAndConverter.getSpimSource(),
-                        sourceAndConverter.asVolatile().getSpimSource() );
+                        source,
+                        vSource );
 
         return sourcePair;
     }
@@ -90,9 +95,12 @@ public class N5ViewerImageData< T extends NumericType< T > & NativeType< T > > i
                     converterSetups,
                     sourcesAndConverters,
                     bdvOptions );
+
+            isOpen = true;
         }
         catch ( Exception e )
         {
+            System.err.println( "Error opening " + uri);
             throw new RuntimeException( e );
         }
     }

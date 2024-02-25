@@ -54,7 +54,7 @@ import org.embl.mobie.io.ome.zarr.openers.OMEZarrOpener;
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener;
 import org.embl.mobie.io.openorganelle.OpenOrganelleS3Opener;
 import org.embl.mobie.io.toml.TOMLOpener;
-import org.embl.mobie.io.util.CustomXmlIoSpimData;
+import org.embl.mobie.io.util.InputStreamXmlIoSpimData;
 import org.embl.mobie.io.util.IOHelper;
 import org.jdom2.Document;
 import org.jdom2.Element;

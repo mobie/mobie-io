@@ -1,4 +1,4 @@
-package org.embl.mobie.io;
+package org.embl.mobie.io.imagedata;
 
 import bdv.viewer.Source;
 import net.imglib2.Volatile;
@@ -8,5 +8,5 @@ import net.imglib2.util.Pair;
 
 public interface ImageData < T extends NumericType< T > & NativeType< T > >
 {
-    Pair< Source< T >, Source<? extends Volatile< T > > > getSourcePair( int datasetIndex );
+    Pair< Source< T >, Source<? extends Volatile< T > > > getSourcePair( int datasetIndex, String name );
 }

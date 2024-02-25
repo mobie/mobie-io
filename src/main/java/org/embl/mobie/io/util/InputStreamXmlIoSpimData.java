@@ -45,12 +45,12 @@ import mpicbg.spim.data.sequence.XmlIoSequenceDescription;
 
 import static mpicbg.spim.data.XmlKeys.SPIMDATA_TAG;
 
-public class CustomXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDescription, SpimData> {
-    public CustomXmlIoSpimData() {
+public class InputStreamXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDescription, SpimData> {
+    public InputStreamXmlIoSpimData() {
         super(SpimData.class, new XmlIoSequenceDescription(), new XmlIoViewRegistrations());
     }
 
-    public SpimData loadFromStream(InputStream in, String xmlFilename) throws SpimDataException {
+    public SpimData open( InputStream in, String xmlPath) throws SpimDataException {
         SAXBuilder sax = new SAXBuilder();
 
         Document doc;
@@ -63,6 +63,6 @@ public class CustomXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDescripti
         if (!root.getName().equals(SPIMDATA_TAG))
             throw new RuntimeException("expected <" + SPIMDATA_TAG + "> root element. wrong file?");
 
-        return fromXml(root, new File(xmlFilename));
+        return fromXml(root, new File(xmlPath));
     }
 }
