@@ -30,7 +30,7 @@ package org.embl.mobie.io;
 
 import com.google.gson.annotations.SerializedName;
 
-import static org.embl.mobie.io.ImageDataFormatNames.*;
+import static org.embl.mobie.io.ImageDataFormat.Names.*;
 
 /**
  * Currently mobie-io supports the following data formats:
@@ -247,5 +247,26 @@ public enum ImageDataFormat {
             default:
                 return false;
         }
+    }
+
+    public static class Names
+    {
+        public static final String TOML = "toml";
+        public static final String TIFF = "tiff";
+        public static final String IMAGEJ = "imagej";
+        public static final String BIOFORMATS = "bioformats";
+        public static final String BIOFORMATSS3 = "bioformats.s3";
+        public static final String BDV = "bdv";
+        public static final String BDVN5 = "bdv.n5";
+        public static final String BDVN5S3 = "bdv.n5.s3";
+        public static final String BDVHDF5 = "bdv.hdf5";
+        public static final String BDVOMEZARR = "bdv.ome.zarr";
+        public static final String BDVOMEZARRS3 = "bdv.ome.zarr.s3";
+        public static final String OPENORGANELLES3 = "openOrganelle.s3";
+        public static final String OMEZARR = "ome.zarr";
+        public static final String OMEZARRS3 = "ome.zarr.s3";
+        public static final String IMARIS = "ims";
+        public static final String SPIMDATA = "spimData";
+        public static final String ILASTIKHDF5 = "ilastikHDF5";
     }
 }

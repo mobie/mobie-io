@@ -47,7 +47,7 @@ public class ImageDataOpener
             case Tiff:
                 return new TIFFImageData<>( uri, sharedQueue );
             case ImageJ:
-               return new IJImageData<>( uri, sharedQueue );
+               return new ImageJImageData<>( uri, sharedQueue );
             case Imaris:
                 return new ImarisImageData<>( uri, sharedQueue );
            case BioFormats:
