@@ -26,10 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.embl.mobie.io;
+package org.embl.mobie.io.ilastik;
 
 import bdv.cache.SharedQueue;
-import bdv.util.volatiles.VolatileTypeMatcher;
 import bdv.util.volatiles.VolatileViews;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -40,16 +39,18 @@ import net.imglib2.cache.img.CachedCellImg;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Util;
+import net.imglib2.view.Views;
+import org.embl.mobie.io.ImageDataFormat;
 import org.janelia.saalfeldlab.n5.hdf5.N5HDF5Reader;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
+// TODO: Can we add this to the ImageDataOpener ?
+public class IlastikOpener< T extends NativeType< T > & RealType< T > >
 {
 	private final String path;
 	private final ImageDataFormat imageDataFormat;
@@ -59,7 +60,7 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 	private ArrayList< RandomAccessibleInterval< Volatile< T > > > volatileChannelRAIs;
 	private T type;
 
-	public CachedCellImgOpener( String path, ImageDataFormat imageDataFormat, SharedQueue sharedQueue )
+	public IlastikOpener( String path, ImageDataFormat imageDataFormat, SharedQueue sharedQueue )
 	{
 		this.path = path;
 		this.imageDataFormat = imageDataFormat;
@@ -152,5 +153,53 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 	{
 		open();
 		return type;
+	}
+
+	public abstract static class Axes
+	{
+		public static final String C = "c";
+		public static final String Z = "z";
+		public static final String T = "t";
+
+		public static < T > ArrayList< RandomAccessibleInterval< T > > getChannels(
+				final RandomAccessibleInterval< T > rai, List< String > axes )
+		{
+			if ( rai.numDimensions() != axes.size() )
+				throw new IllegalArgumentException( "provided axes doesn't match dimensionality of image" );
+
+			final ArrayList< RandomAccessibleInterval< T > > sourceStacks = new ArrayList< >();
+
+			/*
+			 * If there are channels dimension, slice img along that dimension.
+			 */
+			final int c = axes.indexOf( C );
+			if ( c != -1 )
+			{
+				final int numSlices = ( int ) rai.dimension( c );
+				for ( int s = 0; s < numSlices; ++s )
+					sourceStacks.add( Views.hyperSlice( rai, c, s + rai.min( c ) ) );
+			}
+			else
+				sourceStacks.add( rai );
+
+			/*
+			 * If AxisOrder is a 2D variant (has no Z dimension), augment the
+			 * sourceStacks by a Z dimension.
+			 */
+			final boolean addZ = !axes.contains( Z );
+			if ( addZ )
+				for ( int i = 0; i < sourceStacks.size(); ++i )
+					sourceStacks.set( i, Views.addDimension( sourceStacks.get( i ), 0, 0 ) );
+
+			/*
+			 * If at this point the dim order is XYTZ, permute to XYZT
+			 */
+			final boolean flipZ = !axes.contains( Z ) && axes.contains( T );
+			if ( flipZ )
+				for ( int i = 0; i < sourceStacks.size(); ++i )
+					sourceStacks.set( i, Views.permute( sourceStacks.get( i ), 2, 3 ) );
+
+			return sourceStacks;
+		}
 	}
 }
