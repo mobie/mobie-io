@@ -12,6 +12,7 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import org.embl.mobie.io.util.InputStreamXmlIoSpimData;
 import org.embl.mobie.io.util.IOHelper;
+import org.embl.mobie.io.util.SharedQueueHelper;
 
 import java.io.InputStream;
 
@@ -46,10 +47,9 @@ public class BDVXMLImageData< T extends NumericType< T > & NativeType< T > > imp
     {
         try
         {
-            // FIXME: Use SharedQueue
-
             InputStream stream = IOHelper.getInputStream( uri );
             spimData = new InputStreamXmlIoSpimData().open( stream, uri );
+            SharedQueueHelper.setSharedQueue( sharedQueue, spimData );
             isOpen = true;
         }
         catch ( Exception e )

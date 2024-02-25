@@ -29,7 +29,7 @@ public class IJImageData< T extends NumericType< T > & NativeType< T > > impleme
     private final SharedQueue sharedQueue;
 
     private boolean isOpen;
-    private SpimData spimData;
+    private AbstractSpimData< ? > spimData;
 
     public IJImageData( String uri, SharedQueue sharedQueue )
     {
@@ -58,7 +58,7 @@ public class IJImageData< T extends NumericType< T > & NativeType< T > > impleme
             if ( imagePlus == null )
                 throw new RuntimeException( "Could not open " + uri );
 
-            final AbstractSpimData< ? > spimData = ImagePlusToSpimData.getSpimData( imagePlus );
+            spimData = ImagePlusToSpimData.getSpimData( imagePlus );
             SharedQueueHelper.setSharedQueue( sharedQueue, spimData );
 
             isOpen = true;

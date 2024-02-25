@@ -28,8 +28,6 @@
  */
 package org.embl.mobie.io.toml;
 
-import bdv.cache.SharedQueue;
-import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
 import com.moandjiezana.toml.Toml;
 import ij.IJ;
 import ij.ImagePlus;
@@ -54,7 +52,7 @@ public class TOMLOpener
 		this.tomlImagePath = tomlImagePath;
 	}
 
-	public ImagePlus asImagePlus()
+	public ImagePlus openImagePlus()
 	{
 		final File tomlFile = new File( tomlImagePath );
 		final Toml toml = new Toml().read( tomlFile );
@@ -121,18 +119,4 @@ public class TOMLOpener
 
 		return imagePlus;
 	}
-
-//	public AbstractSpimData< ? > asSpimData( SharedQueue sharedQueue )
-//	{
-//		final AbstractSpimData< ? > spimData = asSpimData();
-//		SpimDataOpener.setSharedQueue( sharedQueue, spimData );
-//		return spimData;
-//	}
-//
-//	public AbstractSpimData< ? > asSpimData()
-//	{
-//		final ImagePlus imagePlus = asImagePlus();
-//		final AbstractSpimData< ? > spimData = ImagePlusToSpimData.getSpimData( imagePlus );
-//		return spimData;
-//	}
 }

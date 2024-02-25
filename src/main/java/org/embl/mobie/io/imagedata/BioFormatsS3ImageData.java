@@ -22,7 +22,7 @@ public class BioFormatsS3ImageData< T extends NumericType< T > & NativeType< T >
     private final SharedQueue sharedQueue;
 
     private boolean isOpen;
-    private SpimData spimData;
+    private AbstractSpimData< ? > spimData;
 
     public BioFormatsS3ImageData( String uri, SharedQueue sharedQueue )
     {
@@ -48,7 +48,7 @@ public class BioFormatsS3ImageData< T extends NumericType< T > & NativeType< T >
         try
         {
             ImagePlus imagePlus = IOHelper.openWithBioFormatsFromS3( uri, 0 );
-            AbstractSpimData< ? > spimData = ImagePlusToSpimData.getSpimData( imagePlus );
+            spimData = ImagePlusToSpimData.getSpimData( imagePlus );
             SharedQueueHelper.setSharedQueue( sharedQueue, spimData );
 
             isOpen = true;

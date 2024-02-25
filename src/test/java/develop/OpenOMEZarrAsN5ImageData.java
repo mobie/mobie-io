@@ -9,7 +9,7 @@ import org.embl.mobie.io.imagedata.N5ImageData;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-public class OpenOMEZarrWithN5Viewer2
+public class OpenOMEZarrAsN5ImageData
 {
     public static < T extends NumericType< T > & NativeType< T > > void main( String[] args ) throws IOException, URISyntaxException
     {
