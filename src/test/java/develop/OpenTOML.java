@@ -39,10 +39,10 @@ public class OpenTOML
 	{
 		final TOMLOpener opener = new TOMLOpener( "/Volumes/cba/exchange/kristina-mirkes/develop/data-test/processed/exp/batch/date/MVI_1253/exp--batch--date--mvi_1253.image.toml" );
 
-		//final ImagePlus imagePlus = opener.asImagePlus();
-		//imagePlus.show();
+		final ImagePlus imagePlus = opener.asImagePlus();
+		imagePlus.show();
 
-		final AbstractSpimData< ? > spimData = opener.asSpimData();
-		BdvFunctions.show( spimData );
+//		final AbstractSpimData< ? > spimData = opener.asSpimData();
+//		BdvFunctions.show( spimData );
 	}
 }

@@ -35,8 +35,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
 import ij.measure.Calibration;
-import mpicbg.spim.data.generic.AbstractSpimData;
-import org.embl.mobie.io.SpimDataOpener;
 import org.embl.mobie.io.util.IOHelper;
 
 import java.io.File;
@@ -124,17 +122,17 @@ public class TOMLOpener
 		return imagePlus;
 	}
 
-	public AbstractSpimData< ? > asSpimData( SharedQueue sharedQueue )
-	{
-		final AbstractSpimData< ? > spimData = asSpimData();
-		SpimDataOpener.setSharedQueue( sharedQueue, spimData );
-		return spimData;
-	}
-
-	public AbstractSpimData< ? > asSpimData()
-	{
-		final ImagePlus imagePlus = asImagePlus();
-		final AbstractSpimData< ? > spimData = ImagePlusToSpimData.getSpimData( imagePlus );
-		return spimData;
-	}
+//	public AbstractSpimData< ? > asSpimData( SharedQueue sharedQueue )
+//	{
+//		final AbstractSpimData< ? > spimData = asSpimData();
+//		SpimDataOpener.setSharedQueue( sharedQueue, spimData );
+//		return spimData;
+//	}
+//
+//	public AbstractSpimData< ? > asSpimData()
+//	{
+//		final ImagePlus imagePlus = asImagePlus();
+//		final AbstractSpimData< ? > spimData = ImagePlusToSpimData.getSpimData( imagePlus );
+//		return spimData;
+//	}
 }

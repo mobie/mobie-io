@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>36.0.0</version>
+        <version>37.0.0</version>
     </parent>
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>2.2.4-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
 
     <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update -->
     <!-- mvn clean install -Dmaven.test.skip=true  -->
@@ -123,42 +123,6 @@
 					</excludes>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<artifactSet>
-								<includes>
-									<include>org.janelia.saalfeldlab:n5*</include>
-								</includes>
-							</artifactSet>
-							<relocations>
-								<relocation>
-									<pattern>org.janelia.saalfeldlab.n5</pattern>
-									<shadedPattern>org.embl.mobie.io.n5.shaded</shadedPattern>
-								</relocation>
-								<relocation>
-									<pattern>net.imglib2.realtransform</pattern>
-									<shadedPattern>org.embl.mobie.io.n5.shaded</shadedPattern>
-									<includes>
-										<include>net.imglib2.realtransform.AxisSelectionTransform</include>
-										<include>net.imglib2.realtransform.RealComponentMappingTransform</include>
-										<include>net.imglib2.realtransform.RealInvertibleComponentMappingTransform</include>
-										<include>net.imglib2.realtransform.StackedInvertibleRealTransform</include>
-										<include>net.imglib2.realtransform.StackedRealTransform</include>
-									</includes>
-								</relocation>
-							</relocations>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
     </build>
 
@@ -171,7 +135,7 @@
     <dependencies>
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
-            <artifactId>n5-zarr</artifactId>
+            <artifactId>n5-viewer_fiji</artifactId>
         </dependency>
         <dependency>
             <groupId>net.imglib2</groupId>
@@ -200,18 +164,6 @@
         <dependency>
             <groupId>ome</groupId>
             <artifactId>bio-formats_plugins</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.janelia.saalfeldlab</groupId>
-            <artifactId>n5-aws-s3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.janelia.saalfeldlab</groupId>
-            <artifactId>n5-imglib2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.janelia.saalfeldlab</groupId>
-            <artifactId>n5-hdf5</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.http-client</groupId>
