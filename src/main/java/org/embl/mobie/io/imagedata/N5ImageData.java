@@ -61,6 +61,8 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
 
     public List< SourceAndConverter< T > > getSourcesAndConverters()
     {
+        if ( !isOpen ) open();
+
         return sourcesAndConverters;
     }
 

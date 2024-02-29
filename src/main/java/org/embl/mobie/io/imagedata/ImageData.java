@@ -11,4 +11,6 @@ public interface ImageData < T extends NumericType< T > & NativeType< T > >
 {
     Pair< Source< T >, Source<? extends Volatile< T > > > getSourcePair( int datasetIndex, String name );
     // ImageMetadata getMetadata( int datasetIndex );
+
+    // TODO: needs a method to determine how many sourcepairs there are
 }

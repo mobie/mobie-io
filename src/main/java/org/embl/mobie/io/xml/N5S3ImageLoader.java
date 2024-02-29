@@ -28,6 +28,7 @@
  */
 package org.embl.mobie.io.xml;
 
+import IceInternal.Ex;
 import bdv.AbstractViewerSetupImgLoader;
 import bdv.ViewerImgLoader;
 import bdv.cache.CacheControl;
@@ -101,15 +102,24 @@ public class N5S3ImageLoader< T extends NumericType< T > & NativeType< T > >  im
                     return;
 
                 String uri = IOHelper.combinePath( serviceEndpoint, bucketName, key );
-                N5ImageData< T > imageData = new N5ImageData<>( uri, sharedQueue );
 
-                List< SourceAndConverter< T > > sourcesAndConverters = imageData.getSourcesAndConverters();
-                int numSetups = sourcesAndConverters.size();
-                for ( int setupId = 0; setupId < numSetups; setupId++ )
+                try
                 {
-                    SetupImgLoader setupImgLoader = new SetupImgLoader( sourcesAndConverters.get( setupId ) );
-                    setupImgLoaders.put( setupId, setupImgLoader );
-                   // maxNumLevels = Math.max( maxNumLevels, setupImgLoader.numMipmapLevels() );
+                    N5ImageData< T > imageData = new N5ImageData<>( uri, sharedQueue );
+
+                    List< SourceAndConverter< T > > sourcesAndConverters = imageData.getSourcesAndConverters();
+                    int numSetups = sourcesAndConverters.size();
+                    for ( int setupId = 0; setupId < numSetups; setupId++ )
+                    {
+                        SetupImgLoader setupImgLoader = new SetupImgLoader( sourcesAndConverters.get( setupId ) );
+                        setupImgLoaders.put( setupId, setupImgLoader );
+                        // maxNumLevels = Math.max( maxNumLevels, setupImgLoader.numMipmapLevels() );
+                    }
+                }
+                catch ( Exception e )
+                {
+                    System.err.println("Error opening " + uri );
+                    throw new RuntimeException( e );
                 }
             }
         }
