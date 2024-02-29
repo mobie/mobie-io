@@ -14,6 +14,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
+import org.embl.mobie.io.metadata.ImageMetadata;
 import org.embl.mobie.io.util.SharedQueueHelper;
 
 import java.io.File;

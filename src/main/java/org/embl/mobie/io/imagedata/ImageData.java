@@ -10,6 +10,5 @@ import org.embl.mobie.io.metadata.ImageMetadata;
 public interface ImageData < T extends NumericType< T > & NativeType< T > >
 {
     Pair< Source< T >, Source<? extends Volatile< T > > > getSourcePair( int datasetIndex, String name );
-
-    ImageMetadata getMetadata();
+    // ImageMetadata getMetadata( int datasetIndex );
 }

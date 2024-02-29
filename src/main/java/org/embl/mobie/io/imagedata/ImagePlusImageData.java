@@ -42,12 +42,6 @@ public class ImagePlusImageData< T extends NumericType< T > & NativeType< T > > 
         return sourcePair;
     }
 
-    @Override
-    public ImageMetadata getMetadata()
-    {
-        return null;
-    }
-
     private void open()
     {
         try

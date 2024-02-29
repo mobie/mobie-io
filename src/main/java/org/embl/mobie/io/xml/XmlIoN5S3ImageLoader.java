@@ -32,11 +32,9 @@ import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
 import mpicbg.spim.data.generic.sequence.XmlIoBasicImgLoader;
-import org.embl.mobie.io.n5.loaders.N5S3ImageLoader;
 import org.jdom2.Element;
 
 import java.io.File;
-import java.io.IOException;
 
 import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
 
@@ -67,20 +65,11 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader<N5S3ImageLoader
 
     @Override
     public N5S3ImageLoader fromXml(final Element elem, final File basePath, final AbstractSequenceDescription<?, ?, ?> sequenceDescription) {
-//		final String version = elem.getAttributeValue( "version" );
-//         We would need to make below work in case we want to enable relative
-//         paths on S3
-//        final File path = loadPath( elem, N5, basePath );
-
         final String serviceEndpoint = XmlHelpers.getText(elem, SERVICE_ENDPOINT);
         final String signingRegion = XmlHelpers.getText(elem, SIGNING_REGION);
         final String bucketName = XmlHelpers.getText(elem, BUCKET_NAME);
         final String key = XmlHelpers.getText(elem, KEY);
 
-        try {
-            return new N5S3ImageLoader(serviceEndpoint, signingRegion, bucketName, key, sequenceDescription);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return new N5S3ImageLoader(serviceEndpoint, signingRegion, bucketName, key, sequenceDescription);
     }
 }
