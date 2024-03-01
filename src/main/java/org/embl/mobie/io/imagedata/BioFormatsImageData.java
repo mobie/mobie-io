@@ -1,21 +1,16 @@
 package org.embl.mobie.io.imagedata;
 
-import bdv.SpimSource;
-import bdv.VolatileSpimSource;
 import bdv.cache.SharedQueue;
-import bdv.viewer.Source;
 import ch.epfl.biop.bdv.img.OpenersToSpimData;
 import ch.epfl.biop.bdv.img.bioformats.BioFormatsHelper;
 import ch.epfl.biop.bdv.img.opener.OpenerSettings;
-import mpicbg.spim.data.SpimData;
-import mpicbg.spim.data.generic.AbstractSpimData;
-import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
-import net.imglib2.util.Pair;
-import net.imglib2.util.ValuePair;
-import org.embl.mobie.io.metadata.ImageMetadata;
 import org.embl.mobie.io.util.SharedQueueHelper;
+import org.janelia.saalfeldlab.n5.universe.metadata.RGBAColorMetadata;
+import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
+import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalSpatialDatasetMetadata;
+import spimdata.util.Displaysettings;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,7 +18,7 @@ import java.util.List;
 
 public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
-    private final String uri;
+    protected final String uri;
 
     public BioFormatsImageData( String uri, SharedQueue sharedQueue )
     {
@@ -56,5 +51,27 @@ public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > >
             System.err.println( "Error opening " + uri );
             throw new RuntimeException( e );
         }
+    }
+
+    @Override
+    public CanonicalSpatialDatasetMetadata getMetadata( int datasetIndex )
+    {
+        if ( ! isOpen ) open();
+
+        // Using bigdataviewer-spimdata-extras
+        final Displaysettings displaysettings = spimData.getSequenceDescription().getViewSetupsOrdered().get( datasetIndex ).getAttribute( Displaysettings.class );
+
+        int[] color = displaysettings.color;
+        RGBAColorMetadata colorMetadata = new RGBAColorMetadata( color[ 0 ], color[ 1 ], color[ 2 ], color[ 3 ] );
+
+        new CanonicalDatasetMetadata(
+                uri,
+                null,
+                displaysettings.min,
+                displaysettings.max,
+                colorMetadata
+        );
+
+        return null;
     }
 }

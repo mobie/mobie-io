@@ -5,7 +5,6 @@ import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
-import org.embl.mobie.io.metadata.ImageMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalSpatialDatasetMetadata;
 
 public interface ImageData < T extends NumericType< T > & NativeType< T > >
@@ -14,5 +13,5 @@ public interface ImageData < T extends NumericType< T > & NativeType< T > >
 
     int getNumDatasets();
 
-    //CanonicalSpatialDatasetMetadata getMetadata( int datasetIndex );
+    CanonicalSpatialDatasetMetadata getMetadata( int datasetIndex );
 }

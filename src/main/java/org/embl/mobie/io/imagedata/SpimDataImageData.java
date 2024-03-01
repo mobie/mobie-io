@@ -14,6 +14,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
+import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalSpatialDatasetMetadata;
 
 public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
 {
@@ -44,6 +45,16 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > i
         if ( ! isOpen ) open();
 
         return spimData.getSequenceDescription().getViewSetupsOrdered().size();
+    }
+
+    @Override
+    public CanonicalSpatialDatasetMetadata getMetadata( int datasetIndex )
+    {
+        // Should be overwritten by child classes
+
+        if ( ! isOpen ) open();
+
+        return null;
     }
 
     protected void open()

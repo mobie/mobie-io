@@ -10,16 +10,16 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
-import org.embl.mobie.io.metadata.ImageMetadata;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5URI;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
-import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
-import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Writer;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
+import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
+import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
+import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalSpatialDatasetMetadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +33,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
     private List< SourceAndConverter< T > > sourcesAndConverters;
     private int numTimepoints;
     private BdvOptions bdvOptions;
+    private List< ConverterSetup > converterSetups;
 
     public N5ImageData( String uri, SharedQueue sharedQueue )
     {
@@ -66,6 +67,26 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
         return sourcesAndConverters.size();
     }
 
+    @Override
+    public CanonicalSpatialDatasetMetadata getMetadata( int datasetIndex )
+    {
+        if ( !isOpen ) open();
+
+        ConverterSetup converterSetup = converterSetups.get( datasetIndex );
+
+        IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
+
+        new CanonicalDatasetMetadata(
+                uri,
+                null,
+                converterSetup.getDisplayRangeMin(),
+                converterSetup.getDisplayRangeMax(),
+                colorMetadata
+        );
+
+        return null; // https://imagesc.zulipchat.com/#narrow/stream/327326-BigDataViewer/topic/Dataset.20Metadata
+    }
+
     public List< SourceAndConverter< T > > getSourcesAndConverters()
     {
         if ( !isOpen ) open();
@@ -95,7 +116,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
             List< N5Metadata > metadata = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
 
             final DataSelection selection = new DataSelection( n5, metadata );
-            final List< ConverterSetup > converterSetups = new ArrayList<>();
+            converterSetups = new ArrayList<>();
             sourcesAndConverters = new ArrayList<>();
             bdvOptions = BdvOptions.options().frameTitle( "" );
 
