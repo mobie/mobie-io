@@ -1,21 +1,12 @@
 package org.embl.mobie.io.imagedata;
 
-import bdv.SpimSource;
 import bdv.ViewerImgLoader;
-import bdv.VolatileSpimSource;
 import bdv.cache.SharedQueue;
-import bdv.viewer.Source;
-import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
-import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
-import net.imglib2.util.Pair;
-import net.imglib2.util.ValuePair;
-import org.embl.mobie.io.metadata.ImageMetadata;
-import org.embl.mobie.io.util.InputStreamXmlIoSpimData;
 import org.embl.mobie.io.util.IOHelper;
-import org.embl.mobie.io.util.SharedQueueHelper;
+import org.embl.mobie.io.util.InputStreamXmlIoSpimData;
 
 import java.io.InputStream;
 

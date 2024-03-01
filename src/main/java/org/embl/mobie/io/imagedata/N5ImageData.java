@@ -41,7 +41,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
     }
 
     @Override
-    public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex, String name )
+    public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex )
     {
         if ( !isOpen ) open();
 
@@ -50,14 +50,20 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
         Source< T > source = sourceAndConverter.getSpimSource();
         Source< ? extends Volatile< T > > vSource = sourceAndConverter.asVolatile().getSpimSource();
 
-        // FIXME: set the name of the sources!
-
         Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair =
                 new ValuePair<>(
                         source,
                         vSource );
 
         return sourcePair;
+    }
+
+    @Override
+    public int getNumDatasets()
+    {
+        if ( !isOpen ) open();
+
+        return sourcesAndConverters.size();
     }
 
     public List< SourceAndConverter< T > > getSourcesAndConverters()

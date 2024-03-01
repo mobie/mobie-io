@@ -21,7 +21,7 @@ public class OpenBdvN5S3
                 ImageDataFormat.BdvN5S3,
                 new SharedQueue( Math.max( 1, Runtime.getRuntime().availableProcessors() / 2 ) ) );
 
-        Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair = imageData.getSourcePair( 0, "image" );
+        Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair = imageData.getSourcePair( 0 );
 
         BdvFunctions.show( sourcePair.getB() );
     }

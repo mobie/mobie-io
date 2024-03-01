@@ -6,11 +6,13 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import org.embl.mobie.io.metadata.ImageMetadata;
+import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalSpatialDatasetMetadata;
 
 public interface ImageData < T extends NumericType< T > & NativeType< T > >
 {
-    Pair< Source< T >, Source<? extends Volatile< T > > > getSourcePair( int datasetIndex, String name );
-    // ImageMetadata getMetadata( int datasetIndex );
+    Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex  );
 
-    // TODO: needs a method to determine how many sourcepairs there are
+    int getNumDatasets();
+
+    //CanonicalSpatialDatasetMetadata getMetadata( int datasetIndex );
 }
