@@ -14,6 +14,8 @@ import org.embl.mobie.io.metadata.ImageMetadata;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5URI;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
+import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
+import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Writer;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
@@ -81,9 +83,10 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
         try
         {
             N5URI n5URI = new N5URI( uri );
+
             String containerPath = n5URI.getContainerPath();
-            String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
             N5Reader n5 = new N5Factory().openReader( containerPath );
+            String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
             List< N5Metadata > metadata = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
 
             final DataSelection selection = new DataSelection( n5, metadata );
