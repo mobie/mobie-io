@@ -101,8 +101,10 @@ public enum ImageDataFormat {
     BdvOmeZarrS3,
     @SerializedName(IMARIS)
     Imaris,
-    @SerializedName(SPIMDATA)
+    @SerializedName( IMAGEDATA )
     SpimData,
+    @SerializedName( IMAGEDATA )
+    ImageData,
     @SerializedName(ILASTIKHDF5)
     IlastikHDF5;
 
@@ -136,7 +138,7 @@ public enum ImageDataFormat {
                 return OmeZarrS3;
             case IMARIS:
                 return Imaris;
-            case SPIMDATA:
+            case IMAGEDATA:
                 return SpimData;
             case ILASTIKHDF5:
                 return IlastikHDF5;
@@ -180,6 +182,8 @@ public enum ImageDataFormat {
                 return IMARIS;
             case SpimData:
                 return SPIMDATA;
+            case ImageData:
+                return IMAGEDATA;
             case IlastikHDF5:
                 return ILASTIKHDF5;
             default:
@@ -210,6 +214,7 @@ public enum ImageDataFormat {
     {
         switch (this) {
             case SpimData:
+            case ImageData:
                 return true;
             default:
                 return false;
@@ -267,6 +272,7 @@ public enum ImageDataFormat {
         public static final String OMEZARRS3 = "ome.zarr.s3";
         public static final String IMARIS = "ims";
         public static final String SPIMDATA = "spimData";
+        public static final String IMAGEDATA = "imageData";
         public static final String ILASTIKHDF5 = "ilastikHDF5";
     }
 }

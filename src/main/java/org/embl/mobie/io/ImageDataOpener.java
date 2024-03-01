@@ -29,12 +29,14 @@
 package org.embl.mobie.io;
 
 import bdv.cache.SharedQueue;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.imagedata.*;
 
 
 public class ImageDataOpener
 {
-    public static ImageData< ? > open( String uri, ImageDataFormat imageDataFormat, SharedQueue sharedQueue )
+    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open( String uri, ImageDataFormat imageDataFormat, SharedQueue sharedQueue )
     {
         switch (imageDataFormat)
         {

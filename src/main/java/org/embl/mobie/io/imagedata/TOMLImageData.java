@@ -16,13 +16,9 @@ import org.embl.mobie.io.toml.TOMLOpener;
 import org.embl.mobie.io.util.IOHelper;
 import org.embl.mobie.io.util.SharedQueueHelper;
 
-public class TOMLImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
+public class TOMLImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
     private final String uri;
-    private final SharedQueue sharedQueue;
-
-    private boolean isOpen;
-    private AbstractSpimData spimData;
 
     public TOMLImageData( String uri, SharedQueue sharedQueue )
     {
@@ -31,19 +27,7 @@ public class TOMLImageData< T extends NumericType< T > & NativeType< T > > imple
     }
 
     @Override
-    public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex, String name )
-    {
-        if ( !isOpen ) open();
-
-        Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair =
-                new ValuePair<>(
-                        new SpimSource<>( spimData, datasetIndex, name ),
-                        new VolatileSpimSource<>( spimData, datasetIndex, name ));
-
-        return sourcePair;
-    }
-
-    private void open()
+    protected void open()
     {
         try
         {

@@ -29,7 +29,6 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
 {
     private final String uri;
     private final SharedQueue sharedQueue;
-
     private boolean isOpen;
     private List< SourceAndConverter< T > > sourcesAndConverters;
     private int numTimepoints;

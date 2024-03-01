@@ -1,6 +1,7 @@
 package org.embl.mobie.io.imagedata;
 
 import bdv.SpimSource;
+import bdv.ViewerImgLoader;
 import bdv.VolatileSpimSource;
 import bdv.cache.SharedQueue;
 import bdv.viewer.Source;
@@ -8,6 +9,7 @@ import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
 import ij.ImagePlus;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.generic.AbstractSpimData;
+import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
@@ -19,13 +21,9 @@ import org.embl.mobie.io.util.SharedQueueHelper;
 
 import java.io.InputStream;
 
-public class TIFFImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
+public class TIFFImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
     private final String uri;
-    private final SharedQueue sharedQueue;
-
-    private boolean isOpen;
-    private AbstractSpimData spimData;
 
     public TIFFImageData( String uri, SharedQueue sharedQueue )
     {
@@ -34,24 +32,15 @@ public class TIFFImageData< T extends NumericType< T > & NativeType< T > > imple
     }
 
     @Override
-    public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex, String name )
-    {
-        if ( !isOpen ) open();
-
-        Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair =
-                new ValuePair<>(
-                        new SpimSource<>( spimData, datasetIndex, name ),
-                        new VolatileSpimSource<>( spimData, datasetIndex, name ));
-
-        return sourcePair;
-    }
-
-    private void open()
+    protected void open()
     {
         try
         {
             ImagePlus imagePlus = IOHelper.openTiffFromFile( uri );
             spimData = ImagePlusToSpimData.getSpimData( imagePlus );
+            final BasicImgLoader imgLoader = spimData.getSequenceDescription().getImgLoader();
+            if ( imgLoader instanceof ViewerImgLoader )
+                ( ( ViewerImgLoader ) imgLoader ).setCreatedSharedQueue( sharedQueue );
             SharedQueueHelper.setSharedQueue( sharedQueue, spimData );
 
             isOpen = true;

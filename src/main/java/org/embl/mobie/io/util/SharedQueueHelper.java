@@ -12,7 +12,8 @@ public class SharedQueueHelper
     {
         BasicImgLoader imgLoader = spimData.getSequenceDescription().getImgLoader();
 
-        if (imgLoader instanceof CacheControlOverride ) {
+        if ( imgLoader instanceof CacheControlOverride )
+        {
             CacheControlOverride cco = (CacheControlOverride) imgLoader;
             final VolatileGlobalCellCache volatileGlobalCellCache = new VolatileGlobalCellCache( sharedQueue );
             cco.setCacheControl( volatileGlobalCellCache );

@@ -14,35 +14,24 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import org.embl.mobie.io.metadata.ImageMetadata;
 import org.embl.mobie.io.util.SharedQueueHelper;
+import org.janelia.saalfeldlab.n5.DatasetAttributes;
+import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalSpatialDatasetMetadata;
+import org.janelia.saalfeldlab.n5.universe.metadata.canonical.SpatialMetadataCanonical;
 
-public class ImagePlusImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
+public class ImagePlusImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
     private final ImagePlus imagePlus;
-    private final SharedQueue sharedQueue;
-
-    private boolean isOpen;
-    private AbstractSpimData< ? > spimData;
 
     public ImagePlusImageData( ImagePlus imagePlus, SharedQueue sharedQueue )
     {
         this.imagePlus = imagePlus;
         this.sharedQueue = sharedQueue;
+        //new DatasetAttributes(  )
+        //new CanonicalSpatialDatasetMetadata(  )
     }
 
     @Override
-    public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex, String name )
-    {
-        if ( !isOpen ) open();
-
-        Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair =
-                new ValuePair<>(
-                        new SpimSource<>( spimData, datasetIndex, name ),
-                        new VolatileSpimSource<>( spimData, datasetIndex, name ));
-
-        return sourcePair;
-    }
-
-    private void open()
+    protected void open()
     {
         try
         {
