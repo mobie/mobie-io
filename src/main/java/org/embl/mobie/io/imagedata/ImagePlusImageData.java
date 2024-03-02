@@ -1,29 +1,17 @@
 package org.embl.mobie.io.imagedata;
 
-import bdv.SpimSource;
-import bdv.VolatileSpimSource;
 import bdv.cache.SharedQueue;
-import bdv.viewer.Source;
 import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;
 import ij.process.ImageStatistics;
 import ij.process.LUT;
-import mpicbg.spim.data.generic.AbstractSpimData;
-import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
-import net.imglib2.util.Pair;
-import net.imglib2.util.ValuePair;
-import org.embl.mobie.io.metadata.ImageMetadata;
 import org.embl.mobie.io.util.SharedQueueHelper;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
 import org.janelia.saalfeldlab.n5.universe.metadata.RGBAColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
-import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalSpatialDatasetMetadata;
-import org.janelia.saalfeldlab.n5.universe.metadata.canonical.SpatialMetadataCanonical;
-import spimdata.util.Displaysettings;
 
 import static ij.measure.Measurements.MIN_MAX;
 
@@ -56,7 +44,7 @@ public class ImagePlusImageData< T extends NumericType< T > & NativeType< T > > 
     }
 
     @Override
-    public CanonicalSpatialDatasetMetadata getMetadata( int datasetIndex )
+    public CanonicalDatasetMetadata getMetadata( int datasetIndex )
     {
         if ( ! isOpen ) open();
 
@@ -80,15 +68,13 @@ public class ImagePlusImageData< T extends NumericType< T > & NativeType< T > > 
             IJ.log( "[WARNING] Could not set auto-contrast for + " + imagePlus.getTitle() + " + due to: https://forum.image.sc/t/b-c-for-a-whole-virtual-stack-cont/57811/12" );
         }
 
-        new CanonicalDatasetMetadata(
+        return new CanonicalDatasetMetadata(
                 null,
                 null,
                 imagePlus.getProcessor().getMin(),
                 imagePlus.getProcessor().getMax(),
                 colorMetadata
         );
-
-        return null;
     }
 
 }

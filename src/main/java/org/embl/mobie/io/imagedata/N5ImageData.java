@@ -19,7 +19,6 @@ import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
-import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalSpatialDatasetMetadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,7 +67,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
     }
 
     @Override
-    public CanonicalSpatialDatasetMetadata getMetadata( int datasetIndex )
+    public CanonicalDatasetMetadata getMetadata( int datasetIndex )
     {
         if ( !isOpen ) open();
 
@@ -76,15 +75,13 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
 
         IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
 
-        new CanonicalDatasetMetadata(
+        return new CanonicalDatasetMetadata(
                 uri,
                 null,
                 converterSetup.getDisplayRangeMin(),
                 converterSetup.getDisplayRangeMax(),
                 colorMetadata
         );
-
-        return null; // https://imagesc.zulipchat.com/#narrow/stream/327326-BigDataViewer/topic/Dataset.20Metadata
     }
 
     public List< SourceAndConverter< T > > getSourcesAndConverters()

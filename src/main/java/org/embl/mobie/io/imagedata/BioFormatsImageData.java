@@ -9,7 +9,6 @@ import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.util.SharedQueueHelper;
 import org.janelia.saalfeldlab.n5.universe.metadata.RGBAColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
-import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalSpatialDatasetMetadata;
 import spimdata.util.Displaysettings;
 
 import java.io.File;
@@ -54,7 +53,7 @@ public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > >
     }
 
     @Override
-    public CanonicalSpatialDatasetMetadata getMetadata( int datasetIndex )
+    public CanonicalDatasetMetadata getMetadata( int datasetIndex )
     {
         if ( ! isOpen ) open();
 
