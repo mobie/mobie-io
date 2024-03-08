@@ -29,19 +29,28 @@
 package org.embl.mobie.io;
 
 import ij.ImagePlus;
+import org.janelia.saalfeldlab.n5.ij.N5Importer;
+import org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter;
 
-public class ImageDataWriter
+import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
+import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR_FORMAT;
+
+public class OMEZarrWriter
 {
-    public static void write( ImagePlus imp, String uri, ImageDataFormat imageDataFormat )
+    public static void write( ImagePlus imp, String uri )
     {
-        switch (imageDataFormat)
-        {
-            case OmeZarr:
+        N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
+                imp,
+                "/Users/tischer/Desktop/test/mri.ome.zarr",
+                "/",
+                ZARR_FORMAT,
+                "10,10,4",
+                true,
+                N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Average,
+                N5Importer.MetadataOmeZarrKey,
+                GZIP_COMPRESSION
+        );
 
-            default:
-                throw new RuntimeException( "Writing images as " + imageDataFormat + " is not supported; " +
-                        "if you need it please ask here: " +
-                        "https://github.com/mobie/mobie-io/issues" );
-        }
+        exporter.run();
     }
 }
