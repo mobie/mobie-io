@@ -29,6 +29,7 @@
 package org.embl.mobie.io;
 
 import ij.ImagePlus;
+import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.ij.N5Importer;
 import org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter;
 
@@ -37,8 +38,27 @@ import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR_FORMAT;
 
 public class OMEZarrWriter
 {
-    public static void write( ImagePlus imp, String uri )
+    public enum ImageType
     {
+        Intensities,
+        Labels;
+    }
+
+    public static void write( ImagePlus imp, String uri, ImageType imageType, boolean overwrite )
+    {
+        N5ScalePyramidExporter.DOWNSAMPLE_METHOD downsampleMethod =
+                imageType.equals( ImageType.Labels ) ?
+                        N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Sample
+                        : N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Average;
+
+        if ( imageType.equals( ImageType.Labels ) )
+        {
+            if ( ! uri.endsWith( "labels" ) )
+            {
+                // TODO: ???
+            }
+        }
+
         N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
                 imp,
                 "/Users/tischer/Desktop/test/mri.ome.zarr",
@@ -46,11 +66,14 @@ public class OMEZarrWriter
                 ZARR_FORMAT,
                 "10,10,4",
                 true,
-                N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Average,
+                downsampleMethod,
                 N5Importer.MetadataOmeZarrKey,
                 GZIP_COMPRESSION
         );
 
+        exporter.setOverwrite( overwrite );
+
         exporter.run();
     }
+
 }

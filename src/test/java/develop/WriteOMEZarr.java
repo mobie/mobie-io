@@ -15,6 +15,8 @@ import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR_FORMAT;
 
 public class WriteOMEZarr
 {
+
+
     public static void main( String[] args )
     {
         ImagePlus imp = IJ.openImage( "http://imagej.net/images/mri-stack.zip" );
