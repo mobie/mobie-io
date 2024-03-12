@@ -28,7 +28,10 @@
  */
 package org.embl.mobie.io;
 
+import bdv.export.ExportMipmapInfo;
+import bdv.export.ProposeMipmaps;
 import ij.ImagePlus;
+import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.ij.N5Importer;
 import org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter;
@@ -51,20 +54,24 @@ public class OMEZarrWriter
                         N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Sample
                         : N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Average;
 
+        String chunkSizeArg = imp.getNSlices() == 1 ?  "1024,1024,1,1,1" : "96,96,1,96,1"; // X,Y,C,Z,T
+
+        String n5Dataset = imageType.equals( ImageType.Labels ) ? "labels" : "intensities";
         if ( imageType.equals( ImageType.Labels ) )
         {
-            if ( ! uri.endsWith( "labels" ) )
-            {
-                // TODO: ???
-            }
+            IOHelper.combinePath( uri, "labels" );
+        }
+        else
+        {
+            IOHelper.combinePath( uri, "intensities" );
         }
 
         N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
                 imp,
-                "/Users/tischer/Desktop/test/mri.ome.zarr",
-                "/",
+                uri,
+                n5Dataset,
                 ZARR_FORMAT,
-                "10,10,4",
+                chunkSizeArg,
                 true,
                 downsampleMethod,
                 N5Importer.MetadataOmeZarrKey,
