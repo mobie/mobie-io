@@ -36,6 +36,13 @@ import org.embl.mobie.io.imagedata.*;
 
 public class ImageDataOpener
 {
+
+    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open( String uri )
+    {
+        return open( uri, ImageDataFormat.fromPath( uri ), new SharedQueue( Runtime.getRuntime().availableProcessors() - 1 ) );
+    }
+
+
     public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open( String uri, SharedQueue sharedQueue )
     {
         return open( uri, ImageDataFormat.fromPath( uri ), sharedQueue );

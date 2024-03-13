@@ -30,6 +30,7 @@ package org.embl.mobie.io;
 
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProposeMipmaps;
+import bdv.viewer.Source;
 import ij.ImagePlus;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import org.embl.mobie.io.util.IOHelper;
@@ -59,7 +60,7 @@ public class OMEZarrWriter
         String n5Dataset = imageType.equals( ImageType.Labels ) ? "labels" : "intensities";
         if ( imageType.equals( ImageType.Labels ) )
         {
-            IOHelper.combinePath( uri, "labels" );
+            IOHelper.combinePath( uri, "labels/0" );
         }
         else
         {
