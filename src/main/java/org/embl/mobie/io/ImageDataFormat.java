@@ -28,6 +28,7 @@
  */
 package org.embl.mobie.io;
 
+import bdv.util.VolatileSource;
 import com.google.gson.annotations.SerializedName;
 
 import static org.embl.mobie.io.ImageDataFormat.Names.*;
