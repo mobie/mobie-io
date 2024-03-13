@@ -57,15 +57,18 @@ public class OMEZarrWriter
 
         String chunkSizeArg = imp.getNSlices() == 1 ?  "1024,1024,1,1,1" : "96,96,1,96,1"; // X,Y,C,Z,T
 
-        String n5Dataset = imageType.equals( ImageType.Labels ) ? "labels" : "intensities";
-        if ( imageType.equals( ImageType.Labels ) )
-        {
-            IOHelper.combinePath( uri, "labels/0" );
-        }
-        else
-        {
-            IOHelper.combinePath( uri, "intensities" );
-        }
+        // TODO: If we want to give the dataset a name we also have to
+        //       update how we refer to such an image or segmentation in the dataset.JSON
+        String n5Dataset = "";
+//        String n5Dataset = imageType.equals( ImageType.Labels ) ? "labels" : "intensities";
+//        if ( imageType.equals( ImageType.Labels ) )
+//        {
+//            uri = IOHelper.combinePath( uri, "labels/0" );
+//        }
+//        else
+//        {
+//            uri = IOHelper.combinePath( uri, "intensities" );
+//        }
 
         N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
                 imp,
