@@ -64,7 +64,9 @@ public class ImageDataOpener
                return new ImageJImageData<>( uri, sharedQueue );
             case Imaris:
                 return new ImarisImageData<>( uri, sharedQueue );
-           case BioFormats:
+            case Ilastik:
+                return new IlastikImageData<>( uri, sharedQueue );
+            case BioFormats:
                 return new BioFormatsImageData<>( uri, sharedQueue );
             case BioFormatsS3:
                 return new BioFormatsS3ImageData<>( uri, sharedQueue );

@@ -1,0 +1,202 @@
+package org.embl.mobie.io.imagedata;
+
+import bdv.cache.SharedQueue;
+import bdv.tools.brightness.ConverterSetup;
+import bdv.util.RandomAccessibleIntervalSource4D;
+import bdv.util.volatiles.VolatileViews;
+import bdv.viewer.Source;
+import bdv.viewer.SourceAndConverter;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.Volatile;
+import net.imglib2.cache.img.CachedCellImg;
+import net.imglib2.realtransform.AffineTransform3D;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.Type;
+import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.type.numeric.NumericType;
+import net.imglib2.util.Pair;
+import net.imglib2.util.Util;
+import net.imglib2.util.ValuePair;
+import net.imglib2.view.Views;
+import org.janelia.saalfeldlab.n5.hdf5.N5HDF5Reader;
+import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
+import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
+import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class IlastikImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
+{
+    private final String uri;
+    private final SharedQueue sharedQueue;
+    private boolean isOpen;
+    private ArrayList< RandomAccessibleInterval< T > > channelRAIs;
+    private ArrayList< RandomAccessibleInterval< ? extends Volatile< T > > > volatileChannelRAIs;
+
+    public IlastikImageData( String uri, SharedQueue sharedQueue )
+    {
+        this.uri = uri;
+        this.sharedQueue = sharedQueue;
+    }
+
+    @Override
+    public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex )
+    {
+        if ( !isOpen ) open();
+
+        Source< T > source = asSource( channelRAIs.get( datasetIndex ) );
+        Source< ? extends Volatile< T > > vSource = asSource( volatileChannelRAIs.get( datasetIndex ) );
+
+        return new ValuePair<>( source, vSource );
+    }
+
+    private static < T > Source< T > asSource( RandomAccessibleInterval< T > rai )
+    {
+        if ( rai.numDimensions() == 3 )
+        {
+            // no time axis, thus we need to add one
+            rai = Views.addDimension( rai, 0, 0 );
+        }
+
+        // build a Source (requires that the last axis is the time axis)
+        Source< T > source = new RandomAccessibleIntervalSource4D<>(
+                ( RandomAccessibleInterval ) rai,
+                ( Type ) Util.getTypeFromInterval( rai ),
+                new AffineTransform3D(),
+                "ilastik" );
+
+        return source;
+    }
+
+
+    @Override
+    public int getNumDatasets()
+    {
+        if ( !isOpen ) open();
+
+        return channelRAIs.size();
+    }
+
+    @Override
+    public CanonicalDatasetMetadata getMetadata( int datasetIndex )
+    {
+        if ( !isOpen ) open();
+
+        // white
+        IntColorMetadata colorMetadata = new IntColorMetadata( ARGBType.rgba( 255, 255, 255, 255 ) );
+
+        return new CanonicalDatasetMetadata(
+                uri,
+                null,
+                0,
+                1, // FIXME: what is correct?
+                colorMetadata
+        );
+    }
+
+    private void open()
+    {
+        try
+        {
+            final N5HDF5Reader n5 = new N5HDF5Reader( uri );
+            final String dataset = "exported_data";
+
+            List< String > axes = fetchAxesLabels( n5, dataset );
+            final CachedCellImg< T, ? > cachedCellImg = N5Utils.openVolatile( n5, dataset );
+            channelRAIs = splitIntoChannels( cachedCellImg, axes );
+            volatileChannelRAIs = ( ArrayList ) splitIntoChannels( getVolatileRAI( cachedCellImg ), axes );
+            isOpen = true;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    private RandomAccessibleInterval< ? extends Volatile< T > > getVolatileRAI( CachedCellImg< T, ? > cachedCellImg )
+    {
+        if ( sharedQueue == null )
+        {
+            return VolatileViews.wrapAsVolatile( cachedCellImg );
+        }
+        else
+        {
+            return VolatileViews.wrapAsVolatile( cachedCellImg, sharedQueue );
+        }
+    }
+
+    private static List< String > fetchAxesLabels( N5HDF5Reader n5, String dataset ) throws IOException
+    {
+        try
+        {
+            ArrayList< String > axes = new ArrayList<>();
+            final JsonObject axisTags = n5.getAttribute( dataset, "axistags", JsonObject.class );
+            final JsonArray jsonArray = axisTags.get( "axes" ).getAsJsonArray();
+            for ( JsonElement jsonElement : jsonArray )
+            {
+                final JsonObject jsonObject = jsonElement.getAsJsonObject();
+                final String axisLabel = jsonObject.get( "key" ).getAsString();
+                axes.add( axisLabel );
+            }
+            Collections.reverse( axes );
+            return axes;
+        }
+        catch ( Exception e )
+        {
+            // FIXME: Is this correct?
+            List< String > axes = Arrays.asList( "x", "y", C, Z, T );
+            Collections.reverse( axes );
+            return axes;
+        }
+    }
+
+    private static final String C = "c";
+    private static final String Z = "z";
+    private static final String T = "t";
+
+    private static < T > ArrayList< RandomAccessibleInterval< T > > splitIntoChannels(
+            final RandomAccessibleInterval< T > rai,
+            List< String > axes )
+    {
+        if ( rai.numDimensions() != axes.size() )
+            throw new IllegalArgumentException( "provided axes doesn't match dimensionality of image" );
+
+        final ArrayList< RandomAccessibleInterval< T > > sourceStacks = new ArrayList<>();
+
+        /*
+         * If there is a channels dimension, slice img along that dimension.
+         */
+        final int c = axes.indexOf( C );
+        if ( c != -1 )
+        {
+            final int numSlices = ( int ) rai.dimension( c );
+            for ( int s = 0; s < numSlices; ++s )
+                sourceStacks.add( Views.hyperSlice( rai, c, s + rai.min( c ) ) );
+        } else
+            sourceStacks.add( rai );
+
+        /*
+         * If AxisOrder is a 2D variant (has no Z dimension), augment the
+         * sourceStacks by a Z dimension.
+         */
+        final boolean addZ = !axes.contains( Z );
+        if ( addZ )
+            sourceStacks.replaceAll( interval -> Views.addDimension( interval, 0, 0 ) );
+
+        /*
+         * If at this point the dim order is XYTZ, permute to XYZT
+         */
+        final boolean flipZ = !axes.contains( Z ) && axes.contains( T );
+        if ( flipZ )
+            sourceStacks.replaceAll( interval -> Views.permute( interval, 2, 3 ) );
+
+        return sourceStacks;
+    }
+}

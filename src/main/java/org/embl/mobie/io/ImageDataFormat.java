@@ -28,7 +28,6 @@
  */
 package org.embl.mobie.io;
 
-import bdv.util.VolatileSource;
 import com.google.gson.annotations.SerializedName;
 
 import static org.embl.mobie.io.ImageDataFormat.Names.*;
@@ -107,7 +106,7 @@ public enum ImageDataFormat {
     @SerializedName( IMAGEDATA )
     ImageData,
     @SerializedName(ILASTIKHDF5)
-    IlastikHDF5;
+    Ilastik;
 
     public static ImageDataFormat fromString(String string) {
         switch (string) {
@@ -142,7 +141,7 @@ public enum ImageDataFormat {
             case IMAGEDATA:
                 return SpimData;
             case ILASTIKHDF5:
-                return IlastikHDF5;
+                return Ilastik;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + string);
         }
@@ -185,7 +184,7 @@ public enum ImageDataFormat {
                 return SPIMDATA;
             case ImageData:
                 return IMAGEDATA;
-            case IlastikHDF5:
+            case Ilastik:
                 return ILASTIKHDF5;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + this);
@@ -204,7 +203,7 @@ public enum ImageDataFormat {
         else if (lowerCase.endsWith( ".tif" ) || lowerCase.endsWith( ".tiff" ))
             return ImageDataFormat.Tiff;
         else if (lowerCase.endsWith( ".h5" ))
-            return ImageDataFormat.IlastikHDF5;
+            return ImageDataFormat.Ilastik;
         else if (lowerCase.endsWith( ".toml" ))
             return ImageDataFormat.Toml;
         else
