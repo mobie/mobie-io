@@ -1,11 +1,9 @@
 package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
-import bdv.tools.brightness.ConverterSetup;
 import bdv.util.RandomAccessibleIntervalSource4D;
 import bdv.util.volatiles.VolatileViews;
 import bdv.viewer.Source;
-import bdv.viewer.SourceAndConverter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,7 +13,6 @@ import net.imglib2.cache.img.CachedCellImg;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.Type;
-import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.Util;
@@ -23,7 +20,6 @@ import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
 import org.janelia.saalfeldlab.n5.hdf5.N5HDF5Reader;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
-import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
 
 import java.io.IOException;
@@ -32,13 +28,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class IlastikImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
+public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V extends Volatile<T> & NumericType<V> > implements ImageData< T >
 {
+    private static final String C = "c";
+    private static final String Z = "z";
+    private static final String T = "t";
+    public static final String X = "x";
+    public static final String Y = "y";
     private final String uri;
     private final SharedQueue sharedQueue;
     private boolean isOpen;
     private ArrayList< RandomAccessibleInterval< T > > channelRAIs;
-    private ArrayList< RandomAccessibleInterval< ? extends Volatile< T > > > volatileChannelRAIs;
+    private ArrayList< RandomAccessibleInterval< V > > volatileChannelRAIs;
 
     public IlastikImageData( String uri, SharedQueue sharedQueue )
     {
@@ -52,12 +53,12 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T > > im
         if ( !isOpen ) open();
 
         Source< T > source = asSource( channelRAIs.get( datasetIndex ) );
-        Source< ? extends Volatile< T > > vSource = asSource( volatileChannelRAIs.get( datasetIndex ) );
+        Source< ? extends Volatile< T > > vSource = asVolatileSource( volatileChannelRAIs.get( datasetIndex ) );
 
         return new ValuePair<>( source, vSource );
     }
 
-    private static < T > Source< T > asSource( RandomAccessibleInterval< T > rai )
+    private Source< T > asSource( RandomAccessibleInterval< T > rai )
     {
         if ( rai.numDimensions() == 3 )
         {
@@ -66,13 +67,32 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T > > im
         }
 
         // build a Source (requires that the last axis is the time axis)
-        Source< T > source = new RandomAccessibleIntervalSource4D<>(
-                ( RandomAccessibleInterval ) rai,
-                ( Type ) Util.getTypeFromInterval( rai ),
+        RandomAccessibleIntervalSource4D< T > source4D = new RandomAccessibleIntervalSource4D<>(
+                rai,
+                Util.getTypeFromInterval( rai ),
                 new AffineTransform3D(),
                 "ilastik" );
 
-        return source;
+        return source4D;
+    }
+
+    private Source< V > asVolatileSource( RandomAccessibleInterval< V > rai )
+    {
+        if ( rai.numDimensions() == 3 )
+        {
+            // no time axis, thus we need to add one
+            rai = Views.addDimension( rai, 0, 0 );
+        }
+
+        // build a Source (requires that the last axis is the time axis)
+        RandomAccessibleIntervalSource4D< V > source4D =
+                new RandomAccessibleIntervalSource4D<>(
+                        rai,
+                        Util.getTypeFromInterval( rai ),
+                        new AffineTransform3D(),
+                        "ilastik" );
+
+        return source4D;
     }
 
 
@@ -89,16 +109,18 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T > > im
     {
         if ( !isOpen ) open();
 
+        return null;
         // white
-        IntColorMetadata colorMetadata = new IntColorMetadata( ARGBType.rgba( 255, 255, 255, 255 ) );
-
-        return new CanonicalDatasetMetadata(
-                uri,
-                null,
-                0,
-                1, // FIXME: what is correct?
-                colorMetadata
-        );
+//        IntColorMetadata colorMetadata = new IntColorMetadata( ARGBType.rgba( 255, 255, 255, 255 ) );
+//
+//        // FIXME: in general, how do we deal with this being not known?
+//        return new CanonicalDatasetMetadata(
+//                uri,
+//                null,
+//                0,
+//                1, // FIXME: what is correct?
+//                colorMetadata
+//        );
     }
 
     private void open()
@@ -106,8 +128,9 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T > > im
         try
         {
             final N5HDF5Reader n5 = new N5HDF5Reader( uri );
-            final String dataset = "exported_data";
-
+            String dataset = "exported_data";
+            if ( ! n5.datasetExists( dataset ) )
+                dataset = "data";
             List< String > axes = fetchAxesLabels( n5, dataset );
             final CachedCellImg< T, ? > cachedCellImg = N5Utils.openVolatile( n5, dataset );
             channelRAIs = splitIntoChannels( cachedCellImg, axes );
@@ -150,16 +173,11 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T > > im
         }
         catch ( Exception e )
         {
-            // FIXME: Is this correct?
-            List< String > axes = Arrays.asList( "x", "y", C, Z, T );
+            List< String > axes = Arrays.asList( T, Z, C, X, Y );
             Collections.reverse( axes );
             return axes;
         }
     }
-
-    private static final String C = "c";
-    private static final String Z = "z";
-    private static final String T = "t";
 
     private static < T > ArrayList< RandomAccessibleInterval< T > > splitIntoChannels(
             final RandomAccessibleInterval< T > rai,

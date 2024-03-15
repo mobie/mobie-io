@@ -23,8 +23,6 @@ public class ImagePlusImageData< T extends NumericType< T > & NativeType< T > > 
     {
         this.imagePlus = imagePlus;
         this.sharedQueue = sharedQueue;
-        //new DatasetAttributes(  )
-        //new CanonicalSpatialDatasetMetadata(  )
     }
 
     @Override

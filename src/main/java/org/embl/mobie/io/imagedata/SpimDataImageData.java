@@ -53,6 +53,7 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > i
 
         if ( ! isOpen ) open();
 
+        // FIXME ?!
         return null;
     }
 
