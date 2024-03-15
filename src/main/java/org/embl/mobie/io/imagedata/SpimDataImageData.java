@@ -13,10 +13,14 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
+import org.janelia.saalfeldlab.n5.universe.metadata.RGBAColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
+import spimdata.util.Displaysettings;
 
 public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
 {
+    protected String uri;
+
     protected AbstractSpimData< ? > spimData;
 
     protected SharedQueue sharedQueue;
@@ -49,12 +53,28 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > i
     @Override
     public CanonicalDatasetMetadata getMetadata( int datasetIndex )
     {
-        // Should be overwritten by child classes
-
         if ( ! isOpen ) open();
 
-        // FIXME ?!
-        return null;
+        try
+        {
+            // Using bigdataviewer-spimdata-extras
+            final Displaysettings displaysettings = spimData.getSequenceDescription().getViewSetupsOrdered().get( datasetIndex ).getAttribute( Displaysettings.class );
+
+            int[] color = displaysettings.color;
+            RGBAColorMetadata colorMetadata = new RGBAColorMetadata( color[ 0 ], color[ 1 ], color[ 2 ], color[ 3 ] );
+
+            return new CanonicalDatasetMetadata(
+                    uri,
+                    null,
+                    displaysettings.min,
+                    displaysettings.max,
+                    colorMetadata
+            );
+        }
+        catch ( Exception e )
+        {
+            return null;
+        }
     }
 
     protected void open()

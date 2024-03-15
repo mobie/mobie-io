@@ -12,8 +12,6 @@ import java.io.InputStream;
 
 public class BDVXMLImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
-    private final String uri;
-
     public BDVXMLImageData( String uri, SharedQueue sharedQueue )
     {
         this.uri = uri;

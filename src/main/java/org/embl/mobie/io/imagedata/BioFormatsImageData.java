@@ -17,7 +17,6 @@ import java.util.List;
 
 public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
-    protected final String uri;
 
     public BioFormatsImageData( String uri, SharedQueue sharedQueue )
     {
@@ -50,27 +49,5 @@ public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > >
             System.err.println( "Error opening " + uri );
             throw new RuntimeException( e );
         }
-    }
-
-    @Override
-    public CanonicalDatasetMetadata getMetadata( int datasetIndex )
-    {
-        if ( ! isOpen ) open();
-
-        // Using bigdataviewer-spimdata-extras
-        final Displaysettings displaysettings = spimData.getSequenceDescription().getViewSetupsOrdered().get( datasetIndex ).getAttribute( Displaysettings.class );
-
-        int[] color = displaysettings.color;
-        RGBAColorMetadata colorMetadata = new RGBAColorMetadata( color[ 0 ], color[ 1 ], color[ 2 ], color[ 3 ] );
-
-        new CanonicalDatasetMetadata(
-                uri,
-                null,
-                displaysettings.min,
-                displaysettings.max,
-                colorMetadata
-        );
-
-        return null;
     }
 }

@@ -10,7 +10,6 @@ import net.imglib2.type.numeric.NumericType;
 
 public class ImarisImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
-    private final String uri;
 
     public ImarisImageData( String uri, SharedQueue sharedQueue )
     {

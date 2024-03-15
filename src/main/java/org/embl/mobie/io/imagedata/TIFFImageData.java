@@ -23,8 +23,6 @@ import java.io.InputStream;
 
 public class TIFFImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
-    private final String uri;
-
     public TIFFImageData( String uri, SharedQueue sharedQueue )
     {
         this.uri = uri;

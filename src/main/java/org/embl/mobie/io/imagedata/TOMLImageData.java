@@ -10,8 +10,6 @@ import org.embl.mobie.io.util.SharedQueueHelper;
 
 public class TOMLImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
-    private final String uri;
-
     public TOMLImageData( String uri, SharedQueue sharedQueue )
     {
         this.uri = uri;

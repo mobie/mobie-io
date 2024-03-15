@@ -105,7 +105,7 @@ public enum ImageDataFormat {
     SpimData,
     @SerializedName( IMAGEDATA )
     ImageData,
-    @SerializedName(ILASTIKHDF5)
+    @SerializedName( ILASTIK )
     Ilastik;
 
     public static ImageDataFormat fromString(String string) {
@@ -140,7 +140,7 @@ public enum ImageDataFormat {
                 return Imaris;
             case IMAGEDATA:
                 return SpimData;
-            case ILASTIKHDF5:
+            case ILASTIK:
                 return Ilastik;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + string);
@@ -185,7 +185,7 @@ public enum ImageDataFormat {
             case ImageData:
                 return IMAGEDATA;
             case Ilastik:
-                return ILASTIKHDF5;
+                return ILASTIK;
             default:
                 throw new UnsupportedOperationException("Unknown file format: " + this);
         }
@@ -273,6 +273,6 @@ public enum ImageDataFormat {
         public static final String IMARIS = "ims";
         public static final String SPIMDATA = "spimData";
         public static final String IMAGEDATA = "imageData";
-        public static final String ILASTIKHDF5 = "ilastikHDF5";
+        public static final String ILASTIK = "ilastik";
     }
 }

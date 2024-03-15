@@ -17,7 +17,6 @@ import org.embl.mobie.io.util.SharedQueueHelper;
 
 public class ImageJImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
-    private final String uri;
 
     public ImageJImageData( String uri, SharedQueue sharedQueue )
     {
