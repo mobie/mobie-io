@@ -46,6 +46,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -92,9 +93,11 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 	{
 		final N5HDF5Reader n5 = new N5HDF5Reader( path );
 
-		final String dataset = "exported_data";
+		String dataset = "exported_data";
+		if ( ! n5.datasetExists( dataset ) )
+			dataset = "data";
 
-		ArrayList< String > axes = getIlastikAxesLabels( n5, dataset );
+		List< String > axes = fetchAxesLabels( n5, dataset );
 
 		final CachedCellImg< T, ? > cachedCellImg = N5Utils.openVolatile( n5, dataset );
 		channelRAIs = Axes.getChannels( cachedCellImg, axes );
@@ -115,19 +118,28 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 		}
 	}
 
-	private ArrayList< String > getIlastikAxesLabels( N5HDF5Reader n5, String dataset ) throws IOException
+	private static List< String > fetchAxesLabels( N5HDF5Reader n5, String dataset ) throws IOException
 	{
-		ArrayList< String > axes = new ArrayList<>();
-		final JsonObject axistags = n5.getAttribute( dataset,"axistags", JsonObject.class );
-		final JsonArray jsonArray = axistags.get( "axes" ).getAsJsonArray();
-		for ( JsonElement jsonElement : jsonArray )
+		try
 		{
-			final JsonObject jsonObject = jsonElement.getAsJsonObject();
-			final String axisLabel = jsonObject.get( "key" ).getAsString();
-			axes.add( axisLabel );
+			ArrayList< String > axes = new ArrayList<>();
+			final JsonObject axisTags = n5.getAttribute( dataset, "axistags", JsonObject.class );
+			final JsonArray jsonArray = axisTags.get( "axes" ).getAsJsonArray();
+			for ( JsonElement jsonElement : jsonArray )
+			{
+				final JsonObject jsonObject = jsonElement.getAsJsonObject();
+				final String axisLabel = jsonObject.get( "key" ).getAsString();
+				axes.add( axisLabel );
+			}
+			Collections.reverse( axes );
+			return axes;
 		}
-		Collections.reverse( axes );
-		return axes;
+		catch ( Exception e )
+		{
+			List< String > axes = Arrays.asList( "t", "z", "c", "x", "y" );
+			Collections.reverse( axes );
+			return axes;
+		}
 	}
 
 	public RandomAccessibleInterval< T > getRAI( int c )
