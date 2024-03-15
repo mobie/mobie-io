@@ -10,7 +10,7 @@
   <groupId>org.embl.mobie</groupId>
   <artifactId>mobie-io</artifactId>
   <name>MoBIE IO</name>
-  <version>2.2.3-SNAPSHOT</version>
+  <version>2.2.5</version>
   <description>Readers and writers for image data in MoBIE projects</description>
   <url>https://github.com/mobie/mobie-io</url>
   <issueManagement>
