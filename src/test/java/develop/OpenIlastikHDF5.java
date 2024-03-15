@@ -28,6 +28,7 @@
  */
 package develop;
 
+import bdv.util.BdvFunctions;
 import net.imglib2.RandomAccessibleInterval;
 import org.embl.mobie.io.CachedCellImgOpener;
 import org.embl.mobie.io.ImageDataFormat;
@@ -41,5 +42,6 @@ public class OpenIlastikHDF5
 		final CachedCellImgOpener< ? > opener = new CachedCellImgOpener( "/Users/tischer/Downloads/export.h5", ImageDataFormat.IlastikHDF5, null );
 		final RandomAccessibleInterval< ? > rai = opener.getRAI( 0 );
 		final RandomAccessibleInterval< ? > vRAI = opener.getVolatileRAI( 0 );
+		BdvFunctions.show( rai, "sfsd" );
 	}
 }

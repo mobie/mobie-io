@@ -136,7 +136,7 @@ public class CachedCellImgOpener< T extends NativeType< T > & RealType< T > >
 		}
 		catch ( Exception e )
 		{
-			List< String > axes = Arrays.asList( "t", "z", "c", "x", "y" );
+			List< String > axes = Arrays.asList( "t", "z", "y", "x", "c" );
 			Collections.reverse( axes );
 			return axes;
 		}
