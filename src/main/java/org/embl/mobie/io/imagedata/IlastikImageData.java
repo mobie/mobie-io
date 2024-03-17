@@ -1,23 +1,23 @@
 package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
-import bdv.util.RandomAccessibleIntervalSource4D;
 import bdv.util.volatiles.VolatileViews;
 import bdv.viewer.Source;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import mpicbg.spim.data.sequence.FinalVoxelDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 import net.imglib2.cache.img.CachedCellImg;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
-import net.imglib2.type.Type;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.Util;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
+import org.embl.mobie.io.util.RandomAccessibleIntervalSource4D;
 import org.janelia.saalfeldlab.n5.hdf5.N5HDF5Reader;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
@@ -66,14 +66,12 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V e
             rai = Views.addDimension( rai, 0, 0 );
         }
 
-        // build a Source (requires that the last axis is the time axis)
-        RandomAccessibleIntervalSource4D< T > source4D = new RandomAccessibleIntervalSource4D<>(
+        return new RandomAccessibleIntervalSource4D<>(
                 rai,
                 Util.getTypeFromInterval( rai ),
                 new AffineTransform3D(),
+                new FinalVoxelDimensions( "pixel", 1, 1, 1 ),
                 "ilastik" );
-
-        return source4D;
     }
 
     private Source< V > asVolatileSource( RandomAccessibleInterval< V > rai )
@@ -84,15 +82,12 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V e
             rai = Views.addDimension( rai, 0, 0 );
         }
 
-        // build a Source (requires that the last axis is the time axis)
-        RandomAccessibleIntervalSource4D< V > source4D =
-                new RandomAccessibleIntervalSource4D<>(
-                        rai,
-                        Util.getTypeFromInterval( rai ),
-                        new AffineTransform3D(),
-                        "ilastik" );
-
-        return source4D;
+        return new RandomAccessibleIntervalSource4D<>(
+                rai,
+                Util.getTypeFromInterval( rai ),
+                new AffineTransform3D(),
+                new FinalVoxelDimensions( "pixel", 1, 1, 1 ),
+                "ilastik" );
     }
 
 

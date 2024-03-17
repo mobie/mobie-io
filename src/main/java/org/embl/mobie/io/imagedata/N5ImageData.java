@@ -10,11 +10,10 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
-import org.janelia.saalfeldlab.n5.N5Reader;
-import org.janelia.saalfeldlab.n5.N5URI;
+import org.embl.mobie.io.util.IOHelper;
+import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
-import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
@@ -33,6 +32,12 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
     private int numTimepoints;
     private BdvOptions bdvOptions;
     private List< ConverterSetup > converterSetups;
+
+    public N5ImageData( String uri )
+    {
+        this.uri = uri;
+        this.sharedQueue = new SharedQueue( 1 );
+    }
 
     public N5ImageData( String uri, SharedQueue sharedQueue )
     {
@@ -106,9 +111,9 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
         try
         {
             N5URI n5URI = new N5URI( uri );
-
             String containerPath = n5URI.getContainerPath();
-            N5Reader n5 = new N5Factory().openReader( containerPath );
+
+            N5Reader n5 =  IOHelper.getN5Factory().openReader( containerPath );
             String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
             List< N5Metadata > metadata = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
 

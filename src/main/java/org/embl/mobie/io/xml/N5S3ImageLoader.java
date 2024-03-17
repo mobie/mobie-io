@@ -59,9 +59,11 @@ import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Cast;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
+import org.embl.mobie.io.util.IOHelper;
 import org.embl.mobie.io.util.S3Utils;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
+import org.janelia.saalfeldlab.n5.universe.N5Factory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -84,11 +86,9 @@ public class N5S3ImageLoader< T extends NumericType< T > & NativeType< T > >  im
     private final String bucketName;
     private final String key;
     private AbstractSequenceDescription< ?, ?, ? > seq;
-    private ViewRegistrations viewRegistrations;
     private volatile boolean isOpen = false;
-    private FetcherThreads fetchers;
     private VolatileGlobalCellCache cache;
-    private BlockingFetchQueues< Callable< ? > > queue;
+
 
     private SharedQueue createdSharedQueue;
     private N5Reader n5;
@@ -148,8 +148,12 @@ public class N5S3ImageLoader< T extends NumericType< T > & NativeType< T > >  im
 
                 try
                 {
-                    final AmazonS3 s3 = S3Utils.getS3Client(serviceEndpoint, signingRegion, bucketName);
-                    this.n5 = new N5AmazonS3Reader( s3, bucketName, key, true );
+                    String uri = S3Utils.getURI( serviceEndpoint, bucketName, key );
+                    N5Factory n5Factory = IOHelper.getN5Factory();
+                    n5 = n5Factory.openReader( uri );
+
+                    //final AmazonS3 s3 = S3Utils.getS3Client( serviceEndpoint, signingRegion );
+                    //this.n5 = new N5AmazonS3Reader( s3, bucketName, key, true );
 
                     int maxNumLevels = 0;
                     final List< ? extends BasicViewSetup > setups = seq.getViewSetupsOrdered();

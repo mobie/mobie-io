@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 
+import com.amazonaws.auth.BasicAWSCredentials;
 import ij.ImagePlus;
 import ij.io.Opener;
 import loci.common.ByteArrayHandle;
@@ -57,6 +58,7 @@ import org.apache.commons.io.IOUtils;
 import org.embl.mobie.io.github.GitHubUtils;
 
 import com.amazonaws.services.s3.AmazonS3;
+import org.janelia.saalfeldlab.n5.universe.N5Factory;
 
 import static org.embl.mobie.io.github.GitHubUtils.isGithub;
 import static org.embl.mobie.io.github.GitHubUtils.selectGitHubPathFromDirectory;
@@ -529,6 +531,20 @@ public class IOHelper {
         catch ( IOException e )
         {
             throw new RuntimeException( e );
+        }
+    }
+
+    public static N5Factory getN5Factory()
+    {
+        String[] s3AccessAndSecretKey = S3Utils.getS3AccessAndSecretKey();
+        if( s3AccessAndSecretKey != null )
+        {
+            BasicAWSCredentials credentials = new BasicAWSCredentials( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] );
+            return new N5Factory().s3UseCredentials( credentials );
+        }
+        else
+        {
+            return new N5Factory();
         }
     }
 
