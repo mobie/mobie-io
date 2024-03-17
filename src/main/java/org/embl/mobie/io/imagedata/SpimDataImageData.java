@@ -1,10 +1,14 @@
 package org.embl.mobie.io.imagedata;
 
 import bdv.SpimSource;
+import bdv.ViewerImgLoader;
 import bdv.VolatileSpimSource;
 import bdv.cache.SharedQueue;
+import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.viewer.Source;
+import ch.epfl.biop.bdv.img.CacheControlOverride;
 import mpicbg.spim.data.generic.AbstractSpimData;
+import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.sequence.Angle;
 import mpicbg.spim.data.sequence.Channel;
@@ -26,6 +30,27 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > i
     protected SharedQueue sharedQueue;
 
     protected boolean isOpen;
+
+
+    protected void setSharedQueue( SharedQueue sharedQueue )
+    {
+        BasicImgLoader imgLoader = spimData.getSequenceDescription().getImgLoader();
+
+        if ( imgLoader instanceof CacheControlOverride )
+        {
+            CacheControlOverride cco = ( CacheControlOverride ) imgLoader;
+            final VolatileGlobalCellCache volatileGlobalCellCache = new VolatileGlobalCellCache( sharedQueue );
+            cco.setCacheControl( volatileGlobalCellCache );
+        }
+        else if ( imgLoader instanceof ViewerImgLoader )
+        {
+            ( ( ViewerImgLoader ) imgLoader ).setCreatedSharedQueue( sharedQueue );
+        }
+        else
+        {
+            // cannot set the sharedQueue
+        }
+    }
 
     @Override
     public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex )
@@ -79,8 +104,10 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > i
 
     protected void open()
     {
-        // Should be overwritten by child classes
+        setSharedQueue( sharedQueue );
+        isOpen = true;
     }
+
 
     private static String createSetupName( final BasicViewSetup setup )
     {

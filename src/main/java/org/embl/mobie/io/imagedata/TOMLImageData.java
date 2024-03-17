@@ -6,7 +6,6 @@ import ij.ImagePlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.toml.TOMLOpener;
-import org.embl.mobie.io.util.SharedQueueHelper;
 
 public class TOMLImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
@@ -23,9 +22,7 @@ public class TOMLImageData< T extends NumericType< T > & NativeType< T > > exten
         {
             ImagePlus imagePlus = new TOMLOpener( uri ).openImagePlus();;
             spimData = ImagePlusToSpimData.getSpimData( imagePlus );
-            SharedQueueHelper.setSharedQueue( sharedQueue, spimData );
-
-            isOpen = true;
+            super.open();
         }
         catch ( Exception e )
         {

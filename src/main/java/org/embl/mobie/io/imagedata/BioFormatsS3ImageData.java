@@ -6,11 +6,9 @@ import ij.ImagePlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.util.IOHelper;
-import org.embl.mobie.io.util.SharedQueueHelper;
 
 public class BioFormatsS3ImageData< T extends NumericType< T > & NativeType< T > > extends BioFormatsImageData< T >
 {
-
     public BioFormatsS3ImageData( String uri, SharedQueue sharedQueue )
     {
         super( uri, sharedQueue );
@@ -23,9 +21,7 @@ public class BioFormatsS3ImageData< T extends NumericType< T > & NativeType< T >
         {
             ImagePlus imagePlus = IOHelper.openWithBioFormatsFromS3( uri, 0 );
             spimData = ImagePlusToSpimData.getSpimData( imagePlus );
-            SharedQueueHelper.setSharedQueue( sharedQueue, spimData );
-
-            isOpen = true;
+            super.open();
         }
         catch ( Exception e )
         {

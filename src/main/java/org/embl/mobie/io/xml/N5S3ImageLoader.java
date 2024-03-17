@@ -37,17 +37,13 @@ import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.img.n5.DataTypeProperties;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
-import com.amazonaws.services.s3.AmazonS3;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
-import mpicbg.spim.data.registration.ViewRegistrations;
 import mpicbg.spim.data.sequence.MultiResolutionImgLoader;
 import mpicbg.spim.data.sequence.MultiResolutionSetupImgLoader;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imglib2.*;
-import net.imglib2.cache.queue.BlockingFetchQueues;
-import net.imglib2.cache.queue.FetcherThreads;
 import net.imglib2.cache.volatiles.CacheHints;
 import net.imglib2.cache.volatiles.LoadingStrategy;
 import net.imglib2.img.basictypeaccess.DataAccess;
@@ -59,10 +55,9 @@ import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Cast;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
-import org.embl.mobie.io.util.IOHelper;
+import org.embl.mobie.io.util.N5Helper;
 import org.embl.mobie.io.util.S3Utils;
 import org.janelia.saalfeldlab.n5.*;
-import org.janelia.saalfeldlab.n5.s3.N5AmazonS3Reader;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
 
 import java.io.IOException;
@@ -70,7 +65,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -149,11 +143,8 @@ public class N5S3ImageLoader< T extends NumericType< T > & NativeType< T > >  im
                 try
                 {
                     String uri = S3Utils.getURI( serviceEndpoint, bucketName, key );
-                    N5Factory n5Factory = IOHelper.getN5Factory();
+                    N5Factory n5Factory = N5Helper.n5Factory();
                     n5 = n5Factory.openReader( uri );
-
-                    //final AmazonS3 s3 = S3Utils.getS3Client( serviceEndpoint, signingRegion );
-                    //this.n5 = new N5AmazonS3Reader( s3, bucketName, key, true );
 
                     int maxNumLevels = 0;
                     final List< ? extends BasicViewSetup > setups = seq.getViewSetupsOrdered();

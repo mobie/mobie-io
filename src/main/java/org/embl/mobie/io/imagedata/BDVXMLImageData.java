@@ -1,8 +1,6 @@
 package org.embl.mobie.io.imagedata;
 
-import bdv.ViewerImgLoader;
 import bdv.cache.SharedQueue;
-import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.util.IOHelper;
@@ -26,11 +24,7 @@ public class BDVXMLImageData< T extends NumericType< T > & NativeType< T > > ext
         {
             InputStream stream = IOHelper.getInputStream( uri );
             spimData = new InputStreamXmlIoSpimData().open( stream, uri );
-            final BasicImgLoader imgLoader = spimData.getSequenceDescription().getImgLoader();
-            if ( imgLoader instanceof ViewerImgLoader )
-                ( ( ViewerImgLoader ) imgLoader ).setCreatedSharedQueue( sharedQueue );
-
-            isOpen = true;
+            super.open();
         }
         catch ( Exception e )
         {

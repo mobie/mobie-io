@@ -3,7 +3,6 @@ package org.embl.mobie.io.imagedata;
 import bdv.ViewerImgLoader;
 import bdv.cache.SharedQueue;
 import bdv.img.imaris.Imaris;
-import bdv.spimdata.SpimDataMinimal;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
@@ -23,11 +22,7 @@ public class ImarisImageData< T extends NumericType< T > & NativeType< T > > ext
         try
         {
             spimData = Imaris.openIms( uri );
-            final BasicImgLoader imgLoader = spimData.getSequenceDescription().getImgLoader();
-            if ( imgLoader instanceof ViewerImgLoader )
-                ( ( ViewerImgLoader ) imgLoader ).setCreatedSharedQueue( sharedQueue );
-
-            isOpen = true;
+            super.open();
         }
         catch ( Exception e )
         {

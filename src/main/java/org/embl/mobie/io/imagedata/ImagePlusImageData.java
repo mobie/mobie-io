@@ -9,7 +9,6 @@ import ij.process.ImageStatistics;
 import ij.process.LUT;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
-import org.embl.mobie.io.util.SharedQueueHelper;
 import org.janelia.saalfeldlab.n5.universe.metadata.RGBAColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
 
@@ -31,9 +30,7 @@ public class ImagePlusImageData< T extends NumericType< T > & NativeType< T > > 
         try
         {
             spimData = ImagePlusToSpimData.getSpimData( imagePlus );
-            SharedQueueHelper.setSharedQueue( sharedQueue, spimData );
-
-            isOpen = true;
+            super.open();
         }
         catch ( Exception e )
         {
