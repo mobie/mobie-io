@@ -50,7 +50,7 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V e
     @Override
     public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex )
     {
-        if ( !isOpen ) open();
+        if ( ! isOpen ) open();
 
         Source< T > source = asSource( channelRAIs.get( datasetIndex ) );
         Source< ? extends Volatile< T > > vSource = asVolatileSource( volatileChannelRAIs.get( datasetIndex ) );
@@ -118,8 +118,10 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V e
 //        );
     }
 
-    private void open()
+    private synchronized void open()
     {
+        if ( isOpen ) return;
+
         try
         {
             final N5HDF5Reader n5 = new N5HDF5Reader( uri );

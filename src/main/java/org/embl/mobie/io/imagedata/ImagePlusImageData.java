@@ -7,10 +7,13 @@ import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;
 import ij.process.ImageStatistics;
 import ij.process.LUT;
+import mpicbg.spim.data.generic.AbstractSpimData;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import org.janelia.saalfeldlab.n5.universe.metadata.RGBAColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
+
+import java.io.IOException;
 
 import static ij.measure.Measurements.MIN_MAX;
 
@@ -20,28 +23,23 @@ public class ImagePlusImageData< T extends NumericType< T > & NativeType< T > > 
 
     public ImagePlusImageData( ImagePlus imagePlus, SharedQueue sharedQueue )
     {
+        super( new SpimDataOpener()
+        {
+            @Override
+            public AbstractSpimData open( String uri ) throws IOException
+            {
+                return ImagePlusToSpimData.getSpimData( imagePlus );
+            }
+        } );
+
         this.imagePlus = imagePlus;
         this.sharedQueue = sharedQueue;
     }
 
     @Override
-    protected void open()
-    {
-        try
-        {
-            spimData = ImagePlusToSpimData.getSpimData( imagePlus );
-            super.open();
-        }
-        catch ( Exception e )
-        {
-            throw new RuntimeException( e );
-        }
-    }
-
-    @Override
     public CanonicalDatasetMetadata getMetadata( int datasetIndex )
     {
-        if ( ! isOpen ) open();
+        if ( ! isOpen ) open( spimDataOpener, uri );
 
         imagePlus.setC( datasetIndex + 1 );
         LUT lut = imagePlus.getLuts()[ datasetIndex ];

@@ -119,7 +119,6 @@
         <n5-ij.version>4.1.1</n5-ij.version>
         <n5-universe.version>1.4.1</n5-universe.version>
         <n5-aws-s3.version>4.1.1</n5-aws-s3.version>
-
         <bigdataviewer-core.version>10.4.13</bigdataviewer-core.version>
         <bigdataviewer-vistools.version>1.0.0-beta-34</bigdataviewer-vistools.version>
 

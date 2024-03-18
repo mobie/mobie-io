@@ -21,16 +21,24 @@ import org.janelia.saalfeldlab.n5.universe.metadata.RGBAColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
 import spimdata.util.Displaysettings;
 
+import java.io.IOException;
+
 public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
 {
     protected String uri;
 
     protected AbstractSpimData< ? > spimData;
 
+    protected SpimDataOpener spimDataOpener;
+
     protected SharedQueue sharedQueue;
 
     protected boolean isOpen;
 
+    public SpimDataImageData( SpimDataOpener spimDataOpener )
+    {
+        this.spimDataOpener = spimDataOpener;
+    }
 
     protected void setSharedQueue( SharedQueue sharedQueue )
     {
@@ -55,7 +63,7 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > i
     @Override
     public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex )
     {
-        if ( ! isOpen ) open();
+        if ( ! isOpen ) open( spimDataOpener, uri );
 
         BasicViewSetup basicViewSetup = spimData.getSequenceDescription().getViewSetupsOrdered().get( datasetIndex );
         final String setupName = createSetupName( basicViewSetup );
@@ -70,7 +78,7 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > i
     @Override
     public int getNumDatasets()
     {
-        if ( ! isOpen ) open();
+        if ( ! isOpen ) open( spimDataOpener, uri );
 
         return spimData.getSequenceDescription().getViewSetupsOrdered().size();
     }
@@ -78,7 +86,7 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > i
     @Override
     public CanonicalDatasetMetadata getMetadata( int datasetIndex )
     {
-        if ( ! isOpen ) open();
+        if ( ! isOpen ) open( spimDataOpener, uri );
 
         try
         {
@@ -102,10 +110,20 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > i
         }
     }
 
-    protected void open()
+    protected synchronized void open( SpimDataOpener opener, String uri )
     {
-        setSharedQueue( sharedQueue );
-        isOpen = true;
+        if ( isOpen ) return;
+
+        try
+        {
+            spimData = opener.open( uri );
+            setSharedQueue( sharedQueue );
+            isOpen = true;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
 

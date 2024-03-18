@@ -19,6 +19,7 @@ import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -106,8 +107,10 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
         return bdvOptions;
     }
 
-    private void open()
+    private synchronized void open()
     {
+        if ( isOpen ) return;
+
         try
         {
             N5URI n5URI = new N5URI( uri );
@@ -130,12 +133,15 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
                     sourcesAndConverters,
                     bdvOptions );
 
-            isOpen = true;
+            if ( sourcesAndConverters.size() == 0 )
+                throw new IOException("N5ImageData: No datasets found.");
         }
         catch ( Exception e )
         {
-            System.err.println( "Error opening " + uri);
+            System.err.println( "N5ImageData: Error opening " + uri);
             throw new RuntimeException( e );
         }
+
+        isOpen = true;
     }
 }
