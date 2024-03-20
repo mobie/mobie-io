@@ -1,16 +1,19 @@
 package org.embl.mobie.io.imagedata;
 
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import org.embl.mobie.io.util.S3Utils;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class N5ImageDataTest
 {
+
+    // FIXME: https://imagesc.zulipchat.com/#narrow/stream/327326-BigDataViewer/topic/N5Viewer.20concurrency.20issues.3F
+
     @Test
-    public void openOMEZarrFromEMBLHDS3()
+    public void openOMEZarrFromS3()
     {
         N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
@@ -18,7 +21,7 @@ class N5ImageDataTest
     }
 
     @Test
-    public void openOMEZarrFromEMBLEBIS3()
+    public void openOMEZarrFromEBIS3()
     {
         // FIXME: Does not work from within "https://github.com/mobie/mouse-embryo-spatial-transcriptomics-project"
         N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0138A/TimEmbryos-120919/HybCycle_29/MMStack_Pos0.ome.zarr" );
@@ -42,6 +45,7 @@ class N5ImageDataTest
         assertThrows( RuntimeException.class, () -> {
             S3Utils.setS3AccessAndSecretKey( new String[]{ "4vJRUoUQZix2x7wPRlSy", "wrongSecretKey" } );
             N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr" );
+            VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         });
     }
 }

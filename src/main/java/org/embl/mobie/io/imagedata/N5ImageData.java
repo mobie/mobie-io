@@ -116,7 +116,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
             N5URI n5URI = new N5URI( uri );
             String containerPath = n5URI.getContainerPath();
 
-            N5Reader n5 =  N5Helper.n5Factory().openReader( containerPath );
+            N5Reader n5 = N5Helper.n5Factory().openReader( containerPath );
             String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
             List< N5Metadata > metadata = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
 
@@ -134,14 +134,14 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
                     bdvOptions );
 
             if ( sourcesAndConverters.size() == 0 )
-                throw new IOException("N5ImageData: No datasets found.");
-        }
-        catch ( Exception e )
+                throw new IOException( "N5ImageData: No datasets found." );
+        } catch ( Exception e )
         {
-            System.err.println( "N5ImageData: Error opening " + uri);
+            System.err.println( "N5ImageData: Error opening " + uri );
             throw new RuntimeException( e );
         }
 
         isOpen = true;
     }
+
 }
