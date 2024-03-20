@@ -55,7 +55,6 @@ import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Cast;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
-import org.embl.mobie.io.util.N5Helper;
 import org.embl.mobie.io.util.S3Utils;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
@@ -143,7 +142,8 @@ public class N5S3ImageLoader< T extends NumericType< T > & NativeType< T > >  im
                 try
                 {
                     String uri = S3Utils.getURI( serviceEndpoint, bucketName, key );
-                    N5Factory n5Factory = N5Helper.n5Factory();
+                    N5Factory n5Factory = new N5Factory();
+                    // FIXME: here the credentials S3Utils.getCredentials... are currently not used..
                     n5 = n5Factory.openReader( uri );
 
                     int maxNumLevels = 0;

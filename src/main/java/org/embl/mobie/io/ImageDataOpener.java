@@ -32,6 +32,7 @@ import bdv.cache.SharedQueue;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.imagedata.*;
+import org.embl.mobie.io.util.S3Utils;
 
 
 public class ImageDataOpener
@@ -55,13 +56,17 @@ public class ImageDataOpener
             case OmeZarr:
             case OmeZarrS3:
             case OpenOrganelleS3:
-                return new N5ImageData<>( uri, sharedQueue );
+                // FIXME: should be better an argument to the function
+                if ( S3Utils.getS3AccessAndSecretKey() != null )
+                    return new N5ImageData<>( uri, sharedQueue, S3Utils.getS3AccessAndSecretKey() );
+                else
+                    return new N5ImageData<>( uri, sharedQueue );
             case Toml:
-                return new TOMLImageData<>( uri, sharedQueue  );
+                return new TOMLImageData<>( uri, sharedQueue );
             case Tiff:
                 return new TIFFImageData<>( uri, sharedQueue );
             case ImageJ:
-               return new ImageJImageData<>( uri, sharedQueue );
+                return new ImageJImageData<>( uri, sharedQueue );
             case Imaris:
                 return new ImarisImageData<>( uri, sharedQueue );
             case Ilastik:

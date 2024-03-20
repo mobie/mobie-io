@@ -5,15 +5,16 @@ import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
+import com.amazonaws.auth.BasicAWSCredentials;
 import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
-import org.embl.mobie.io.util.N5Helper;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
+import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
@@ -28,6 +29,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
 {
     private final String uri;
     private final SharedQueue sharedQueue;
+    private final String[] s3AccessAndSecretKey;
     private boolean isOpen;
     private List< SourceAndConverter< T > > sourcesAndConverters;
     private int numTimepoints;
@@ -38,12 +40,28 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
     {
         this.uri = uri;
         this.sharedQueue = new SharedQueue( 1 );
+        this.s3AccessAndSecretKey = null;
+    }
+
+    public N5ImageData( String uri, String[] s3AccessAndSecretKey )
+    {
+        this.uri = uri;
+        this.sharedQueue = new SharedQueue( 1 );
+        this.s3AccessAndSecretKey = s3AccessAndSecretKey;
     }
 
     public N5ImageData( String uri, SharedQueue sharedQueue )
     {
         this.uri = uri;
         this.sharedQueue = sharedQueue;
+        this.s3AccessAndSecretKey = null;
+    }
+
+    public N5ImageData( String uri, SharedQueue sharedQueue, String[] s3AccessAndSecretKey )
+    {
+        this.uri = uri;
+        this.sharedQueue = sharedQueue;
+        this.s3AccessAndSecretKey = s3AccessAndSecretKey;
     }
 
     @Override
@@ -116,7 +134,14 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
             N5URI n5URI = new N5URI( uri );
             String containerPath = n5URI.getContainerPath();
 
-            N5Reader n5 = N5Helper.n5Factory().openReader( containerPath );
+            N5Factory n5Factory = new N5Factory();
+            if( s3AccessAndSecretKey != null )
+            {
+                BasicAWSCredentials credentials = new BasicAWSCredentials( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] );
+                n5Factory = n5Factory.s3UseCredentials( credentials );
+            }
+
+            N5Reader n5 = n5Factory.openReader( containerPath );
             String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
             List< N5Metadata > metadata = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
 
@@ -135,9 +160,11 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
 
             if ( sourcesAndConverters.size() == 0 )
                 throw new IOException( "N5ImageData: No datasets found." );
-        } catch ( Exception e )
+        }
+        catch ( Exception e )
         {
             System.err.println( "N5ImageData: Error opening " + uri );
+            e.printStackTrace();
             throw new RuntimeException( e );
         }
 

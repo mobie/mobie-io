@@ -4,12 +4,13 @@ import mpicbg.spim.data.sequence.VoxelDimensions;
 import org.embl.mobie.io.util.S3Utils;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class N5ImageDataTest
 {
-
     // FIXME: https://imagesc.zulipchat.com/#narrow/stream/327326-BigDataViewer/topic/N5Viewer.20concurrency.20issues.3F
 
     @Test
@@ -24,10 +25,8 @@ class N5ImageDataTest
     @Test
     public void openOMEZarrFromEBIS3()
     {
-        // FIXME: Does not work from within "https://github.com/mobie/mouse-embryo-spatial-transcriptomics-project"
         System.out.println("openOMEZarrFromEBIS3");
         N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0138A/TimEmbryos-120919/HybCycle_29/MMStack_Pos0.ome.zarr" );
-        int numDatasets = n5ImageData.getNumDatasets();
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
     }
@@ -36,8 +35,9 @@ class N5ImageDataTest
     public void openOMEZarrFromS3WithCredentials()
     {
         System.out.println("openOMEZarrFromS3WithCredentials");
-        S3Utils.setS3AccessAndSecretKey( new String[]{ "4vJRUoUQZix2x7wPRlSy", "qtt7o93uv2PTvXSgYGMtoGtQkd3HsRqVH5XwitSf" } );
-        N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr" );
+        N5ImageData< ? > n5ImageData = new N5ImageData<>(
+                "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
+                new String[]{ "4vJRUoUQZix2x7wPRlSy", "qtt7o93uv2PTvXSgYGMtoGtQkd3HsRqVH5XwitSf" });
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
     }
@@ -49,11 +49,12 @@ class N5ImageDataTest
 
         try
         {
-            S3Utils.setS3AccessAndSecretKey( new String[]{ "4vJRUoUQZix2x7wPRlSy", "wrongSecretKey" } );
-            N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr" );
+            N5ImageData< ? > n5ImageData = new N5ImageData<>(
+                    "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
+                    new String[]{ "4vJRUoUQZix2x7wPRlSy", "wrongSecretKey" });
             VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
             System.out.println("Succeeded incorrectly.");
-            assertTrue( false );
+            fail();
         }
         catch ( Exception e )
         {
@@ -64,10 +65,10 @@ class N5ImageDataTest
 
     public static void main( String[] args )
     {
-        new N5ImageDataTest().openOMEZarrFromS3();
-        new N5ImageDataTest().openOMEZarrFromEBIS3();
-        new N5ImageDataTest().openOMEZarrFromS3WithCredentials();
-        new N5ImageDataTest().openOMEZarrFromS3WithWrongCredentials();
-        System.out.println("Done!");
+        ExecutorService exec = Executors.newCachedThreadPool();
+        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3();});
+        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromEBIS3();});
+        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3WithCredentials();});
+        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3WithWrongCredentials();});
     }
 }
