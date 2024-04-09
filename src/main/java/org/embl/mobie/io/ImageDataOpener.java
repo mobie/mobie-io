@@ -38,29 +38,37 @@ import org.embl.mobie.io.util.S3Utils;
 public class ImageDataOpener
 {
 
-    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open( String uri )
+    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open(
+            String uri )
     {
-        return open( uri, ImageDataFormat.fromPath( uri ), new SharedQueue( Runtime.getRuntime().availableProcessors() - 1 ) );
+        return open(
+                uri,
+                ImageDataFormat.fromPath( uri ),
+                new SharedQueue( Runtime.getRuntime().availableProcessors() - 1 ));
     }
 
 
-    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open( String uri, SharedQueue sharedQueue )
+    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open(
+            String uri,
+            SharedQueue sharedQueue )
     {
-        return open( uri, ImageDataFormat.fromPath( uri ), sharedQueue );
+        return open(
+                uri,
+                ImageDataFormat.fromPath( uri ),
+                sharedQueue );
     }
 
-    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open( String uri, ImageDataFormat imageDataFormat, SharedQueue sharedQueue )
+    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open(
+            String uri,
+            ImageDataFormat imageDataFormat,
+            SharedQueue sharedQueue )
     {
         switch (imageDataFormat)
         {
             case OmeZarr:
             case OmeZarrS3:
             case OpenOrganelleS3:
-                // FIXME: should be better an argument to the function
-                if ( S3Utils.getS3AccessAndSecretKey() != null )
-                    return new N5ImageData<>( uri, sharedQueue, S3Utils.getS3AccessAndSecretKey() );
-                else
-                    return new N5ImageData<>( uri, sharedQueue );
+                return new N5ImageData<>( uri, sharedQueue, imageDataFormat.getSecretAndAccessKey() );
             case Toml:
                 return new TOMLImageData<>( uri, sharedQueue );
             case Tiff:
@@ -74,11 +82,13 @@ public class ImageDataOpener
             case BioFormats:
                 return new BioFormatsImageData<>( uri, sharedQueue );
             case BioFormatsS3:
+                // TODO: use the s3AccessAndSecretKey
                 return new BioFormatsS3ImageData<>( uri, sharedQueue );
             case Bdv:
             case BdvHDF5:
             case BdvN5:
             case BdvN5S3:
+                // TODO: use the s3AccessAndSecretKey
                 return new BDVXMLImageData<>( uri, sharedQueue );
             case BdvOmeZarr:
             case BdvOmeZarrS3:

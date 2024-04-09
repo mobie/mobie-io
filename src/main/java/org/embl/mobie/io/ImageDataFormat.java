@@ -108,7 +108,9 @@ public enum ImageDataFormat {
     @SerializedName( ILASTIK )
     Ilastik;
 
-    public static ImageDataFormat fromString(String string) {
+    private String[] secretAndAccessKey;
+
+    public static ImageDataFormat fromString( String string) {
         switch (string) {
             case TOML:
                 return Toml;
@@ -274,5 +276,15 @@ public enum ImageDataFormat {
         public static final String SPIMDATA = "spimData";
         public static final String IMAGEDATA = "imageData";
         public static final String ILASTIK = "ilastik";
+    }
+
+    public void setS3SecretAndAccessKey( String[] secretAndAccessKey )
+    {
+        this.secretAndAccessKey = secretAndAccessKey;
+    }
+
+    public String[] getSecretAndAccessKey()
+    {
+        return secretAndAccessKey;
     }
 }

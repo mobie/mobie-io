@@ -204,9 +204,9 @@ public class IOHelper {
                 URL url = new URL(uri);
                 return url.openStream();
             case FILE:
-                return new FileInputStream(new File(uri));
+                return Files.newInputStream( new File( uri ).toPath() );
             case S3:
-                AmazonS3 s3 = S3Utils.getS3Client(uri);
+                AmazonS3 s3 = S3Utils.getS3Client( uri );
                 String[] bucketAndObject = S3Utils.getBucketAndObject(uri);
                 return s3.getObject(bucketAndObject[0], bucketAndObject[1]).getObjectContent();
             default:

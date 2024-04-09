@@ -1,6 +1,9 @@
 package org.embl.mobie.io.imagedata;
 
+import bdv.cache.SharedQueue;
 import mpicbg.spim.data.sequence.VoxelDimensions;
+import org.embl.mobie.io.ImageDataFormat;
+import org.embl.mobie.io.ImageDataOpener;
 import org.embl.mobie.io.util.S3Utils;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +42,21 @@ class N5ImageDataTest
                 "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
                 new String[]{ "4vJRUoUQZix2x7wPRlSy", "qtt7o93uv2PTvXSgYGMtoGtQkd3HsRqVH5XwitSf" });
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
+        assertNotNull( voxelDimensions );
+    }
+
+    @Test
+    public void openOMEZarrFromS3WithCredentialsV2()
+    {
+        // This test uses the ImageDataOpener ( instead of directly N5ImageData )
+        System.out.println("openOMEZarrFromS3WithCredentialsV2");
+        ImageDataFormat imageDataFormat = ImageDataFormat.OmeZarrS3;
+        imageDataFormat.setS3SecretAndAccessKey(  new String[]{ "4vJRUoUQZix2x7wPRlSy", "qtt7o93uv2PTvXSgYGMtoGtQkd3HsRqVH5XwitSf" } );
+        ImageData< ? > imageData = ImageDataOpener.open(
+                "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
+                imageDataFormat,
+                new SharedQueue( 1 ) );
+        VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
     }
 

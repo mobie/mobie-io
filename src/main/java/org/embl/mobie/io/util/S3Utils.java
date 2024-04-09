@@ -50,10 +50,12 @@ public abstract class S3Utils
     private static String[] s3AccessAndSecretKey;
     private static boolean useCredentialsChain;
 
+    // FIXME: We should remove this!
     public static void setS3AccessAndSecretKey( String[] s3AccessAndSecretKey ) {
         S3Utils.s3AccessAndSecretKey = s3AccessAndSecretKey;
     }
 
+    // FIXME: We should remove this!
     public static String[] getS3AccessAndSecretKey()
     {
         return s3AccessAndSecretKey;
@@ -82,6 +84,7 @@ public abstract class S3Utils
         return s3;
     }
 
+    // FIXME: We should change this to take the s3AccessAndSecretKey as an argument!
     @NotNull
     public static AWSCredentialsProvider getAwsCredentialsProvider()
     {
@@ -107,8 +110,6 @@ public abstract class S3Utils
 
     public static AmazonS3 getS3Client( String uri ) {
         final String endpoint = getEndpoint( uri );
-        // final String region = "us-west-2";
-        //final String[] bucketAndObject = getBucketAndObject(uri);
         return getS3Client( endpoint, null );
     }
 
