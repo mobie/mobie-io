@@ -2,6 +2,7 @@ package develop;
 
 import ij.IJ;
 import ij.ImagePlus;
+import org.embl.mobie.io.OMEZarrWriter;
 import org.janelia.saalfeldlab.n5.GzipCompression;
 import org.janelia.saalfeldlab.n5.N5FSWriter;
 import org.janelia.saalfeldlab.n5.ij.N5IJUtils;
@@ -15,15 +16,13 @@ import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR_FORMAT;
 
 public class WriteOMEZarr
 {
-
-
     public static void main( String[] args )
     {
         ImagePlus imp = IJ.openImage( "http://imagej.net/images/mri-stack.zip" );
 
         N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
                 imp,
-                "/Users/tischer/Desktop/test/mri.ome.zarr",
+                "src/test/output/mri.ome.zarr",
                 "/",
                 ZARR_FORMAT,
                 "10,10,4",
@@ -35,6 +34,9 @@ public class WriteOMEZarr
 
         exporter.run();
 
-        System.out.println("Done.");
+        OMEZarrWriter.write( imp,
+                "src/test/output/mri2.zarr",
+                OMEZarrWriter.ImageType.Intensities,
+                true  );
     }
 }
