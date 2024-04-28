@@ -4,21 +4,25 @@ import ij.IJ;
 import ij.ImagePlus;
 import org.embl.mobie.io.imagedata.ImageData;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class OMEZarrWriterTest
 {
     @Test
-    public void writeAndReadOMEZarr()
+    public void writeAndReadOMEZarr(@TempDir Path tempDir)
     {
         ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 186, 226, 27 );
 
-        String uri = "src/test/tmp/test.zarr";
+        String uri = tempDir.resolve("test.zarr").toString();
 
         OMEZarrWriter.write( imp,
                 uri,
                 OMEZarrWriter.ImageType.Intensities,
-                true );
+                false );
 
         ImageData< ? > imageData = ImageDataOpener.open( uri );
 
