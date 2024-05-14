@@ -34,8 +34,11 @@ import bdv.viewer.Source;
 import ij.ImagePlus;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import org.embl.mobie.io.util.IOHelper;
+import org.janelia.saalfeldlab.n5.N5URI;
 import org.janelia.saalfeldlab.n5.ij.N5Importer;
 import org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter;
+
+import java.net.URISyntaxException;
 
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR_FORMAT;
@@ -57,9 +60,37 @@ public class OMEZarrWriter
 
         String chunkSizeArg = imp.getNSlices() == 1 ?  "1024,1024,1,1,1" : "96,96,1,96,1"; // X,Y,C,Z,T
 
+
+        try
+        {
+            N5URI n5URI = new N5URI( uri );
+            String containerPath = n5URI.getContainerPath();
+            String groupPath = n5URI.getGroupPath();
+            int a = 1;
+
+            N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
+                    imp,
+                    containerPath,
+                    groupPath,
+                    ZARR_FORMAT,
+                    chunkSizeArg,
+                    true,
+                    downsampleMethod,
+                    N5Importer.MetadataOmeZarrKey,
+                    GZIP_COMPRESSION
+            );
+
+            exporter.setOverwrite( overwrite );
+            exporter.run();
+        }
+        catch ( URISyntaxException e )
+        {
+            throw new RuntimeException( e );
+        }
+
         // TODO: If we want to give the dataset a name we also have to
         //       update how we refer to such an image or segmentation in the dataset.JSON
-        String n5Dataset = "";
+        //       String n5Dataset = "";
 //        String n5Dataset = imageType.equals( ImageType.Labels ) ? "labels" : "intensities";
 //        if ( imageType.equals( ImageType.Labels ) )
 //        {
@@ -69,22 +100,6 @@ public class OMEZarrWriter
 //        {
 //            uri = IOHelper.combinePath( uri, "intensities" );
 //        }
-
-        N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
-                imp,
-                uri,
-                n5Dataset,
-                ZARR_FORMAT,
-                chunkSizeArg,
-                true,
-                downsampleMethod,
-                N5Importer.MetadataOmeZarrKey,
-                GZIP_COMPRESSION
-        );
-
-        exporter.setOverwrite( overwrite );
-
-        exporter.run();
     }
 
 }

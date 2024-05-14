@@ -13,7 +13,7 @@ class OMEZarrWriterTest
     {
         ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 186, 226, 27 );
 
-        String uri = "src/test/tmp/test.zarr";
+        String uri = "src/test/tmp/test.zarr/image";
 
         OMEZarrWriter.write( imp,
                 uri,
