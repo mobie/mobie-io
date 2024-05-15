@@ -26,21 +26,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package develop;
+package org.embl.mobie.io.util;
 
-import ij.ImagePlus;
-import org.embl.mobie.io.toml.TOMLOpener;
+import java.io.File;
+import java.io.InputStream;
 
-public class OpenTOML
-{
-	public static void main( String[] args )
-	{
-		final TOMLOpener opener = new TOMLOpener( "/Volumes/cba/exchange/kristina-mirkes/develop/data-test/processed/exp/batch/date/MVI_1253/exp--batch--date--mvi_1253.image.toml" );
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 
-		final ImagePlus imagePlus = opener.openImagePlus();
-		imagePlus.show();
+import mpicbg.spim.data.SpimData;
+import mpicbg.spim.data.SpimDataException;
+import mpicbg.spim.data.SpimDataIOException;
+import mpicbg.spim.data.generic.XmlIoAbstractSpimData;
+import mpicbg.spim.data.registration.XmlIoViewRegistrations;
+import mpicbg.spim.data.sequence.SequenceDescription;
+import mpicbg.spim.data.sequence.XmlIoSequenceDescription;
 
-//		final AbstractSpimData< ? > spimData = opener.asSpimData();
-//		BdvFunctions.show( spimData );
-	}
+import static mpicbg.spim.data.XmlKeys.SPIMDATA_TAG;
+
+public class InputStreamXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDescription, SpimData> {
+    public InputStreamXmlIoSpimData() {
+        super(SpimData.class, new XmlIoSequenceDescription(), new XmlIoViewRegistrations());
+    }
+
+    public SpimData open( InputStream in, String xmlPath) throws SpimDataException {
+        SAXBuilder sax = new SAXBuilder();
+
+        Document doc;
+        try {
+            doc = sax.build(in);
+        } catch (Exception exception) {
+            throw new SpimDataIOException(exception);
+        }
+        final Element root = doc.getRootElement();
+        if (!root.getName().equals(SPIMDATA_TAG))
+            throw new RuntimeException("expected <" + SPIMDATA_TAG + "> root element. wrong file?");
+
+        return fromXml(root, new File(xmlPath));
+    }
 }

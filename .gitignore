@@ -2,6 +2,7 @@
 **/.project
 **/.settings
 **/target
+src/test/tmp/*
 .DS_Store
 .classpath
 .project

@@ -35,29 +35,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.auth.*;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.iterable.S3Objects;
 import com.amazonaws.services.s3.model.*;
-import com.google.api.client.http.HttpStatusCodes;
 
 import ij.gui.GenericDialog;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class S3Utils {
+public abstract class S3Utils
+{
     private static String[] s3AccessAndSecretKey;
     private static boolean useCredentialsChain;
 
-    public static void setS3AccessAndSecretKey(String[] s3AccessAndSecretKey) {
+    // FIXME: We should remove this!
+    public static void setS3AccessAndSecretKey( String[] s3AccessAndSecretKey ) {
         S3Utils.s3AccessAndSecretKey = s3AccessAndSecretKey;
     }
 
+    // FIXME: We should remove this!
+    public static String[] getS3AccessAndSecretKey()
+    {
+        return s3AccessAndSecretKey;
+    }
 
     // look for credentials at common places
     // on the client computer
@@ -65,30 +67,11 @@ public abstract class S3Utils {
         useCredentialsChain = b;
     }
 
-    // TODO: the bucket could be removed here
-    public static AmazonS3 getS3Client(String endpoint, String region, String bucket)
+    public static AmazonS3 getS3Client( String endpoint, String region )
     {
         final AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, region);
 
-        // Configure the credentials
-        AWSCredentialsProvider credentialsProvider;
-        if (s3AccessAndSecretKey != null)
-        {
-            // Use given credentials
-            final BasicAWSCredentials credentials = new BasicAWSCredentials(s3AccessAndSecretKey[0], s3AccessAndSecretKey[1]);
-            credentialsProvider = new AWSStaticCredentialsProvider(credentials);
-        }
-        else if (useCredentialsChain)
-        {
-            // Look for credentials
-            credentialsProvider = new DefaultAWSCredentialsProviderChain();
-            checkCredentialsExistence(credentialsProvider);
-        }
-        else
-        {
-            // Anonymous
-            credentialsProvider = new AWSStaticCredentialsProvider( new AnonymousAWSCredentials() );
-        }
+        AWSCredentialsProvider credentialsProvider = getAwsCredentialsProvider();
 
         // Create the access
         AmazonS3 s3 = AmazonS3ClientBuilder
@@ -101,14 +84,36 @@ public abstract class S3Utils {
         return s3;
     }
 
-    public static AmazonS3 getS3Client(String uri) {
-        final String endpoint = getEndpoint(uri);
-        final String region = null; // "us-west-2";
-        final String[] bucketAndObject = getBucketAndObject(uri);
-        return getS3Client(endpoint, region, bucketAndObject[0]);
+    // FIXME: We should change this to take the s3AccessAndSecretKey as an argument!
+    @NotNull
+    public static AWSCredentialsProvider getAwsCredentialsProvider()
+    {
+        if ( s3AccessAndSecretKey != null)
+        {
+            // Use given credentials
+            final BasicAWSCredentials credentials = new BasicAWSCredentials(s3AccessAndSecretKey[0], s3AccessAndSecretKey[1]);
+            return new AWSStaticCredentialsProvider(credentials);
+        }
+        else if ( useCredentialsChain )
+        {
+            // Look for credentials
+            DefaultAWSCredentialsProviderChain credentialsProviderChain = new DefaultAWSCredentialsProviderChain();
+            checkCredentialsExistence( credentialsProviderChain );
+            return credentialsProviderChain;
+        }
+        else
+        {
+            // Anonymous
+           return new AWSStaticCredentialsProvider( new AnonymousAWSCredentials() );
+        }
     }
 
-    public static void checkCredentialsExistence(AWSCredentialsProvider credentialsProvider) {
+    public static AmazonS3 getS3Client( String uri ) {
+        final String endpoint = getEndpoint( uri );
+        return getS3Client( endpoint, null );
+    }
+
+    public static void checkCredentialsExistence( AWSCredentialsProvider credentialsProvider ) {
         try {
             credentialsProvider.getCredentials();
         } catch (Exception e) {
@@ -116,20 +121,20 @@ public abstract class S3Utils {
         }
     }
 
-    public static String[] getBucketAndObject(String uri) {
+    public static String[] getBucketAndObject( String uri ) {
         final String[] split = uri.split("/");
         String bucket = split[3];
         String object = Arrays.stream(split).skip(4).collect(Collectors.joining("/"));
         return new String[]{bucket, object};
     }
 
-    public static String getEndpoint(String uri) {
+    public static String getEndpoint( String uri ) {
         final String[] split = uri.split("/");
         String endpoint = Arrays.stream(split).limit(3).collect(Collectors.joining("/"));
         return endpoint;
     }
 
-    public static String selectS3PathFromDirectory(String directory, String objectName) throws IOException {
+    public static String selectS3PathFromDirectory( String directory, String objectName ) throws IOException {
         final String[] fileNames = getS3FileNames(directory);
 
         final GenericDialog gd = new GenericDialog("Select " + objectName);
@@ -142,13 +147,13 @@ public abstract class S3Utils {
         return newFilePath;
     }
 
-    public static String[] getS3FileNames(String directory) {
+    public static String[] getS3FileNames( String directory ) {
         final ArrayList<String> filePaths = getS3FilePaths(directory);
         return filePaths.stream().map(File::new).map(File::getName).toArray(String[]::new);
     }
 
-    public static ArrayList<String> getS3FilePaths(String directory) {
-        final AmazonS3 s3 = getS3Client(directory);
+    public static ArrayList<String> getS3FilePaths( String directory ) {
+        final AmazonS3 s3 = getS3Client( directory );
         final String[] bucketAndObject = getBucketAndObject(directory);
 
         final String bucket = bucketAndObject[0];
@@ -162,7 +167,13 @@ public abstract class S3Utils {
         return paths;
     }
 
-    public static boolean isS3(String directory) {
+    public static boolean isS3( String directory ) {
         return directory.contains("s3.amazon.aws.com") || directory.startsWith("https://s3");
+    }
+
+    public static String getURI( String serviceEndpoint, String bucketName, String key )
+    {
+        String uri = IOHelper.combinePath( serviceEndpoint, bucketName, key );
+        return uri;
     }
 }
