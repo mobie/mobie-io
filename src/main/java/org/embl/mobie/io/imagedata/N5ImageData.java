@@ -146,10 +146,11 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
                 n5Factory = n5Factory.s3UseCredentials( credentials );
             }
 
-            // FIXME: This is really slow...and not always needed..
             N5Reader n5 = n5Factory.openReader( containerPath );
             String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
             N5Metadata rootMetadata = N5MetadataUtils.parseMetadata( n5, rootGroup );
+
+            // FIXME: This is really slow...and not always needed..
             List< String > groups = new ArrayList<>();
             groups.add( rootGroup );
             List< N5Metadata > metadata = groups.stream()
