@@ -148,8 +148,17 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
 
             // FIXME: This is really slow...and not always needed..
             N5Reader n5 = n5Factory.openReader( containerPath );
+            String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
+            N5Metadata rootMetadata = N5MetadataUtils.parseMetadata( n5, rootGroup );
+            List< String > groups = new ArrayList<>();
+            groups.add( rootGroup );
+            List< N5Metadata > metadata = groups.stream()
+                    .map( group -> N5MetadataUtils.parseMetadata( n5, group ) )
+                    .collect( Collectors.toList() );
+
+
             final N5TreeNode root = N5DatasetDiscoverer.discover( n5 );
-            List< String > groups = N5TreeNode.flattenN5Tree( root )
+            groups = N5TreeNode.flattenN5Tree( root )
                 .filter( n5TreeNode ->
                 {
                     final N5Metadata meta = n5TreeNode.getMetadata();
@@ -166,13 +175,13 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
             //String[] strings = n5.deepList( group );
             // = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
 
-            if ( groups.isEmpty() )
-            {
-                String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
-                groups.add( rootGroup );
-            }
+//            if ( groups.isEmpty() )
+//            {
+//                String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
+//                groups.add( rootGroup );
+//            }
 
-            List< N5Metadata > metadata = groups.stream()
+            metadata = groups.stream()
                     .map( group -> N5MetadataUtils.parseMetadata( n5, group ) )
                     .collect( Collectors.toList() );
 
