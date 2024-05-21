@@ -18,7 +18,7 @@ public class ImageJImageData< T extends NumericType< T > & NativeType< T > > ext
         super( new SpimDataOpener()
         {
             @Override
-            public AbstractSpimData open( String uri ) throws IOException
+            public AbstractSpimData< ? > open( String uri ) throws IOException
             {
                 ImagePlus imagePlus = IJ.openImage( uri );
                 if ( imagePlus == null )

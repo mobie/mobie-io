@@ -15,4 +15,6 @@ public interface ImageData < T extends NumericType< T > & NativeType< T > >
 
     // https://imagesc.zulipchat.com/#narrow/stream/327326-BigDataViewer/topic/Dataset.20Metadata
     CanonicalDatasetMetadata getMetadata( int datasetIndex );
+
+    String getName( int datasetIndex );
 }

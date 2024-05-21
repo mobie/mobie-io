@@ -11,22 +11,26 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
+import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
+import org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
+import org.janelia.saalfeldlab.n5.universe.N5TreeNode;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
+import org.janelia.saalfeldlab.n5.universe.metadata.ome.ngff.v04.OmeNgffMetadata;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class N5ImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
+public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends AbstractImageData< T >
 {
     private final String uri;
     private final SharedQueue sharedQueue;
@@ -143,24 +147,68 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
             }
 
             N5Reader n5 = n5Factory.openReader( containerPath );
-            String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
-            List< N5Metadata > metadata = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
+            final N5TreeNode root = N5DatasetDiscoverer.discover( n5 );
+            List< String > groups = N5TreeNode.flattenN5Tree( root )
+                    .filter( n5TreeNode ->
+                    {  
+                        final N5Metadata meta = n5TreeNode.getMetadata();
+                        return meta instanceof OmeNgffMetadata;
+                    } )
+                    .map( N5TreeNode::getPath )
+                    .map(path -> path.startsWith("/") ? path.substring(1) : path ) // TODO Ask John
+                    .collect( Collectors.toList() );
 
-            final DataSelection selection = new DataSelection( n5, metadata );
+            //String[] datasets = n5.deepList( uri );
+            //String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
+            //String[] strings = n5.deepList( group );
+            // = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
+
+            List< N5Metadata > metadata = groups.stream()
+                    .map( group -> N5MetadataUtils.parseMetadata( n5, group ) )
+                    .collect( Collectors.toList() );
+
             converterSetups = new ArrayList<>();
             sourcesAndConverters = new ArrayList<>();
             bdvOptions = BdvOptions.options().frameTitle( "" );
 
-            numTimepoints = N5Viewer.buildN5Sources(
-                    n5,
-                    selection,
-                    sharedQueue,
-                    converterSetups,
-                    sourcesAndConverters,
-                    bdvOptions );
+            for ( N5Metadata oneMetadata : metadata )
+            {
+                final DataSelection selection =
+                        new DataSelection( n5, Collections.singletonList( oneMetadata ) );
 
-            if ( sourcesAndConverters.size() == 0 )
+                int numDatasets = sourcesAndConverters.size();
+
+                numTimepoints = Math.max( numTimepoints, N5Viewer.buildN5Sources(
+                        n5,
+                        selection,
+                        sharedQueue,
+                        converterSetups,
+                        sourcesAndConverters,
+                        bdvOptions ) );
+
+                int numChannels = sourcesAndConverters.size() - numDatasets;
+                String path = oneMetadata.getPath();
+                String name = path.replaceAll( "[/\\\\]", "_" );
+                if ( numChannels > 1 )
+                {
+                    for ( int channelIndex = 0; channelIndex < numChannels; channelIndex++ )
+                    {
+                        String channelName = IOHelper.addChannelPostfix( name, channelIndex );
+                        channelName = channelName.startsWith( "_" ) ? channelName.substring( 1 ) : channelName;
+                        datasetNames.add( channelName );
+                    }
+                }
+                else
+                {
+                    name = name.startsWith( "_" ) ? name.substring( 1 ) : name;
+                    datasetNames.add( name  );
+                }
+            }
+
+            if ( sourcesAndConverters.isEmpty() )
                 throw new IOException( "N5ImageData: No datasets found." );
+
+
         }
         catch ( Exception e )
         {

@@ -28,7 +28,7 @@ public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > >
         super( new SpimDataOpener()
         {
             @Override
-            public AbstractSpimData open( String uri ) throws IOException
+            public AbstractSpimData< ? > open( String uri )
             {
                 final File file = new File( uri );
                 List< OpenerSettings > openerSettings = new ArrayList<>();

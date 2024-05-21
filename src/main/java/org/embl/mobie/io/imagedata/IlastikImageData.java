@@ -17,6 +17,7 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.Util;
 import net.imglib2.util.ValuePair;
 import net.imglib2.view.Views;
+import org.embl.mobie.io.util.IOHelper;
 import org.embl.mobie.io.util.RandomAccessibleIntervalSource4D;
 import org.janelia.saalfeldlab.n5.hdf5.N5HDF5Reader;
 import org.janelia.saalfeldlab.n5.imglib2.N5Utils;
@@ -28,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V extends Volatile<T> & NumericType<V> > implements ImageData< T >
+public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V extends Volatile<T> & NumericType<V> > extends AbstractImageData< T >
 {
     private static final String C = "c";
     private static final String Z = "z";
@@ -131,12 +132,29 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V e
             List< String > axes = fetchAxesLabels( n5, dataset );
             final CachedCellImg< T, ? > cachedCellImg = N5Utils.openVolatile( n5, dataset );
             channelRAIs = splitIntoChannels( cachedCellImg, axes );
+            addNames( dataset );
             volatileChannelRAIs = ( ArrayList ) splitIntoChannels( getVolatileRAI( cachedCellImg ), axes );
             isOpen = true;
         }
         catch ( Exception e )
         {
             throw new RuntimeException( e );
+        }
+    }
+
+    private void addNames( String dataset )
+    {
+        int numChannels = channelRAIs.size();
+        if ( numChannels > 1 )
+        {
+            for ( int channelIndex = 0; channelIndex < numChannels; channelIndex++ )
+            {
+                datasetNames.add( IOHelper.addChannelPostfix( dataset, channelIndex ) );
+            }
+        }
+        else
+        {
+            datasetNames.add( dataset );
         }
     }
 
