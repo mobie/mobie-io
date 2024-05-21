@@ -159,7 +159,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
                     sourcesAndConverters,
                     bdvOptions );
 
-            if ( sourcesAndConverters.size() == 0 )
+            if ( sourcesAndConverters.isEmpty() )
                 throw new IOException( "N5ImageData: No datasets found." );
         }
         catch ( Exception e )
