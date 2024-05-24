@@ -6,11 +6,14 @@ import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
+import org.embl.mobie.io.ngff.Labels;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
@@ -148,52 +151,39 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
 
             N5Reader n5 = n5Factory.openReader( containerPath );
             String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
+            List< N5Metadata > metadataList = new ArrayList<>();
             N5Metadata rootMetadata = N5MetadataUtils.parseMetadata( n5, rootGroup );
+            metadataList.add( rootMetadata );
 
-            // FIXME: This is really slow...and not always needed..
-            List< String > groups = new ArrayList<>();
-            groups.add( rootGroup );
-            List< N5Metadata > metadata = groups.stream()
-                    .map( group -> N5MetadataUtils.parseMetadata( n5, group ) )
-                    .collect( Collectors.toList() );
-
-
-            final N5TreeNode root = N5DatasetDiscoverer.discover( n5 );
-            groups = N5TreeNode.flattenN5Tree( root )
-                .filter( n5TreeNode ->
+            if ( rootMetadata instanceof OmeNgffMetadata )
+            {
+                // Look for OME-Zarr labels
+                try
                 {
-                    final N5Metadata meta = n5TreeNode.getMetadata();
-                    return meta instanceof OmeNgffMetadata;
-                } )
-                .map( N5TreeNode::getPath )
-                // FIXME Ask John why the "/" needs to be removed
-                .map( path -> path.startsWith("/") ? path.substring( 1 ) : path )
-                .map( path -> path.isEmpty() ? "/" : path )
-                .collect( Collectors.toList() );
-
-            //String[] datasets = n5.deepList( uri );
-            //String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
-            //String[] strings = n5.deepList( group );
-            // = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
-
-//            if ( groups.isEmpty() )
-//            {
-//                String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
-//                groups.add( rootGroup );
-//            }
-
-            metadata = groups.stream()
-                    .map( group -> N5MetadataUtils.parseMetadata( n5, group ) )
-                    .collect( Collectors.toList() );
+                    String labelsPath = IOHelper.combinePath( uri, "labels", ".zattrs" );
+                    String labelsJson = IOHelper.read( labelsPath );
+                    Gson gson = new Gson();
+                    Labels labels = gson.fromJson( labelsJson, new TypeToken< Labels >() {}.getType() );
+                    for ( String aLabels : labels.labels )
+                    {
+                        String labelGroup = "labels/" + aLabels;
+                        metadataList.add( N5MetadataUtils.parseMetadata( n5, labelGroup, false ) );
+                    }
+                }
+                catch ( Exception e )
+                {
+                    // no labels found
+                }
+            }
 
             converterSetups = new ArrayList<>();
             sourcesAndConverters = new ArrayList<>();
-            bdvOptions = BdvOptions.options().frameTitle( "" );
+            bdvOptions = BdvOptions.options().frameTitle( "" ); // not used here
 
-            for ( N5Metadata oneMetadata : metadata )
+            for ( N5Metadata metadata : metadataList )
             {
                 final DataSelection selection =
-                        new DataSelection( n5, Collections.singletonList( oneMetadata ) );
+                        new DataSelection( n5, Collections.singletonList( metadata ) );
 
                 int numDatasets = sourcesAndConverters.size();
 
@@ -206,15 +196,16 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
                         bdvOptions ) );
 
                 int numChannels = sourcesAndConverters.size() - numDatasets;
-                String path = oneMetadata.getPath();
+                String path = metadata.getPath();
                 String name = path.replaceAll( "[/\\\\]", "_" );
                 if ( numChannels > 1 )
                 {
                     for ( int channelIndex = 0; channelIndex < numChannels; channelIndex++ )
                     {
-                        String channelName = IOHelper.addChannelPostfix( name, channelIndex );
-                        channelName = channelName.startsWith( "_" ) ? channelName.substring( 1 ) : channelName;
-                        datasetNames.add( channelName );
+                        if ( ! name.isEmpty() && ! name.equals( "_" ) )
+                            datasetNames.add( IOHelper.addChannelPostfix( name, channelIndex ) );
+                        else
+                            datasetNames.add( IOHelper.getChannelPostfix( channelIndex ) );
                     }
                 }
                 else
@@ -227,16 +218,43 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
             if ( sourcesAndConverters.isEmpty() )
                 throw new IOException( "N5ImageData: No datasets found." );
 
-
         }
         catch ( Exception e )
         {
             System.err.println( "N5ImageData: Error opening " + uri );
-            e.printStackTrace();
             throw new RuntimeException( e );
         }
 
         isOpen = true;
     }
+
+    //            List< String > groups = new ArrayList<>();
+//            groups.add( rootGroup );
+//            List< N5Metadata > metadata = groups.stream()
+//                    .map( group -> N5MetadataUtils.parseMetadata( n5, group ) )
+//                    .collect( Collectors.toList() );
+//
+//            final N5TreeNode root = N5DatasetDiscoverer.discover( n5 );
+//            groups = N5TreeNode.flattenN5Tree( root )
+//                .filter( n5TreeNode ->
+//                {
+//                    final N5Metadata meta = n5TreeNode.getMetadata();
+//                    return meta instanceof OmeNgffMetadata;
+//                } )
+//                .map( N5TreeNode::getPath )
+//                // FIXME Ask John why the "/" needs to be removed
+//                .map( path -> path.startsWith("/") ? path.substring( 1 ) : path )
+//                .map( path -> path.isEmpty() ? "/" : path )
+//                .collect( Collectors.toList() );
+    //String[] datasets = n5.deepList( uri );
+    //String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
+    //String[] strings = n5.deepList( group );
+    // = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
+
+//            if ( groups.isEmpty() )
+//            {
+//                String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
+//                groups.add( rootGroup );
+//            }
 
 }

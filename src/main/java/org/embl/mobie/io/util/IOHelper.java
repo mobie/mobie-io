@@ -536,7 +536,16 @@ public class IOHelper {
     @NotNull
     public static String addChannelPostfix( String name, int channelIndex )
     {
-        return name + "_ch" + channelIndex;
+        if ( name.endsWith( "_" ) )
+            return name + getChannelPostfix( channelIndex );
+        else
+            return name + "_" + getChannelPostfix( channelIndex );
+    }
+
+    @NotNull
+    public static String getChannelPostfix( int channelIndex )
+    {
+        return "ch" + channelIndex;
     }
 
 
