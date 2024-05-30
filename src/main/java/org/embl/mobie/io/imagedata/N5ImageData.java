@@ -2,6 +2,7 @@ package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
 import bdv.tools.brightness.ConverterSetup;
+import bdv.util.Bdv;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
@@ -41,8 +42,9 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
     private boolean isOpen;
     private List< SourceAndConverter< T > > sourcesAndConverters;
     private int numTimepoints;
-    private BdvOptions bdvOptions;
     private List< ConverterSetup > converterSetups;
+
+    private final BdvOptions bdvOptions = BdvOptions.options();
 
     public N5ImageData( String uri )
     {
@@ -178,7 +180,6 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
 
             converterSetups = new ArrayList<>();
             sourcesAndConverters = new ArrayList<>();
-            bdvOptions = BdvOptions.options().frameTitle( "" ); // not used here
 
             for ( N5Metadata metadata : metadataList )
             {

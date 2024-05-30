@@ -23,7 +23,7 @@ public class BDVXMLImageData< T extends NumericType< T > & NativeType< T > > ext
         super( new SpimDataOpener()
         {
             @Override
-            public AbstractSpimData open( String uri ) throws Exception
+            public AbstractSpimData< ? > open( String uri ) throws Exception
             {
                 InputStream stream = IOHelper.getInputStream( uri );
                 return new InputStreamXmlIoSpimData().open( stream, uri );
