@@ -2,31 +2,40 @@ package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
 import bdv.tools.brightness.ConverterSetup;
+import bdv.util.Bdv;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
+import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
+import org.embl.mobie.io.ngff.Labels;
+import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
+import org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
+import org.janelia.saalfeldlab.n5.universe.N5TreeNode;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
+import org.janelia.saalfeldlab.n5.universe.metadata.ome.ngff.v04.OmeNgffMetadata;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class N5ImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
+public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends AbstractImageData< T >
 {
     private final String uri;
     private final SharedQueue sharedQueue;
@@ -34,8 +43,9 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
     private boolean isOpen;
     private List< SourceAndConverter< T > > sourcesAndConverters;
     private int numTimepoints;
-    private BdvOptions bdvOptions;
     private List< ConverterSetup > converterSetups;
+
+    private final BdvOptions bdvOptions = BdvOptions.options();
 
     public N5ImageData( String uri )
     {
@@ -138,38 +148,89 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > impleme
             N5Factory n5Factory = new N5Factory();
             if( s3AccessAndSecretKey != null )
             {
-                BasicAWSCredentials credentials = new BasicAWSCredentials( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] );
-                n5Factory = n5Factory.s3UseCredentials( credentials );
+                n5Factory = n5Factory.s3UseCredentials( new BasicAWSCredentials( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] ) );
+            }
+            else
+            {
+                n5Factory = n5Factory.s3UseCredentials( new AnonymousAWSCredentials() );
             }
 
             N5Reader n5 = n5Factory.openReader( containerPath );
-            String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
-            List< N5Metadata > metadata = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
+            String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
+            List< N5Metadata > metadataList = new ArrayList<>();
+            N5Metadata rootMetadata = N5MetadataUtils.parseMetadata( n5, rootGroup );
+            metadataList.add( rootMetadata );
 
-            final DataSelection selection = new DataSelection( n5, metadata );
+            if ( rootMetadata instanceof OmeNgffMetadata )
+            {
+                // Look for OME-Zarr labels
+                try
+                {
+                    String labelsPath = IOHelper.combinePath( uri, "labels", ".zattrs" );
+                    String labelsJson = IOHelper.read( labelsPath );
+                    Gson gson = new Gson();
+                    Labels labels = gson.fromJson( labelsJson, new TypeToken< Labels >() {}.getType() );
+                    for ( String aLabels : labels.labels )
+                    {
+                        String labelGroup = "labels/" + aLabels;
+                        metadataList.add( N5MetadataUtils.parseMetadata( n5, labelGroup, false ) );
+                    }
+                }
+                catch ( Exception e )
+                {
+                    // no labels found
+                }
+            }
+
             converterSetups = new ArrayList<>();
             sourcesAndConverters = new ArrayList<>();
-            bdvOptions = BdvOptions.options().frameTitle( "" );
 
-            numTimepoints = N5Viewer.buildN5Sources(
-                    n5,
-                    selection,
-                    sharedQueue,
-                    converterSetups,
-                    sourcesAndConverters,
-                    bdvOptions );
+            for ( N5Metadata metadata : metadataList )
+            {
+                final DataSelection selection =
+                        new DataSelection( n5, Collections.singletonList( metadata ) );
+
+                int numDatasets = sourcesAndConverters.size();
+
+                numTimepoints = Math.max( numTimepoints,
+                    N5Viewer.buildN5Sources(
+                        n5,
+                        selection,
+                        sharedQueue,
+                        converterSetups,
+                        sourcesAndConverters, // TODO: check their names
+                        bdvOptions ) );
+
+                int numChannels = sourcesAndConverters.size() - numDatasets;
+                String path = metadata.getPath();
+                String name = path.replaceAll( "[/\\\\]", "_" );
+                if ( numChannels > 1 )
+                {
+                    for ( int channelIndex = 0; channelIndex < numChannels; channelIndex++ )
+                    {
+                        if ( ! name.isEmpty() && ! name.equals( "_" ) )
+                            datasetNames.add( IOHelper.addChannelPostfix( name, channelIndex ) );
+                        else
+                            datasetNames.add( IOHelper.getChannelPostfix( channelIndex ) );
+                    }
+                }
+                else
+                {
+                    name = name.startsWith( "_" ) ? name.substring( 1 ) : name;
+                    datasetNames.add( name  );
+                }
+            }
 
             if ( sourcesAndConverters.isEmpty() )
                 throw new IOException( "N5ImageData: No datasets found." );
+
         }
         catch ( Exception e )
         {
             System.err.println( "N5ImageData: Error opening " + uri );
-            e.printStackTrace();
             throw new RuntimeException( e );
         }
 
         isOpen = true;
     }
-
 }

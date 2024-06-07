@@ -19,7 +19,7 @@ public class OpenBdvN5S3
         ImageData< T > imageData = ImageDataOpener.open(
                 "https://raw.githubusercontent.com/mobie/platybrowser-project/main/data/1.0.1/images/remote/sbem-6dpf-1-whole-raw.xml",
                 ImageDataFormat.BdvN5S3,
-                new SharedQueue( Math.max( 1, Runtime.getRuntime().availableProcessors() / 2 ) ) );
+                new SharedQueue( 1 ) );
 
         Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair = imageData.getSourcePair( 0 );
 

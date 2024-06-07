@@ -14,8 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class N5ImageDataTest
 {
-    // FIXME: https://imagesc.zulipchat.com/#narrow/stream/327326-BigDataViewer/topic/N5Viewer.20concurrency.20issues.3F
-
     @Test
     public void openOMEZarrFromS3()
     {

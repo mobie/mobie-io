@@ -1,16 +1,15 @@
 package org.embl.mobie.io.util;
 
-import java.util.Arrays;
-
 import bdv.util.AbstractSource;
 import bdv.viewer.Interpolation;
-import mpicbg.spim.data.sequence.FinalVoxelDimensions;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealRandomAccessible;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.view.Views;
+
+import java.util.Arrays;
 
 public class RandomAccessibleIntervalSource4D< T extends NumericType< T > > extends AbstractSource< T >
 {

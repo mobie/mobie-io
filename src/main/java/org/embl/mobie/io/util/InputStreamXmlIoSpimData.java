@@ -50,7 +50,7 @@ public class InputStreamXmlIoSpimData extends XmlIoAbstractSpimData<SequenceDesc
         super(SpimData.class, new XmlIoSequenceDescription(), new XmlIoViewRegistrations());
     }
 
-    public SpimData open( InputStream in, String xmlPath) throws SpimDataException {
+    public SpimData open(InputStream in, String xmlPath) throws SpimDataException {
         SAXBuilder sax = new SAXBuilder();
 
         Document doc;

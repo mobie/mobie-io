@@ -57,6 +57,7 @@ import org.apache.commons.io.IOUtils;
 import org.embl.mobie.io.github.GitHubUtils;
 
 import com.amazonaws.services.s3.AmazonS3;
+import org.jetbrains.annotations.NotNull;
 
 import static org.embl.mobie.io.github.GitHubUtils.isGithub;
 import static org.embl.mobie.io.github.GitHubUtils.selectGitHubPathFromDirectory;
@@ -530,6 +531,21 @@ public class IOHelper {
         {
             throw new RuntimeException( e );
         }
+    }
+
+    @NotNull
+    public static String addChannelPostfix( String name, int channelIndex )
+    {
+        if ( name.endsWith( "_" ) )
+            return name + getChannelPostfix( channelIndex );
+        else
+            return name + "_" + getChannelPostfix( channelIndex );
+    }
+
+    @NotNull
+    public static String getChannelPostfix( int channelIndex )
+    {
+        return "ch" + channelIndex;
     }
 
 
