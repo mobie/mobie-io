@@ -19,6 +19,8 @@ class N5ImageDataTest
     {
         System.out.println("openOMEZarrFromS3");
         N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
+        int numDatasets = n5ImageData.getNumDatasets();
+        assertEquals( numDatasets, 2 ); // EM and segmentation labels
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
     }
