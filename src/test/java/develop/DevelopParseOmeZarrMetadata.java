@@ -1,6 +1,7 @@
 package develop;
 
 import com.amazonaws.auth.AnonymousAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.google.gson.Gson;
@@ -9,6 +10,7 @@ import org.embl.mobie.io.ngff.Labels;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5URI;
+import org.janelia.saalfeldlab.n5.s3.AmazonS3Utils;
 import org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
@@ -35,46 +37,52 @@ public class DevelopParseOmeZarrMetadata
         long start;
 
         start = System.currentTimeMillis();
-        N5URI n5URI = new N5URI( uri );
-        String containerPath = n5URI.getContainerPath();
-        N5Factory n5Factory = new N5Factory();
-        n5Factory.s3UseCredentials( new AnonymousAWSCredentials() );
-        N5Reader n5 = n5Factory.openReader( containerPath );
-        System.out.println( "Opened reader of " + uri + " in [ms]: " + ( System.currentTimeMillis() - start ) );
+        AmazonS3ClientBuilder.standard();
+        System.out.println( "AmazonS3ClientBuilder.standard(): [ms] " + ( System.currentTimeMillis() - start ) );
 
-        String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
-        String[] strings = n5.deepList( group, Executors.newCachedThreadPool() );
-
-        // look labels
-        String labelsUri = IOHelper.combinePath( uri, "labels", ".zattrs" );
-        String labelsJSON = IOHelper.read( labelsUri );
-        System.out.println( labelsJSON );
-        Gson gson = new Gson();
-        Labels labels = gson.fromJson( labelsJSON, new TypeToken< Labels >() {}.getType() );
-
-        for ( String label : labels.labels )
+        for ( int i = 0; i < 2; i++ )
         {
             start = System.currentTimeMillis();
-            String labelGroup = "labels/" + label;
-            System.out.println( "reading labels metadata from " + labelGroup + "...");
-            N5Metadata labelMetadata = N5MetadataUtils.parseMetadata( n5, labelGroup, false );
-            System.out.println( labelMetadata );
-            System.out.println( "Read label metadata from " + labelGroup + " in [ms]: " + ( System.currentTimeMillis() - start ) );
-
-            start = System.currentTimeMillis();
-            System.out.println( "reading labels metadata from " + labelGroup + "...");
-            N5DatasetDiscoverer n5DatasetDiscoverer = new N5DatasetDiscoverer(
-                    n5,
-                    Executors.newCachedThreadPool(),
-                    Arrays.asList( DEFAULT_PARSERS ),
-                    Arrays.asList( DEFAULT_GROUP_PARSERS )
-            );
-            N5Metadata metadata = n5DatasetDiscoverer.parse( "labels/cells" ).getMetadata();
-            N5Metadata metadata2 = n5DatasetDiscoverer.parse( "s3" ).getMetadata();
-            System.out.println( metadata );
-            System.out.println( "Read label metadata directly from " + labelGroup + " in [ms]: " + ( System.currentTimeMillis() - start ) );
-
+            N5URI n5URI = new N5URI( uri );
+            String containerPath = n5URI.getContainerPath();
+            N5Factory n5Factory = new N5Factory();
+            n5Factory.s3UseCredentials( new AnonymousAWSCredentials() );
+            N5Reader n5 = n5Factory.openReader( containerPath );
+            System.out.println( "Opened reader of " + uri + " in [ms]: " + ( System.currentTimeMillis() - start ) );
         }
+
+//        String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
+//        String[] strings = n5.deepList( group, Executors.newCachedThreadPool() );
+//
+//        // look labels
+//        String labelsUri = IOHelper.combinePath( uri, "labels", ".zattrs" );
+//        String labelsJSON = IOHelper.read( labelsUri );
+//        System.out.println( labelsJSON );
+//        Gson gson = new Gson();
+//        Labels labels = gson.fromJson( labelsJSON, new TypeToken< Labels >() {}.getType() );
+//
+//        for ( String label : labels.labels )
+//        {
+//            start = System.currentTimeMillis();
+//            String labelGroup = "labels/" + label;
+//            System.out.println( "reading labels metadata from " + labelGroup + "...");
+//            N5Metadata labelMetadata = N5MetadataUtils.parseMetadata( n5, labelGroup, false );
+//            System.out.println( labelMetadata );
+//            System.out.println( "Read label metadata from " + labelGroup + " in [ms]: " + ( System.currentTimeMillis() - start ) );
+//
+//            start = System.currentTimeMillis();
+//            System.out.println( "reading labels metadata from " + labelGroup + "...");
+//            N5DatasetDiscoverer n5DatasetDiscoverer = new N5DatasetDiscoverer(
+//                    n5,
+//                    Executors.newCachedThreadPool(),
+//                    Arrays.asList( DEFAULT_PARSERS ),
+//                    Arrays.asList( DEFAULT_GROUP_PARSERS )
+//            );
+//            N5Metadata metadata = n5DatasetDiscoverer.parse( "labels/cells" ).getMetadata();
+//            N5Metadata metadata2 = n5DatasetDiscoverer.parse( "s3" ).getMetadata();
+//            System.out.println( metadata );
+//            System.out.println( "Read label metadata directly from " + labelGroup + " in [ms]: " + ( System.currentTimeMillis() - start ) );
+//        }
 
     }
 }

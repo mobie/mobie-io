@@ -6,6 +6,7 @@ import bdv.util.Bdv;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
+import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -147,8 +148,11 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
             N5Factory n5Factory = new N5Factory();
             if( s3AccessAndSecretKey != null )
             {
-                BasicAWSCredentials credentials = new BasicAWSCredentials( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] );
-                n5Factory = n5Factory.s3UseCredentials( credentials );
+                n5Factory = n5Factory.s3UseCredentials( new BasicAWSCredentials( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] ) );
+            }
+            else
+            {
+                n5Factory = n5Factory.s3UseCredentials( new AnonymousAWSCredentials() );
             }
 
             N5Reader n5 = n5Factory.openReader( containerPath );
@@ -188,12 +192,13 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
 
                 int numDatasets = sourcesAndConverters.size();
 
-                numTimepoints = Math.max( numTimepoints, N5Viewer.buildN5Sources(
+                numTimepoints = Math.max( numTimepoints,
+                    N5Viewer.buildN5Sources(
                         n5,
                         selection,
                         sharedQueue,
                         converterSetups,
-                        sourcesAndConverters,
+                        sourcesAndConverters, // TODO: check their names
                         bdvOptions ) );
 
                 int numChannels = sourcesAndConverters.size() - numDatasets;
@@ -228,34 +233,4 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
 
         isOpen = true;
     }
-
-    //            List< String > groups = new ArrayList<>();
-//            groups.add( rootGroup );
-//            List< N5Metadata > metadata = groups.stream()
-//                    .map( group -> N5MetadataUtils.parseMetadata( n5, group ) )
-//                    .collect( Collectors.toList() );
-//
-//            final N5TreeNode root = N5DatasetDiscoverer.discover( n5 );
-//            groups = N5TreeNode.flattenN5Tree( root )
-//                .filter( n5TreeNode ->
-//                {
-//                    final N5Metadata meta = n5TreeNode.getMetadata();
-//                    return meta instanceof OmeNgffMetadata;
-//                } )
-//                .map( N5TreeNode::getPath )
-//                // FIXME Ask John why the "/" needs to be removed
-//                .map( path -> path.startsWith("/") ? path.substring( 1 ) : path )
-//                .map( path -> path.isEmpty() ? "/" : path )
-//                .collect( Collectors.toList() );
-    //String[] datasets = n5.deepList( uri );
-    //String group = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
-    //String[] strings = n5.deepList( group );
-    // = Collections.singletonList( N5MetadataUtils.parseMetadata( n5, group ) );
-
-//            if ( groups.isEmpty() )
-//            {
-//                String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
-//                groups.add( rootGroup );
-//            }
-
 }
