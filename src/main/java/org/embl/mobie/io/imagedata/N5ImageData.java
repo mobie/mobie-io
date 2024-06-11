@@ -128,11 +128,15 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
 
     public int getNumTimepoints()
     {
+        if ( !isOpen ) open();
+
         return numTimepoints;
     }
 
     public BdvOptions getBdvOptions()
     {
+        if ( !isOpen ) open();
+
         return bdvOptions;
     }
 
