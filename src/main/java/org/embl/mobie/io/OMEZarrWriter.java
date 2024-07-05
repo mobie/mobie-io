@@ -31,14 +31,19 @@ package org.embl.mobie.io;
 import bdv.export.ExportMipmapInfo;
 import bdv.export.ProposeMipmaps;
 import bdv.viewer.Source;
+import ij.IJ;
 import ij.ImagePlus;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
+import net.thisptr.jackson.jq.internal.misc.Strings;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.N5URI;
 import org.janelia.saalfeldlab.n5.ij.N5Importer;
 import org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URISyntaxException;
+import java.sql.Array;
+import java.util.ArrayList;
 
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR_FORMAT;
@@ -53,20 +58,24 @@ public class OMEZarrWriter
 
     public static void write( ImagePlus imp, String uri, ImageType imageType, boolean overwrite )
     {
-        N5ScalePyramidExporter.DOWNSAMPLE_METHOD downsampleMethod =
+        N5ScalePyramidExporter.DOWNSAMPLE_METHOD downSampleMethod =
                 imageType.equals( ImageType.Labels ) ?
                         N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Sample
                         : N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Average;
 
-        String chunkSizeArg = imp.getNSlices() == 1 ?  "1024,1024,1,1,1" : "96,96,1,96,1"; // X,Y,C,Z,T
-
+        // TODO: https://github.com/saalfeldlab/n5-ij/issues/82
+        String chunkSizeArg = getChunkSizeArg( imp );
+        IJ.log("Using chunk sizes: " + chunkSizeArg );
 
         try
         {
             N5URI n5URI = new N5URI( uri );
             String containerPath = n5URI.getContainerPath();
             String groupPath = n5URI.getGroupPath();
-            int a = 1;
+
+            // TODO: set number of threads!
+            //    https://github.com/saalfeldlab/n5-ij/issues/83
+            //    we could do it now with reflection...
 
             N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
                     imp,
@@ -75,11 +84,10 @@ public class OMEZarrWriter
                     ZARR_FORMAT,
                     chunkSizeArg,
                     true,
-                    downsampleMethod,
+                    downSampleMethod,
                     N5Importer.MetadataOmeZarrKey,
                     GZIP_COMPRESSION
             );
-
             exporter.setOverwrite( overwrite );
             exporter.run();
         }
@@ -88,7 +96,7 @@ public class OMEZarrWriter
             throw new RuntimeException( e );
         }
 
-        // TODO: If we want to give the dataset a name we also have to
+        // TODO: If we wanted to give the dataset a name we also have to
         //       update how we refer to such an image or segmentation in the dataset.JSON
         //       String n5Dataset = "";
 //        String n5Dataset = imageType.equals( ImageType.Labels ) ? "labels" : "intensities";
@@ -100,6 +108,33 @@ public class OMEZarrWriter
 //        {
 //            uri = IOHelper.combinePath( uri, "intensities" );
 //        }
+    }
+
+    @NotNull
+    private static String getChunkSizeArg( ImagePlus imp )
+    {
+        // init the chunks
+        ArrayList< String > chunks = new ArrayList<>();
+        chunks.add( "96" ); // 0 = x
+        chunks.add( "96" ); // 1 = y
+        chunks.add( "1" ); // 2 = c
+        chunks.add( "96" ); // 3 = z
+        chunks.add( "1" ); // 4 = t
+
+        // remove singleton dimensions, as required by the N5ScalePyramidExporter
+        if ( imp.getNFrames() == 1 ) chunks.remove( 4 );
+
+        if ( imp.getNSlices() == 1 )
+        {
+            chunks.remove( 3 );
+            // since this is 2-D data, make the chunks in xy larger
+            chunks.set( 0, "1024" );
+            chunks.set( 1, "1024" );
+        }
+
+        if ( imp.getNChannels() == 1 ) chunks.remove( 2 );
+
+        return Strings.join( ",", chunks );
     }
 
 }
