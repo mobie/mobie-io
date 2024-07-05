@@ -141,7 +141,6 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V e
             throw new RuntimeException( e );
         }
     }
-
     private void addNames( String dataset )
     {
         int numChannels = channelRAIs.size();

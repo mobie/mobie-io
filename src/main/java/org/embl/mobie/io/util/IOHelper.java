@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 
+import bdv.img.virtualstack.VirtualStackImageLoader;
 import ij.ImagePlus;
 import ij.io.Opener;
 import loci.common.ByteArrayHandle;

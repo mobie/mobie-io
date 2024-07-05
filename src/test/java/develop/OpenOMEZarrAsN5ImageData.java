@@ -13,8 +13,10 @@ public class OpenOMEZarrAsN5ImageData
 {
     public static < T extends NumericType< T > & NativeType< T > > void main( String[] args ) throws IOException, URISyntaxException
     {
+        String uri = "https://s3.embl.de/imatrec/IMATREC_HiTT_20240414_AS/TAL_20to200_20230627_NA_01_epo_05.ome.zarr";
+
         N5ImageData< T > imageData = new N5ImageData<>(
-                "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr",
+                uri,
                 new SharedQueue( Math.max( 1, Runtime.getRuntime().availableProcessors() / 2 ) )
         );
 

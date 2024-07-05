@@ -2,7 +2,6 @@ package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
 import bdv.tools.brightness.ConverterSetup;
-import bdv.util.Bdv;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
@@ -20,10 +19,8 @@ import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
-import org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
-import org.janelia.saalfeldlab.n5.universe.N5TreeNode;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
@@ -33,7 +30,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends AbstractImageData< T >
 {
@@ -42,7 +38,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
     private final String[] s3AccessAndSecretKey;
     private boolean isOpen;
     private List< SourceAndConverter< T > > sourcesAndConverters;
-    private int numTimepoints;
+    private int numTimePoints;
     private List< ConverterSetup > converterSetups;
 
     private final BdvOptions bdvOptions = BdvOptions.options();
@@ -130,7 +126,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
     {
         if ( !isOpen ) open();
 
-        return numTimepoints;
+        return numTimePoints;
     }
 
     public BdvOptions getBdvOptions()
@@ -196,7 +192,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
 
                 int numDatasets = sourcesAndConverters.size();
 
-                numTimepoints = Math.max( numTimepoints,
+                numTimePoints = Math.max( numTimePoints,
                     N5Viewer.buildN5Sources(
                         n5,
                         selection,
