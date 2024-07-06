@@ -8,7 +8,7 @@ public class OMEZarrSavingSpeed
 {
     public static void main( String[] args )
     {
-        int size = 100;
+        int size = 100; // => 2 s
         ImagePlus imp = IJ.createImage( "image", size, size, size, 8 );
 
         long start = System.currentTimeMillis();
