@@ -41,6 +41,7 @@ import org.janelia.saalfeldlab.n5.ij.N5Importer;
 import org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.sql.Array;
 import java.util.ArrayList;
@@ -65,17 +66,15 @@ public class OMEZarrWriter
 
         // TODO: https://github.com/saalfeldlab/n5-ij/issues/82
         String chunkSizeArg = getChunkSizeArg( imp );
-        IJ.log("Using chunk sizes: " + chunkSizeArg );
+
+        IJ.log("Writing data to: " + uri );
+        IJ.log("Chunking: " + chunkSizeArg );
 
         try
         {
             N5URI n5URI = new N5URI( uri );
             String containerPath = n5URI.getContainerPath();
             String groupPath = n5URI.getGroupPath();
-
-            // TODO: set number of threads!
-            //    https://github.com/saalfeldlab/n5-ij/issues/83
-            //    we could do it now with reflection...
 
             N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
                     imp,
@@ -88,10 +87,26 @@ public class OMEZarrWriter
                     N5Importer.MetadataOmeZarrKey,
                     GZIP_COMPRESSION
             );
+
+            // TODO: https://github.com/saalfeldlab/n5-ij/issues/83
+            Field nThreads = N5ScalePyramidExporter.class.getDeclaredField( "nThreads" );
+            nThreads.setAccessible( true );
+            nThreads.setInt( exporter, Runtime.getRuntime().availableProcessors() - 1 );
+
             exporter.setOverwrite( overwrite );
+
+            // TODO: Log progress: https://github.com/saalfeldlab/n5-ij/issues/84
             exporter.run();
         }
         catch ( URISyntaxException e )
+        {
+            throw new RuntimeException( e );
+        }
+        catch ( NoSuchFieldException e )
+        {
+            throw new RuntimeException( e );
+        }
+        catch ( IllegalAccessException e )
         {
             throw new RuntimeException( e );
         }

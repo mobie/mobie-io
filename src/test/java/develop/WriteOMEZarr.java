@@ -14,7 +14,7 @@ import java.io.IOException;
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR_FORMAT;
 
-public class WriteOMEZarr
+public class  WriteOMEZarr
 {
     public static void main( String[] args )
     {
