@@ -30,6 +30,8 @@ package org.embl.mobie.io;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.File;
+
 import static org.embl.mobie.io.ImageDataFormat.Names.*;
 
 /**
@@ -198,6 +200,8 @@ public enum ImageDataFormat {
         final String lowerCase = path.toLowerCase();
         if(lowerCase.contains( ".zarr" ))
             return ImageDataFormat.OmeZarr;
+        else if (new File(path).isDirectory())
+            return ImageDataFormat.Tiff; // assume TIFF image sequence
         else if (lowerCase.endsWith( ".xml" ))
             return ImageDataFormat.Bdv; // TODO: https://github.com/mobie/mobie-io/issues/131
         else if (lowerCase.endsWith( ".ome.tif" ) || lowerCase.endsWith( ".ome.tiff" ) )
