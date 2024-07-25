@@ -51,11 +51,13 @@ public abstract class S3Utils
     private static boolean useCredentialsChain;
 
     // FIXME: We should remove this!
+    @Deprecated // instead use ImageDataFormat.setS3AccessAndSecretKey
     public static void setS3AccessAndSecretKey( String[] s3AccessAndSecretKey ) {
         S3Utils.s3AccessAndSecretKey = s3AccessAndSecretKey;
     }
 
     // FIXME: We should remove this!
+    @Deprecated
     public static String[] getS3AccessAndSecretKey()
     {
         return s3AccessAndSecretKey;

@@ -16,6 +16,7 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import org.embl.mobie.io.ngff.Labels;
 import org.embl.mobie.io.util.IOHelper;
+import org.embl.mobie.io.util.S3Utils;
 import org.janelia.saalfeldlab.n5.*;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
@@ -149,10 +150,6 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
             if( s3AccessAndSecretKey != null )
             {
                 n5Factory = n5Factory.s3UseCredentials( new BasicAWSCredentials( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] ) );
-            }
-            else
-            {
-                n5Factory = n5Factory.s3UseCredentials( new AnonymousAWSCredentials() );
             }
 
             N5Reader n5 = n5Factory.openReader( containerPath );
