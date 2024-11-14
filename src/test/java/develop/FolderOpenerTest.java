@@ -30,7 +30,11 @@ public class FolderOpenerTest
 //                "virtual filter=(.*.tif.*)");
 //        imp.show();
 
-        ImageData< T > imageData = ImageDataOpener.open( path );
+        ImageData< T > imageData = ImageDataOpener.open(
+                path,
+                ImageDataFormat.fromPath( path ),
+                new SharedQueue( 1 )
+        );
         Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair = imageData.getSourcePair( 0 );
 
         BdvFunctions.show( sourcePair.getB() );

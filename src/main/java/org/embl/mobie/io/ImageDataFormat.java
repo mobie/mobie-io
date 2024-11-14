@@ -93,6 +93,8 @@ public enum ImageDataFormat {
     BdvN5S3,
     @SerializedName(OPENORGANELLES3)
     OpenOrganelleS3,
+    @SerializedName(Names.N5)
+    N5,
     @SerializedName(OMEZARR)
     OmeZarr,
     @SerializedName(OMEZARRS3)
@@ -114,6 +116,8 @@ public enum ImageDataFormat {
 
     public static ImageDataFormat fromString( String string) {
         switch (string) {
+            case Names.N5:
+                return N5;
             case TOML:
                 return Toml;
             case IMAGEJ:
@@ -154,6 +158,8 @@ public enum ImageDataFormat {
     @Override
     public String toString() {
         switch (this) {
+            case N5:
+                return Names.N5;
             case Toml:
                 return TOML;
             case Tiff:
@@ -200,6 +206,8 @@ public enum ImageDataFormat {
         final String lowerCase = path.toLowerCase();
         if(lowerCase.contains( ".zarr" ))
             return ImageDataFormat.OmeZarr;
+        else if(lowerCase.contains( ".n5" ))
+            return ImageDataFormat.N5;
         else if (new File(path).isDirectory())
             return ImageDataFormat.Tiff; // assume TIFF image sequence
         else if (lowerCase.endsWith( ".xml" ))
@@ -229,6 +237,7 @@ public enum ImageDataFormat {
 
     public boolean isRemote() {
         switch (this) {
+            case N5:
             case BdvN5S3:
             case OmeZarrS3:
             case BdvOmeZarrS3:
@@ -275,6 +284,7 @@ public enum ImageDataFormat {
         public static final String BDVOMEZARRS3 = "bdv.ome.zarr.s3";
         public static final String OPENORGANELLES3 = "openOrganelle.s3";
         public static final String OMEZARR = "ome.zarr";
+        public static final String N5 = "n5";
         public static final String OMEZARRS3 = "ome.zarr.s3";
         public static final String IMARIS = "ims";
         public static final String SPIMDATA = "spimData";

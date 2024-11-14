@@ -32,32 +32,15 @@ import bdv.cache.SharedQueue;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.imagedata.*;
-import org.embl.mobie.io.util.S3Utils;
 
 
 public class ImageDataOpener
 {
-
-    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open(
-            String uri )
-    {
-        return open(
-                uri,
-                ImageDataFormat.fromPath( uri ),
-                new SharedQueue( Runtime.getRuntime().availableProcessors() - 1 ));
-    }
-
-
-    public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open(
-            String uri,
-            SharedQueue sharedQueue )
-    {
-        return open(
-                uri,
-                ImageDataFormat.fromPath( uri ),
-                sharedQueue );
-    }
-
+    /*
+    If you only have the URI use:
+    ImageDataFormat imageDataFormat = ImageDataFormat.fromPath( uri ),
+    SharedQueue sharedQueue = new SharedQueue( 1 )
+     */
     public static < T extends NumericType< T > & NativeType< T > > ImageData< T > open(
             String uri,
             ImageDataFormat imageDataFormat,
@@ -68,6 +51,7 @@ public class ImageDataOpener
             case OmeZarr:
             case OmeZarrS3:
             case OpenOrganelleS3:
+            case N5:
                 return new N5ImageData<>( uri, sharedQueue, imageDataFormat.getSecretAndAccessKey() );
             case Toml:
                 return new TOMLImageData<>( uri, sharedQueue );

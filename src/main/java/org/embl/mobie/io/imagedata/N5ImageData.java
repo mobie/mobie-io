@@ -156,6 +156,10 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
             String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
             List< N5Metadata > metadataList = new ArrayList<>();
             N5Metadata rootMetadata = N5MetadataUtils.parseMetadata( n5, rootGroup );
+
+            if ( rootMetadata == null )
+                throw new RuntimeException("No multi-scale image found at: " + uri);
+
             metadataList.add( rootMetadata );
 
             if ( rootMetadata instanceof OmeNgffMetadata )

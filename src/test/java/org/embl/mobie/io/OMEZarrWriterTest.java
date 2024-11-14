@@ -1,5 +1,6 @@
 package org.embl.mobie.io;
 
+import bdv.cache.SharedQueue;
 import ij.IJ;
 import ij.ImagePlus;
 import org.embl.mobie.io.imagedata.ImageData;
@@ -24,7 +25,10 @@ class OMEZarrWriterTest
                 OMEZarrWriter.ImageType.Intensities,
                 false );
 
-        ImageData< ? > imageData = ImageDataOpener.open( uri );
+        ImageData< ? > imageData = ImageDataOpener.open(
+                uri,
+                ImageDataFormat.fromPath( uri ),
+                new SharedQueue( 1 ) );
 
         long dim0 = imageData.getSourcePair( 0 ).getB()
                 .getSource( 0, 0 ).dimension( 0 );
