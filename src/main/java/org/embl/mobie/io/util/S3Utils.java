@@ -33,8 +33,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.*;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
@@ -42,6 +45,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.iterable.S3Objects;
 import com.amazonaws.services.s3.model.*;
 
+import com.google.api.client.http.HttpStatusCodes;
 import ij.gui.GenericDialog;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,26 +54,25 @@ public abstract class S3Utils
     private static String[] s3AccessAndSecretKey;
     private static boolean useCredentialsChain;
 
-    // FIXME: We should remove this!
-    @Deprecated // instead use ImageDataFormat.setS3AccessAndSecretKey
+    // This is, unf., still needed to open data that are not images
     public static void setS3AccessAndSecretKey( String[] s3AccessAndSecretKey ) {
         S3Utils.s3AccessAndSecretKey = s3AccessAndSecretKey;
     }
 
-    // FIXME: We should remove this!
-    @Deprecated
+    // This is, unf., still needed to open data that are not images
     public static String[] getS3AccessAndSecretKey()
     {
         return s3AccessAndSecretKey;
     }
 
-    // look for credentials at common places
-    // on the client computer
-    public static void useS3Credenditals( boolean b ) {
+    // look for credentials at common places on the client computer
+    // FIXME: This is never called (also not from mobie-viewer-fiji
+    public static void useS3Credentials( boolean b )
+    {
         useCredentialsChain = b;
     }
 
-    public static AmazonS3 getS3Client( String endpoint, String region )
+    public static AmazonS3 buildS3Client( String endpoint, String region )
     {
         final AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, region);
 
@@ -86,7 +89,6 @@ public abstract class S3Utils
         return s3;
     }
 
-    // FIXME: We should change this to take the s3AccessAndSecretKey as an argument!
     @NotNull
     public static AWSCredentialsProvider getAwsCredentialsProvider()
     {
@@ -96,7 +98,7 @@ public abstract class S3Utils
             final BasicAWSCredentials credentials = new BasicAWSCredentials(s3AccessAndSecretKey[0], s3AccessAndSecretKey[1]);
             return new AWSStaticCredentialsProvider(credentials);
         }
-        else if ( useCredentialsChain )
+        else if ( useCredentialsChain ) // FIXME: How to set this boolean?
         {
             // Look for credentials
             DefaultAWSCredentialsProviderChain credentialsProviderChain = new DefaultAWSCredentialsProviderChain();
@@ -110,14 +112,82 @@ public abstract class S3Utils
         }
     }
 
+    // https://imagesc.zulipchat.com/#narrow/channel/328251-NGFF/topic/AWS.20Credentials
+    // old code:
+    // https://github.com/mobie/mobie-io/blob/hackathon_prague_2022/src/main/java/org/embl/mobie/io/util/S3Utils.java#L63C2-L111C6
+    public static AmazonS3 buildS3Client( String endpoint, String region, String bucket )
+    {
+        final AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(endpoint, region);
+
+        // first we create a client with anonymous credentials and see if we can access the bucket like this
+        AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(new AnonymousAWSCredentials());
+        AmazonS3 s3 = AmazonS3ClientBuilder
+                .standard()
+                .withPathStyleAccessEnabled(true)
+                .withEndpointConfiguration(endpointConfiguration)
+                .withCredentials(credentialsProvider)
+                .build();
+
+        // check if we can access the bucket
+        HeadBucketRequest headBucketRequest = new HeadBucketRequest(bucket);
+        try {
+            s3.headBucket(headBucketRequest);
+            return s3;
+        } catch ( AmazonServiceException e) {
+            switch ( e.getStatusCode() ) {
+                // if we get a 403 response (access forbidden), we try again with credentials
+                case HttpStatusCodes.STATUS_CODE_FORBIDDEN:
+                    if ( s3AccessAndSecretKey != null ) {
+                        // use the given credentials
+                        final BasicAWSCredentials credentials = new BasicAWSCredentials(
+                                s3AccessAndSecretKey[0], s3AccessAndSecretKey[1] );
+                        credentialsProvider = new AWSStaticCredentialsProvider(credentials);
+                    } else {
+                        // look for credentials at other places
+                        credentialsProvider = new DefaultAWSCredentialsProviderChain();
+                        checkCredentialsExistence( credentialsProvider );
+                    }
+
+                    s3 = AmazonS3ClientBuilder
+                            .standard()
+                            .withPathStyleAccessEnabled(true)
+                            .withEndpointConfiguration(endpointConfiguration)
+                            .withCredentials(credentialsProvider)
+                            .build();
+
+                    // check if we can access now
+                    try {
+                        s3.headBucket(headBucketRequest);
+                    } catch (AmazonServiceException e2) {
+                        throw e2;
+                    }
+                    return s3;
+                // otherwise the bucket does not exist or has been permanently moved; throw the exception
+                default:
+                    throw e;
+            }
+        }
+    }
+
+    public static Map< String, AmazonS3 > locationToS3Client = new ConcurrentHashMap<>();
+
     public static AmazonS3 getS3Client( String uri ) {
         final String endpoint = getEndpoint( uri );
-        return getS3Client( endpoint, null );
+        String[] bucketAndObject = getBucketAndObject( uri );
+        String key = endpoint + "/" + bucketAndObject[0];
+        if ( ! locationToS3Client.containsKey( key ) )
+        {
+            // It takes some time to build the client,
+            // thus we cache it.
+            AmazonS3 s3Client = buildS3Client( endpoint, null, bucketAndObject[ 0 ] );
+            locationToS3Client.put( key, s3Client );
+        }
+        return locationToS3Client.get( key );
     }
 
     public static void checkCredentialsExistence( AWSCredentialsProvider credentialsProvider ) {
         try {
-            credentialsProvider.getCredentials();
+           credentialsProvider.getCredentials();
         } catch (Exception e) {
             throw new RuntimeException(e); // No credentials could be found
         }

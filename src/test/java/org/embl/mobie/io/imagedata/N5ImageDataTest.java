@@ -39,7 +39,10 @@ class N5ImageDataTest
         System.out.println("openOMEZarrFromS3WithCredentials");
         N5ImageData< ? > n5ImageData = new N5ImageData<>(
                 "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
-                new String[]{ "4vJRUoUQZix2x7wPRlSy", "qtt7o93uv2PTvXSgYGMtoGtQkd3HsRqVH5XwitSf" });
+                new String[]{
+                        "MHLAyeu3fyBAx3egnzOE",
+                        "Dj9SCkDr3XtWEohBKxCcWFZgU0YkpxRK7TndQYmm"
+                });
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
     }
