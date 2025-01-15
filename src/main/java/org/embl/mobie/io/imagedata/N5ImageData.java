@@ -5,7 +5,6 @@ import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
-import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -16,8 +15,8 @@ import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import org.embl.mobie.io.ngff.Labels;
 import org.embl.mobie.io.util.IOHelper;
-import org.embl.mobie.io.util.S3Utils;
-import org.janelia.saalfeldlab.n5.*;
+import org.janelia.saalfeldlab.n5.N5Reader;
+import org.janelia.saalfeldlab.n5.N5URI;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
 import org.janelia.saalfeldlab.n5.ui.DataSelection;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
@@ -158,7 +157,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
             N5Metadata rootMetadata = N5MetadataUtils.parseMetadata( n5, rootGroup );
 
             if ( rootMetadata == null )
-                throw new RuntimeException("No multi-scale image found at: " + uri);
+                throw new RuntimeException("No image found at: " + uri);
 
             metadataList.add( rootMetadata );
 
