@@ -9,7 +9,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.0</version>
 
     <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update -->
     <!-- mvn clean install -Dmaven.test.skip=true  -->
@@ -83,7 +83,7 @@
     <scm>
         <connection>scm:git:https://github.com/mobie/mobie-io</connection>
         <developerConnection>scm:git:git@github.com:mobie/mobie-io</developerConnection>
-        <tag>HEAD</tag>
+        <tag>mobie-io-4.0.0</tag>
         <url>https://github.com/mobie/mobie-io</url>
     </scm>
     <issueManagement>
@@ -107,7 +107,7 @@
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
         <org.jetbrains.annotations.version>16.0.2</org.jetbrains.annotations.version>
-        <bigdataviewer-image-loaders.version>0.8.7</bigdataviewer-image-loaders.version>
+        <bigdataviewer-image-loaders.version>0.9.0</bigdataviewer-image-loaders.version>
         <trove.version>1.0.2</trove.version>
         <everit-json-schema.version>1.14.0</everit-json-schema.version>
         <toml4j.version>0.7.2</toml4j.version>
