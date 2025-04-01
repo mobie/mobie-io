@@ -33,6 +33,8 @@ import com.google.gson.annotations.SerializedName;
 import java.io.File;
 
 import static org.embl.mobie.io.ImageDataFormat.Names.*;
+import static org.embl.mobie.io.ImageDataFormat.Names.*;
+import static org.embl.mobie.io.ImageDataFormat.Names.*;
 
 /**
  * Currently mobie-io supports the following data formats:
@@ -92,7 +94,7 @@ public enum ImageDataFormat {
     @SerializedName(BDVN5S3)
     BdvN5S3,
     @SerializedName(OPENORGANELLES3)
-    OpenOrganelleS3,
+    OpenOrganelleS3,   // FIXME do we still need this?
     @SerializedName(Names.N5)
     N5,
     @SerializedName(OMEZARR)
@@ -105,11 +107,11 @@ public enum ImageDataFormat {
     BdvOmeZarrS3,
     @SerializedName(IMARIS)
     Imaris,
-    @SerializedName( IMAGEDATA )
+    @SerializedName(IMAGEDATA)
     SpimData,
-    @SerializedName( IMAGEDATA )
+    @SerializedName(IMAGEDATA)
     ImageData,
-    @SerializedName( ILASTIK )
+    @SerializedName(ILASTIK)
     Ilastik;
 
     private String[] secretAndAccessKey;
@@ -235,9 +237,10 @@ public enum ImageDataFormat {
         }
     }
 
+    // FIXME do we still need this?
     public boolean isRemote() {
         switch (this) {
-            case N5:
+            case N5: // FIXME this could also be local
             case BdvN5S3:
             case OmeZarrS3:
             case BdvOmeZarrS3:

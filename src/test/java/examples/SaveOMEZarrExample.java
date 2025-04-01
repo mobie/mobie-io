@@ -1,12 +1,10 @@
 package examples;
 
-import bdv.cache.SharedQueue;
-import bdv.util.BdvFunctions;
 import ij.IJ;
 import ij.ImagePlus;
 import net.imagej.ImageJ;
 import org.embl.mobie.io.OMEZarrWriter;
-import org.embl.mobie.io.imagedata.N5ImageData;
+
 
 public class SaveOMEZarrExample
 {

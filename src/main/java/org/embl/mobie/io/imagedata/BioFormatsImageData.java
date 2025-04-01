@@ -3,16 +3,12 @@ package org.embl.mobie.io.imagedata;
 import bdv.cache.SharedQueue;
 import ch.epfl.biop.bdv.img.OpenersToSpimData;
 import ch.epfl.biop.bdv.img.bioformats.BioFormatsHelper;
-import ch.epfl.biop.bdv.img.imageplus.ImagePlusToSpimData;
 import ch.epfl.biop.bdv.img.opener.OpenerSettings;
-import ij.IJ;
-import ij.ImagePlus;
 import mpicbg.spim.data.generic.AbstractSpimData;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

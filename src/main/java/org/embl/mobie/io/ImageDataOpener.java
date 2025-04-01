@@ -29,6 +29,7 @@
 package org.embl.mobie.io;
 
 import bdv.cache.SharedQueue;
+import loci.common.DebugTools;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.imagedata.*;
@@ -36,6 +37,10 @@ import org.embl.mobie.io.imagedata.*;
 
 public class ImageDataOpener
 {
+    static {
+        DebugTools.setRootLevel( "OFF" ); // Disable Bio-Formats logging
+    }
+
     /*
     If you only have the URI use:
     ImageDataFormat imageDataFormat = ImageDataFormat.fromPath( uri ),

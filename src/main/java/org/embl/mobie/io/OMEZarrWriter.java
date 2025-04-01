@@ -34,6 +34,7 @@ import bdv.viewer.Source;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.VirtualStack;
+import ij.io.FileInfo;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.thisptr.jackson.jq.internal.misc.Strings;
@@ -43,6 +44,9 @@ import org.janelia.saalfeldlab.n5.ij.N5Importer;
 import org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.sql.Array;
@@ -99,19 +103,26 @@ public class OMEZarrWriter
 
             // TODO: Log progress: https://github.com/saalfeldlab/n5-ij/issues/84
             exporter.run();
+
+            // If available, add Bio-Formats metadata
+            // https://forum.image.sc/t/create-ome-xml-when-creating-ome-zarr-in-fiji/110683
+            FileInfo fi = imp.getOriginalFileInfo();
+            String xml = fi == null ? null : fi.description == null ? null :
+                    !fi.description.contains( "xml" ) ? null : fi.description;
+            if ( xml != null )
+            {
+                new File( uri, "OME"  ).mkdirs();
+                String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
+                FileWriter writer = new FileWriter( omeXmlPath );
+                writer.write( xml );
+                writer.close();
+            }
         }
-        catch ( URISyntaxException e )
+        catch ( URISyntaxException | NoSuchFieldException | IllegalAccessException | IOException e )
         {
             throw new RuntimeException( e );
         }
-        catch ( NoSuchFieldException e )
-        {
-            throw new RuntimeException( e );
-        }
-        catch ( IllegalAccessException e )
-        {
-            throw new RuntimeException( e );
-        }
+
 
         // TODO: If we wanted to give the dataset a name we also have to
         //       update how we refer to such an image or segmentation in the dataset.JSON

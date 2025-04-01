@@ -49,6 +49,7 @@ import javax.swing.JFileChooser;
 import ij.ImagePlus;
 import ij.io.Opener;
 import loci.common.ByteArrayHandle;
+import loci.common.DebugTools;
 import loci.common.Location;
 import loci.plugins.in.ImagePlusReader;
 import loci.plugins.in.ImportProcess;
@@ -65,6 +66,10 @@ import static org.embl.mobie.io.util.S3Utils.getS3FileNames;
 import static org.embl.mobie.io.util.S3Utils.selectS3PathFromDirectory;
 
 public class IOHelper {
+
+    static {
+        DebugTools.setRootLevel( "OFF" ); // Disable Bio-Formats logging
+    }
 
     public static ResourceType getType(String uri)
     {
@@ -523,9 +528,8 @@ public class IOHelper {
             byte[] byteArray = buffer.toByteArray();
             //System.out.println( byteArray.length + " bytes read from S3." );
             Location.mapFile( "mapped_" + path, new ByteArrayHandle( byteArray ) );
-            ImagePlus imagePlus = openWithBioFormatsFromFile( "mapped_" + path, seriesIndex );
             //System.out.println( "S3 [ms]: " + ( System.currentTimeMillis() - start ) );
-            return imagePlus;
+            return openWithBioFormatsFromFile( "mapped_" + path, seriesIndex );
         }
         catch ( IOException e )
         {
