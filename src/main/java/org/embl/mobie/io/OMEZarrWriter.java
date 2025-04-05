@@ -28,15 +28,13 @@
  */
 package org.embl.mobie.io;
 
-import bdv.export.ExportMipmapInfo;
-import bdv.export.ProposeMipmaps;
-import bdv.viewer.Source;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.VirtualStack;
-import ij.io.FileInfo;
-import mpicbg.spim.data.generic.sequence.BasicViewSetup;
-import net.imglib2.img.display.imagej.ImageJFunctions;
+import loci.common.services.DependencyException;
+import loci.common.services.ServiceException;
+import loci.common.services.ServiceFactory;
+import loci.formats.ome.OMEXMLMetadata;
+import loci.formats.services.OMEXMLService;
 import net.thisptr.jackson.jq.internal.misc.Strings;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.N5URI;
@@ -49,7 +47,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
-import java.sql.Array;
 import java.util.ArrayList;
 
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
@@ -74,7 +71,7 @@ public class OMEZarrWriter
         String chunkSizeArg = getChunkSizeArg( imp );
 
         IJ.log("Writing data to: " + uri );
-        IJ.log("Chunking: " + chunkSizeArg );
+        IJ.log("Chunking set to: " + chunkSizeArg );
 
         try
         {
@@ -106,23 +103,26 @@ public class OMEZarrWriter
 
             // If available, add Bio-Formats metadata
             // https://forum.image.sc/t/create-ome-xml-when-creating-ome-zarr-in-fiji/110683
-            FileInfo fi = imp.getOriginalFileInfo();
-            String xml = fi == null ? null : fi.description == null ? null :
-                    !fi.description.contains( "xml" ) ? null : fi.description;
+            String xml = IOHelper.getOMEXml( imp );
             if ( xml != null )
             {
+                IJ.log( "Found OME Metadata in image." );
+
+                if ( ! checkMetadataConsistency( imp, xml ) ) return;
+
                 new File( uri, "OME"  ).mkdirs();
                 String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
                 FileWriter writer = new FileWriter( omeXmlPath );
                 writer.write( xml );
                 writer.close();
+                IJ.log( "OME Metadata added to OME-Zarr." );
             }
         }
-        catch ( URISyntaxException | NoSuchFieldException | IllegalAccessException | IOException e )
+        catch ( URISyntaxException | NoSuchFieldException | IllegalAccessException |
+                IOException | ServiceException | DependencyException e )
         {
             throw new RuntimeException( e );
         }
-
 
         // TODO: If we wanted to give the dataset a name we also have to
         //       update how we refer to such an image or segmentation in the dataset.JSON
@@ -136,6 +136,24 @@ public class OMEZarrWriter
 //        {
 //            uri = IOHelper.combinePath( uri, "intensities" );
 //        }
+    }
+
+    private static boolean checkMetadataConsistency( ImagePlus imp, String xml ) throws DependencyException, ServiceException
+    {
+        ServiceFactory factory = new ServiceFactory();
+        OMEXMLService service = factory.getInstance( OMEXMLService.class );
+        OMEXMLMetadata metadata = service.createOMEXMLMetadata( xml );
+        if ( metadata.getPixelsSizeX(0).getNumberValue().intValue() != imp.getWidth()
+            || metadata.getPixelsSizeY(0).getNumberValue().intValue() != imp.getHeight()
+            || metadata.getPixelsSizeZ(0).getNumberValue().intValue() != imp.getNSlices()
+            || metadata.getPixelsSizeC(0).getNumberValue().intValue() != imp.getNChannels()
+            || metadata.getPixelsSizeT(0).getNumberValue().intValue() != imp.getNFrames() )
+        {
+            IJ.log( "Image dimensions do not equal metadata dimension;\n" +
+                    "OME Metadata will thus not be saved." );
+            return false;
+        }
+        return true;
     }
 
     @NotNull

@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 import javax.swing.JFileChooser;
 
 import ij.ImagePlus;
+import ij.io.FileInfo;
 import ij.io.Opener;
 import loci.common.ByteArrayHandle;
 import loci.common.DebugTools;
@@ -59,6 +60,7 @@ import org.embl.mobie.io.github.GitHubUtils;
 
 import com.amazonaws.services.s3.AmazonS3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static org.embl.mobie.io.github.GitHubUtils.isGithub;
 import static org.embl.mobie.io.github.GitHubUtils.selectGitHubPathFromDirectory;
@@ -550,6 +552,15 @@ public class IOHelper {
     public static String getChannelPostfix( int channelIndex )
     {
         return "ch" + channelIndex;
+    }
+
+    @Nullable
+    public static String getOMEXml( ImagePlus imp )
+    {
+        FileInfo fi = imp.getOriginalFileInfo();
+        String xml = fi == null ? null : fi.description == null ? null :
+                !fi.description.contains( "xml" ) ? null : fi.description;
+        return xml;
     }
 
 

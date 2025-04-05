@@ -4,6 +4,7 @@ import bdv.cache.SharedQueue;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.io.FileInfo;
+import ij.plugin.ChannelSplitter;
 import org.embl.mobie.io.imagedata.BioFormatsImageData;
 import org.embl.mobie.io.imagedata.ImageData;
 import org.embl.mobie.io.util.IOHelper;
@@ -61,6 +62,22 @@ class OMEZarrWriterTest
         String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
         assertTrue( new File( omeXmlPath ).exists() );
         assertTrue( isXml( omeXmlPath ) );
+    }
+
+    @Test
+    public void omeMetadataFor2Channels(@TempDir Path tempDir)
+    {
+        // This test ensures that we don't write wrong metadata
+        // when users add a single channel of a multi-channel image
+        // For details see:
+        ImagePlus imp = IOHelper.openWithBioFormats( "src/test/resources/images/xyc_xy__two_images.lif", 0 );
+        String omeXml = IOHelper.getOMEXml( imp );
+
+        ImagePlus[] channels = ChannelSplitter.split(imp);
+        String channelOmeXml = IOHelper.getOMEXml( channels[ 0 ] );
+
+        assertNotNull( omeXml );
+        assertNull( channelOmeXml );
     }
 
     private static boolean isXml( String filePath )
