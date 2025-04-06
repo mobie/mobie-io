@@ -3,9 +3,7 @@ package org.embl.mobie.io;
 import bdv.cache.SharedQueue;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.io.FileInfo;
 import ij.plugin.ChannelSplitter;
-import org.embl.mobie.io.imagedata.BioFormatsImageData;
 import org.embl.mobie.io.imagedata.ImageData;
 import org.embl.mobie.io.util.IOHelper;
 import org.junit.jupiter.api.Test;
@@ -14,10 +12,7 @@ import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,12 +59,13 @@ class OMEZarrWriterTest
         assertTrue( isXml( omeXmlPath ) );
     }
 
+
     @Test
-    public void omeMetadataFor2Channels(@TempDir Path tempDir)
+    public void omeMetadataForSplitImage( @TempDir Path tempDir)
     {
-        // This test ensures that we don't write wrong metadata
+        // Ensure that we don't write wrong metadata
         // when users add a single channel of a multi-channel image
-        // For details see:
+        // For details see: https://forum.image.sc/t/create-ome-xml-when-creating-ome-zarr-in-fiji/110683/13
         ImagePlus imp = IOHelper.openWithBioFormats( "src/test/resources/images/xyc_xy__two_images.lif", 0 );
         String omeXml = IOHelper.getOMEXml( imp );
 
@@ -78,6 +74,29 @@ class OMEZarrWriterTest
 
         assertNotNull( omeXml );
         assertNull( channelOmeXml );
+    }
+
+    @Test
+    public void omeMetadataForCroppedImage( @TempDir Path tempDir)
+    {
+        // Ensure that we don't write wrong metadata
+        // when users crop an image
+        // For details see: https://forum.image.sc/t/create-ome-xml-when-creating-ome-zarr-in-fiji/110683/13
+        ImagePlus imp = IOHelper.openWithBioFormats( "src/test/resources/images/xyc_xy__two_images.lif", 0 );
+        String omeXml = IOHelper.getOMEXml( imp );
+        assertTrue( IOHelper.checkMetadataConsistency( imp, omeXml ) );
+
+        imp = imp.resize(400, 400, 1, "bilinear");
+        assertFalse( IOHelper.checkMetadataConsistency( imp, omeXml ) );
+
+        String uri = tempDir.resolve("test.zarr").toString();
+        OMEZarrWriter.write( imp,
+                uri,
+                OMEZarrWriter.ImageType.Intensities,
+                false );
+
+        String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
+        assertFalse( new File( omeXmlPath ).exists() );
     }
 
     private static boolean isXml( String filePath )

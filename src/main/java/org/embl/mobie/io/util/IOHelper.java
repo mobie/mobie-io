@@ -46,12 +46,18 @@ import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.io.FileInfo;
 import ij.io.Opener;
 import loci.common.ByteArrayHandle;
 import loci.common.DebugTools;
 import loci.common.Location;
+import loci.common.services.DependencyException;
+import loci.common.services.ServiceException;
+import loci.common.services.ServiceFactory;
+import loci.formats.ome.OMEXMLMetadata;
+import loci.formats.services.OMEXMLService;
 import loci.plugins.in.ImagePlusReader;
 import loci.plugins.in.ImportProcess;
 import loci.plugins.in.ImporterOptions;
@@ -561,6 +567,29 @@ public class IOHelper {
         String xml = fi == null ? null : fi.description == null ? null :
                 !fi.description.contains( "xml" ) ? null : fi.description;
         return xml;
+    }
+
+    public static boolean checkMetadataConsistency( ImagePlus imp, String xml )
+    {
+        try
+        {
+            ServiceFactory factory = new ServiceFactory();
+            OMEXMLService service = factory.getInstance( OMEXMLService.class );
+            OMEXMLMetadata metadata = service.createOMEXMLMetadata( xml );
+            if ( metadata.getPixelsSizeX(0).getNumberValue().intValue() != imp.getWidth()
+                || metadata.getPixelsSizeY(0).getNumberValue().intValue() != imp.getHeight()
+                || metadata.getPixelsSizeZ(0).getNumberValue().intValue() != imp.getNSlices()
+                || metadata.getPixelsSizeC(0).getNumberValue().intValue() != imp.getNChannels()
+                || metadata.getPixelsSizeT(0).getNumberValue().intValue() != imp.getNFrames() )
+            {
+                return false;
+            }
+            return true;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
 

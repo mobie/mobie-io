@@ -32,9 +32,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
-import loci.common.services.ServiceFactory;
-import loci.formats.ome.OMEXMLMetadata;
-import loci.formats.services.OMEXMLService;
 import net.thisptr.jackson.jq.internal.misc.Strings;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.N5URI;
@@ -70,7 +67,7 @@ public class OMEZarrWriter
         // TODO: https://github.com/saalfeldlab/n5-ij/issues/82
         String chunkSizeArg = getChunkSizeArg( imp );
 
-        IJ.log("Writing data to: " + uri );
+        IJ.log("Writing OME-Zarr to: " + uri );
         IJ.log("Chunking set to: " + chunkSizeArg );
 
         try
@@ -108,7 +105,11 @@ public class OMEZarrWriter
             {
                 IJ.log( "Found OME Metadata in image." );
 
-                if ( ! checkMetadataConsistency( imp, xml ) ) return;
+                if ( ! IOHelper.checkMetadataConsistency( imp, xml ) )
+                {
+                    IJ.log( "Image dimensions do not equal metadata dimension; OME Metadata will thus not be saved." );
+                    return;
+                }
 
                 new File( uri, "OME"  ).mkdirs();
                 String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
@@ -118,8 +119,7 @@ public class OMEZarrWriter
                 IJ.log( "OME Metadata added to OME-Zarr." );
             }
         }
-        catch ( URISyntaxException | NoSuchFieldException | IllegalAccessException |
-                IOException | ServiceException | DependencyException e )
+        catch ( Exception e )
         {
             throw new RuntimeException( e );
         }
@@ -136,24 +136,6 @@ public class OMEZarrWriter
 //        {
 //            uri = IOHelper.combinePath( uri, "intensities" );
 //        }
-    }
-
-    private static boolean checkMetadataConsistency( ImagePlus imp, String xml ) throws DependencyException, ServiceException
-    {
-        ServiceFactory factory = new ServiceFactory();
-        OMEXMLService service = factory.getInstance( OMEXMLService.class );
-        OMEXMLMetadata metadata = service.createOMEXMLMetadata( xml );
-        if ( metadata.getPixelsSizeX(0).getNumberValue().intValue() != imp.getWidth()
-            || metadata.getPixelsSizeY(0).getNumberValue().intValue() != imp.getHeight()
-            || metadata.getPixelsSizeZ(0).getNumberValue().intValue() != imp.getNSlices()
-            || metadata.getPixelsSizeC(0).getNumberValue().intValue() != imp.getNChannels()
-            || metadata.getPixelsSizeT(0).getNumberValue().intValue() != imp.getNFrames() )
-        {
-            IJ.log( "Image dimensions do not equal metadata dimension;\n" +
-                    "OME Metadata will thus not be saved." );
-            return false;
-        }
-        return true;
     }
 
     @NotNull
