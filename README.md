@@ -16,5 +16,5 @@ install `Plugins->BigDataViewer->OME ZARR` in your Fiji.
 
 ## Citation
 
-If you use mobie.io as a library and use it in your research, please cite 
+If you use mobie.io as a library and use it in your research, please cite: 
 [Pape, C., Meechan, K., Moreva, E. et al. MoBIE: a Fiji plugin for sharing and exploration of multi-modal cloud-hosted big image data. Nat Methods (2023). https://doi.org/10.1038/s41592-023-01776-4](https://www.nature.com/articles/s41592-023-01776-4).
