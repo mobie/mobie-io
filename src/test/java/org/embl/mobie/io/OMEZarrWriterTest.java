@@ -60,7 +60,11 @@ class OMEZarrWriterTest
     }
 
 
-    @Test
+    //@Test
+    // TODO: This test does not run in GitHub actions, because
+    //  ChannelSplitter.split( imp ) internally calls
+    //  IJ.run(imp2, "Grays", "");
+    //  , which requires a X11 DISPLAY variable to be set
     public void omeMetadataForSplitImage( @TempDir Path tempDir)
     {
         // Ensure that we don't write wrong metadata
@@ -69,7 +73,7 @@ class OMEZarrWriterTest
         ImagePlus imp = IOHelper.openWithBioFormats( "src/test/resources/images/xyc_xy__two_images.lif", 0 );
         String omeXml = IOHelper.getOMEXml( imp );
 
-        ImagePlus[] channels = ChannelSplitter.split(imp);
+        ImagePlus[] channels = ChannelSplitter.split( imp );
         String channelOmeXml = IOHelper.getOMEXml( channels[ 0 ] );
 
         assertNotNull( omeXml );
