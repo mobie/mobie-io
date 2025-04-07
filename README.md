@@ -1,9 +1,5 @@
 [![Build Status](https://github.com/mobie/mobie-io/actions/workflows/build.yml/badge.svg)](https://github.com/mobie/mobie-io/actions/workflows/build.yml)
 
-[![](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml/badge.svg)](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml)
-
-[![](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml/badge.svg)](https://github.com/mobie/bigdataviewer-imageloader/actions/workflows/build-main.yml)
-
 # mobie-io
 
 Collection of classes to load different file formats into BigDataViewer or write data into a BigDataViewer compatible
@@ -20,4 +16,5 @@ install `Plugins->BigDataViewer->OME ZARR` in your Fiji.
 
 ## Citation
 
-If you use mobie.io as a library and use it in your research, please cite [the MoBIE preprint](https://www.biorxiv.org/content/10.1101/2022.05.27.493763v1).
+If you use mobie.io as a library and use it in your research, please cite 
+[Pape, C., Meechan, K., Moreva, E. et al. MoBIE: a Fiji plugin for sharing and exploration of multi-modal cloud-hosted big image data. Nat Methods (2023). https://doi.org/10.1038/s41592-023-01776-4](https://www.nature.com/articles/s41592-023-01776-4).
