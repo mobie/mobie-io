@@ -1,11 +1,13 @@
 package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
+import bdv.viewer.SourceAndConverter;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.ImageDataOpener;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -19,6 +21,7 @@ class N5ImageDataTest
         System.out.println("openOMEZarrFromS3");
         N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
         int numDatasets = n5ImageData.getNumDatasets();
+        List< ? extends SourceAndConverter< ? > > sourcesAndConverters = n5ImageData.getSourcesAndConverters();
         assertEquals( numDatasets, 2 ); // EM and segmentation labels
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
