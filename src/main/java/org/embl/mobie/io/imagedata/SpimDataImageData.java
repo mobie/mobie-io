@@ -20,10 +20,7 @@ import net.imglib2.util.ValuePair;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.universe.metadata.RGBAColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
-import script.imglib.math.Abs;
 import spimdata.util.Displaysettings;
-
-import java.io.IOException;
 
 public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > extends AbstractImageData< T >
 {
@@ -122,7 +119,7 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > e
             int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
             for ( int setupIndex = 0; setupIndex < numSetups; setupIndex++ )
             {
-                datasetNames.add( IOHelper.addChannelPostfix( "", setupIndex ) );
+                datasetNames.add( IOHelper.appendChannelPostfix( "", setupIndex ) );
             }
             setSharedQueue( sharedQueue );
             isOpen = true;

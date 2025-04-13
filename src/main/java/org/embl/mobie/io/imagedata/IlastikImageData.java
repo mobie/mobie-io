@@ -148,7 +148,7 @@ public class IlastikImageData< T extends NumericType< T > & NativeType< T >, V e
         {
             for ( int channelIndex = 0; channelIndex < numChannels; channelIndex++ )
             {
-                datasetNames.add( IOHelper.addChannelPostfix( dataset, channelIndex ) );
+                datasetNames.add( IOHelper.appendChannelPostfix( dataset, channelIndex ) );
             }
         }
         else

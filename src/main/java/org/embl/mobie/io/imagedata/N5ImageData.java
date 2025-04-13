@@ -40,7 +40,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
     private List< SourceAndConverter< T > > sourcesAndConverters;
     private int numTimePoints;
     private List< ConverterSetup > converterSetups;
-
+    private final List< String > datasetPaths = new ArrayList<>();
     private final BdvOptions bdvOptions = BdvOptions.options();
 
     public N5ImageData( String uri )
@@ -129,9 +129,14 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
         return numTimePoints;
     }
 
+    public String getPath( int datasetIndex )
+    {
+        return datasetPaths.get( datasetIndex );
+    }
+
     public BdvOptions getBdvOptions()
     {
-        if ( !isOpen ) open();
+        if ( ! isOpen ) open();
 
         return bdvOptions;
     }
@@ -144,6 +149,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
         {
             N5URI n5URI = new N5URI( uri );
             String containerPath = n5URI.getContainerPath();
+            String datasetRootName = IOHelper.getFileName( uri );
 
             N5Factory n5Factory = new N5Factory();
             if( s3AccessAndSecretKey != null )
@@ -190,7 +196,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
                 final DataSelection selection =
                         new DataSelection( n5, Collections.singletonList( metadata ) );
 
-                int numDatasets = sourcesAndConverters.size();
+                int numAlreadyOpenedDatasets = sourcesAndConverters.size();
 
                 numTimePoints = Math.max( numTimePoints,
                     N5Viewer.buildN5Sources(
@@ -201,23 +207,24 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
                         sourcesAndConverters, // TODO: check their names
                         bdvOptions ) );
 
-                int numChannels = sourcesAndConverters.size() - numDatasets;
-                String path = metadata.getPath();
-                String name = path.replaceAll( "[/\\\\]", "_" );
+                int numChannels = sourcesAndConverters.size() - numAlreadyOpenedDatasets;
+
+                String datasetName = metadata.getName().isEmpty() ?
+                        datasetRootName :
+                        IOHelper.combinePath( datasetRootName,  metadata.getPath() ); //path.replaceAll( "[/\\\\]", "_" );
+
                 if ( numChannels > 1 )
                 {
                     for ( int channelIndex = 0; channelIndex < numChannels; channelIndex++ )
                     {
-                        if ( ! name.isEmpty() && ! name.equals( "_" ) )
-                            datasetNames.add( IOHelper.addChannelPostfix( name, channelIndex ) );
-                        else
-                            datasetNames.add( IOHelper.getChannelPostfix( channelIndex ) );
+                        datasetNames.add( IOHelper.appendChannelPostfix( datasetName, channelIndex ) );
+                        datasetPaths.add( metadata.getPath() );
                     }
                 }
                 else
                 {
-                    name = name.startsWith( "_" ) ? name.substring( 1 ) : name;
-                    datasetNames.add( name  );
+                    datasetNames.add( datasetName  );
+                    datasetPaths.add( metadata.getPath() );
                 }
             }
 

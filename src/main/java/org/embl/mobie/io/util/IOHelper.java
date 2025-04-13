@@ -46,15 +46,12 @@ import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.io.FileInfo;
 import ij.io.Opener;
 import loci.common.ByteArrayHandle;
 import loci.common.DebugTools;
 import loci.common.Location;
-import loci.common.services.DependencyException;
-import loci.common.services.ServiceException;
 import loci.common.services.ServiceFactory;
 import loci.formats.ome.OMEXMLMetadata;
 import loci.formats.services.OMEXMLService;
@@ -197,7 +194,7 @@ public class IOHelper {
 
         String combined = paths[0];
         for (int i = 1; i < paths.length; i++) {
-            if (combined.endsWith(separator))
+            if (combined.endsWith(separator) && paths[i].isEmpty())
                 combined = combined + paths[i];
             else
                 combined = combined + separator + paths[i];
@@ -546,18 +543,15 @@ public class IOHelper {
     }
 
     @NotNull
-    public static String addChannelPostfix( String name, int channelIndex )
+    public static String appendChannelPostfix( String name, int channelIndex )
     {
-        if ( name.endsWith( "_" ) )
-            return name + getChannelPostfix( channelIndex );
-        else
-            return name + "_" + getChannelPostfix( channelIndex );
+        return name + " " + getChannelPostfix( channelIndex );
     }
 
     @NotNull
     public static String getChannelPostfix( int channelIndex )
     {
-        return "ch" + channelIndex;
+        return "c" + channelIndex;
     }
 
     @Nullable

@@ -70,6 +70,24 @@ class N5ImageDataTest
     }
 
     @Test
+    public void checkOMEZarrDatasetNames()
+    {
+        // This test uses the ImageDataOpener ( instead of directly N5ImageData )
+        System.out.println("checkOMEZarrDatasetNames");
+
+        ImageData< ? > imageData = ImageDataOpener.open(
+                "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr",
+                ImageDataFormat.OmeZarr,
+                new SharedQueue( 1 ) );
+        int numDatasets = imageData.getNumDatasets();
+        for ( int datasetIndex = 0; datasetIndex < numDatasets; datasetIndex++ )
+        {
+            System.out.println( imageData.getName( datasetIndex ) );
+        }
+        assertNotNull( imageData );
+    }
+
+    @Test
     public void openOMEZarrFromS3WithWrongCredentials()
     {
         System.out.println("openOMEZarrFromS3WithWrongCredentials");
