@@ -7,6 +7,7 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.ImageDataOpener;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -105,6 +106,42 @@ class N5ImageDataTest
         {
             System.out.println("Failed correctly due to wrong credentials.");
             assertTrue( true );
+        }
+    }
+
+    @Test
+    public void openLocalOMEZarr()
+    {
+        System.out.println("openLocalOMEZarr");
+
+        String path = new File( "src/test/resources/images/blobs.ome.zarr" ).toString();
+        try
+        {
+            N5ImageData< ? > n5ImageData = new N5ImageData<>( path );
+            assertNotNull( n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions() );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    @Test
+    public void openLocalOMEZarrWithSpaces()
+    {
+        // Checks whether space characters in the path are tolerated
+
+        System.out.println("openLocalOMEZarrWithSpaces");
+
+        String path = new File( "src/test/resources/images/blobs space.ome.zarr" ).toString();
+        try
+        {
+            N5ImageData< ? > n5ImageData = new N5ImageData<>( path );
+            assertNotNull( n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions() );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
         }
     }
 
