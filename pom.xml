@@ -9,7 +9,7 @@
 
     <groupId>org.embl.mobie</groupId>
     <artifactId>mobie-io</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
+    <version>4.0.4-SNAPSHOT</version>
 
     <!-- ../scijava-scripts/release-version.sh - -skip-version-check - -skip-license-update -->
     <!-- mvn clean install -Dmaven.test.skip=true  -->
