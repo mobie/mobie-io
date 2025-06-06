@@ -30,8 +30,6 @@ package org.embl.mobie.io;
 
 import ij.IJ;
 import ij.ImagePlus;
-import loci.common.services.DependencyException;
-import loci.common.services.ServiceException;
 import net.thisptr.jackson.jq.internal.misc.Strings;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.N5URI;
@@ -41,9 +39,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;

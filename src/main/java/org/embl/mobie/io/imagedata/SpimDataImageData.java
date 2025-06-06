@@ -64,6 +64,7 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > e
     {
         if ( ! isOpen ) open( spimDataOpener, uri );
 
+        // TODO: Why not return the same sourcePair if it is accessed a second time?
         BasicViewSetup basicViewSetup = spimData.getSequenceDescription().getViewSetupsOrdered().get( datasetIndex );
         final String setupName = createSetupName( basicViewSetup );
         Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair =
