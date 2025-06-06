@@ -22,15 +22,16 @@ class ImageDataTest < R extends RealType< R > >
     @Test
     public void openPNG()
     {
-        System.out.println("openPNG");
+        System.out.println("openPNG...");
         String uri = new File( "src/test/resources/images/boats.png" ).toString();
         ImageDataFormat imageDataFormat = ImageDataFormat.fromPath( uri );
         ImageData< ? > imageData = ImageDataOpener.open( uri, imageDataFormat, new SharedQueue( 1 ) );
         ValuePair< R, R > valuePair = computeMinMax( imageData );
-        assertEquals( 3, valuePair.getA() );
-        assertEquals( 220, valuePair.getB() );
+        assertEquals( 3, valuePair.getA().getRealDouble() );
+        assertEquals( 220, valuePair.getB().getRealDouble() );
         VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
+        System.out.println("...openPNG: Done!");
     }
 
     @Test
@@ -46,6 +47,7 @@ class ImageDataTest < R extends RealType< R > >
         assertEquals( -1468, valuePair.getA().getRealDouble() );
         assertEquals( 9827, valuePair.getB().getRealDouble() );
         assertNotNull( voxelDimensions );
+        System.out.println("...openMRC: Done!");
     }
 
     public static void main( String[] args )
