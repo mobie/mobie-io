@@ -235,7 +235,7 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
         catch ( Exception e )
         {
             System.err.println( "N5ImageData: Error opening " + uri );
-            throw new RuntimeException( e );
+            e.printStackTrace();
         }
 
         isOpen = true;

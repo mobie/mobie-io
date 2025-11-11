@@ -189,19 +189,30 @@ public class IOHelper {
         }
     }
 
-    public static String combinePath(String... paths) {
-        final String separator = getSeparator(paths[0]);
+public static String combinePath(String... paths) {
+    if (paths == null || paths.length == 0) return "";
 
-        String combined = paths[0];
-        for (int i = 1; i < paths.length; i++) {
-            if (combined.endsWith(separator) && paths[i].isEmpty())
-                combined = combined + paths[i];
-            else
-                combined = combined + separator + paths[i];
+    final String separator = getSeparator(paths[0] == null ? "" : paths[0]);
+
+    String combined = paths[0] == null ? "" : paths[0];
+    for (int i = 1; i < paths.length; i++) {
+        String part = paths[i];
+        if (part == null || part.isEmpty()) continue;
+
+        boolean combinedEndsWithSep = combined.endsWith(separator);
+        boolean partStartsWithSep = part.startsWith(separator);
+
+        if (combinedEndsWithSep && partStartsWithSep) {
+            combined = combined + part.substring(1);
+        } else if (!combinedEndsWithSep && !partStartsWithSep) {
+            combined = combined + separator + part;
+        } else {
+            combined = combined + part;
         }
-
-        return combined;
     }
+
+    return combined;
+}
 
     public static String removeTrailingSlash(String path) {
         if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
