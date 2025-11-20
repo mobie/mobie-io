@@ -4,6 +4,7 @@
 **/target
 src/test/tmp/
 src/test/debug/
+src/test/output
 .DS_Store
 .classpath
 .project

@@ -34,8 +34,8 @@ public class  WriteOMEZarr
 
         exporter.run();
 
-        OMEZarrWriter.write( imp,
-                "src/test/output/mri2.zarr",
+        OMEZarrWriter.write8MbChunks( imp,
+                "src/test/output/mri8MBChunks.zarr",
                 OMEZarrWriter.ImageType.Intensities,
                 true  );
     }

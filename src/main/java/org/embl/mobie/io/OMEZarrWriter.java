@@ -31,6 +31,8 @@ package org.embl.mobie.io;
 import ij.IJ;
 import ij.ImagePlus;
 import net.thisptr.jackson.jq.internal.misc.Strings;
+import ome.model.units.Conversion;
+import org.embl.mobie.io.util.ChunkSizeComputer;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.N5URI;
 import org.janelia.saalfeldlab.n5.ij.N5Importer;
@@ -53,31 +55,46 @@ public class OMEZarrWriter
         Labels;
     }
 
-    public static void write( ImagePlus imp, String uri, ImageType imageType, boolean overwrite )
+    public static void write(
+            ImagePlus imp,
+            String uri,
+            ImageType imageType,
+            boolean overwrite )
+    {
+        write(
+                imp,
+                uri,
+                imageType,
+                new ChunkSizeComputer( imp.getDimensions(), imp.getBytesPerPixel() ).getChunkDimensionsXYCZT( 8000000 ),
+                overwrite
+        );
+    }
+
+    public static void write(
+            ImagePlus imp,
+            String uri,
+            ImageType imageType,
+            int[] chunkDimensionsXYCZT,
+            boolean overwrite )
     {
         N5ScalePyramidExporter.DOWNSAMPLE_METHOD downSampleMethod =
                 imageType.equals( ImageType.Labels ) ?
                         N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Sample
                         : N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Average;
 
-        // TODO: https://github.com/saalfeldlab/n5-ij/issues/82
-        String chunkSizeArg = getChunkSizeArg( imp );
-
-        IJ.log("Writing OME-Zarr to: " + uri );
-        IJ.log("Chunking set to: " + chunkSizeArg );
-
         try
         {
             N5URI n5URI = new N5URI( uri );
             String containerPath = n5URI.getContainerPath();
             String groupPath = n5URI.getGroupPath();
+            String n5ChunkSizeArg = getN5ChunkSizeArg( imp.getDimensions(), chunkDimensionsXYCZT );
 
             N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
                     imp,
                     containerPath,
                     groupPath,
                     ZARR_FORMAT,
-                    chunkSizeArg,
+                    n5ChunkSizeArg,
                     true,
                     downSampleMethod,
                     N5Importer.MetadataOmeZarrKey,
@@ -99,20 +116,18 @@ public class OMEZarrWriter
             String xml = IOHelper.getOMEXml( imp );
             if ( xml != null )
             {
-                IJ.log( "Found OME Metadata in image." );
-
                 if ( ! IOHelper.checkMetadataConsistency( imp, xml ) )
                 {
-                    IJ.log( "Image dimensions do not equal metadata dimension; OME Metadata will thus not be saved." );
-                    return;
+                    // Image dimensions do not equal metadata dimension; OME Metadata will thus not be saved.
                 }
-
-                new File( uri, "OME"  ).mkdirs();
-                String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
-                FileWriter writer = new FileWriter( omeXmlPath );
-                writer.write( xml );
-                writer.close();
-                IJ.log( "OME Metadata added to OME-Zarr." );
+                else
+                {
+                    new File( uri, "OME" ).mkdirs();
+                    String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
+                    FileWriter writer = new FileWriter( omeXmlPath );
+                    writer.write( xml );
+                    writer.close();
+                }
             }
         }
         catch ( Exception e )
@@ -134,31 +149,20 @@ public class OMEZarrWriter
 //        }
     }
 
+
     @NotNull
-    private static String getChunkSizeArg( ImagePlus imp )
+    private static String getN5ChunkSizeArg( int[] imageDimensionsXYCZT, int[] chunkDimensionsXYCZT )
     {
-        // init the chunks
-        ArrayList< String > chunks = new ArrayList<>();
-        chunks.add( "96" ); // 0 = x
-        chunks.add( "96" ); // 1 = y
-        chunks.add( "1" ); // 2 = c
-        chunks.add( "96" ); // 3 = z
-        chunks.add( "1" ); // 4 = t
+        ArrayList< String > nonSingletonChunkDimensions = new ArrayList<>();
 
-        // remove singleton dimensions, as required by the N5ScalePyramidExporter
-        if ( imp.getNFrames() == 1 ) chunks.remove( 4 );
-
-        if ( imp.getNSlices() == 1 )
+        for ( int i = 0; i < chunkDimensionsXYCZT.length; i++ )
         {
-            chunks.remove( 3 );
-            // since this is 2-D data, make the chunks in xy larger
-            chunks.set( 0, "1024" );
-            chunks.set( 1, "1024" );
+            if ( imageDimensionsXYCZT[ i ] > 1 )
+            {
+                nonSingletonChunkDimensions.add( String.valueOf( chunkDimensionsXYCZT[ i ] ) );
+            }
         }
 
-        if ( imp.getNChannels() == 1 ) chunks.remove( 2 );
-
-        return Strings.join( ",", chunks );
+        return Strings.join( ",", nonSingletonChunkDimensions );
     }
-
 }

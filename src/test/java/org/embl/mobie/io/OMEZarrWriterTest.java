@@ -5,6 +5,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.plugin.ChannelSplitter;
 import org.embl.mobie.io.imagedata.ImageData;
+import org.embl.mobie.io.util.ChunkSizeComputer;
 import org.embl.mobie.io.util.IOHelper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -26,7 +27,10 @@ class OMEZarrWriterTest
 
         String uri = tempDir.resolve("test.zarr").toString();
 
-        OMEZarrWriter.write( imp,
+        ChunkSizeComputer chunkSizeComputer = new ChunkSizeComputer( imp.getDimensions(), imp.getBytesPerPixel() );
+        int[] chunkDimensionsXYCZT = chunkSizeComputer.getChunkDimensionsXYCZT( 8000000 );
+
+        OMEZarrWriter.write8MbChunks( imp,
                 uri,
                 OMEZarrWriter.ImageType.Intensities,
                 false );
