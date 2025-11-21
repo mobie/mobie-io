@@ -64,7 +64,8 @@ public class OMEZarrWriter
                 uri,
                 imageType,
                 new ChunkSizeComputer( imp.getDimensions(), imp.getBytesPerPixel() ).getChunkDimensionsXYCZT( 8000000 ),
-                overwrite
+                overwrite,
+                IOHelper.getOMEXml( imp )
         );
     }
 
@@ -74,7 +75,8 @@ public class OMEZarrWriter
             String uri,
             ImageType imageType,
             int[] chunkDimensionsXYCZT,
-            boolean overwrite )
+            boolean overwrite,
+            String omeXml )
     {
         N5ScalePyramidExporter.DOWNSAMPLE_METHOD downSampleMethod =
                 imageType.equals( ImageType.Labels ) ?
@@ -108,10 +110,9 @@ public class OMEZarrWriter
 
             // If available, add Bio-Formats metadata
             // https://forum.image.sc/t/create-ome-xml-when-creating-ome-zarr-in-fiji/110683
-            String xml = IOHelper.getOMEXml( imp );
-            if ( xml != null )
+            if ( omeXml != null )
             {
-                if ( ! IOHelper.checkMetadataConsistency( imp, xml ) )
+                if ( ! IOHelper.checkMetadataConsistency( imp, omeXml ) )
                 {
                     // Image dimensions do not equal metadata dimension; OME Metadata will thus not be saved.
                 }
@@ -120,7 +121,7 @@ public class OMEZarrWriter
                     new File( uri, "OME" ).mkdirs();
                     String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
                     FileWriter writer = new FileWriter( omeXmlPath );
-                    writer.write( xml );
+                    writer.write( omeXml );
                     writer.close();
                 }
             }
