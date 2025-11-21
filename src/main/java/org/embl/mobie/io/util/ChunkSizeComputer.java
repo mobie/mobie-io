@@ -29,9 +29,9 @@ public class ChunkSizeComputer
 
         double pixelsPerVolume = (double) nx * ny * nz;
 
-        int cz = ( int ) Math.max( 1, Math.round( Math.pow( pixelsPerChunk / pixelsPerVolume, 1. / 3 ) * nz ) );
-        int cx = ( int ) Math.max( 1, Math.round( Math.pow( pixelsPerChunk / cz, 1. / 2 ) ) );
-        int cy = cx;
+        int cz = ( int ) Math.min( nz, Math.max( 1, Math.round( Math.pow( pixelsPerChunk / pixelsPerVolume, 1. / 3 ) * nz ) ) );
+        int cx = ( int ) Math.min( nx, Math.max( 1, Math.round( Math.pow( pixelsPerChunk / cz, 1. / 2 ) ) ) );
+        int cy = Math.min( ny, cx );
 
         return new int[]{ cx, cy, 1, cz, 1 };
     }

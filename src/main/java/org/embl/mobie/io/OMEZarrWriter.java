@@ -28,10 +28,8 @@
  */
 package org.embl.mobie.io;
 
-import ij.IJ;
 import ij.ImagePlus;
 import net.thisptr.jackson.jq.internal.misc.Strings;
-import ome.model.units.Conversion;
 import org.embl.mobie.io.util.ChunkSizeComputer;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.N5URI;
@@ -41,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
@@ -55,6 +52,7 @@ public class OMEZarrWriter
         Labels;
     }
 
+    // auto-chunking
     public static void write(
             ImagePlus imp,
             String uri,
@@ -70,6 +68,7 @@ public class OMEZarrWriter
         );
     }
 
+    // configurable chunking
     public static void write(
             ImagePlus imp,
             String uri,
@@ -101,11 +100,7 @@ public class OMEZarrWriter
                     GZIP_COMPRESSION
             );
 
-            // TODO: https://github.com/saalfeldlab/n5-ij/issues/83
-            Field nThreads = N5ScalePyramidExporter.class.getDeclaredField( "nThreads" );
-            nThreads.setAccessible( true );
-            nThreads.setInt( exporter, Runtime.getRuntime().availableProcessors() - 1 );
-
+            exporter.setNumThreads( Runtime.getRuntime().availableProcessors() - 1 );
             exporter.setOverwrite( overwrite );
 
             // TODO: Log progress: https://github.com/saalfeldlab/n5-ij/issues/84
@@ -135,18 +130,6 @@ public class OMEZarrWriter
             throw new RuntimeException( e );
         }
 
-        // TODO: If we wanted to give the dataset a name we also have to
-        //       update how we refer to such an image or segmentation in the dataset.JSON
-        //       String n5Dataset = "";
-//        String n5Dataset = imageType.equals( ImageType.Labels ) ? "labels" : "intensities";
-//        if ( imageType.equals( ImageType.Labels ) )
-//        {
-//            uri = IOHelper.combinePath( uri, "labels/0" );
-//        }
-//        else
-//        {
-//            uri = IOHelper.combinePath( uri, "intensities" );
-//        }
     }
 
 

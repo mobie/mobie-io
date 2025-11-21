@@ -1,12 +1,6 @@
-package debug;
+package develop;
 
-import bdv.cache.SharedQueue;
-import org.embl.mobie.io.ImageDataFormat;
-import org.embl.mobie.io.ImageDataOpener;
-import org.embl.mobie.io.imagedata.ImageData;
 import org.embl.mobie.io.util.IOHelper;
-
-import java.util.Arrays;
 
 public class OpenS3ObjectWithCredentials
 {

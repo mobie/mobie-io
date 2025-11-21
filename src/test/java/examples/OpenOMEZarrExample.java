@@ -2,11 +2,7 @@ package examples;
 
 import bdv.cache.SharedQueue;
 import bdv.util.BdvFunctions;
-import bdv.viewer.SourceAndConverter;
 import org.embl.mobie.io.imagedata.N5ImageData;
-import org.jruby.RubyProcess;
-
-import java.util.List;
 
 public class OpenOMEZarrExample
 {

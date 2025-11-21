@@ -27,13 +27,11 @@ class OMEZarrWriterTest
 
         String uri = tempDir.resolve("test.zarr").toString();
 
-        ChunkSizeComputer chunkSizeComputer = new ChunkSizeComputer( imp.getDimensions(), imp.getBytesPerPixel() );
-        int[] chunkDimensionsXYCZT = chunkSizeComputer.getChunkDimensionsXYCZT( 8000000 );
-
-        OMEZarrWriter.write8MbChunks( imp,
+        OMEZarrWriter.write(
+                imp,
                 uri,
                 OMEZarrWriter.ImageType.Intensities,
-                false );
+                true );
 
         ImageData< ? > imageData = ImageDataOpener.open(
                 uri,
@@ -56,7 +54,7 @@ class OMEZarrWriterTest
         OMEZarrWriter.write( imp,
                 uri,
                 OMEZarrWriter.ImageType.Intensities,
-                false );
+                true );
 
         String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
         assertTrue( new File( omeXmlPath ).exists() );
