@@ -150,7 +150,6 @@ class N5ImageDataTest
         ExecutorService exec = Executors.newCachedThreadPool();
         exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3();});
         exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromEBIS3();});
-        //exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3WithCredentialsWithN5ImageData();});
         exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3WithWrongCredentials();});
     }
 }
