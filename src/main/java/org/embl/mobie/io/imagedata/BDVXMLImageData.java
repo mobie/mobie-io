@@ -1,20 +1,13 @@
 package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
-import ch.epfl.biop.bdv.img.OpenersToSpimData;
-import ch.epfl.biop.bdv.img.bioformats.BioFormatsHelper;
-import ch.epfl.biop.bdv.img.opener.OpenerSettings;
 import mpicbg.spim.data.generic.AbstractSpimData;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.util.IOHelper;
 import org.embl.mobie.io.util.InputStreamXmlIoSpimData;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 public class BDVXMLImageData< T extends NumericType< T > & NativeType< T > > extends SpimDataImageData< T >
 {
