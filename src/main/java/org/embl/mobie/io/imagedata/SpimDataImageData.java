@@ -17,7 +17,6 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
-import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.universe.metadata.RGBAColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
 import spimdata.util.Displaysettings;
@@ -65,8 +64,7 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > e
         if ( ! isOpen ) open( spimDataOpener, uri );
 
         // TODO: Why not return the same sourcePair if it is accessed a second time?
-        BasicViewSetup basicViewSetup = spimData.getSequenceDescription().getViewSetupsOrdered().get( datasetIndex );
-        final String setupName = createSetupName( basicViewSetup );
+        String setupName = getName( datasetIndex );
         Pair< Source< T >, Source< ? extends Volatile< T > > > sourcePair =
                 new ValuePair<>(
                         new SpimSource<>( spimData, datasetIndex, setupName ),
@@ -88,26 +86,7 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > e
     {
         if ( ! isOpen ) open( spimDataOpener, uri );
 
-        try
-        {
-            // Using bigdataviewer-spimdata-extras
-            final Displaysettings displaysettings = spimData.getSequenceDescription().getViewSetupsOrdered().get( datasetIndex ).getAttribute( Displaysettings.class );
-
-            int[] color = displaysettings.color;
-            RGBAColorMetadata colorMetadata = new RGBAColorMetadata( color[ 0 ], color[ 1 ], color[ 2 ], color[ 3 ] );
-
-            return new CanonicalDatasetMetadata(
-                    uri,
-                    null,
-                    displaysettings.min,
-                    displaysettings.max,
-                    colorMetadata
-            );
-        }
-        catch ( Exception e )
-        {
-            return null;
-        }
+        return metadata.get( datasetIndex );
     }
 
     protected synchronized void open( SpimDataOpener opener, String uri )
@@ -117,17 +96,58 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > e
         try
         {
             spimData = opener.open( uri );
-            int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
-            for ( int setupIndex = 0; setupIndex < numSetups; setupIndex++ )
-            {
-                datasetNames.add( IOHelper.appendChannelPostfix( "", setupIndex ) );
-            }
             setSharedQueue( sharedQueue );
+            populateMetadata();
+            populateDataSetNames();
             isOpen = true;
         }
         catch ( Exception e )
         {
             throw new RuntimeException( e );
+        }
+    }
+
+    private void populateMetadata()
+    {
+        int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
+
+        for ( int setupIndex = 0; setupIndex < numSetups; setupIndex++ )
+        {
+            try
+            {
+                // Using bigdataviewer-spimdata-extras
+                final Displaysettings displaysettings = spimData.getSequenceDescription().getViewSetupsOrdered().get( setupIndex ).getAttribute( Displaysettings.class );
+
+                int[] color = displaysettings.color;
+                RGBAColorMetadata colorMetadata = new RGBAColorMetadata( color[ 0 ], color[ 1 ], color[ 2 ], color[ 3 ] );
+
+                CanonicalDatasetMetadata canonicalDatasetMetadata = new CanonicalDatasetMetadata(
+                        uri,
+                        null,
+                        displaysettings.min,
+                        displaysettings.max,
+                        colorMetadata
+                );
+
+                metadata.add( canonicalDatasetMetadata );
+            }
+            catch ( Exception e )
+            {
+                // this happens if the data has not been produced with bdv-img-loaders
+                metadata.add( null );
+            }
+        }
+
+    }
+
+    private void populateDataSetNames()
+    {
+        int numSetups = spimData.getSequenceDescription().getViewSetupsOrdered().size();
+        for ( int setupIndex = 0; setupIndex < numSetups; setupIndex++ )
+        {
+            BasicViewSetup basicViewSetup = spimData.getSequenceDescription().getViewSetupsOrdered().get( setupIndex );
+            final String setupName = createSetupName( basicViewSetup );
+            datasetNames.add( setupName );
         }
     }
 
@@ -149,4 +169,13 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > e
 
         return name;
     }
+
+    @Override
+    public String getName( int datasetIndex )
+    {
+        if ( ! isOpen ) open( spimDataOpener, uri );
+
+        return datasetNames.get( datasetIndex );
+    }
+
 }

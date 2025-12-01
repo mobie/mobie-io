@@ -13,6 +13,7 @@ import java.util.List;
 public class AbstractImageData< T extends NumericType< T > & NativeType< T > > implements ImageData< T >
 {
     List< String > datasetNames = new ArrayList<>();
+    List< CanonicalDatasetMetadata > metadata = new ArrayList<>();
 
     @Override
     public Pair< Source< T >, Source< ? extends Volatile< T > > > getSourcePair( int datasetIndex )
