@@ -24,6 +24,7 @@ class BDVXMLImageDataTest
         }
         VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
+        assertEquals( "raw", imageData.getName( 0 ) );
     }
 
     public static void main( String[] args )

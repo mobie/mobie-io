@@ -45,7 +45,9 @@ class ImageDataTest < R extends RealType< R > >
         }
 
         VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
-        assertNotNull( voxelDimensions );
+        assertEquals( 0.6443438334464736D, voxelDimensions.dimension( 0 ), 0.01  );
+        assertEquals( "Slide_00.vsi [10x_09]-FL FITC", imageData.getName( 7 ) );
+        assertEquals( 1000, imageData.getMetadata( 10 ).maxIntensity() );
 
         imageJ.command().run(ch.epfl.biop.bdv.img.omero.command.OmeroDisconnectCommand .class, true,
                 "host", "omero-tim.gerbi-gmb.de"
@@ -101,6 +103,7 @@ class ImageDataTest < R extends RealType< R > >
 
     public static void main( String[] args ) throws ExecutionException, InterruptedException
     {
-        new ImageDataTest().openOmeroBdvXml();
+        //new ImageDataTest().openOmeroBdvXml();
+        new ImageDataTest().openMRC();
     }
 }
