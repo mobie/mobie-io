@@ -200,6 +200,10 @@
             <artifactId>ij</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>imagej</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ch.epfl.biop</groupId>
             <artifactId>bigdataviewer-image-loaders</artifactId>
             <version>${bigdataviewer-image-loaders.version}</version>

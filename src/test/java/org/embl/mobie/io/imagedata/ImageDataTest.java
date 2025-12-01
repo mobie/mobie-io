@@ -1,8 +1,8 @@
 package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
-import bdv.util.BdvFunctions;
 import mpicbg.spim.data.sequence.VoxelDimensions;
+import net.imagej.ImageJ;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
 import net.imglib2.type.numeric.RealType;
@@ -12,13 +12,48 @@ import org.embl.mobie.io.ImageDataOpener;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ImageDataTest < R extends RealType< R > >
 {
+    @Test
+    public void openOmeroBdvXml() throws ExecutionException, InterruptedException
+    {
+        // References
+        // https://github.com/mobie/mobie-io/issues/169
+        // https://forum.image.sc/t/opening-omero-datasets-in-mobie/117612/22
+
+        ImageJ imageJ = new ImageJ();
+        imageJ.command().run(ch.epfl.biop.bdv.img.omero.command.OmeroConnectCommand.class, true,
+                "host", "omero-tim.gerbi-gmb.de",
+                "username", "read-tim",
+                "password", "read-tim"
+        ).get();
+
+        String uri = new File( "src/test/resources/images/omero-bdv.xml" ).getAbsolutePath();
+        BDVXMLImageData< ? > imageData = new BDVXMLImageData<>( uri, new SharedQueue( 1 ) );
+        System.out.println( "Number of datasets: " + imageData.getNumDatasets() );
+        for ( int datasetIndex = 0; datasetIndex < imageData.getNumDatasets(); datasetIndex++ )
+        {
+            System.out.println( "Dataset index: " + datasetIndex );
+            System.out.println( "  Name: " + imageData.getName( datasetIndex ) );
+            System.out.println( "  Color: " + imageData.getMetadata( datasetIndex ).getColor() );
+            System.out.println( "  Contrast limits: " + imageData.getMetadata( datasetIndex ).minIntensity() + ", " + imageData.getMetadata( datasetIndex ).maxIntensity() );
+            System.out.println( "  Voxel dimensions: " + imageData.getSourcePair( datasetIndex ).getB().getVoxelDimensions() );
+        }
+
+        VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
+        assertNotNull( voxelDimensions );
+
+        imageJ.command().run(ch.epfl.biop.bdv.img.omero.command.OmeroDisconnectCommand .class, true,
+                "host", "omero-tim.gerbi-gmb.de"
+        ).get();
+
+        System.out.println("Done!");
+    }
+
     @Test
     public void openPNG()
     {
@@ -50,25 +85,22 @@ class ImageDataTest < R extends RealType< R > >
         System.out.println("...openMRC: Done!");
     }
 
-    public static void main( String[] args )
-    {
-        ExecutorService exec = Executors.newCachedThreadPool();
-        //exec.submit(() -> {new ImageDataTest().openPNG();});
-        exec.submit(() -> {new ImageDataTest().openMRC();});
-    }
-
     private static < R extends RealType< R > > ValuePair< R, R > computeMinMax( ImageData< ? > imageData )
     {
-        RandomAccessibleInterval< R > vRai = ( RandomAccessibleInterval< R > ) imageData.getSourcePair( 0 ).getB().getSource( 0, 0 );
-        MinMax< R > vMinMax = new MinMax<>();
-        ValuePair< R, R > vValuePair = vMinMax.compute( vRai );
-        vValuePair = vMinMax.compute( vRai );
+//        RandomAccessibleInterval< R > vRai = ( RandomAccessibleInterval< R > ) imageData.getSourcePair( 0 ).getB().getSource( 0, 0 );
+//        MinMax< R > vMinMax = new MinMax<>();
+//        ValuePair< R, R > vValuePair = vMinMax.compute( vRai );
+//        vValuePair = vMinMax.compute( vRai );
 
         RandomAccessibleInterval< R > rai = ( RandomAccessibleInterval< R > ) imageData.getSourcePair( 0 ).getA().getSource( 0, 0 );
         MinMax< R > minMax = new MinMax<>();
-        ValuePair< R, R > valuePair = vMinMax.compute( rai );
+        ValuePair< R, R > valuePair = minMax.compute( rai );
 
         return valuePair;
     }
 
+    public static void main( String[] args ) throws ExecutionException, InterruptedException
+    {
+        new ImageDataTest().openOmeroBdvXml();
+    }
 }
