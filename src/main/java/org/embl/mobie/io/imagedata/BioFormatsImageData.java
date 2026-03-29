@@ -27,16 +27,33 @@ public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > >
             public AbstractSpimData< ? > open( String uri )
             {
                 final File file = new File( uri );
-                List< OpenerSettings > openerSettings = new ArrayList<>();
+
+                String lowerCaseUri = uri.toLowerCase();
+
+                boolean usePixelUnits =
+                        (          lowerCaseUri.endsWith( ".png" )
+                                || lowerCaseUri.endsWith( ".jpg" )
+                                || lowerCaseUri.endsWith( ".jpeg" ) )
+                        ? true : false;
+
+                usePixelUnits = false;
+
+                List< OpenerSettings > settingsList = new ArrayList<>();
                 int numSeries = BioFormatsHelper.getNSeries(file);
+
                 for (int i = 0; i < numSeries; i++) {
-                    openerSettings.add(
-                            OpenerSettings.BioFormats()
-                                    .location(file)
-                                    .setSerie(i) );
+                    OpenerSettings settings = OpenerSettings.BioFormats()
+                            .location( file )
+                            .setSerie( i )
+                            .useBFMemo( false );
+
+                    if ( usePixelUnits )
+                        settings.unit( "pixel" );
+
+                    settingsList.add( settings );
                 }
 
-                return OpenersToSpimData.getSpimData( openerSettings );
+                return OpenersToSpimData.getSpimData( settingsList );
             }
         } );
         this.uri = uri;
