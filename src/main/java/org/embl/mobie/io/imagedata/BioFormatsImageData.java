@@ -33,7 +33,10 @@ public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > >
                 boolean usePixelUnits =
                         (          lowerCaseUri.endsWith( ".png" )
                                 || lowerCaseUri.endsWith( ".jpg" )
-                                || lowerCaseUri.endsWith( ".jpeg" ) )
+                                || lowerCaseUri.endsWith( ".jpeg" )
+                                || lowerCaseUri.endsWith( ".bmp" )
+                                || lowerCaseUri.endsWith( ".gif" )
+                        )
                         ? true : false;
 
                 usePixelUnits = false;
