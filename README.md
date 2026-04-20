@@ -13,6 +13,11 @@ Makes use of the [saalfeldlab n5 stack](https://github.com/saalfeldlab). For a F
 BigDataViewer, please [install MoBIE](https://github.com/mobie/mobie-viewer-fiji#install), which will
 install `Plugins->BigDataViewer->OME ZARR` in your Fiji.
 
+## Usage
+
+Please see the [examples in the tests](https://github.com/mobie/mobie-io/tree/main/src/test/java/org/embl/mobie/io) and also in the [examples folder](https://github.com/mobie/mobie-io/tree/main/src/test/java/examples).
+
+If you have a use-case not covered, please [write an issue](https://github.com/mobie/mobie-io/issues), and we will try to add an example for your use-case.
 
 ## Citation
 

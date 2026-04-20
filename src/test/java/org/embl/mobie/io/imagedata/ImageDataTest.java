@@ -1,10 +1,17 @@
 package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
+import bdv.util.Affine3DHelpers;
+import bdv.viewer.Source;
+import ij.ImagePlus;
+import ij.measure.Calibration;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imagej.ImageJ;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
+import net.imglib2.realtransform.AffineTransform;
+import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 import org.embl.mobie.io.ImageDataFormat;
@@ -87,6 +94,7 @@ class ImageDataTest < R extends RealType< R > >
         System.out.println("...openMRC: Done!");
     }
 
+
     private static < R extends RealType< R > > ValuePair< R, R > computeMinMax( ImageData< ? > imageData )
     {
 //        RandomAccessibleInterval< R > vRai = ( RandomAccessibleInterval< R > ) imageData.getSourcePair( 0 ).getB().getSource( 0, 0 );
@@ -104,6 +112,5 @@ class ImageDataTest < R extends RealType< R > >
     public static void main( String[] args ) throws ExecutionException, InterruptedException
     {
         //new ImageDataTest().openOmeroBdvXml();
-        new ImageDataTest().openMRC();
     }
 }
