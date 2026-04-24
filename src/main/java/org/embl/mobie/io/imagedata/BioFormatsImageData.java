@@ -39,8 +39,6 @@ public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > >
                         )
                         ? true : false;
 
-                usePixelUnits = false;
-
                 List< OpenerSettings > settingsList = new ArrayList<>();
                 int numSeries = BioFormatsHelper.getNSeries(file);
 

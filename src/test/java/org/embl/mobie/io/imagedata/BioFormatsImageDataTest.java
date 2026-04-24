@@ -14,6 +14,7 @@ class BioFormatsImageDataTest
     @Test
     public void openPNG()
     {
+        // https://github.com/mobie/mobie-viewer-fiji/issues/1247
         ImageData< ? > imageData = ImageDataOpener.open(
                 "src/test/resources/images/boats.png",
                 ImageDataFormat.fromPath( "src/test/resources/images/boats.png" ),
