@@ -20,7 +20,7 @@ class BioFormatsImageDataTest
                 ImageDataFormat.fromPath( "src/test/resources/images/boats.png" ),
                 new SharedQueue( 1 ) );
         VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
-        assertEquals( "px", voxelDimensions.unit() );
+        assertEquals( "pixel", voxelDimensions.unit() );
     }
 
     @Test
