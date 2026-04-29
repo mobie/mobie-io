@@ -53,18 +53,14 @@ public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > >
                             .setSerie( i )
                             .useBFMemo( false );
 
-                    // Throws NPE, https://github.com/mobie/mobie-viewer-fiji/issues/1247
-                    // if ( usePixelUnits )
-                    //    settings.unit( "pixel" );
+                    // https://github.com/mobie/mobie-viewer-fiji/issues/1247
+                    if ( usePixelUnits )
+                        settings.unit( "pixel" );
 
                     settingsList.add( settings );
                 }
 
                 AbstractSpimData< ? > spimData = OpenersToSpimData.getSpimData( settingsList );
-
-                // Since the above throws a NPE, we resort to
-                if ( usePixelUnits )
-                    setAllVoxelUnitsToPixel( spimData );
 
                 return spimData;
             }
@@ -73,29 +69,32 @@ public class BioFormatsImageData< T extends NumericType< T > & NativeType< T > >
         this.sharedQueue = sharedQueue;
     }
 
-    private static void setAllVoxelUnitsToPixel(AbstractSpimData<?> spimData) {
-
-        spimData.getSequenceDescription().getViewSetupsOrdered().forEach(setup -> {
-            final Method setVoxelSize;
+    // NB: this is not used anymore because doing it in OpenersToSpimData works now.
+    // But I will keep it here because it might be useful in the future.
+    private static void setAllVoxelUnitsToPixel(AbstractSpimData<?> spimData)
+    {
+        spimData.getSequenceDescription().getViewSetupsOrdered().forEach(setup ->
+        {
             try
             {
-                setVoxelSize = BasicViewSetup.class.getDeclaredMethod("setVoxelSize", VoxelDimensions.class);
+                final Method setVoxelSize;
+                setVoxelSize = BasicViewSetup.class.getDeclaredMethod( "setVoxelSize", VoxelDimensions.class );
+                setVoxelSize.setAccessible( true );
+
+                try {
+                    final double[] dims = new double[ setup.getVoxelSize().numDimensions() ];
+                    Arrays.fill( dims,1.0 );
+                    setVoxelSize.invoke( setup, new FinalVoxelDimensions( "pixel", dims ) );
+                }
+                catch ( Exception e )
+                {
+                    throw new RuntimeException( "Failed to set voxel size for setup " + setup.getId(), e );
+                }
             }
             catch ( NoSuchMethodException ex )
             {
                 throw new RuntimeException( ex );
             }
-            setVoxelSize.setAccessible(true);
-
-            try {
-                final double[] dims = new double[setup.getVoxelSize().numDimensions()];
-                Arrays.fill(dims,1.0);
-                setVoxelSize.invoke(setup, new FinalVoxelDimensions("pixel", dims));
-            }
-            catch ( Exception e )
-            {
-                throw new RuntimeException("Failed to set voxel size for setup " + setup.getId(), e);
-            }
-        });
+        } );
     }
 }

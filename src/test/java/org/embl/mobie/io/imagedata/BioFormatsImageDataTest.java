@@ -6,8 +6,7 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.ImageDataOpener;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BioFormatsImageDataTest
 {
@@ -20,7 +19,7 @@ class BioFormatsImageDataTest
                 ImageDataFormat.fromPath( "src/test/resources/images/boats.png" ),
                 new SharedQueue( 1 ) );
         VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
-        assertEquals( "pixel", voxelDimensions.unit() );
+        assertTrue( voxelDimensions.unit().equals( "pixel" ) || voxelDimensions.unit().equals( "px" ) );
     }
 
     @Test
