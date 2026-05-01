@@ -112,7 +112,7 @@
         <everit-json-schema.version>1.14.0</everit-json-schema.version>
         <toml4j.version>0.7.2</toml4j.version>
 
-        <!-- NB: This can be probably removed -->
+        <!-- NB: This should be remove once Fiji ships the release versions (and there is a corresponding parent pom)-->
         <n5.version>4.0.0-alpha-12</n5.version>
         <n5-aws-s3.version>4.4.0-alpha-9</n5-aws-s3.version>
         <n5-blosc.version>2.0.0-alpha-4</n5-blosc.version>
