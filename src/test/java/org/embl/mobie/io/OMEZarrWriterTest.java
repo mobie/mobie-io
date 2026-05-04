@@ -14,7 +14,11 @@ import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -103,6 +107,48 @@ class OMEZarrWriterTest
 
         String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
         assertFalse( new File( omeXmlPath ).exists() );
+    }
+
+    @Test
+    public void writeZarrV3WithSharding(@TempDir Path tempDir) throws IOException
+    {
+        ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 128, 128, 16 );
+
+        String uri = tempDir.resolve("test.zarr").toString();
+
+        OMEZarrWriter.write(
+                imp,
+                uri,
+                OMEZarrWriter.ImageType.Intensities,
+                new int[]{ 32, 32, 16, 1, 1 },
+                new int[]{ 64, 64, 16, 1, 1 },
+                OMEZarrWriter.StorageFormat.ZARR3,
+                true,
+                null );
+
+        final Path root = Paths.get( uri );
+        assertTrue( Files.exists( root.resolve( "zarr.json" ) ) );
+        assertTrue( hasShardingCodec( root ) );
+    }
+
+    private static boolean hasShardingCodec( Path root ) throws IOException
+    {
+        try ( Stream< Path > paths = Files.walk( root ) )
+        {
+            return paths
+                    .filter( path -> path.getFileName().toString().equals( "zarr.json" ) )
+                    .anyMatch( path -> {
+                        try
+                        {
+                            final String json = Files.readString( path );
+                            return json.contains( "sharding_indexed" ) || json.contains( "ShardingIndexedCodec" );
+                        }
+                        catch ( IOException e )
+                        {
+                            throw new RuntimeException( e );
+                        }
+                    } );
+        }
     }
 
     private static boolean isXml( String filePath )

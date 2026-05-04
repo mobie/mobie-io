@@ -43,9 +43,23 @@ import java.util.ArrayList;
 
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR2_FORMAT;
+import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR3_FORMAT;
 
 public class OMEZarrWriter
 {
+    public enum StorageFormat
+    {
+        ZARR2( ZARR2_FORMAT ),
+        ZARR3( ZARR3_FORMAT );
+
+        private final String n5ScalePyramidFormat;
+
+        StorageFormat( String n5ScalePyramidFormat )
+        {
+            this.n5ScalePyramidFormat = n5ScalePyramidFormat;
+        }
+    }
+
     public enum ImageType
     {
         Intensities,
@@ -64,6 +78,29 @@ public class OMEZarrWriter
                 uri,
                 imageType,
                 new ChunkSizeComputer( imp.getDimensions(), imp.getBytesPerPixel() ).getChunkDimensionsXYCZT( 8000000 ),
+                null,
+                StorageFormat.ZARR2,
+                overwrite,
+                IOHelper.getOMEXml( imp )
+        );
+    }
+
+    // auto-chunking with explicit storage format (optional sharding)
+    public static void write(
+            ImagePlus imp,
+            String uri,
+            ImageType imageType,
+            StorageFormat storageFormat,
+            int[] shardDimensionsXYCZT,
+            boolean overwrite )
+    {
+        write(
+                imp,
+                uri,
+                imageType,
+                new ChunkSizeComputer( imp.getDimensions(), imp.getBytesPerPixel() ).getChunkDimensionsXYCZT( 8000000 ),
+                shardDimensionsXYCZT,
+                storageFormat,
                 overwrite,
                 IOHelper.getOMEXml( imp )
         );
@@ -78,6 +115,29 @@ public class OMEZarrWriter
             boolean overwrite,
             String omeXml )
     {
+        write(
+                imp,
+                uri,
+                imageType,
+                chunkDimensionsXYCZT,
+                null,
+                StorageFormat.ZARR2,
+                overwrite,
+                omeXml
+        );
+    }
+
+    // configurable chunking and sharding
+    public static void write(
+            ImagePlus imp,
+            String uri,
+            ImageType imageType,
+            int[] chunkDimensionsXYCZT,
+            int[] shardDimensionsXYCZT,
+            StorageFormat storageFormat,
+            boolean overwrite,
+            String omeXml )
+    {
         N5ScalePyramidExporter.DOWNSAMPLE_METHOD downSampleMethod =
                 imageType.equals( ImageType.Labels ) ?
                         N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Sample
@@ -89,15 +149,18 @@ public class OMEZarrWriter
             String containerPath = n5URI.getContainerPath();
             String groupPath = n5URI.getGroupPath();
             String n5ChunkSizeArg = getN5ChunkSizeArg( imp.getDimensions(), chunkDimensionsXYCZT );
+            String n5ShardSizeArg = getN5ChunkSizeArg( imp.getDimensions(), shardDimensionsXYCZT );
 
-            N5ScalePyramidExporter exporter = new N5ScalePyramidExporter(
+            N5ScalePyramidExporter exporter = new N5ScalePyramidExporter();
+            exporter.setOptions(
                     imp,
                     containerPath,
                     groupPath,
-                    ZARR2_FORMAT,
+                    storageFormat.n5ScalePyramidFormat,
                     n5ChunkSizeArg,
+                    n5ShardSizeArg,
                     true,
-                    downSampleMethod,
+                    downSampleMethod.name(),
                     N5Importer.MetadataOmeZarrKey,
                     GZIP_COMPRESSION
             );
@@ -137,6 +200,11 @@ public class OMEZarrWriter
     @NotNull
     private static String getN5ChunkSizeArg( int[] imageDimensionsXYCZT, int[] chunkDimensionsXYCZT )
     {
+        if ( chunkDimensionsXYCZT == null || chunkDimensionsXYCZT.length == 0 )
+        {
+            return "";
+        }
+
         ArrayList< String > nonSingletonChunkDimensions = new ArrayList<>();
 
         for ( int i = 0; i < chunkDimensionsXYCZT.length; i++ )
