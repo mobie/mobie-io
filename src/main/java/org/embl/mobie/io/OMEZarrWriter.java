@@ -42,7 +42,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 
 import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
-import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR_FORMAT;
+import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.ZARR2_FORMAT;
 
 public class OMEZarrWriter
 {
@@ -94,7 +94,7 @@ public class OMEZarrWriter
                     imp,
                     containerPath,
                     groupPath,
-                    ZARR_FORMAT,
+                    ZARR2_FORMAT,
                     n5ChunkSizeArg,
                     true,
                     downSampleMethod,

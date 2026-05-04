@@ -5,7 +5,8 @@ import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
-import com.amazonaws.auth.BasicAWSCredentials;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.imglib2.Volatile;
@@ -154,7 +155,10 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
             N5Factory n5Factory = new N5Factory();
             if( s3AccessAndSecretKey != null )
             {
-                n5Factory = n5Factory.s3UseCredentials( new BasicAWSCredentials( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] ) );
+                n5Factory = n5Factory
+                        .s3Configuration( builder -> builder.credentialsProvider(
+                                StaticCredentialsProvider.create(
+                                        AwsBasicCredentials.create( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] ) ) ) );
             }
 
             N5Reader n5 = n5Factory.openReader( containerPath );

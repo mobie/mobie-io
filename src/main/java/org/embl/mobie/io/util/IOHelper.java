@@ -61,7 +61,12 @@ import loci.plugins.in.ImporterOptions;
 import org.apache.commons.io.IOUtils;
 import org.embl.mobie.io.github.GitHubUtils;
 
-import com.amazonaws.services.s3.AmazonS3;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -228,9 +233,12 @@ public static String combinePath(String... paths) {
             case FILE:
                 return Files.newInputStream( new File( uri ).toPath() );
             case S3:
-                AmazonS3 s3 = S3Utils.getS3Client( uri );
+                S3Client s3 = S3Utils.getS3Client( uri );
                 String[] bucketAndObject = S3Utils.getBucketAndObject(uri);
-                return s3.getObject(bucketAndObject[0], bucketAndObject[1]).getObjectContent();
+                return s3.getObject( GetObjectRequest.builder()
+                        .bucket( bucketAndObject[0] )
+                        .key( bucketAndObject[1] )
+                        .build() );
             default:
                 throw new IOException("Could not open uri: " + uri);
         }
@@ -261,9 +269,14 @@ public static String combinePath(String... paths) {
 
     // overwrite existing object
     public static void writeS3Object(String uri, String text) {
-        AmazonS3 s3 = S3Utils.getS3Client(uri);
+        S3Client s3 = S3Utils.getS3Client(uri);
         String[] bucketAndObject = S3Utils.getBucketAndObject(uri);
-        s3.putObject(bucketAndObject[0], bucketAndObject[1], text);
+        s3.putObject(
+                PutObjectRequest.builder()
+                        .bucket( bucketAndObject[0] )
+                        .key( bucketAndObject[1] )
+                        .build(),
+                RequestBody.fromString( text ) );
     }
 
     // overwrites existing file
@@ -336,9 +349,20 @@ public static String combinePath(String... paths) {
             case FILE:
                 return new File(uri).exists();
             case S3:
-                AmazonS3 s3 = S3Utils.getS3Client(uri);
+                S3Client s3 = S3Utils.getS3Client(uri);
                 String[] bucketAndObject = S3Utils.getBucketAndObject(uri);
-                return s3.doesObjectExist(bucketAndObject[0], bucketAndObject[1]);
+                try
+                {
+                    s3.headObject( HeadObjectRequest.builder()
+                            .bucket( bucketAndObject[0] )
+                            .key( bucketAndObject[1] )
+                            .build() );
+                    return true;
+                }
+                catch ( S3Exception e )
+                {
+                    return false;
+                }
             default:
                 return false;
         }
