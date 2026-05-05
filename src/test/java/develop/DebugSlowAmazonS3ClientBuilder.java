@@ -1,19 +1,20 @@
 package develop;
 
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import software.amazon.awssdk.services.s3.S3Client;
 
 public class DebugSlowAmazonS3ClientBuilder
 {
     public static void main( String[] args )
     {
         long start;
-        AmazonS3ClientBuilder standard;
+        S3Client s3Client;
 
         for ( int i = 0; i < 2; i++ )
         {
             start = System.currentTimeMillis();
-            standard = AmazonS3ClientBuilder.standard();
-            System.out.println( "AmazonS3ClientBuilder.standard(): [ms] " + ( System.currentTimeMillis() - start ) );
+            s3Client = S3Client.builder().build();
+            System.out.println( "S3Client.builder().build(): [ms] " + ( System.currentTimeMillis() - start ) );
+            s3Client.close();
         }
     }
 }

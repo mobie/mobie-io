@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -110,6 +111,7 @@ class OMEZarrWriterTest
     }
 
     @Test
+    // FIXME: This is throwing errors!
     public void writeZarrV3WithSharding(@TempDir Path tempDir) throws IOException
     {
         ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 128, 128, 16 );
@@ -140,7 +142,7 @@ class OMEZarrWriterTest
                     .anyMatch( path -> {
                         try
                         {
-                            final String json = Files.readString( path );
+                            final String json = new String( Files.readAllBytes( path ), StandardCharsets.UTF_8 );
                             return json.contains( "sharding_indexed" ) || json.contains( "ShardingIndexedCodec" );
                         }
                         catch ( IOException e )

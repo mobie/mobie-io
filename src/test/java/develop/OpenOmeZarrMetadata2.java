@@ -1,11 +1,11 @@
 package develop;
 
-import com.amazonaws.auth.AnonymousAWSCredentials;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5URI;
 import org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -22,7 +22,7 @@ public class OpenOmeZarrMetadata2
         N5URI n5URI = new N5URI( uri );
         String containerPath = n5URI.getContainerPath();
         N5Factory n5Factory = new N5Factory();
-        n5Factory.s3UseCredentials( new AnonymousAWSCredentials() );
+        n5Factory.s3Configuration( builder -> builder.credentialsProvider( AnonymousCredentialsProvider.create() ) );
         N5Reader n5 = n5Factory.openReader( containerPath );
 
         N5DatasetDiscoverer n5DatasetDiscoverer = new N5DatasetDiscoverer(

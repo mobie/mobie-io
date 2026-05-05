@@ -1,32 +1,13 @@
 package develop;
 
-import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.embl.mobie.io.ngff.Labels;
-import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5URI;
-import org.janelia.saalfeldlab.n5.s3.AmazonS3Utils;
-import org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
-import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
-import org.janelia.saalfeldlab.n5.universe.N5TreeNode;
-import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
-import org.janelia.saalfeldlab.n5.universe.metadata.ome.ngff.v04.OmeNgffMetadataParser;
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-
-import static org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer.DEFAULT_GROUP_PARSERS;
-import static org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer.DEFAULT_PARSERS;
 
 public class DevelopParseOmeZarrMetadata
 {
@@ -37,8 +18,9 @@ public class DevelopParseOmeZarrMetadata
         long start;
 
         start = System.currentTimeMillis();
-        AmazonS3ClientBuilder.standard();
-        System.out.println( "AmazonS3ClientBuilder.standard(): [ms] " + ( System.currentTimeMillis() - start ) );
+        N5Factory probeFactory = new N5Factory();
+        probeFactory.s3Configuration( builder -> builder.credentialsProvider( AnonymousCredentialsProvider.create() ) );
+        System.out.println( "N5Factory.s3Configuration(...): [ms] " + ( System.currentTimeMillis() - start ) );
 
         for ( int i = 0; i < 2; i++ )
         {
@@ -46,7 +28,7 @@ public class DevelopParseOmeZarrMetadata
             N5URI n5URI = new N5URI( uri );
             String containerPath = n5URI.getContainerPath();
             N5Factory n5Factory = new N5Factory();
-            n5Factory.s3UseCredentials( new AnonymousAWSCredentials() );
+            n5Factory.s3Configuration( builder -> builder.credentialsProvider( AnonymousCredentialsProvider.create() ) );
             N5Reader n5 = n5Factory.openReader( containerPath );
             System.out.println( "Opened reader of " + uri + " in [ms]: " + ( System.currentTimeMillis() - start ) );
         }
