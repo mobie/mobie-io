@@ -143,13 +143,21 @@ public class OMEZarrWriter
                         N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Sample
                         : N5ScalePyramidExporter.DOWNSAMPLE_METHOD.Average;
 
+        if ( shardDimensionsXYCZT != null && storageFormat != StorageFormat.ZARR3 )
+        {
+            throw new IllegalArgumentException( "Sharding is only supported with ZARR3." );
+        }
+
         try
         {
             N5URI n5URI = new N5URI( uri );
             String containerPath = n5URI.getContainerPath();
             String groupPath = n5URI.getGroupPath();
             String n5ChunkSizeArg = getN5ChunkSizeArg( imp.getDimensions(), chunkDimensionsXYCZT );
-            String n5ShardSizeArg = getN5ChunkSizeArg( imp.getDimensions(), shardDimensionsXYCZT );
+            String n5ShardSizeArg = getN5ShardSizeArg( imp.getDimensions(), chunkDimensionsXYCZT, shardDimensionsXYCZT );
+            String metadataStyle = storageFormat == StorageFormat.ZARR3
+                    ? N5Importer.MetadataOmeZarrV05Key
+                    : N5Importer.MetadataOmeZarrKey;
 
             N5ScalePyramidExporter exporter = new N5ScalePyramidExporter();
             exporter.setOptions(
@@ -161,7 +169,7 @@ public class OMEZarrWriter
                     n5ShardSizeArg,
                     true,
                     downSampleMethod.name(),
-                    N5Importer.MetadataOmeZarrKey,
+                    metadataStyle,
                     GZIP_COMPRESSION
             );
 
@@ -216,5 +224,29 @@ public class OMEZarrWriter
         }
 
         return Strings.join( ",", nonSingletonChunkDimensions );
+    }
+
+    @NotNull
+    private static String getN5ShardSizeArg( int[] imageDimensionsXYCZT, int[] chunkDimensionsXYCZT, int[] shardDimensionsXYCZT )
+    {
+        if ( shardDimensionsXYCZT == null || shardDimensionsXYCZT.length == 0 )
+        {
+            return "";
+        }
+
+        ArrayList< String > nonSingletonShardFactors = new ArrayList<>();
+
+        for ( int i = 0; i < shardDimensionsXYCZT.length; i++ )
+        {
+            if ( imageDimensionsXYCZT[ i ] > 1 )
+            {
+                final int chunkSize = Math.max( 1, chunkDimensionsXYCZT[ i ] );
+                final int shardSize = Math.max( 1, shardDimensionsXYCZT[ i ] );
+                final int shardFactor = ( int ) Math.ceil( ( double ) shardSize / chunkSize );
+                nonSingletonShardFactors.add( String.valueOf( shardFactor ) );
+            }
+        }
+
+        return Strings.join( ",", nonSingletonShardFactors );
     }
 }
