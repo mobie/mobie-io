@@ -6,20 +6,20 @@ import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.ImageDataOpener;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BioFormatsImageDataTest
 {
     @Test
     public void openPNG()
     {
+        // https://github.com/mobie/mobie-viewer-fiji/issues/1247
         ImageData< ? > imageData = ImageDataOpener.open(
                 "src/test/resources/images/boats.png",
                 ImageDataFormat.fromPath( "src/test/resources/images/boats.png" ),
                 new SharedQueue( 1 ) );
         VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
-        assertEquals( "px", voxelDimensions.unit() );
+        assertTrue( voxelDimensions.unit().equals( "pixel" ) || voxelDimensions.unit().equals( "px" ) );
     }
 
     @Test

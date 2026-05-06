@@ -42,6 +42,11 @@ public class OpenOMEZarrAndCovertToImagePlus
         for(int d = 0; d < 3; ++d)
             scales[ d ] = Affine3DHelpers.extractScale( affineTransform, d );
 
+        // Translation is in world units; ImageJ origin is stored in pixel units.
+        double[] translation = new double[ 3 ];
+        for ( int d = 0; d < 3; ++d )
+            translation[ d ] = affineTransform.get( d, 3 );
+
         // Wrap it into an ImagePlus and set the dimensions
         ImagePlus imp = ImageJFunctions.wrap( ( RandomAccessibleInterval ) rai, "image" );
         imp.setDimensions( 1, ( int ) rai.dimension( 2 ), 1 );
@@ -50,8 +55,13 @@ public class OpenOMEZarrAndCovertToImagePlus
         Calibration calibration = new Calibration();
         calibration.setUnit( voxelDimensions.unit() );
         calibration.pixelWidth = scales[ 0 ];
-        calibration.pixelDepth = scales[ 1 ];
-        calibration.pixelHeight = scales[ 2 ];
+        calibration.pixelHeight = scales[ 1 ];
+        calibration.pixelDepth = scales[ 2 ];
+
+        // Convert world translation to ImageJ's pixel-based origin convention.
+        calibration.xOrigin = -translation[ 0 ] / calibration.pixelWidth;
+        calibration.yOrigin = -translation[ 1 ] / calibration.pixelHeight;
+        calibration.zOrigin = -translation[ 2 ] / calibration.pixelDepth;
 
         // Attached the calibration to the ImagePlus
         imp.setCalibration( calibration );
