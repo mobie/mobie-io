@@ -35,7 +35,7 @@ class BioFormatsImageDataTest
 
     public static void main( String[] args )
     {
-        new BioFormatsImageDataTest().openPNG();
+        new BioFormatsImageDataTest().openIlastikSavedByIlastik();
     }
 
 }
