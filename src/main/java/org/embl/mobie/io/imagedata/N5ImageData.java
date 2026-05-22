@@ -5,6 +5,7 @@ import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
+import org.janelia.saalfeldlab.n5.universe.metadata.ome.ngff.OmeNgffMetadata;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import com.google.gson.Gson;
@@ -25,7 +26,6 @@ import org.janelia.saalfeldlab.n5.universe.N5MetadataUtils;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
-import org.janelia.saalfeldlab.n5.universe.metadata.ome.ngff.v04.OmeNgffMetadata;
 
 import java.io.IOException;
 import java.util.ArrayList;

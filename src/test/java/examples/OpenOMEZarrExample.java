@@ -9,7 +9,7 @@ public class OpenOMEZarrExample
     public static void main( String[] args )
     {
         //String uri = "https://s3.embl.de/imatrec/IMATREC_HiTT_20240414_AS/TAL_20to200_20230627_NA_01_epo_05.ome.zarr";
-        String uri = "/Users/tischer/Downloads/20240524_1_s2.zarr";
+        String uri = "https://livingobjects.ebi.ac.uk/idr/zarr/v0.5/idr0033A/BR00109990_C2.zarr/0/"; // v5 OME-Zarr
 
         long start = System.currentTimeMillis();
         N5ImageData< ? > imageData = new N5ImageData<>(

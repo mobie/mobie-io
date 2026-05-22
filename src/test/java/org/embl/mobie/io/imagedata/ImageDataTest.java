@@ -1,19 +1,12 @@
 package org.embl.mobie.io.imagedata;
 
 import bdv.cache.SharedQueue;
-import bdv.util.Affine3DHelpers;
-import bdv.viewer.Source;
 import ch.epfl.biop.bdv.img.omero.command.OmeroConnectCommand;
 import ch.epfl.biop.bdv.img.omero.command.OmeroDisconnectCommand;
-import ij.ImagePlus;
-import ij.measure.Calibration;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imagej.ImageJ;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
-import net.imglib2.realtransform.AffineTransform;
-import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.ValuePair;
 import org.embl.mobie.io.ImageDataFormat;
@@ -23,7 +16,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImageDataTest < R extends RealType< R > >
 {
@@ -101,11 +95,6 @@ class ImageDataTest < R extends RealType< R > >
 
     private static < R extends RealType< R > > ValuePair< R, R > computeMinMax( ImageData< ? > imageData )
     {
-//        RandomAccessibleInterval< R > vRai = ( RandomAccessibleInterval< R > ) imageData.getSourcePair( 0 ).getB().getSource( 0, 0 );
-//        MinMax< R > vMinMax = new MinMax<>();
-//        ValuePair< R, R > vValuePair = vMinMax.compute( vRai );
-//        vValuePair = vMinMax.compute( vRai );
-
         RandomAccessibleInterval< R > rai = ( RandomAccessibleInterval< R > ) imageData.getSourcePair( 0 ).getA().getSource( 0, 0 );
         MinMax< R > minMax = new MinMax<>();
         ValuePair< R, R > valuePair = minMax.compute( rai );

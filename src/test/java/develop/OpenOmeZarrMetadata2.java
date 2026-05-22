@@ -2,6 +2,7 @@ package develop;
 
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5URI;
+import org.janelia.saalfeldlab.n5.bdv.N5ViewerCreator;
 import org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer;
 import org.janelia.saalfeldlab.n5.universe.N5Factory;
 import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
@@ -10,9 +11,6 @@ import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
-
-import static org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer.DEFAULT_GROUP_PARSERS;
-import static org.janelia.saalfeldlab.n5.universe.N5DatasetDiscoverer.DEFAULT_PARSERS;
 
 public class OpenOmeZarrMetadata2
 {
@@ -28,8 +26,8 @@ public class OpenOmeZarrMetadata2
         N5DatasetDiscoverer n5DatasetDiscoverer = new N5DatasetDiscoverer(
                 n5,
                 Executors.newCachedThreadPool(),
-                Arrays.asList( DEFAULT_PARSERS ),
-                Arrays.asList( DEFAULT_GROUP_PARSERS )
+                Arrays.asList( N5ViewerCreator.n5vParsers ),
+                Arrays.asList( N5ViewerCreator.n5vGroupParsers )
         );
         // works:
         N5Metadata metadata = n5DatasetDiscoverer.parse( "s3" ).getMetadata();

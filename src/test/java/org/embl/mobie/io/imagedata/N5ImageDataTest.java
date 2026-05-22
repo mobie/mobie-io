@@ -17,6 +17,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class N5ImageDataTest
 {
     @Test
+    public void openOMEZarrV5FromS3()
+    {
+        // https://github.com/mobie/mobie-io/issues/173
+        System.out.println("openOMEZarrV5FromS3");
+
+        //N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://livingobjects.ebi.ac.uk/idr/zarr/v0.5/idr0033A/BR00109990_C2.zarr" );
+        N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://livingobjects.ebi.ac.uk/idr/zarr/v0.5/idr0033A/BR00109990_C2.zarr/0/");
+        int numDatasets = n5ImageData.getNumDatasets();
+        List< ? extends SourceAndConverter< ? > > sourcesAndConverters = n5ImageData.getSourcesAndConverters();
+        assertEquals( numDatasets, 5 ); // 5 channels
+    }
+
+    @Test
     public void openOMEZarrFromS3()
     {
         System.out.println("openOMEZarrFromS3");
@@ -147,9 +160,11 @@ class N5ImageDataTest
 
     public static void main( String[] args )
     {
-        ExecutorService exec = Executors.newCachedThreadPool();
-        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3();});
-        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromEBIS3();});
-        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3WithWrongCredentials();});
+        new N5ImageDataTest().openOMEZarrV5FromS3();
+//        ExecutorService exec = Executors.newCachedThreadPool();
+//        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3();});
+//        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromEBIS3();});
+//        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3WithWrongCredentials();});
+//        exec.submit(() -> {new N5ImageDataTest().openOMEZarrV5FromS3();});
     }
 }
