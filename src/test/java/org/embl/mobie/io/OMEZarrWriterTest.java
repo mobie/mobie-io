@@ -121,8 +121,7 @@ class OMEZarrWriterTest
     {
         ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 128, 128, 16 );
 
-        //String uri = tempDir.resolve("test.zarr").toString();
-        String uri = "/Users/tischer/Downloads/test-zarr3.zarr";
+        String uri = tempDir.resolve("test.zarr").toString();
 
         OMEZarrWriter.write(
                 imp,
@@ -147,7 +146,6 @@ class OMEZarrWriterTest
 
         // access a pixel
         NumericType< ? > type = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 ).cursor().next();
-        int a = 1;
     }
 
     private static boolean hasShardingCodec( Path root ) throws IOException
