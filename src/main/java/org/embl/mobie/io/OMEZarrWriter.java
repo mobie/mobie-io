@@ -153,8 +153,8 @@ public class OMEZarrWriter
             N5URI n5URI = new N5URI( uri );
             String containerPath = n5URI.getContainerPath();
             String groupPath = n5URI.getGroupPath();
-            String n5ChunkSizeArg = getN5ChunkSizeArg( imp.getDimensions(), chunkDimensionsXYCZT );
-            String n5ShardSizeArg = getN5ShardSizeArg( imp.getDimensions(), chunkDimensionsXYCZT, shardDimensionsXYCZT );
+            String n5ChunkSizeArg = createN5ChunkSizeArg( imp.getDimensions(), chunkDimensionsXYCZT );
+            String n5ShardSizeArg = createN5ShardSizeArg( imp.getDimensions(), chunkDimensionsXYCZT, shardDimensionsXYCZT );
             String metadataStyle = storageFormat == StorageFormat.ZARR3
                     ? N5Importer.MetadataOmeZarrV05Key
                     : N5Importer.MetadataOmeZarrKey;
@@ -206,7 +206,7 @@ public class OMEZarrWriter
 
 
     @NotNull
-    private static String getN5ChunkSizeArg( int[] imageDimensionsXYCZT, int[] chunkDimensionsXYCZT )
+    private static String createN5ChunkSizeArg( int[] imageDimensionsXYCZT, int[] chunkDimensionsXYCZT )
     {
         if ( chunkDimensionsXYCZT == null || chunkDimensionsXYCZT.length == 0 )
         {
@@ -227,7 +227,7 @@ public class OMEZarrWriter
     }
 
     @NotNull
-    private static String getN5ShardSizeArg( int[] imageDimensionsXYCZT, int[] chunkDimensionsXYCZT, int[] shardDimensionsXYCZT )
+    private static String createN5ShardSizeArg( int[] imageDimensionsXYCZT, int[] chunkDimensionsXYCZT, int[] shardDimensionsXYCZT )
     {
         if ( shardDimensionsXYCZT == null || shardDimensionsXYCZT.length == 0 )
         {

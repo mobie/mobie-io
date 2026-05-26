@@ -4,6 +4,7 @@ import bdv.cache.SharedQueue;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.plugin.ChannelSplitter;
+import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.imagedata.ImageData;
 import org.embl.mobie.io.util.IOHelper;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class OMEZarrWriterTest
 {
     @Test
-    public void writeAndReadOMEZarr(@TempDir Path tempDir)
+    public void writeAndReadOMEZarrV04( @TempDir Path tempDir)
     {
         ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 186, 226, 27 );
 
@@ -47,13 +48,17 @@ class OMEZarrWriterTest
         long dim0 = imageData.getSourcePair( 0 ).getB()
                 .getSource( 0, 0 ).dimension( 0 );
 
+        // access a pixel
+        NumericType< ? > type = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 ).cursor().next();
+
         assertEquals( 186, dim0 );
     }
 
     @Test
-    public void writeOMEZarrWithOMEMetadata(@TempDir Path tempDir)
+    public void writeOMEZarrV4WithOMEMetadata( @TempDir Path tempDir)
     {
         ImagePlus imp = IOHelper.openWithBioFormats( "src/test/resources/images/test.tif", 0 );
+        String omeXml = IOHelper.getOMEXml( imp );
 
         String uri = tempDir.resolve("test.zarr").toString();
 
@@ -116,32 +121,33 @@ class OMEZarrWriterTest
     {
         ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 128, 128, 16 );
 
-        String uri = tempDir.resolve("test.zarr").toString();
+        //String uri = tempDir.resolve("test.zarr").toString();
+        String uri = "/Users/tischer/Downloads/test-zarr3.zarr";
 
-        final PrintStream originalErr = System.err;
-        try ( ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
-              PrintStream mutedErr = new PrintStream( errBuffer ) )
-        {
-            // n5-ij currently logs recoverable metadata-write exceptions for sharded Zarr3.
-            System.setErr( mutedErr );
-            OMEZarrWriter.write(
-                    imp,
-                    uri,
-                    OMEZarrWriter.ImageType.Intensities,
-                    new int[]{ 32, 32, 1, 16, 1 },
-                    new int[]{ 64, 64, 1, 16, 1 },
-                    OMEZarrWriter.StorageFormat.ZARR3,
-                    true,
-                    null );
-        }
-        finally
-        {
-            System.setErr( originalErr );
-        }
+        OMEZarrWriter.write(
+                imp,
+                uri,
+                OMEZarrWriter.ImageType.Intensities,
+                new int[]{ 32, 32, 1, 16, 1 },
+                new int[]{ 64, 64, 1, 16, 1 },
+                OMEZarrWriter.StorageFormat.ZARR3,
+                true,
+                null );
 
         final Path root = Paths.get( uri );
-        assertTrue( Files.exists( root.resolve( "zarr.json" ) ) );
+        boolean exists = Files.exists( root.resolve( "zarr.json" ) );
+        assertTrue( exists );
         assertTrue( hasShardingCodec( root ) );
+
+        // ensure we can also open the data without errors
+        ImageData< ? > imageData = ImageDataOpener.open(
+                uri,
+                ImageDataFormat.fromPath( uri ),
+                new SharedQueue( 1 ) );
+
+        // access a pixel
+        NumericType< ? > type = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 ).cursor().next();
+        int a = 1;
     }
 
     private static boolean hasShardingCodec( Path root ) throws IOException
