@@ -127,24 +127,26 @@ class OMEZarrWriterTest
                 imp,
                 uri,
                 OMEZarrWriter.ImageType.Intensities,
-                new int[]{ 32, 32, 1, 16, 1 },
-                new int[]{ 64, 64, 1, 16, 1 },
+                new int[]{ 32, 32, 1, 16, 1 }, // Chunks XYCZT
+                new int[]{ 64, 64, 1, 16, 1 }, // Shards XYCZT
                 OMEZarrWriter.StorageFormat.ZARR3,
                 true,
                 null );
 
         final Path root = Paths.get( uri );
-        boolean exists = Files.exists( root.resolve( "zarr.json" ) );
-        assertTrue( exists );
+
+        // check that the OME-Zarr v05 has been created...
+        assertTrue( Files.exists( root.resolve( "zarr.json" ) ) );
+        // ...with sharding.
         assertTrue( hasShardingCodec( root ) );
 
-        // ensure we can also open the data without errors
+        // ensure we can also open the data
         ImageData< ? > imageData = ImageDataOpener.open(
                 uri,
                 ImageDataFormat.fromPath( uri ),
                 new SharedQueue( 1 ) );
 
-        // access a pixel
+        // access a pixel to test that decompression works
         NumericType< ? > type = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 ).cursor().next();
     }
 
