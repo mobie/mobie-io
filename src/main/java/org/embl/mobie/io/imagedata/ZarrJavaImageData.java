@@ -1,5 +1,6 @@
 package org.embl.mobie.io.imagedata;
 
+import bdv.BigDataViewer;
 import bdv.cache.SharedQueue;
 import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;
@@ -11,10 +12,12 @@ import com.google.gson.reflect.TypeToken;
 import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
+import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import org.embl.mobie.io.ngff.Labels;
 import org.embl.mobie.io.util.IOHelper;
+import org.embl.mobie.io.zarrjava.ZarrJavaPyramidBackend;
 import org.janelia.saalfeldlab.n5.N5Reader;
 import org.janelia.saalfeldlab.n5.N5URI;
 import org.janelia.saalfeldlab.n5.bdv.N5Viewer;
@@ -27,11 +30,13 @@ import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMe
 import org.janelia.saalfeldlab.n5.universe.metadata.ome.ngff.v04.OmeNgffMetadata;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ZarrJavaImageData< T extends NumericType< T > & NativeType< T > > extends AbstractImageData< T >
+public class ZarrJavaImageData< T extends RealType< T > & NativeType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > > extends AbstractImageData< T >
 {
     private final String uri;
     private final SharedQueue sharedQueue;
@@ -42,6 +47,8 @@ public class ZarrJavaImageData< T extends NumericType< T > & NativeType< T > > e
     private List< ConverterSetup > converterSetups;
     private final List< String > datasetPaths = new ArrayList<>();
     private final BdvOptions bdvOptions = BdvOptions.options();
+    private List load;
+    private List< SourceAndConverter< T > > sourceAndConverters;
 
     public ZarrJavaImageData( String uri )
     {
@@ -145,97 +152,23 @@ public class ZarrJavaImageData< T extends NumericType< T > & NativeType< T > > e
     {
         if ( isOpen ) return;
 
+        ZarrJavaPyramidBackend< T, V > pyramidBackend = null;
         try
         {
-            N5URI n5URI = new N5URI( uri );
-            String containerPath = n5URI.getContainerPath();
-            String datasetRootName = IOHelper.getFileName( uri );
-
-            N5Factory n5Factory = new N5Factory();
-            if( s3AccessAndSecretKey != null )
-            {
-                n5Factory = n5Factory.s3UseCredentials( new BasicAWSCredentials( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] ) );
-            }
-
-            N5Reader n5 = n5Factory.openReader( containerPath );
-            String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
-            List< N5Metadata > metadataList = new ArrayList<>();
-            N5Metadata rootMetadata = N5MetadataUtils.parseMetadata( n5, rootGroup );
-
-            if ( rootMetadata == null )
-                throw new RuntimeException("No image found at: " + uri);
-
-            metadataList.add( rootMetadata );
-
-            if ( rootMetadata instanceof OmeNgffMetadata )
-            {
-                // Look for OME-Zarr labels
-                try
-                {
-                    String labelsPath = IOHelper.combinePath( uri, "labels", ".zattrs" );
-                    String labelsJson = IOHelper.read( labelsPath );
-                    Gson gson = new Gson();
-                    Labels labels = gson.fromJson( labelsJson, new TypeToken< Labels >() {}.getType() );
-                    for ( String aLabels : labels.labels )
-                    {
-                        String labelGroup = "labels/" + aLabels;
-                        metadataList.add( N5MetadataUtils.parseMetadata( n5, labelGroup, false ) );
-                    }
-                }
-                catch ( Exception e )
-                {
-                    // no labels found
-                }
-            }
-
-            converterSetups = new ArrayList<>();
-            sourcesAndConverters = new ArrayList<>();
-
-            for ( N5Metadata metadata : metadataList )
-            {
-                final DataSelection selection =
-                        new DataSelection( n5, Collections.singletonList( metadata ) );
-
-                int numAlreadyOpenedDatasets = sourcesAndConverters.size();
-
-                numTimePoints = Math.max( numTimePoints,
-                    N5Viewer.buildN5Sources(
-                        n5,
-                        selection,
-                        sharedQueue,
-                        converterSetups,
-                        sourcesAndConverters, // TODO: check their names
-                        bdvOptions ) );
-
-                int numChannels = sourcesAndConverters.size() - numAlreadyOpenedDatasets;
-
-                String datasetName = metadata.getName().isEmpty() ?
-                        datasetRootName :
-                        IOHelper.combinePath( datasetRootName,  metadata.getPath() ); //path.replaceAll( "[/\\\\]", "_" );
-
-                if ( numChannels > 1 )
-                {
-                    for ( int channelIndex = 0; channelIndex < numChannels; channelIndex++ )
-                    {
-                        datasetNames.add( IOHelper.appendChannelPostfix( datasetName, channelIndex ) );
-                        datasetPaths.add( metadata.getPath() );
-                    }
-                }
-                else
-                {
-                    datasetNames.add( datasetName  );
-                    datasetPaths.add( metadata.getPath() );
-                }
-            }
-
-            if ( sourcesAndConverters.isEmpty() )
-                throw new IOException( "N5ImageData: No datasets found." );
-
-        }
-        catch ( Exception e )
+            pyramidBackend = new ZarrJavaPyramidBackend< T, V >( new URI( uri ) );
+        } catch ( URISyntaxException e )
         {
-            System.err.println( "N5ImageData: Error opening " + uri );
-            e.printStackTrace();
+            throw new RuntimeException( e );
+        }
+
+        sourceAndConverters = pyramidBackend.load();
+
+        converterSetups = new ArrayList<>();
+        for ( int setupIndex = 0; setupIndex < sourceAndConverters.size(); setupIndex++ )
+        {
+            converterSetups.add(
+                BigDataViewer.createConverterSetup( sourceAndConverters.get( setupIndex ), setupIndex )
+            );
         }
 
         isOpen = true;

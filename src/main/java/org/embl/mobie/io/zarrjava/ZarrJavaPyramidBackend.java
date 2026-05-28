@@ -59,6 +59,7 @@ import net.imglib2.converter.Converter;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.type.numeric.NumericType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.*;
 import net.imglib2.type.numeric.real.DoubleType;
@@ -80,9 +81,7 @@ import java.util.Map;
 import static org.embl.mobie.io.zarrjava.Omero.convertOmero;
 
 // Copied and modified from https://github.com/BioImageTools/ome-zarr-fiji-java
-public class ZarrJavaPyramidBackend<
-		T extends NativeType< T > & RealType< T >,
-		V extends Volatile< T > & NativeType< V > & RealType< V > >
+public class ZarrJavaPyramidBackend< T extends NativeType< T > & RealType< T >, V extends Volatile< T > & NativeType< V > & RealType< V > >
 {
 	private final URI inputUri;
 
@@ -106,7 +105,7 @@ public class ZarrJavaPyramidBackend<
 		this.inputUri = inputUri;
 	}
 
-	public void load()
+	public List< SourceAndConverter< T > > load()
 	{
 		final MultiscaleImage multiscaleImage = openMultiscaleImage();
 		final MultiscalesEntry entry = readMultiscalesEntry( multiscaleImage );
@@ -154,7 +153,7 @@ public class ZarrJavaPyramidBackend<
 		final Omero omero = convertOmero( multiscaleImage.getOmeroMetadata() );
 		channelLabels = Omero.buildChannelLabels( name, omero, numChannels );
 
-		initSourceAndConverters();
+		return initSourceAndConverters();
 	}
 
 	private List< SourceAndConverter< T > > initSourceAndConverters( )
