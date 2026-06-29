@@ -4,7 +4,6 @@ import bdv.ViewerImgLoader;
 import bdv.cache.SharedQueue;
 import bdv.img.imaris.Imaris;
 import mpicbg.spim.data.generic.AbstractSpimData;
-import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 

@@ -95,10 +95,8 @@ class N5ImageDataTest
                 new SharedQueue( 1 ) );
         int numDatasets = imageData.getNumDatasets();
         for ( int datasetIndex = 0; datasetIndex < numDatasets; datasetIndex++ )
-        {
             System.out.println( imageData.getName( datasetIndex ) );
-        }
-        assertNotNull( imageData );
+        assertEquals( 3, imageData.getNumDatasets() );
     }
 
     @Test
