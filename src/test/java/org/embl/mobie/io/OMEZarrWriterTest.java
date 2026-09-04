@@ -1,9 +1,13 @@
 package org.embl.mobie.io;
 
 import bdv.cache.SharedQueue;
+import bdv.viewer.Source;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.measure.Calibration;
 import ij.plugin.ChannelSplitter;
+import mpicbg.spim.data.sequence.VoxelDimensions;
+import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.NumericType;
 import org.embl.mobie.io.imagedata.ImageData;
 import org.embl.mobie.io.util.IOHelper;
@@ -31,6 +35,13 @@ class OMEZarrWriterTest
     public void writeAndReadOMEZarrV04( @TempDir Path tempDir)
     {
         ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 186, 226, 27 );
+		final Calibration calibration = imp.getCalibration();
+		calibration.pixelWidth = 0.1;
+		calibration.pixelHeight = 0.1;
+		calibration.pixelDepth = 0.5;
+		calibration.xOrigin = 1;
+		calibration.yOrigin = 2;
+		calibration.zOrigin = 3;
 
         String uri = tempDir.resolve("test.zarr").toString();
 
@@ -50,8 +61,20 @@ class OMEZarrWriterTest
 
         // access a pixel
         NumericType< ? > type = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 ).cursor().next();
-
         assertEquals( 186, dim0 );
+
+        // check calibration
+        Source< ? > source = imageData.getSourcePair( 0 ).getB();
+        VoxelDimensions voxelDimensions = source.getVoxelDimensions();
+        assertArrayEquals( new double[] { 0.1, 0.1, 0.5 }, source.getVoxelDimensions().dimensionsAsDoubleArray(), 1e-6 );
+
+        final AffineTransform3D sourceTransform = new AffineTransform3D();
+		source.getSourceTransform( 0, 0, sourceTransform );
+        assertEquals( 0.1, sourceTransform.get( 0, 0 ), 1e-6 );
+        assertEquals( 0.1, sourceTransform.get( 1, 1 ), 1e-6 );
+        assertEquals( 0.5, sourceTransform.get( 2, 2 ), 1e-6 );
+
+        // TODO: Also check translation
     }
 
     @Test
