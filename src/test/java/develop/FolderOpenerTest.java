@@ -5,6 +5,7 @@ import bdv.util.BdvFunctions;
 import bdv.viewer.Source;
 import ij.ImagePlus;
 import ij.plugin.FolderOpener;
+import net.imagej.patcher.LegacyInjector;
 import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
@@ -19,6 +20,11 @@ import java.util.Arrays;
 
 public class FolderOpenerTest
 {
+    static
+    {
+        LegacyInjector.preinit();
+    }
+
     public static < T extends NumericType< T > & NativeType< T > > void main( String[] args )
     {
 

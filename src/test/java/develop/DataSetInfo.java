@@ -30,11 +30,17 @@ package develop;
 
 
 import ij.IJ;
+import net.imagej.patcher.LegacyInjector;
 
 import java.util.Comparator;
 
 class DataSetInfo
 {
+	static
+	{
+		LegacyInjector.preinit();
+	}
+
 	static class DataSetInfoComparator implements Comparator< DataSetInfo > {
 		public int compare( DataSetInfo a, DataSetInfo b) {
 			return a.numericSortablePath.compareTo( b.numericSortablePath);

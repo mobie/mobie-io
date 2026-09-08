@@ -6,6 +6,7 @@ import bdv.viewer.Source;
 import ij.ImagePlus;
 import ij.measure.Calibration;
 import mpicbg.spim.data.sequence.VoxelDimensions;
+import net.imagej.patcher.LegacyInjector;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.realtransform.AffineTransform3D;
@@ -15,6 +16,11 @@ import org.embl.mobie.io.imagedata.ImageData;
 
 public class OpenOMEZarrAndCovertToImagePlus
 {
+    static
+    {
+        LegacyInjector.preinit();
+    }
+
     public static void main( String[] args )
     {
         System.out.println("openOMEZarrAndConvertToImagePlus");

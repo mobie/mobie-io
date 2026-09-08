@@ -9,6 +9,7 @@ import ij.plugin.ChannelSplitter;
 import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.NumericType;
+import net.imagej.patcher.LegacyInjector;
 import org.embl.mobie.io.imagedata.ImageData;
 import org.embl.mobie.io.util.IOHelper;
 import org.junit.jupiter.api.Test;
@@ -17,22 +18,27 @@ import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.BLOSC_COMPRESSION;
+import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OMEZarrWriterTest
 {
+    static
+    {
+        LegacyInjector.preinit();
+    }
+
     @Test
-    public void writeAndReadOMEZarrV04( @TempDir Path tempDir)
+    public void writeAndReadBloscOMEZarrV04( @TempDir Path tempDir)
     {
         ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 186, 226, 27 );
 		final Calibration calibration = imp.getCalibration();
@@ -49,13 +55,15 @@ class OMEZarrWriterTest
                 imp,
                 uri,
                 OMEZarrWriter.ImageType.Intensities,
-                true );
+                true,
+                BLOSC_COMPRESSION );
 
         ImageData< ? > imageData = ImageDataOpener.open(
                 uri,
                 ImageDataFormat.fromPath( uri ),
                 new SharedQueue( 1 ) );
 
+        // throws invalid service exception
         long dim0 = imageData.getSourcePair( 0 ).getB()
                 .getSource( 0, 0 ).dimension( 0 );
 
@@ -78,6 +86,55 @@ class OMEZarrWriterTest
     }
 
     @Test
+    public void writeAndReadGzipOMEZarr2( @TempDir Path tempDir)
+    {
+        ImagePlus imp = IJ.createImage( "test", "8-bit ramp", 186, 226, 27 );
+        final Calibration calibration = imp.getCalibration();
+        calibration.pixelWidth = 0.1;
+        calibration.pixelHeight = 0.1;
+        calibration.pixelDepth = 0.5;
+        calibration.xOrigin = 1;
+        calibration.yOrigin = 2;
+        calibration.zOrigin = 3;
+
+        String uri = tempDir.resolve("test.zarr").toString();
+
+        OMEZarrWriter.write(
+                imp,
+                uri,
+                OMEZarrWriter.ImageType.Intensities,
+                true,
+                GZIP_COMPRESSION );
+
+        ImageData< ? > imageData = ImageDataOpener.open(
+                uri,
+                ImageDataFormat.fromPath( uri ),
+                new SharedQueue( 1 ) );
+
+        // throws invalid service exception
+        long dim0 = imageData.getSourcePair( 0 ).getB()
+                .getSource( 0, 0 ).dimension( 0 );
+
+        // access a pixel
+        NumericType< ? > type = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 ).cursor().next();
+        assertEquals( 186, dim0 );
+
+        // check calibration
+        Source< ? > source = imageData.getSourcePair( 0 ).getB();
+        VoxelDimensions voxelDimensions = source.getVoxelDimensions();
+        assertArrayEquals( new double[] { 0.1, 0.1, 0.5 }, source.getVoxelDimensions().dimensionsAsDoubleArray(), 1e-6 );
+
+        final AffineTransform3D sourceTransform = new AffineTransform3D();
+        source.getSourceTransform( 0, 0, sourceTransform );
+        assertEquals( 0.1, sourceTransform.get( 0, 0 ), 1e-6 );
+        assertEquals( 0.1, sourceTransform.get( 1, 1 ), 1e-6 );
+        assertEquals( 0.5, sourceTransform.get( 2, 2 ), 1e-6 );
+
+        // TODO: Also check translation
+    }
+
+
+    @Test
     public void writeOMEZarrV4WithOMEMetadata( @TempDir Path tempDir)
     {
         ImagePlus imp = IOHelper.openWithBioFormats( "src/test/resources/images/test.tif", 0 );
@@ -88,7 +145,8 @@ class OMEZarrWriterTest
         OMEZarrWriter.write( imp,
                 uri,
                 OMEZarrWriter.ImageType.Intensities,
-                true );
+                true,
+                GZIP_COMPRESSION );
 
         String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
         assertTrue( new File( omeXmlPath ).exists() );
@@ -133,7 +191,7 @@ class OMEZarrWriterTest
         OMEZarrWriter.write( imp,
                 uri,
                 OMEZarrWriter.ImageType.Intensities,
-                false );
+                false, GZIP_COMPRESSION );
 
         String omeXmlPath = IOHelper.combinePath( uri, "OME", "METADATA.ome.xml" );
         assertFalse( new File( omeXmlPath ).exists() );
@@ -154,7 +212,7 @@ class OMEZarrWriterTest
                 new int[]{ 64, 64, 1, 16, 1 }, // Shards XYCZT
                 OMEZarrWriter.StorageFormat.ZARR3,
                 true,
-                null );
+                null, GZIP_COMPRESSION );
 
         final Path root = Paths.get( uri );
 

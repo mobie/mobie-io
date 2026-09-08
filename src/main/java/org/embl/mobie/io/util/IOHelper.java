@@ -35,6 +35,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -248,6 +249,73 @@ public static String combinePath(String... paths) {
         try (final InputStream inputStream = IOHelper.getInputStream(uri)) {
             final String s = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
             return s;
+        }
+    }
+
+    /**
+     * Converts a string to a {@link URI} suitable for opening an OME-Zarr dataset.
+     * Handles four input forms:
+     * <ul>
+     *   <li>{@code http://} or {@code https://} URLs &ndash; used as-is</li>
+     *   <li>{@code s3://} URIs &ndash; used as-is</li>
+     *   <li>{@code file:} URIs &ndash; used as-is; both {@code file:/path/to/data.zarr} and
+     *       {@code file:///path/to/data.zarr} are usable. A URI naming a host
+     *       ({@code file://some-server/path/to/data.zarr}) is rejected by the backends,
+     *       because {@link Paths#get(URI)} accepts no authority component.</li>
+     *   <li>plain filesystem paths &ndash; converted with
+     *       {@link Paths#get(String, String...)}{@code .toUri()}</li>
+     * </ul>
+     * Reports a user-facing error via {@code errorHandler} and returns
+     * {@code null} when {@code possibleUri} is blank, uses an unsupported scheme,
+     * or cannot be interpreted as a path.
+     *
+     * @param possibleUri the string to parse; may be {@code null}
+     * @return the resolved {@link URI}, or {@code null} on failure
+     */
+    public static URI stringToUri( final String possibleUri )
+    {
+        if ( possibleUri == null || possibleUri.trim().isEmpty() )
+        {
+            throw new RuntimeException( "The clipboard does not contain any text." );
+        }
+        final String text = possibleUri.trim();
+
+        URI parsed = null;
+        try
+        {
+            parsed = new URI( text );
+        }
+        catch ( URISyntaxException e )
+        {
+            System.err.println( "Text is not valid URI syntax, will try as a local path: " + e.getMessage() );
+        }
+
+        // If parsing succeeded, check whether the scheme is one we support.
+        if ( parsed != null )
+        {
+            final String scheme = parsed.getScheme();
+            if ( "file".equalsIgnoreCase( scheme ) && parsed.getAuthority() != null )
+            {
+                throw new RuntimeException( "A 'file:' URL cannot name a host:\n" + text + "\n\n"
+                        + "Use file:///path/to/data.zarr (three slashes) for a local path." );
+            }
+            if ( "http".equalsIgnoreCase( scheme ) || "https".equalsIgnoreCase( scheme )
+                    || "file".equalsIgnoreCase( scheme ) || "s3".equalsIgnoreCase( scheme ) )
+                return parsed;
+            if ( scheme != null )
+            {
+                throw new RuntimeException( "Unsupported URL scheme '" + scheme + "':\n" + text + "\n\n"
+                        + "Supported schemes are http, https, file, and s3." );
+            }
+        }
+        // No recognizable scheme: try treating it as a local path.
+        try
+        {
+            return Paths.get( text ).toUri();
+        }
+        catch ( InvalidPathException e )
+        {
+            throw new RuntimeException( "Could not interpret the clipboard contents as a URL or path:\n" + text );
         }
     }
 

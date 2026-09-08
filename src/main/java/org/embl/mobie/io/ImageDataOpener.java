@@ -55,6 +55,10 @@ public class ImageDataOpener
         {
             case OmeZarr:
             case OmeZarrS3:
+                if ( imageDataFormat.getSecretAndAccessKey() == null )
+                    return new PyramidalZarrJavaImageData<>( uri, sharedQueue );
+                else
+                    return new N5ImageData<>( uri, sharedQueue, imageDataFormat.getSecretAndAccessKey() );
             case OpenOrganelleS3:
             case N5:
                 return new N5ImageData<>( uri, sharedQueue, imageDataFormat.getSecretAndAccessKey() );

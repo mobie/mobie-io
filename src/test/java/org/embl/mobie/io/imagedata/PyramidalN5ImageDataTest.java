@@ -4,13 +4,51 @@ import bdv.viewer.SourceAndConverter;
 import net.imglib2.RandomAccessibleInterval;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class PyramidalN5ImageDataTest
 {
+    @Test
+    public void openLocalOMEZarr()
+    {
+        // Checks whether space characters in the path are tolerated
+        System.out.println("openLocalOMEZarr");
+
+        String path = new File( "src/test/resources/images/blobs.ome.zarr" ).toString();
+        try
+        {
+            PyramidalN5ImageData< ? > n5ImageData = new PyramidalN5ImageData<>( path );
+            assertNotNull( n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions() );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    @Test
+    public void openLocalOMEZarrWithSpacesInThePath()
+    {
+        // Checks whether space characters in the path are tolerated
+        System.out.println("openLocalOMEZarrWithSpaces");
+
+        String path = new File( "src/test/resources/images/blobs space.ome.zarr" ).toString();
+        try
+        {
+            PyramidalZarrJavaImageData< ? > n5ImageData = new PyramidalZarrJavaImageData<>( path );
+            assertNotNull( n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions() );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
     @Test
     public void openOMEZarr3FromS3()
     {
@@ -30,7 +68,7 @@ class PyramidalN5ImageDataTest
         PyramidalN5ImageData< ? > imageData = new PyramidalN5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
         int numDatasets = imageData.getNumDatasets();
         List< ? extends SourceAndConverter< ? > > sourcesAndConverters = imageData.getSourcesAndConverters();
-        assertEquals( 2, numDatasets); // EM and segmentation labels
+        assertEquals( 1, numDatasets); // EM only
         RandomAccessibleInterval< ? > source = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 );
         long[] maxAsLongArray = source.maxAsLongArray();
         Object pixelValue = source.getAt( 0, 0, 0 );

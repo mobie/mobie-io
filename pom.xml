@@ -148,6 +148,11 @@
         </dependency>
         <dependency>
             <groupId>ome.zarr</groupId>
+            <artifactId>ome-zarr-imglib2</artifactId>
+            <version>${ome-zarr-fiji.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ome.zarr</groupId>
             <artifactId>ome-zarr-zarrjava</artifactId>
             <version>${ome-zarr-fiji.version}</version>
         </dependency>

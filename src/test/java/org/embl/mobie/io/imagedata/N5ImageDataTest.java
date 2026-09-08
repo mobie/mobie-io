@@ -102,7 +102,7 @@ class N5ImageDataTest
 
         ImageData< ? > imageData = ImageDataOpener.open(
                 "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr",
-                ImageDataFormat.OmeZarr,
+                ImageDataFormat.N5, // otherwise it will not open all datasets
                 new SharedQueue( 1 ) );
         int numDatasets = imageData.getNumDatasets();
         for ( int datasetIndex = 0; datasetIndex < numDatasets; datasetIndex++ )

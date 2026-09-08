@@ -29,10 +29,16 @@
 package develop;
 
 import ij.ImagePlus;
+import net.imagej.patcher.LegacyInjector;
 import org.embl.mobie.io.toml.TOMLOpener;
 
 public class OpenTOML
 {
+	static
+	{
+		LegacyInjector.preinit();
+	}
+
 	public static void main( String[] args )
 	{
 		final TOMLOpener opener = new TOMLOpener( "/Volumes/cba/exchange/kristina-mirkes/develop/data-test/processed/exp/batch/date/MVI_1253/exp--batch--date--mvi_1253.image.toml" );

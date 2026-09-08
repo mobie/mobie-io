@@ -15,6 +15,7 @@ import ome.zarr.fiji.read.ZarrReader;
 import ome.zarr.imglib2.PyramidBackend;
 import ome.zarr.imglib2.PyramidContents;
 import ome.zarr.zarrjava.ZarrJavaPyramidBackend;
+import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
 import org.scijava.Context;
@@ -144,7 +145,8 @@ public class PyramidalZarrJavaImageData< T extends NumericType< T > & NativeType
         // choose backend see also https://forum.image.sc/t/shipping-n5-in-fiji-latest-and-fiji-stable-how-to-ship-one-plugin-for-both/122290/12
         PyramidBackend backendZarrJava = new ZarrJavaPyramidBackend();
 
-        ZarrReader reader = new ZarrReader( URI.create( uri ), context, backendZarrJava );
+        URI inputUri = IOHelper.stringToUri( uri );
+        ZarrReader reader = new ZarrReader( inputUri, context, backendZarrJava );
 
         PyramidContents< ? > pyramidContents = reader.getContents();
 

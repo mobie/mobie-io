@@ -2,6 +2,7 @@ package develop;
 
 import ij.IJ;
 import ij.ImagePlus;
+import net.imagej.patcher.LegacyInjector;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.converter.Converters;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -9,8 +10,15 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.FloatType;
 import org.embl.mobie.io.OMEZarrWriter;
 
+import static org.janelia.saalfeldlab.n5.ij.N5ScalePyramidExporter.GZIP_COMPRESSION;
+
 public class LazyConvertAndSaveOMEZarr
 {
+    static
+    {
+        LegacyInjector.preinit();
+    }
+
     public static void main( String[] args )
     {
         // Open
@@ -27,6 +35,6 @@ public class LazyConvertAndSaveOMEZarr
         ImagePlus shortImp = ImageJFunctions.wrap( shortTypes, "converted image" );
 
         // Save
-        OMEZarrWriter.write( shortImp, "/Users/tischer/Desktop/test.zarr", OMEZarrWriter.ImageType.Intensities, true );
+        OMEZarrWriter.write( shortImp, "/Users/tischer/Desktop/test.zarr", OMEZarrWriter.ImageType.Intensities, true, GZIP_COMPRESSION );
     }
 }

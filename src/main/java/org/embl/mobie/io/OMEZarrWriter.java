@@ -71,7 +71,8 @@ public class OMEZarrWriter
             ImagePlus imp,
             String uri,
             ImageType imageType,
-            boolean overwrite )
+            boolean overwrite,
+            final String compression )
     {
         write(
                 imp,
@@ -81,7 +82,8 @@ public class OMEZarrWriter
                 null,
                 StorageFormat.ZARR2,
                 overwrite,
-                IOHelper.getOMEXml( imp )
+                IOHelper.getOMEXml( imp ),
+                compression
         );
     }
 
@@ -102,7 +104,7 @@ public class OMEZarrWriter
                 shardDimensionsXYCZT,
                 storageFormat,
                 overwrite,
-                IOHelper.getOMEXml( imp )
+                IOHelper.getOMEXml( imp ), GZIP_COMPRESSION
         );
     }
 
@@ -123,7 +125,7 @@ public class OMEZarrWriter
                 null,
                 StorageFormat.ZARR2,
                 overwrite,
-                omeXml
+                omeXml, GZIP_COMPRESSION
         );
     }
 
@@ -136,7 +138,8 @@ public class OMEZarrWriter
             int[] shardDimensionsXYCZT,
             StorageFormat storageFormat,
             boolean overwrite,
-            String omeXml )
+            String omeXml,
+            final String compression )
     {
         N5ScalePyramidExporter.DOWNSAMPLE_METHOD downSampleMethod =
                 imageType.equals( ImageType.Labels ) ?
@@ -170,7 +173,7 @@ public class OMEZarrWriter
                     true,
                     downSampleMethod.name(),
                     metadataStyle,
-                    GZIP_COMPRESSION
+                    compression
             );
 
             exporter.setNumThreads( Runtime.getRuntime().availableProcessors() - 1 );

@@ -1,10 +1,10 @@
 package org.embl.mobie.io.imagedata;
 
-import bdv.util.BdvFunctions;
 import bdv.viewer.SourceAndConverter;
 import net.imglib2.RandomAccessibleInterval;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,6 +12,61 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PyramidalZarrJavaImageDataTest
 {
+
+    @Test
+    public void openLocalBloscOMEZarr()
+    {
+        // Checks whether space characters in the path are tolerated
+        System.out.println("openLocalBloscOMEZarr");
+
+        String path = new File( "src/test/resources/images/blobs-blosc.ome.zarr" ).toString();
+        try
+        {
+            PyramidalZarrJavaImageData< ? > n5ImageData = new PyramidalZarrJavaImageData<>( path );
+            assertNotNull( n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions() );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    @Test
+    public void openLocalGZipOMEZarr()
+    {
+        // Checks whether space characters in the path are tolerated
+        System.out.println("openLocalGZipOMEZarr");
+
+        String path = new File( "src/test/resources/images/blobs.ome.zarr" ).toString();
+        try
+        {
+            PyramidalZarrJavaImageData< ? > n5ImageData = new PyramidalZarrJavaImageData<>( path );
+            assertNotNull( n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions() );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    @Test
+    public void openLocalGzipOMEZarrWithSpacesInThePath()
+    {
+        // Checks whether space characters in the path are tolerated
+        System.out.println("openLocalGzipOMEZarrWithSpaces");
+
+        String path = new File( "src/test/resources/images/blobs space.ome.zarr" ).toString();
+        try
+        {
+            PyramidalZarrJavaImageData< ? > n5ImageData = new PyramidalZarrJavaImageData<>( path );
+            assertNotNull( n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions() );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
     @Test
     public void openOMEZarr3FromS3()
     {
