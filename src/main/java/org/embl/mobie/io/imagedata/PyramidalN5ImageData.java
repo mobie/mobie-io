@@ -14,6 +14,7 @@ import ome.zarr.fiji.PyramidalBdv;
 import ome.zarr.fiji.read.ZarrReader;
 import ome.zarr.imglib2.PyramidContents;
 import ome.zarr.n5.N5PyramidBackend;
+import org.embl.mobie.io.ContextProvider;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
@@ -137,14 +138,12 @@ public class PyramidalN5ImageData< T extends NumericType< T > & NativeType< T > 
     {
         if ( isOpen ) return;
 
-        Context context = new Context(); // Nullable? Where to get it from?
-
         N5PyramidBackend backendZarrJava = new N5PyramidBackend();
-        ZarrReader reader = new ZarrReader( IOHelper.stringToUri( uri ), context, backendZarrJava );
+        ZarrReader reader = new ZarrReader( IOHelper.stringToUri( uri ), ContextProvider.getContext(), backendZarrJava );
 
         PyramidContents< ? > pyramidContents = reader.getContents();
 
-        PyramidalBdv< ? > bdvFriendlyPyramid = new PyramidalBdv<>( context, pyramidContents );
+        PyramidalBdv< ? > bdvFriendlyPyramid = new PyramidalBdv<>( ContextProvider.getContext(), pyramidContents );
 
         sourcesAndConverters = bdvFriendlyPyramid.asSources();
 
