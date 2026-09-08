@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>45.0.0</version>
+        <version>45.1.0</version>
     </parent>
 
     <groupId>org.embl.mobie</groupId>
@@ -106,10 +106,18 @@
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
         <org.jetbrains.annotations.version>16.0.2</org.jetbrains.annotations.version>
+
+        <!-- Try with 0.10.0 -->
         <bigdataviewer-image-loaders.version>0.22.0</bigdataviewer-image-loaders.version>
         <trove.version>1.0.2</trove.version>
         <everit-json-schema.version>1.14.0</everit-json-schema.version>
         <toml4j.version>0.7.2</toml4j.version>
+
+        <ome-zarr-fiji.version>0.7.3</ome-zarr-fiji.version>
+
+<!-- Needed for Fiji stable  -->
+<!--        <scijava.jvm.version>8</scijava.jvm.version>-->
+<!--        <scijava.jvm.build.version>[1.8.0-101,)</scijava.jvm.build.version>-->
 
     </properties>
 
@@ -133,6 +141,21 @@
         </repository>
     </repositories>
     <dependencies>
+        <dependency>
+            <groupId>ome.zarr</groupId>
+            <artifactId>ome-zarr-n5</artifactId>
+            <version>${ome-zarr-fiji.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ome.zarr</groupId>
+            <artifactId>ome-zarr-zarrjava</artifactId>
+            <version>${ome-zarr-fiji.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ome.zarr</groupId>
+            <artifactId>ome-zarr-fiji</artifactId>
+            <version>${ome-zarr-fiji.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.janelia.saalfeldlab</groupId>
             <artifactId>n5-viewer_fiji</artifactId>

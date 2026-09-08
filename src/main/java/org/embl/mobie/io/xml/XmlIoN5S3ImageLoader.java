@@ -45,7 +45,6 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader<N5S3ImageLoader
     public static final String BUCKET_NAME = "BucketName";
     public static final String KEY = "Key";
 
-
     @Override
     public Element toXml(final N5S3ImageLoader imgLoader, final File basePath) {
         return toXml(imgLoader.getServiceEndpoint(), imgLoader.getSigningRegion(), imgLoader.getBucketName(),

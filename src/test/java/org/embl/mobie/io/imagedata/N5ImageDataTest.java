@@ -9,15 +9,13 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class N5ImageDataTest
 {
     @Test
-    public void openOMEZarrV5FromS3()
+    public void openOMEZarr3FromS3()
     {
         // https://github.com/mobie/mobie-io/issues/173
         System.out.println("openOMEZarrV5FromS3");
@@ -30,16 +28,29 @@ class N5ImageDataTest
     }
 
     @Test
-    public void openOMEZarrFromS3()
+    public void openIntensityOMEZarrFromS3()
     {
-        System.out.println("openOMEZarrFromS3");
+        System.out.println("openIntensityOMEZarrFromS3");
         N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
         int numDatasets = n5ImageData.getNumDatasets();
         List< ? extends SourceAndConverter< ? > > sourcesAndConverters = n5ImageData.getSourcesAndConverters();
-        assertEquals( numDatasets, 2 ); // EM and segmentation labels
+        assertEquals( numDatasets, 2 ); // EM and Labels
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
     }
+
+    @Test
+    public void openLabelsOMEZarrFromS3()
+    {
+        System.out.println("openLabelsOMEZarrFromS3");
+        N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr/labels/cells" );
+        int numDatasets = n5ImageData.getNumDatasets();
+        List< ? extends SourceAndConverter< ? > > sourcesAndConverters = n5ImageData.getSourcesAndConverters();
+        assertEquals( numDatasets, 1 ); // Only Labels
+        VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
+        assertNotNull( voxelDimensions );
+    }
+
 
     @Test
     public void openOMEZarrFromEBIS3()
@@ -158,7 +169,7 @@ class N5ImageDataTest
 
     public static void main( String[] args )
     {
-        new N5ImageDataTest().openOMEZarrV5FromS3();
+        new N5ImageDataTest().openOMEZarr3FromS3();
 //        ExecutorService exec = Executors.newCachedThreadPool();
 //        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromS3();});
 //        exec.submit(() -> {new N5ImageDataTest().openOMEZarrFromEBIS3();});
