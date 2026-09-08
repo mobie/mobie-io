@@ -66,6 +66,26 @@ public class OMEZarrWriter
         Labels;
     }
 
+    // auto-chunking, gzip-compression
+    public static void write(
+            ImagePlus imp,
+            String uri,
+            ImageType imageType,
+            boolean overwrite )
+    {
+        write(
+                imp,
+                uri,
+                imageType,
+                new ChunkSizeComputer( imp.getDimensions(), imp.getBytesPerPixel() ).getChunkDimensionsXYCZT( 8000000 ),
+                null,
+                StorageFormat.ZARR2,
+                overwrite,
+                IOHelper.getOMEXml( imp ),
+                GZIP_COMPRESSION
+        );
+    }
+
     // auto-chunking
     public static void write(
             ImagePlus imp,
