@@ -38,7 +38,7 @@ import org.embl.mobie.io.imagedata.*;
 public class ImageDataOpener
 {
     // Mutable on purpose: can be overridden at runtime after auto-detection.
-    public static volatile ZarrOpener zarrOpener = detectZarrOpener();
+    private static volatile ZarrOpener zarrOpener = detectZarrOpener();
 
     static {
         DebugTools.setRootLevel( "OFF" ); // Disable Bio-Formats logging
@@ -55,6 +55,11 @@ public class ImageDataOpener
         {
             return ZarrOpener.MOBIE_N5;
         }
+    }
+
+    public static ZarrOpener getZarrOpener()
+    {
+        return zarrOpener;
     }
 
     public static void setZarrOpener( ZarrOpener opener )

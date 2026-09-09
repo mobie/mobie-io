@@ -23,6 +23,7 @@ class N5ImageDataTest
         long startTime = System.currentTimeMillis();
 
         N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
+        //N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://bioimaging-01-pub.livingobjects.ebi.ac.uk/phase1test/platy-sbem-6dpf-1-whole-raw-z3.ome.zarr");
         int numDatasets = n5ImageData.getNumDatasets();
         List< ? extends SourceAndConverter< ? > > sourcesAndConverters = n5ImageData.getSourcesAndConverters();
         RandomAccessibleInterval< ? > source = n5ImageData.getSourcePair( 0 ).getA().getSource( 0, 0 );
@@ -61,7 +62,6 @@ class N5ImageDataTest
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
     }
-
 
     @Test
     public void openOMEZarrFromEBIS3()
