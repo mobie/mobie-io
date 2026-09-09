@@ -37,9 +37,46 @@ import org.embl.mobie.io.imagedata.*;
 
 public class ImageDataOpener
 {
+    // Mutable on purpose: can be overridden at runtime after auto-detection.
+    public static volatile ZarrOpener zarrOpener = detectZarrOpener();
+
     static {
         DebugTools.setRootLevel( "OFF" ); // Disable Bio-Formats logging
     }
+
+    private static ZarrOpener detectZarrOpener()
+    {
+        try
+        {
+            Class.forName("ome.zarr.zarrjava.ZarrJavaPyramidBackend");
+            return ZarrOpener.OME_Zarr_Zarr_Java;
+        }
+        catch (ClassNotFoundException e)
+        {
+            return ZarrOpener.MOBIE_N5;
+        }
+    }
+
+    public static void setZarrOpener( ZarrOpener opener )
+    {
+        if ( opener == null )
+            throw new IllegalArgumentException( "opener must not be null" );
+
+        zarrOpener = opener;
+    }
+
+    public static void autoConfigureZarrOpener()
+    {
+        zarrOpener = detectZarrOpener();
+    }
+
+    public enum ZarrOpener
+    {
+        MOBIE_N5,
+        OME_Zarr_N5,
+        OME_Zarr_Zarr_Java
+    }
+
 
     /*
     If you only have the URI use:
@@ -56,9 +93,22 @@ public class ImageDataOpener
             case OmeZarr:
             case OmeZarrS3:
                 if ( imageDataFormat.getSecretAndAccessKey() == null )
-                    return new PyramidalZarrJavaImageData<>( uri, sharedQueue );
+                {
+                    switch ( zarrOpener )
+                    {
+                        case MOBIE_N5:
+                            return new N5ImageData<>( uri, sharedQueue );
+                        case OME_Zarr_N5:
+                            return new PyramidalN5ImageData<>(  uri, sharedQueue );
+                        case OME_Zarr_Zarr_Java:
+                            return new PyramidalZarrJavaImageData<>(   uri, sharedQueue );
+                    }
+                }
                 else
+                {
+                    // use this, because that's currently the only one that can handle the keys
                     return new N5ImageData<>( uri, sharedQueue, imageDataFormat.getSecretAndAccessKey() );
+                }
             case OpenOrganelleS3:
             case N5:
                 return new N5ImageData<>( uri, sharedQueue, imageDataFormat.getSecretAndAccessKey() );

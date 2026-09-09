@@ -3,6 +3,7 @@ package org.embl.mobie.io.imagedata;
 import bdv.cache.SharedQueue;
 import bdv.viewer.SourceAndConverter;
 import mpicbg.spim.data.sequence.VoxelDimensions;
+import net.imglib2.RandomAccessibleInterval;
 import org.embl.mobie.io.ImageDataFormat;
 import org.embl.mobie.io.ImageDataOpener;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,28 @@ import static org.junit.jupiter.api.Assertions.*;
 class N5ImageDataTest
 {
     @Test
+    public void openPlaty()
+    {
+        System.out.println("openPlaty with N5ImageData");
+
+        long startTime = System.currentTimeMillis();
+
+        N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
+        int numDatasets = n5ImageData.getNumDatasets();
+        List< ? extends SourceAndConverter< ? > > sourcesAndConverters = n5ImageData.getSourcesAndConverters();
+        RandomAccessibleInterval< ? > source = n5ImageData.getSourcePair( 0 ).getA().getSource( 0, 0 );
+        Object pixelValue = source.getAt( 0, 0, 0 );
+        assertEquals( numDatasets, 2 ); // EM and Labels
+
+        VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
+        assertNotNull( voxelDimensions );
+        //BdvFunctions.show( sourcesAndConverters.get( 0 ) );
+
+        long endTime = System.currentTimeMillis();
+        System.out.println( "openPlaty took " + ( endTime - startTime ) + " ms" );
+    }
+
+    @Test
     public void openOMEZarr3FromS3()
     {
         // https://github.com/mobie/mobie-io/issues/173
@@ -25,18 +48,6 @@ class N5ImageDataTest
         int numDatasets = n5ImageData.getNumDatasets();
         List< ? extends SourceAndConverter< ? > > sourcesAndConverters = n5ImageData.getSourcesAndConverters();
         assertEquals( numDatasets, 5 ); // 5 channels
-    }
-
-    @Test
-    public void openIntensityOMEZarrFromS3()
-    {
-        System.out.println("openIntensityOMEZarrFromS3");
-        N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
-        int numDatasets = n5ImageData.getNumDatasets();
-        List< ? extends SourceAndConverter< ? > > sourcesAndConverters = n5ImageData.getSourcesAndConverters();
-        assertEquals( numDatasets, 2 ); // EM and Labels
-        VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
-        assertNotNull( voxelDimensions );
     }
 
     @Test

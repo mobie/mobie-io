@@ -5,6 +5,7 @@ import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
+import ij.IJ;
 import org.janelia.saalfeldlab.n5.universe.metadata.ome.ngff.OmeNgffMetadata;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -236,12 +237,67 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
                 throw new IOException( "N5ImageData: No datasets found." );
 
         }
+        catch ( LinkageError e )
+        {
+            if ( isLikelyFijiDependencyMismatch( e ) )
+                showFijiCompatibilityMessage( e );
+
+            throw new RuntimeException( "N5ImageData: Error opening " + uri, e );
+        }
         catch ( Exception e )
         {
-            System.err.println( "N5ImageData: Error opening " + uri );
-            e.printStackTrace();
+            if ( isLikelyFijiDependencyMismatch( e ) )
+                showFijiCompatibilityMessage( e );
+
+            throw new RuntimeException( "N5ImageData: Error opening " + uri, e );
         }
 
         isOpen = true;
+    }
+
+    private static boolean isLikelyFijiDependencyMismatch( Throwable throwable )
+    {
+        Throwable current = throwable;
+        int depth = 0;
+        while ( current != null && depth < 12 )
+        {
+            if ( current instanceof NoSuchMethodError
+                    || current instanceof NoClassDefFoundError
+                    || current instanceof ClassNotFoundException
+                    || current instanceof IncompatibleClassChangeError
+                    || current instanceof UnsupportedClassVersionError )
+                return true;
+
+            final String className = current.getClass().getName();
+            final String message = current.getMessage() != null ? current.getMessage() : "";
+            if ( className.contains( "org.janelia.saalfeldlab.n5" )
+                    || message.contains( "org.janelia.saalfeldlab.n5" )
+                    || message.contains( "ome.ngff" )
+                    || message.contains( "OmeNgffMetadata" ) )
+                return true;
+
+            current = current.getCause();
+            depth++;
+        }
+
+        return false;
+    }
+
+    private static void showFijiCompatibilityMessage( Throwable throwable )
+    {
+        final String title = "MoBIE IO Compatibility Issue";
+        final String message = "Could not open this dataset because your Fiji may be using older N5 dependencies.\n\n"
+                + "Please visit https://fiji.sc/ and download a new Fiji choosing: Distribution: Latest.\n"
+                + "After downloading you have to restart Fiji and add the MoBIE update site via Help > Update"
+                + "Error: " + throwable.getClass().getSimpleName();
+
+        try
+        {
+            IJ.showMessage( title, message );
+        }
+        catch ( Throwable ignored )
+        {
+            System.err.println( title + ": " + message );
+        }
     }
 }

@@ -1,6 +1,8 @@
 package org.embl.mobie.io.imagedata;
 
+import bdv.util.BdvFunctions;
 import bdv.viewer.SourceAndConverter;
+import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imglib2.RandomAccessibleInterval;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +15,28 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class PyramidalN5ImageDataTest
 {
+
+    @Test
+    public void openPlaty()
+    {
+        System.out.println( "openPlaty with PyramidalN5" );
+
+        long startTime = System.currentTimeMillis();
+
+        PyramidalN5ImageData< ? > imageData = new PyramidalN5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
+        int numDatasets = imageData.getNumDatasets();
+        List< ? extends SourceAndConverter< ? > > sourcesAndConverters = imageData.getSourcesAndConverters();
+        assertEquals( 1, numDatasets); // EM only
+        RandomAccessibleInterval< ? > source = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 );
+        Object pixelValue = source.getAt( 0, 0, 0 );
+        VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
+        assertNotNull( voxelDimensions );
+
+        long endTime = System.currentTimeMillis();
+        System.out.println( "openPlaty took " + ( endTime - startTime ) + " ms" );
+        //BdvFunctions.show( sourcesAndConverters.get( 0 ) );
+    }
+
     @Test
     public void openLocalOMEZarr()
     {
@@ -58,22 +82,6 @@ class PyramidalN5ImageDataTest
         int numDatasets = imageData.getNumDatasets();
         List< ? extends SourceAndConverter< ? > > sourcesAndConverters = imageData.getSourcesAndConverters();
         assertEquals( numDatasets, 5 ); // 5 channels
-    }
-
-    @Test
-    public void openOMEZarr2FromS3()
-    {
-        System.out.println( "openOMEZarr2FromS3" );
-
-        PyramidalN5ImageData< ? > imageData = new PyramidalN5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
-        int numDatasets = imageData.getNumDatasets();
-        List< ? extends SourceAndConverter< ? > > sourcesAndConverters = imageData.getSourcesAndConverters();
-        assertEquals( 1, numDatasets); // EM only
-        RandomAccessibleInterval< ? > source = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 );
-        long[] maxAsLongArray = source.maxAsLongArray();
-        Object pixelValue = source.getAt( 0, 0, 0 );
-        System.out.println( "maxAsLongArray: " + Arrays.toString( maxAsLongArray ) );
-        System.out.println();
     }
 
     @Test
