@@ -29,6 +29,7 @@
 package org.embl.mobie.io;
 
 import bdv.cache.SharedQueue;
+import ij.Prefs;
 import loci.common.DebugTools;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
@@ -37,8 +38,10 @@ import org.embl.mobie.io.imagedata.*;
 
 public class ImageDataOpener
 {
+    private static final String ZARR_OPENER_PREF_KEY = "mobie.io.zarrOpener";
+
     // Mutable on purpose: can be overridden at runtime after auto-detection.
-    private static volatile ZarrOpener zarrOpener = detectZarrOpener();
+    private static volatile ZarrOpener zarrOpener = loadPersistedZarrOpener();
 
     static {
         DebugTools.setRootLevel( "OFF" ); // Disable Bio-Formats logging
@@ -57,6 +60,25 @@ public class ImageDataOpener
         }
     }
 
+    private static ZarrOpener loadPersistedZarrOpener()
+    {
+        final String persistedOpener = Prefs.get( ZARR_OPENER_PREF_KEY, null );
+
+        if ( persistedOpener != null )
+        {
+            try
+            {
+                return ZarrOpener.valueOf( persistedOpener );
+            }
+            catch ( IllegalArgumentException ignored )
+            {
+                // Ignore invalid legacy values and fall back to auto-detection.
+            }
+        }
+
+        return detectZarrOpener();
+    }
+
     public static ZarrOpener getZarrOpener()
     {
         return zarrOpener;
@@ -68,18 +90,19 @@ public class ImageDataOpener
             throw new IllegalArgumentException( "opener must not be null" );
 
         zarrOpener = opener;
+        Prefs.set( ZARR_OPENER_PREF_KEY, opener.name() );
     }
 
     public static void autoConfigureZarrOpener()
     {
-        zarrOpener = detectZarrOpener();
+        setZarrOpener( detectZarrOpener() );
     }
 
     public enum ZarrOpener
     {
         MOBIE_N5,
         OME_Zarr_N5,
-        OME_Zarr_Zarr_Java
+        OME_Zarr_Zarr_Java;
     }
 
 

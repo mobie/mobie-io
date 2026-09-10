@@ -21,7 +21,7 @@ class ImageDataOpenerTest
     @BeforeEach
     void rememberOriginalOpener()
     {
-        originalOpener = ImageDataOpener.zarrOpener;
+        originalOpener = ImageDataOpener.getZarrOpener();
     }
 
     @AfterEach
@@ -37,7 +37,7 @@ class ImageDataOpenerTest
 
         ImageDataOpener.autoConfigureZarrOpener();
 
-        assertEquals( ImageDataOpener.ZarrOpener.OME_Zarr_Zarr_Java, ImageDataOpener.zarrOpener );
+        assertEquals( ImageDataOpener.ZarrOpener.OME_Zarr_Zarr_Java, ImageDataOpener.getZarrOpener() );
     }
 
     @Test
