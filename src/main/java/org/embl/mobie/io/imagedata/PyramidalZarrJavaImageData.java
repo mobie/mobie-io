@@ -98,17 +98,20 @@ public class PyramidalZarrJavaImageData< T extends NumericType< T > & NativeType
     {
         if ( !isOpen ) open();
 
-        ConverterSetup converterSetup = converterSetups.get( datasetIndex );
+        return null;
 
-        IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
-
-        return new CanonicalDatasetMetadata(
-                uri,
-                null,
-                converterSetup.getDisplayRangeMin(),
-                converterSetup.getDisplayRangeMax(),
-                colorMetadata
-        );
+        // TODO fetch metadata
+//        ConverterSetup converterSetup = converterSetups.get( datasetIndex );
+//
+//        IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
+//
+//        return new CanonicalDatasetMetadata(
+//                uri,
+//                null,
+//                converterSetup.getDisplayRangeMin(),
+//                converterSetup.getDisplayRangeMax(),
+//                colorMetadata
+//        );
     }
 
     public List< ? extends SourceAndConverter< ? > > getSourcesAndConverters()

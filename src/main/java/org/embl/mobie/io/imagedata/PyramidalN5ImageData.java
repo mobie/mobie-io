@@ -95,17 +95,20 @@ public class PyramidalN5ImageData< T extends NumericType< T > & NativeType< T > 
     {
         if ( !isOpen ) open();
 
-        ConverterSetup converterSetup = converterSetups.get( datasetIndex );
+        return null;
 
-        IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
-
-        return new CanonicalDatasetMetadata(
-                uri,
-                null,
-                converterSetup.getDisplayRangeMin(),
-                converterSetup.getDisplayRangeMax(),
-                colorMetadata
-        );
+        // TODO: fetch meta-data from PyramidalBackend
+//        ConverterSetup converterSetup = converterSetups.get( datasetIndex );
+//
+//        IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
+//
+//        return new CanonicalDatasetMetadata(
+//                uri,
+//                null,
+//                converterSetup.getDisplayRangeMin(),
+//                converterSetup.getDisplayRangeMax(),
+//                colorMetadata
+//        );
     }
 
     public List< ? extends SourceAndConverter< ? > > getSourcesAndConverters()
