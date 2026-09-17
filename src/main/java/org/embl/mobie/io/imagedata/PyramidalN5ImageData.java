@@ -11,7 +11,7 @@ import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
 import ome.zarr.fiji.PyramidalBdv;
-import ome.zarr.fiji.read.ZarrReader;
+import ome.zarr.fiji.read.OmeZarr;
 import ome.zarr.imglib2.PyramidContents;
 import ome.zarr.n5.N5PyramidBackend;
 import org.embl.mobie.io.ContextProvider;
@@ -142,16 +142,16 @@ public class PyramidalN5ImageData< T extends NumericType< T > & NativeType< T > 
         if ( isOpen ) return;
 
         N5PyramidBackend backendZarrJava = new N5PyramidBackend();
-        ZarrReader reader = new ZarrReader( IOHelper.stringToUri( uri ), ContextProvider.getContext(), backendZarrJava );
+        OmeZarr reader = new OmeZarr( IOHelper.stringToUri( uri ), ContextProvider.getContext(), backendZarrJava );
 
-        PyramidContents< ? > pyramidContents = reader.getContents();
+        PyramidContents< ? > pyramidContents = reader.readContents();
 
-        PyramidalBdv< ? > bdvFriendlyPyramid = new PyramidalBdv<>( ContextProvider.getContext(), pyramidContents );
+        PyramidalBdv< ? > pyramidalBdv = new PyramidalBdv<>( ContextProvider.getContext(), pyramidContents );
 
-        sourcesAndConverters = bdvFriendlyPyramid.asSources();
+        sourcesAndConverters = pyramidalBdv.asSources();
 
         // fetch metadata
-        // bdvFriendlyPyramid.getPyramidContents().omero.channels.get( 0 ).
+        // pyramidalBdv.getPyramidContents().omero.channels.get( 0 ).
 
         isOpen = true;
 
