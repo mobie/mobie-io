@@ -236,7 +236,7 @@ public class OMEZarrWriter
             return "";
         }
 
-        ArrayList< String > nonSingletonChunkDimensions = new ArrayList<>();
+        ArrayList< String > nonSingletonChunkDimensions = new ArrayList();
 
         for ( int i = 0; i < chunkDimensionsXYCZT.length; i++ )
         {

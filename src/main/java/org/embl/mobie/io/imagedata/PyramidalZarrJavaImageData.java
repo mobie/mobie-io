@@ -17,15 +17,12 @@ import ome.zarr.imglib2.PyramidContents;
 import ome.zarr.zarrjava.ZarrJavaPyramidBackend;
 import org.embl.mobie.io.ContextProvider;
 import org.embl.mobie.io.util.IOHelper;
-import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
-import org.scijava.Context;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: SciJava Context
 public class PyramidalZarrJavaImageData< T extends NumericType< T > & NativeType< T > > extends AbstractImageData< T >
 {
     private final String uri;
