@@ -131,6 +131,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- On JDK 9+ javadoc puts dependencies on the module path, which fails for jars -->
+            <!-- carrying a class in the default package (ome:turbojpeg has TJExample). -->
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <legacyMode>true</legacyMode>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
