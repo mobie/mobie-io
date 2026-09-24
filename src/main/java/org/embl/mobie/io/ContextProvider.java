@@ -5,6 +5,12 @@ import org.scijava.Context;
 
 public class ContextProvider
 {
+    static
+    {
+        LegacyInjector.preinit();
+    }
+
+
     private static volatile Context context;
 
     public static Context getContext()

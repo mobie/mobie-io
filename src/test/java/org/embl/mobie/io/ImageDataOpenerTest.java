@@ -1,6 +1,7 @@
 package org.embl.mobie.io;
 
 import bdv.cache.SharedQueue;
+import net.imagej.patcher.LegacyInjector;
 import org.embl.mobie.io.imagedata.ImageData;
 import org.embl.mobie.io.imagedata.N5ImageData;
 import org.embl.mobie.io.imagedata.PyramidalZarrJavaImageData;
@@ -16,6 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImageDataOpenerTest
 {
+    static
+    {
+        LegacyInjector.preinit();
+    }
+
     private ImageDataOpener.ZarrOpener originalOpener;
 
     @BeforeEach
