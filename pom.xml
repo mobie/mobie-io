@@ -113,7 +113,7 @@
         <everit-json-schema.version>1.14.0</everit-json-schema.version>
         <toml4j.version>0.7.2</toml4j.version>
 
-        <ome-zarr-fiji.version>0.9.0</ome-zarr-fiji.version>
+        <ome-zarr-fiji.version>0.9.1</ome-zarr-fiji.version>
     </properties>
 
     <build>

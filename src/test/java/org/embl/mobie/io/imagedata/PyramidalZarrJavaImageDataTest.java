@@ -2,8 +2,8 @@ package org.embl.mobie.io.imagedata;
 
 import bdv.viewer.SourceAndConverter;
 import mpicbg.spim.data.sequence.VoxelDimensions;
-import net.imglib2.RandomAccessibleInterval;
 import net.imagej.patcher.LegacyInjector;
+import net.imglib2.RandomAccessibleInterval;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -14,6 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PyramidalZarrJavaImageDataTest
 {
+    static
+    {
+        LegacyInjector.preinit();
+    }
+
     @Test
     public void openPlaty()
     {
