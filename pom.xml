@@ -100,7 +100,8 @@
         <license.copyrightOwners>EMBL</license.copyrightOwners>
         <enforcer.skip>false</enforcer.skip>
         <someModule.test.excludes>src/test/java/projects/local</someModule.test.excludes>
-        <scijava.surefire.args>-Xmx4024m</scijava.surefire.args>
+        <!-- IJ1 patch for test suite -->
+        <scijava.surefire.args>-Xmx4024m -javaagent:${net.imagej:ij1-patcher:jar}=init</scijava.surefire.args>
 
         <!-- NB: Deploy releases to the SciJava Maven repository. -->
         <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
@@ -118,6 +119,26 @@
 
     <build>
         <plugins>
+            <!-- Exposes ${net.imagej:ij1-patcher:jar} for the surefire -javaagent above. -->
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>resolve-agent-paths</id>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- On JDK 9+ javadoc puts dependencies on the module path, which fails for jars -->
+            <!-- carrying a class in the default package (ome:turbojpeg has TJExample). -->
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <legacyMode>true</legacyMode>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
@@ -216,6 +237,12 @@
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
+        </dependency>
+        <!-- Only needed as the -javaagent above; it also arrives transitively. -->
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij1-patcher</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
