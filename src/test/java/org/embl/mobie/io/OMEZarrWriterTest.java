@@ -32,11 +32,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class OMEZarrWriterTest
 {
-    static
-    {
-        LegacyInjector.preinit();
-    }
-
     @Test
     public void writeAndReadBloscOMEZarrV04( @TempDir Path tempDir)
     {
@@ -228,7 +223,7 @@ class OMEZarrWriterTest
                 new SharedQueue( 1 ) );
 
         // access a pixel to test that decompression works
-        NumericType< ? > type = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 ).cursor().next();
+        NumericType< ? > type = imageData.getSourcePair( 0 ).getA().getSource( 0, 0 ).getAt(0,0,0);
     }
 
     private static boolean hasShardingCodec( Path root ) throws IOException

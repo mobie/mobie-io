@@ -14,11 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PyramidalZarrJavaImageDataTest
 {
-    static
-    {
-        LegacyInjector.preinit();
-    }
-
     @Test
     public void openPlaty()
     {

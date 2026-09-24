@@ -15,11 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class PyramidalN5ImageDataTest
 {
-    static
-    {
-        LegacyInjector.preinit();
-    }
-
     @Test
     public void openPlaty()
     {
