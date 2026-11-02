@@ -268,10 +268,8 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
                     || current instanceof UnsupportedClassVersionError )
                 return true;
 
-            final String className = current.getClass().getName();
             final String message = current.getMessage() != null ? current.getMessage() : "";
-            if ( className.contains( "org.janelia.saalfeldlab.n5" )
-                    || message.contains( "org.janelia.saalfeldlab.n5" )
+            if ( message.contains( "org.janelia.saalfeldlab.n5" )
                     || message.contains( "ome.ngff" )
                     || message.contains( "OmeNgffMetadata" ) )
                 return true;
