@@ -241,6 +241,8 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
         {
             if ( isLikelyFijiDependencyMismatch( e ) )
                 showFijiCompatibilityMessage( e );
+            else
+                showOpenErrorMessage( uri, e );
 
             throw new RuntimeException( "N5ImageData: Error opening " + uri, e );
         }
@@ -248,6 +250,8 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
         {
             if ( isLikelyFijiDependencyMismatch( e ) )
                 showFijiCompatibilityMessage( e );
+            else
+                showOpenErrorMessage( uri, e );
 
             throw new RuntimeException( "N5ImageData: Error opening " + uri, e );
         }
@@ -279,6 +283,38 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
         }
 
         return false;
+    }
+
+    private static void showOpenErrorMessage( String uri, Throwable throwable )
+    {
+        final String title = "MoBIE IO Error";
+        final String message = "Could not open " + uri + ":\n" + innermostMessage( throwable );
+
+        try
+        {
+            IJ.showMessage( title, message );
+        }
+        catch ( Throwable ignored )
+        {
+            System.err.println( title + ": " + message );
+        }
+    }
+
+    /**
+     * The message of the innermost cause, which usually names what actually went wrong,
+     * e.g. "Error checking existence: https://.../zarr.json( Forbidden)(403)".
+     */
+    private static String innermostMessage( Throwable throwable )
+    {
+        Throwable current = throwable;
+        int depth = 0;
+        while ( current.getCause() != null && depth < 12 )
+        {
+            current = current.getCause();
+            depth++;
+        }
+
+        return current.getMessage() != null ? current.getMessage() : current.getClass().getSimpleName();
     }
 
     private static void showFijiCompatibilityMessage( Throwable throwable )
