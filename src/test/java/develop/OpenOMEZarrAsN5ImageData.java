@@ -13,7 +13,7 @@ public class OpenOMEZarrAsN5ImageData
 {
     public static < T extends NumericType< T > & NativeType< T > > void main( String[] args ) throws IOException, URISyntaxException
     {
-        String uri = "https://s3.embl.de/imatrec/IMATREC_HiTT_20240414_AS/TAL_20to200_20230627_NA_01_epo_05.ome.zarr";
+        String uri = "https://cba.buckets.embl.de/imatrec/IMATREC_HiTT_20240414_AS/TAL_20to200_20230627_NA_01_epo_05.ome.zarr";
 
         N5ImageData< T > imageData = new N5ImageData<>(
                 uri,

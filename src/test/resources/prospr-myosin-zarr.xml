@@ -56,7 +56,7 @@
         <ImageLoader format="ome.zarr.s3">
             <Key>prospr-myosin.ome.zarr</Key>
             <SigningRegion>us-west-2</SigningRegion>
-            <ServiceEndpoint>https://s3.embl.de</ServiceEndpoint>
+            <ServiceEndpoint>https://cba.buckets.embl.de</ServiceEndpoint>
             <BucketName>i2k-2020</BucketName>
             <Authentication>Anonymous</Authentication>
         </ImageLoader>

@@ -13,7 +13,7 @@ public class DevelopParseOmeZarrMetadata
 {
     public static void main( String[] args ) throws URISyntaxException, IOException, ExecutionException, InterruptedException
     {
-        String uri = "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr";
+        String uri = "https://cba.buckets.embl.de/i2k-2020/platy-raw.ome.zarr";
         //String uri = "/Users/tischer/Downloads/20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/0";
         long start;
 

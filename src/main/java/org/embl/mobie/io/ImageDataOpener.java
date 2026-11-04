@@ -44,7 +44,15 @@ public class ImageDataOpener
     private static volatile ZarrOpener zarrOpener = loadPersistedZarrOpener();
 
     static {
-        DebugTools.setRootLevel( "OFF" ); // Disable Bio-Formats logging
+
+        // Disable Bio-Formats logging
+        DebugTools.setRootLevel( "OFF" );
+
+        // Needed for NetApp EMBL S3 Store
+        System.setProperty(
+                "com.amazonaws.services.s3.disableGetObjectMD5Validation",
+                "true"
+        );
     }
 
     private static ZarrOpener detectZarrOpener()

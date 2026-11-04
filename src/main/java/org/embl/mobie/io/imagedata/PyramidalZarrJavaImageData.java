@@ -35,6 +35,18 @@ public class PyramidalZarrJavaImageData< T extends NumericType< T > & NativeType
     private final List< String > datasetPaths = new ArrayList<>();
     private final BdvOptions bdvOptions = BdvOptions.options();
 
+    static {
+
+        // Disable Bio-Formats logging
+        DebugTools.setRootLevel( "OFF" );
+
+        // Needed for NetApp EMBL S3 Store
+        System.setProperty(
+                "com.amazonaws.services.s3.disableGetObjectMD5Validation",
+                "true"
+        );
+    }
+
     public PyramidalZarrJavaImageData( String uri )
     {
         this.uri = uri;

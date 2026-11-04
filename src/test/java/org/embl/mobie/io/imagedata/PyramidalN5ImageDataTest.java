@@ -22,7 +22,7 @@ class PyramidalN5ImageDataTest
 
         long startTime = System.currentTimeMillis();
 
-        PyramidalN5ImageData< ? > imageData = new PyramidalN5ImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
+        PyramidalN5ImageData< ? > imageData = new PyramidalN5ImageData<>( "https://cba.buckets.embl.de/i2k-2020/platy-raw.ome.zarr" );
         int numDatasets = imageData.getNumDatasets();
         List< ? extends SourceAndConverter< ? > > sourcesAndConverters = imageData.getSourcesAndConverters();
         assertEquals( 1, numDatasets); // EM only
@@ -88,7 +88,7 @@ class PyramidalN5ImageDataTest
     {
         System.out.println( "openLabelsOMEZarr2FromS3" );
 
-        PyramidalZarrJavaImageData< ? > imageData = new PyramidalZarrJavaImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr/labels/cells" );
+        PyramidalZarrJavaImageData< ? > imageData = new PyramidalZarrJavaImageData<>( "https://cba.buckets.embl.de/i2k-2020/platy-raw.ome.zarr/labels/cells" );
         int numDatasets = imageData.getNumDatasets();
         List< ? extends SourceAndConverter< ? > > sourcesAndConverters = imageData.getSourcesAndConverters();
         assertEquals( 1, numDatasets); // labels only

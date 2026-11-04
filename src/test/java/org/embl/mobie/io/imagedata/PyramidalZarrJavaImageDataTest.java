@@ -20,7 +20,7 @@ class PyramidalZarrJavaImageDataTest
         System.out.println( "openPlaty with PyramidalZarrJava" );
         long startTime = System.currentTimeMillis();
 
-        PyramidalZarrJavaImageData< ? > imageData = new PyramidalZarrJavaImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
+        PyramidalZarrJavaImageData< ? > imageData = new PyramidalZarrJavaImageData<>( "https://cba.buckets.embl.de/i2k-2020/platy-raw.ome.zarr" );
         int numDatasets = imageData.getNumDatasets();
         List< ? extends SourceAndConverter< ? > > sourcesAndConverters = imageData.getSourcesAndConverters();
         assertEquals( 1, numDatasets); // EM only (should also contain the labels?)
@@ -105,7 +105,7 @@ class PyramidalZarrJavaImageDataTest
     {
         System.out.println( "openLabelsOMEZarr2FromS3" );
 
-        PyramidalZarrJavaImageData< ? > imageData = new PyramidalZarrJavaImageData<>( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr/labels/cells" );
+        PyramidalZarrJavaImageData< ? > imageData = new PyramidalZarrJavaImageData<>( "https://cba.buckets.embl.de/i2k-2020/platy-raw.ome.zarr/labels/cells" );
         int numDatasets = imageData.getNumDatasets();
         List< ? extends SourceAndConverter< ? > > sourcesAndConverters = imageData.getSourcesAndConverters();
         assertEquals( 1, numDatasets); // labels only

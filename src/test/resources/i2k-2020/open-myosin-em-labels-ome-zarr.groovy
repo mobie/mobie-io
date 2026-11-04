@@ -54,7 +54,7 @@ import bdv.util.BdvOptions
 import org.embl.mobie.io.ome.zarr.openers.OMEZarrS3Opener
 
 N5OMEZarrImageLoader.logging = true;
-reader = new OMEZarrS3Opener("https://s3.embl.de", "us-west-2", "i2k-2020");
+reader = new OMEZarrS3Opener("https://cba.buckets.embl.de", "us-west-2", "i2k-2020");
 myosin = reader.readKey("prospr-myosin.ome.zarr");
 myosinBdvSources = BdvFunctions.show(myosin);
 emAndLabels = reader.readKey("em-raw.ome.zarr");

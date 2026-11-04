@@ -7,6 +7,7 @@ import bdv.cache.SharedQueue;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.viewer.Source;
 import ch.epfl.biop.bdv.img.CacheControlOverride;
+import loci.common.DebugTools;
 import mpicbg.spim.data.generic.AbstractSpimData;
 import mpicbg.spim.data.generic.sequence.BasicImgLoader;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
@@ -32,6 +33,18 @@ public class SpimDataImageData< T extends NumericType< T > & NativeType< T > > e
     protected SharedQueue sharedQueue;
 
     protected boolean isOpen;
+
+    static {
+
+        // Disable Bio-Formats logging
+        DebugTools.setRootLevel( "OFF" );
+
+        // Needed for NetApp EMBL S3 Store
+        System.setProperty(
+                "com.amazonaws.services.s3.disableGetObjectMD5Validation",
+                "true"
+        );
+    }
 
     public SpimDataImageData( SpimDataOpener spimDataOpener )
     {

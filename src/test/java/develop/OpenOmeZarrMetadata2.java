@@ -16,7 +16,7 @@ public class OpenOmeZarrMetadata2
 {
     public static void main( String[] args ) throws URISyntaxException
     {
-        String uri = "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr";
+        String uri = "https://cba.buckets.embl.de/i2k-2020/platy-raw.ome.zarr";
         N5URI n5URI = new N5URI( uri );
         String containerPath = n5URI.getContainerPath();
         N5Factory n5Factory = new N5Factory();

@@ -14,7 +14,7 @@ public class OpenSpatialDataOMEZarrAsN5ImageData
     public static < T extends NumericType< T > & NativeType< T > > void main( String[] args ) throws IOException, URISyntaxException
     {
         String uri = "/Users/tischer/Desktop/iss-nf/qc_spatialdata_processed/images/org_dapi_img";
-        //uri = "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr";
+        //uri = "https://cba.buckets.embl.de/i2k-2020/platy-raw.ome.zarr";
 
         N5ImageData< T > imageData = new N5ImageData<>(
                 uri,

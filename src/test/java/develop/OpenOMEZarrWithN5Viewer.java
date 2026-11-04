@@ -25,7 +25,7 @@ public class OpenOMEZarrWithN5Viewer
 {
     public static <T extends NumericType<T> & NativeType<T> > void main( String[] args ) throws IOException, URISyntaxException
     {
-        N5URI uri = new N5URI( "https://s3.embl.de/i2k-2020/platy-raw.ome.zarr" );
+        N5URI uri = new N5URI( "https://cba.buckets.embl.de/i2k-2020/platy-raw.ome.zarr" );
         String containerPath = uri.getContainerPath();
         String group = uri.getGroupPath() != null ? uri.getGroupPath() : "/";
         N5Reader n5 = new N5Factory().openReader( containerPath );

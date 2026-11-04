@@ -36,7 +36,7 @@ import projects.ngff.base.{name}NgffBaseTest;
 
 
 public class {name}NgffV0{version}Test extends {name}NgffBaseTest{{
-    private static final String URL = "https://s3.embl.de/i2k-2020/ngff-example-data/v0.{version}/{url_name}.ome.zarr";
+    private static final String URL = "https://cba.buckets.embl.de/i2k-2020/ngff-example-data/v0.{version}/{url_name}.ome.zarr";
     public {name}NgffV0{version}Test() throws SpimDataException {{
         super(URL);
     }}
