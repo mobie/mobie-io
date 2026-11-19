@@ -108,20 +108,15 @@ public class PyramidalN5ImageData< T extends NumericType< T > & NativeType< T > 
     {
         if ( !isOpen ) open();
 
-        return null;
+        return metadata.get( datasetIndex );
+    }
 
-        // TODO: fetch meta-data from PyramidalBackend
-//        ConverterSetup converterSetup = converterSetups.get( datasetIndex );
-//
-//        IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
-//
-//        return new CanonicalDatasetMetadata(
-//                uri,
-//                null,
-//                converterSetup.getDisplayRangeMin(),
-//                converterSetup.getDisplayRangeMax(),
-//                colorMetadata
-//        );
+    @Override
+    public String getName( int datasetIndex )
+    {
+        if ( !isOpen ) open();
+
+        return super.getName( datasetIndex );
     }
 
     public List< ? extends SourceAndConverter< ? > > getSourcesAndConverters()
@@ -162,11 +157,9 @@ public class PyramidalN5ImageData< T extends NumericType< T > & NativeType< T > 
         PyramidalBdv< ? > pyramidalBdv = new PyramidalBdv<>( ContextProvider.getContext(), pyramidContents );
 
         sourcesAndConverters = pyramidalBdv.asSources();
-
-        // fetch metadata
-        // pyramidalBdv.getPyramidContents().omero.channels.get( 0 ).
+        datasetNames.addAll( OmeroMetadata.channelNames( uri, pyramidContents, sourcesAndConverters.size() ) );
+        metadata.addAll( OmeroMetadata.channelMetadata( uri, pyramidContents, sourcesAndConverters ) );
 
         isOpen = true;
-
     }
 }

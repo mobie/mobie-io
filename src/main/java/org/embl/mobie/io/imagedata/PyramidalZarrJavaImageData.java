@@ -102,26 +102,20 @@ public class PyramidalZarrJavaImageData< T extends NumericType< T > & NativeType
         return sourcesAndConverters.size();
     }
 
-    // TODO: Discuss
     @Override
     public CanonicalDatasetMetadata getMetadata( int datasetIndex )
     {
         if ( !isOpen ) open();
 
-        return null;
+        return metadata.get( datasetIndex );
+    }
 
-        // TODO fetch metadata
-//        ConverterSetup converterSetup = converterSetups.get( datasetIndex );
-//
-//        IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
-//
-//        return new CanonicalDatasetMetadata(
-//                uri,
-//                null,
-//                converterSetup.getDisplayRangeMin(),
-//                converterSetup.getDisplayRangeMax(),
-//                colorMetadata
-//        );
+    @Override
+    public String getName( int datasetIndex )
+    {
+        if ( !isOpen ) open();
+
+        return super.getName( datasetIndex );
     }
 
     public List< ? extends SourceAndConverter< ? > > getSourcesAndConverters()
@@ -165,8 +159,8 @@ public class PyramidalZarrJavaImageData< T extends NumericType< T > & NativeType
         PyramidalBdv< ? > pyramidalBdv = new PyramidalBdv<>( ContextProvider.getContext(), pyramidContents );
 
         sourcesAndConverters = pyramidalBdv.asSources();
-
-        // pyramidalBdv.getPyramidContents().omero.channels.get( 0 ).
+        datasetNames.addAll( OmeroMetadata.channelNames( uri, pyramidContents, sourcesAndConverters.size() ) );
+        metadata.addAll( OmeroMetadata.channelMetadata( uri, pyramidContents, sourcesAndConverters ) );
 
         isOpen = true;
     }
