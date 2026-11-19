@@ -16,6 +16,7 @@ import ome.zarr.fiji.read.OmeZarr;
 import ome.zarr.imglib2.PyramidContents;
 import ome.zarr.n5.N5PyramidBackend;
 import org.embl.mobie.io.ContextProvider;
+import org.embl.mobie.io.ImageDataOpener;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
@@ -149,6 +150,21 @@ public class PyramidalN5ImageData< T extends NumericType< T > & NativeType< T > 
     {
         if ( isOpen ) return;
 
+        try
+        {
+            openOmeZarr();
+        }
+        catch ( LinkageError e )
+        {
+            ImageDataOpener.showOmeZarrReaderUnavailable( e );
+            throw new RuntimeException( "Could not open " + uri + ": OME-Zarr reader unavailable", e );
+        }
+
+        isOpen = true;
+    }
+
+    private void openOmeZarr()
+    {
         N5PyramidBackend backendZarrJava = new N5PyramidBackend();
         OmeZarr reader = new OmeZarr( IOHelper.stringToUri( uri ), ContextProvider.getContext(), backendZarrJava );
 
@@ -159,7 +175,5 @@ public class PyramidalN5ImageData< T extends NumericType< T > & NativeType< T > 
         sourcesAndConverters = pyramidalBdv.asSources();
         datasetNames.addAll( OmeroMetadata.channelNames( uri, pyramidContents, sourcesAndConverters.size() ) );
         metadata.addAll( OmeroMetadata.channelMetadata( uri, pyramidContents, sourcesAndConverters ) );
-
-        isOpen = true;
     }
 }
