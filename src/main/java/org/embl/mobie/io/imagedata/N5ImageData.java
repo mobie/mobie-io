@@ -1,5 +1,6 @@
 package org.embl.mobie.io.imagedata;
 
+import loci.common.DebugTools;
 import bdv.cache.SharedQueue;
 import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;

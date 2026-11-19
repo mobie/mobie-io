@@ -1,5 +1,6 @@
 package org.embl.mobie.io.imagedata;
 
+import loci.common.DebugTools;
 import bdv.cache.SharedQueue;
 import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;
@@ -10,7 +11,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
-import ome.zarr.fiji.PyramidalBdv;
+import ome.zarr.fiji.bdv.PyramidalBdv;
 import ome.zarr.fiji.read.OmeZarr;
 import ome.zarr.imglib2.PyramidContents;
 import ome.zarr.n5.N5PyramidBackend;
@@ -107,20 +108,15 @@ public class PyramidalN5ImageData< T extends NumericType< T > & NativeType< T > 
     {
         if ( !isOpen ) open();
 
-        return null;
+        return metadata.get( datasetIndex );
+    }
 
-        // TODO: fetch meta-data from PyramidalBackend
-//        ConverterSetup converterSetup = converterSetups.get( datasetIndex );
-//
-//        IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
-//
-//        return new CanonicalDatasetMetadata(
-//                uri,
-//                null,
-//                converterSetup.getDisplayRangeMin(),
-//                converterSetup.getDisplayRangeMax(),
-//                colorMetadata
-//        );
+    @Override
+    public String getName( int datasetIndex )
+    {
+        if ( !isOpen ) open();
+
+        return super.getName( datasetIndex );
     }
 
     public List< ? extends SourceAndConverter< ? > > getSourcesAndConverters()
@@ -161,11 +157,9 @@ public class PyramidalN5ImageData< T extends NumericType< T > & NativeType< T > 
         PyramidalBdv< ? > pyramidalBdv = new PyramidalBdv<>( ContextProvider.getContext(), pyramidContents );
 
         sourcesAndConverters = pyramidalBdv.asSources();
-
-        // fetch metadata
-        // pyramidalBdv.getPyramidContents().omero.channels.get( 0 ).
+        datasetNames.addAll( OmeroMetadata.channelNames( uri, pyramidContents, sourcesAndConverters.size() ) );
+        metadata.addAll( OmeroMetadata.channelMetadata( uri, pyramidContents, sourcesAndConverters ) );
 
         isOpen = true;
-
     }
 }
