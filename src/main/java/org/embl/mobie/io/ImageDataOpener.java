@@ -29,6 +29,7 @@
 package org.embl.mobie.io;
 
 import bdv.cache.SharedQueue;
+import ij.IJ;
 import ij.Prefs;
 import loci.common.DebugTools;
 import net.imglib2.type.NativeType;
@@ -57,15 +58,25 @@ public class ImageDataOpener
 
     private static ZarrOpener detectZarrOpener()
     {
-        try
+        return ZarrOpener.OME_Zarr_Zarr_Java.isAvailable() ? ZarrOpener.OME_Zarr_Zarr_Java : ZarrOpener.MOBIE_N5;
+    }
+
+    /**
+     * The configured opener if this Fiji has its classes, otherwise {@link ZarrOpener#MOBIE_N5}.
+     * The configured opener stays persisted, so enabling the OME-Zarr update site restores it.
+     */
+    private static ZarrOpener effectiveZarrOpener()
+    {
+        if ( zarrOpener.isAvailable() )
+            return zarrOpener;
+
+        if ( !fallbackLogged )
         {
-            Class.forName("ome.zarr.zarrjava.ZarrJavaPyramidBackend");
-            return ZarrOpener.OME_Zarr_Zarr_Java;
+            fallbackLogged = true;
+            IJ.log( "[WARNING] The OME-Zarr reader " + zarrOpener + " is not available in this Fiji installation, using "
+                    + ZarrOpener.MOBIE_N5 + " instead. Enable the OME-Zarr update site (Help > Update) to use it." );
         }
-        catch (ClassNotFoundException e)
-        {
-            return ZarrOpener.MOBIE_N5;
-        }
+        return ZarrOpener.MOBIE_N5;
     }
 
     private static ZarrOpener loadPersistedZarrOpener()
@@ -109,8 +120,66 @@ public class ImageDataOpener
     public enum ZarrOpener
     {
         MOBIE_N5,
-        OME_Zarr_N5,
-        OME_Zarr_Zarr_Java;
+        // The OME-Zarr update site provides these. Probing ome.zarr.fiji.read.OmeZarr also catches
+        // an installation that has a backend jar but not ome-zarr-fiji
+        OME_Zarr_N5( "ome.zarr.fiji.read.OmeZarr", "ome.zarr.n5.N5PyramidBackend" ),
+        // the zarr-java jar may be missing while ome-zarr-zarrjava is present.
+        OME_Zarr_Zarr_Java( "ome.zarr.fiji.read.OmeZarr", "ome.zarr.zarrjava.ZarrJavaPyramidBackend", "dev.zarr.zarrjava.core.Array" );
+
+        private final String[] requiredClasses;
+        private Boolean available;
+
+        ZarrOpener( String... requiredClasses )
+        {
+            this.requiredClasses = requiredClasses;
+        }
+
+        /**
+         * Whether this Fiji installation has the classes this opener needs. Probed once per session.
+         */
+        public synchronized boolean isAvailable()
+        {
+            if ( available == null )
+                available = probe();
+            return available;
+        }
+
+        private boolean probe()
+        {
+            try
+            {
+                for ( String className : requiredClasses )
+                    Class.forName( className, false, ImageDataOpener.class.getClassLoader() );
+                return true;
+            }
+            catch ( ClassNotFoundException | LinkageError e )
+            {
+                return false;
+            }
+        }
+    }
+
+    private static boolean fallbackLogged;
+
+    /**
+     * Tells the user that an OME-Zarr reader failed on a missing or outdated class, e.g. an
+     * OME-Zarr update site that is disabled or older than this MoBIE.
+     */
+    public static void showOmeZarrReaderUnavailable( LinkageError error )
+    {
+        final String title = "MoBIE: OME-Zarr reader unavailable";
+        final String message = "The selected OME-Zarr reader could not be loaded in this Fiji installation.\n"
+                + "Missing or outdated: " + error.getMessage() + "\n\n"
+                + "Please enable or update the OME-Zarr update site (Help > Update) and restart Fiji,\n"
+                + "or choose the MoBIE N5 reader in Plugins > MoBIE > Settings > Configure MoBIE Settings.";
+        try
+        {
+            IJ.showMessage( title, message );
+        }
+        catch ( Throwable ignored )
+        {
+            System.err.println( title + ": " + message );
+        }
     }
 
 
@@ -130,7 +199,7 @@ public class ImageDataOpener
             case OmeZarrS3:
                 if ( imageDataFormat.getSecretAndAccessKey() == null )
                 {
-                    switch ( zarrOpener )
+                    switch ( effectiveZarrOpener() )
                     {
                         case MOBIE_N5:
                             return new N5ImageData<>( uri, sharedQueue );

@@ -1,5 +1,6 @@
 package org.embl.mobie.io.imagedata;
 
+import loci.common.DebugTools;
 import bdv.cache.SharedQueue;
 import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;
@@ -10,12 +11,13 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
-import ome.zarr.fiji.PyramidalBdv;
+import ome.zarr.fiji.bdv.PyramidalBdv;
 import ome.zarr.fiji.read.OmeZarr;
 import ome.zarr.imglib2.PyramidBackend;
 import ome.zarr.imglib2.PyramidContents;
 import ome.zarr.zarrjava.ZarrJavaPyramidBackend;
 import org.embl.mobie.io.ContextProvider;
+import org.embl.mobie.io.ImageDataOpener;
 import org.embl.mobie.io.util.IOHelper;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
 
@@ -101,26 +103,20 @@ public class PyramidalZarrJavaImageData< T extends NumericType< T > & NativeType
         return sourcesAndConverters.size();
     }
 
-    // TODO: Discuss
     @Override
     public CanonicalDatasetMetadata getMetadata( int datasetIndex )
     {
         if ( !isOpen ) open();
 
-        return null;
+        return metadata.get( datasetIndex );
+    }
 
-        // TODO fetch metadata
-//        ConverterSetup converterSetup = converterSetups.get( datasetIndex );
-//
-//        IntColorMetadata colorMetadata = new IntColorMetadata( converterSetup.getColor().get() );
-//
-//        return new CanonicalDatasetMetadata(
-//                uri,
-//                null,
-//                converterSetup.getDisplayRangeMin(),
-//                converterSetup.getDisplayRangeMax(),
-//                colorMetadata
-//        );
+    @Override
+    public String getName( int datasetIndex )
+    {
+        if ( !isOpen ) open();
+
+        return super.getName( datasetIndex );
     }
 
     public List< ? extends SourceAndConverter< ? > > getSourcesAndConverters()
@@ -153,6 +149,21 @@ public class PyramidalZarrJavaImageData< T extends NumericType< T > & NativeType
     {
         if ( isOpen ) return;
 
+        try
+        {
+            openOmeZarr();
+        }
+        catch ( LinkageError e )
+        {
+            ImageDataOpener.showOmeZarrReaderUnavailable( e );
+            throw new RuntimeException( "Could not open " + uri + ": OME-Zarr reader unavailable", e );
+        }
+
+        isOpen = true;
+    }
+
+    private void openOmeZarr()
+    {
         // choose backend see also https://forum.image.sc/t/shipping-n5-in-fiji-latest-and-fiji-stable-how-to-ship-one-plugin-for-both/122290/12
         PyramidBackend backendZarrJava = new ZarrJavaPyramidBackend();
 
@@ -164,9 +175,7 @@ public class PyramidalZarrJavaImageData< T extends NumericType< T > & NativeType
         PyramidalBdv< ? > pyramidalBdv = new PyramidalBdv<>( ContextProvider.getContext(), pyramidContents );
 
         sourcesAndConverters = pyramidalBdv.asSources();
-
-        // pyramidalBdv.getPyramidContents().omero.channels.get( 0 ).
-
-        isOpen = true;
+        datasetNames.addAll( OmeroMetadata.channelNames( uri, pyramidContents, sourcesAndConverters.size() ) );
+        metadata.addAll( OmeroMetadata.channelMetadata( uri, pyramidContents, sourcesAndConverters ) );
     }
 }
