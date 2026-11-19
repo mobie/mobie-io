@@ -11,7 +11,7 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
 import net.imglib2.util.Pair;
 import net.imglib2.util.ValuePair;
-import ome.zarr.fiji.PyramidalBdv;
+import ome.zarr.fiji.bdv.PyramidalBdv;
 import ome.zarr.fiji.read.OmeZarr;
 import ome.zarr.imglib2.PyramidContents;
 import ome.zarr.n5.N5PyramidBackend;
