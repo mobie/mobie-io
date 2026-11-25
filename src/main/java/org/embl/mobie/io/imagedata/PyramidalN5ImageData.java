@@ -5,6 +5,7 @@ import bdv.tools.brightness.ConverterSetup;
 import bdv.util.BdvOptions;
 import bdv.viewer.Source;
 import bdv.viewer.SourceAndConverter;
+import loci.common.DebugTools;
 import net.imglib2.Volatile;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.NumericType;
@@ -16,11 +17,8 @@ import ome.zarr.imglib2.PyramidContents;
 import ome.zarr.n5.N5PyramidBackend;
 import org.embl.mobie.io.ContextProvider;
 import org.embl.mobie.io.util.IOHelper;
-import org.janelia.saalfeldlab.n5.universe.metadata.IntColorMetadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
-import org.scijava.Context;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
