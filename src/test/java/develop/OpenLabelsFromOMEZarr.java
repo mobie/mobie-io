@@ -10,7 +10,7 @@ public class OpenLabelsFromOMEZarr
     {
         //String uri = "/Users/tischer/Downloads/20200812-CardiomyocyteDifferentiation14-Cycle1_mip.zarr/B/03/0";
         //String uri = "https://cba.buckets.embl.de/i2k-2020/platy-raw.ome.zarr";
-        String uri = "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/A/1/0";
+        String uri = "https://livingobjects.ebi.ac.uk/idr/zarr/v0.4/idr0001A/2551.zarr/A/1/0";
         N5ImageData< ? > imageData = new N5ImageData<>( uri );
         int numDatasets = imageData.getNumDatasets();
         System.out.println("Dataset names:");

@@ -67,7 +67,7 @@ class N5ImageDataTest
     public void openOMEZarrFromEBIS3()
     {
         System.out.println("openOMEZarrFromEBIS3");
-        N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0138A/TimEmbryos-120919/HybCycle_29/MMStack_Pos0.ome.zarr" );
+        N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://livingobjects.ebi.ac.uk/idr/zarr/v0.4/idr0138A/TimEmbryos-120919/HybCycle_29/MMStack_Pos0.ome.zarr" );
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
     }
@@ -112,7 +112,7 @@ class N5ImageDataTest
         System.out.println("checkOMEZarrDatasetNames");
 
         ImageData< ? > imageData = ImageDataOpener.open(
-                "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr",
+                "https://livingobjects.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr",
                 ImageDataFormat.N5, // otherwise it will not open all datasets
                 new SharedQueue( 1 ) );
         int numDatasets = imageData.getNumDatasets();
