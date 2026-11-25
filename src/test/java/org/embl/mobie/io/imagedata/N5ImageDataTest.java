@@ -77,7 +77,7 @@ class N5ImageDataTest
     {
         System.out.println("openOMEZarrFromS3WithCredentials");
         N5ImageData< ? > n5ImageData = new N5ImageData<>(
-                "https://cba.buckets.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
+                "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
                 new String[]{
                         "MHLAyeu3fyBAx3egnzOE",
                         "Dj9SCkDr3XtWEohBKxCcWFZgU0YkpxRK7TndQYmm"
@@ -98,7 +98,7 @@ class N5ImageDataTest
                         "Dj9SCkDr3XtWEohBKxCcWFZgU0YkpxRK7TndQYmm"
                 } );
         ImageData< ? > imageData = ImageDataOpener.open(
-                "https://cba.buckets.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
+                "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
                 imageDataFormat,
                 new SharedQueue( 1 ) );
         VoxelDimensions voxelDimensions = imageData.getSourcePair( 0 ).getB().getVoxelDimensions();
@@ -129,7 +129,7 @@ class N5ImageDataTest
         try
         {
             N5ImageData< ? > n5ImageData = new N5ImageData<>(
-                    "https://cba.buckets.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
+                    "https://s3.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
                     new String[]{ "4vJRUoUQZix2x7wPRlSy", "wrongSecretKey" });
             assertNotNull( n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions() );
             System.out.println("Succeeded incorrectly; this should fail.");
