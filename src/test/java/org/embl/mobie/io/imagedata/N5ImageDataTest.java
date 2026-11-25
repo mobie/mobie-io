@@ -67,7 +67,7 @@ class N5ImageDataTest
     public void openOMEZarrFromEBIS3()
     {
         System.out.println("openOMEZarrFromEBIS3");
-        N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0138A/TimEmbryos-120919/HybCycle_29/MMStack_Pos0.ome.zarr" );
+        N5ImageData< ? > n5ImageData = new N5ImageData<>( "https://livingobjects.ebi.ac.uk/idr/zarr/v0.4/idr0138A/TimEmbryos-120919/HybCycle_29/MMStack_Pos0.ome.zarr" );
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
     }
@@ -79,8 +79,8 @@ class N5ImageDataTest
         N5ImageData< ? > n5ImageData = new N5ImageData<>(
                 "https://cba.buckets.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
                 new String[]{
-                        "MHLAyeu3fyBAx3egnzOE",
-                        "Dj9SCkDr3XtWEohBKxCcWFZgU0YkpxRK7TndQYmm"
+                        "KJ03S425214K7FB4CZ4S",
+                        "ghsF57_HZ9bg3Ftu5u_Y8Cm09sPQ_J4K0F6hh0h2"
                 });
         VoxelDimensions voxelDimensions = n5ImageData.getSourcePair( 0 ).getB().getVoxelDimensions();
         assertNotNull( voxelDimensions );
@@ -90,12 +90,12 @@ class N5ImageDataTest
     public void openOMEZarrFromS3WithCredentialsWithImageDataOpener()
     {
         // This test uses the ImageDataOpener ( instead of directly N5ImageData )
-        System.out.println("openOMEZarrFromS3WithCredentialsV2");
+        System.out.println("openOMEZarrFromS3WithCredentialsImageDataOpener");
         ImageDataFormat imageDataFormat = ImageDataFormat.OmeZarrS3;
         imageDataFormat.setS3SecretAndAccessKey(
                 new String[]{
-                        "MHLAyeu3fyBAx3egnzOE",
-                        "Dj9SCkDr3XtWEohBKxCcWFZgU0YkpxRK7TndQYmm"
+                        "KJ03S425214K7FB4CZ4S",
+                        "ghsF57_HZ9bg3Ftu5u_Y8Cm09sPQ_J4K0F6hh0h2"
                 } );
         ImageData< ? > imageData = ImageDataOpener.open(
                 "https://cba.buckets.embl.de/mobie-credentials-test/test/images/ome-zarr/8kmont5.ome.zarr",
@@ -112,7 +112,7 @@ class N5ImageDataTest
         System.out.println("checkOMEZarrDatasetNames");
 
         ImageData< ? > imageData = ImageDataOpener.open(
-                "https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr",
+                "https://livingobjects.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr",
                 ImageDataFormat.N5, // otherwise it will not open all datasets
                 new SharedQueue( 1 ) );
         int numDatasets = imageData.getNumDatasets();

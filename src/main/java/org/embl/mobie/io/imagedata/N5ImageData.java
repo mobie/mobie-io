@@ -11,6 +11,7 @@ import loci.common.DebugTools;
 import org.janelia.saalfeldlab.n5.universe.metadata.ome.ngff.OmeNgffMetadata;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.imglib2.Volatile;
@@ -31,6 +32,8 @@ import org.janelia.saalfeldlab.n5.universe.metadata.N5Metadata;
 import org.janelia.saalfeldlab.n5.universe.metadata.canonical.CanonicalDatasetMetadata;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -168,15 +171,24 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
             String datasetRootName = IOHelper.getFileName( uri );
 
             N5Factory n5Factory = new N5Factory();
-            if( s3AccessAndSecretKey != null )
+            if ( s3AccessAndSecretKey != null )
             {
-                n5Factory = n5Factory
-                        .s3Configuration( builder -> builder.credentialsProvider(
-                                StaticCredentialsProvider.create(
-                                        AwsBasicCredentials.create( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] ) ) ) );
+                final URI endpointOverride = s3EndpointFromHttpUri( uri );
+                n5Factory = n5Factory.s3Configuration( builder -> {
+                    builder.credentialsProvider(
+                            StaticCredentialsProvider.create(
+                                    AwsBasicCredentials.create( s3AccessAndSecretKey[ 0 ], s3AccessAndSecretKey[ 1 ] ) ) );
+                    if ( endpointOverride != null )
+                    {
+                        // For custom S3 endpoints like https://*.buckets.embl.de/<bucket>/... .
+                        builder.endpointOverride( endpointOverride );
+                        builder.forcePathStyle( true );
+                        builder.region( Region.US_EAST_1 );
+                    }
+                } );
             }
 
-            N5Reader n5 = n5Factory.openReader( containerPath );
+            N5Reader n5 = openReaderWithS3Fallback( n5Factory, containerPath, uri );
             String rootGroup = n5URI.getGroupPath() != null ? n5URI.getGroupPath() : "/";
             List< N5Metadata > metadataList = new ArrayList<>();
             N5Metadata rootMetadata = N5MetadataUtils.parseMetadata( n5, rootGroup );
@@ -271,6 +283,82 @@ public class N5ImageData< T extends NumericType< T > & NativeType< T > > extends
         }
 
         isOpen = true;
+    }
+
+    private N5Reader openReaderWithS3Fallback( N5Factory n5Factory, String containerPath, String sourceUri ) throws IOException
+    {
+        try
+        {
+            return n5Factory.openReader( containerPath );
+        }
+        catch ( Exception firstException )
+        {
+            final String s3Path = toS3UriFromHttpPath( sourceUri );
+            if ( s3Path == null )
+                throw firstException;
+
+            try
+            {
+                return n5Factory.openReader( s3Path );
+            }
+            catch ( Exception secondException )
+            {
+                secondException.addSuppressed( firstException );
+                throw secondException;
+            }
+        }
+    }
+
+    private String toS3UriFromHttpPath( String path )
+    {
+        if ( s3AccessAndSecretKey == null )
+            return null;
+
+        final URI parsedUri;
+        try
+        {
+            parsedUri = new URI( path );
+        }
+        catch ( URISyntaxException ignored )
+        {
+            return null;
+        }
+
+        if ( parsedUri.getScheme() == null
+                || !( "http".equalsIgnoreCase( parsedUri.getScheme() ) || "https".equalsIgnoreCase( parsedUri.getScheme() ) ) )
+            return null;
+
+        final String rawPath = parsedUri.getPath();
+        if ( rawPath == null || rawPath.length() <= 1 )
+            return null;
+
+        final String pathWithoutLeadingSlash = rawPath.startsWith( "/" ) ? rawPath.substring( 1 ) : rawPath;
+        final int slashIndex = pathWithoutLeadingSlash.indexOf( '/' );
+        if ( slashIndex < 0 )
+            return null;
+
+        final String bucket = pathWithoutLeadingSlash.substring( 0, slashIndex );
+        final String objectPath = pathWithoutLeadingSlash.substring( slashIndex + 1 );
+        if ( bucket.isEmpty() || objectPath.isEmpty() )
+            return null;
+
+        return "s3://" + bucket + "/" + objectPath;
+    }
+
+    private URI s3EndpointFromHttpUri( String path )
+    {
+        if ( toS3UriFromHttpPath( path ) == null )
+            return null;
+
+        try
+        {
+            final URI parsedUri = new URI( path );
+            return new URI( parsedUri.getScheme(), null, parsedUri.getHost(), parsedUri.getPort(), null, null, null );
+        }
+        catch ( URISyntaxException ignored )
+        {
+            return null;
+        }
     }
 
     private static boolean isLikelyFijiDependencyMismatch( Throwable throwable )
